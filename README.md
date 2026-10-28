@@ -19,13 +19,11 @@ BioHop is the bio half of what used to be one app (now [LinkHop](https://github.
 
 ## Running it locally
 
-You need PHP 8.3, Composer, Node 20+, and the hub checked out next to this repo (its `packages/` are read as Composer path repositories; see `composer.json`).
+You need PHP 8.3, Composer and Node 20+. The shared packages `hop/auth`, `hop/ui` and `hop/safety` come from their GitHub repos (`navi-crwn/hop-auth`, `hop-ui`, `hop-safety`, branch `main`, as `vcs` repositories in `composer.json`).
 
 ```bash
-git clone git@github.com:navi-crwn/HEL.ink.git   # the hub, with packages/{auth,ui,safety}
 git clone git@github.com:navi-crwn/BioHop.git
 cd BioHop
-# composer.json points at /home/carawin/HEL.ink/packages; change the three path entries if the hub is elsewhere
 composer install
 cp .env.example .env && php artisan key:generate
 ```
@@ -72,8 +70,6 @@ Layout agreed for the HOP family: `/var/www/helink/hub`, `/var/www/helink/linkho
 # 1. Code
 sudo -u www-data git clone git@github.com:navi-crwn/BioHop.git /var/www/helink/biohop
 cd /var/www/helink/biohop
-# the hub must be at /var/www/helink/hub (or edit the three path repositories in composer.json)
-sed -i 's#/home/carawin/HEL.ink/packages#/var/www/helink/hub/packages#g' composer.json
 /usr/bin/php8.3 /usr/local/bin/composer install --no-dev --optimize-autoloader
 npm ci && npm run build
 
