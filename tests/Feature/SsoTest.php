@@ -63,3 +63,17 @@ test('there is no local registration or password login', function () {
     $this->post('/login', ['email' => 'a@b.c', 'password' => 'x'])->assertStatus(405);
     $this->post('/register', [])->assertStatus(405);
 });
+
+it('lets the logout chain leave for every HOP host (form-action covers the redirects)', function () {
+    config([
+        'hop.public_url' => 'https://hel.ink',
+        'hop.apps.linkhop.url' => 'https://link.hel.ink',
+        'hop.apps.biohop.url' => 'https://bio.hel.ink',
+        'hop.apps.pixelhop.url' => 'https://p.hel.ink',
+    ]);
+    $csp = $this->get('/up')->headers->get('Content-Security-Policy') ?? $this->get('/auth/sso')->headers->get('Content-Security-Policy');
+    preg_match('/form-action ([^;]+)/', (string) $csp, $m);
+    foreach (['https://hel.ink', 'https://link.hel.ink', 'https://bio.hel.ink', 'https://p.hel.ink'] as $origin) {
+        expect($m[1] ?? '')->toContain($origin);
+    }
+});
