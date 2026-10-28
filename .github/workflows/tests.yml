@@ -1,0 +1,43 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # hop/auth, hop/ui and hop/safety are read from the hub checkout (path repositories, see composer.json).
+      - uses: actions/checkout@v4
+        with:
+          repository: navi-crwn/HEL.ink
+          path: hub
+          token: ${{ secrets.HUB_REPO_TOKEN || github.token }}
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, sqlite3, gd, intl
+          coverage: none
+
+      - name: Point composer at the hub checkout
+        run: |
+          # composer.json and the lock file both carry the absolute path of the hub checkout
+          sed -i "s#/home/carawin/HEL.ink/packages#${GITHUB_WORKSPACE}/hub/packages#g" composer.json composer.lock
+          git update-index --assume-unchanged composer.json composer.lock
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Pint
+        run: vendor/bin/pint --test
+
+      - name: Tests
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          php artisan test --colors=always

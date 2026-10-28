@@ -1,0 +1,279 @@
+<?php
+
+namespace App\Console\Commands;
+
+use App\Helpers\SocialUrlHelper;
+use App\Models\AbuseFlag;
+use App\Models\User;
+use Hop\Bio\Models\BioLink;
+use Hop\Bio\Models\BioPage;
+use Hop\Safety\LinkSafety;
+use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+
+/**
+ * The bio half of LinkHop's abuse:scan: bio pages and blocks are scored with
+ * hop/safety (same rules, same shared domain blacklist), offenders are
+ * unpublished and repeat offenders suspended, findings go to the shared
+ * abuse_flags table (LinkHop's; both apps and the hub read it).
+ */
+class AbuseScan extends Command
+{
+    protected $signature = 'abuse:scan
+        {--since=2h : Only pages/blocks updated within this window (e.g. 30m, 2h, 7d)}
+        {--full : Scan everything, ignoring --since}
+        {--remote : Query Safe Browsing / URLhaus (default on for windowed scans, off for --full)}
+        {--purge : Delete items disabled for abuse longer than safety.purge_after_days (never CSAM)}
+        {--dry-run : Report only, change nothing}';
+
+    public const LAST_RUN_KEY = 'abuse:scan:last_run';
+
+    protected $description = 'Scan bio pages and blocks for spam/abuse; unpublish offenders and suspend repeat accounts';
+
+    private bool $dryRun = false;
+
+    private bool $remote = false;
+
+    /** @var array<int, array{max: int, disabled: int}> */
+    private array $owners = [];
+
+    /** @var array<string, int> */
+    private array $stats = ['scanned' => 0, 'flagged' => 0, 'disabled' => 0, 'suspended' => 0, 'purged' => 0];
+
+    /** @var array<int, string> */
+    private array $notable = [];
+
+    public function __construct(private readonly LinkSafety $safety)
+    {
+        parent::__construct();
+    }
+
+    public function handle(): int
+    {
+        $this->dryRun = (bool) $this->option('dry-run');
+        $this->remote = $this->option('remote') || ! $this->option('full');
+        $since = $this->option('full') ? null : $this->parseWindow((string) $this->option('since'));
+        $this->safety->forgetBlacklist();
+        $protected = $this->protectedUserIds();
+
+        $this->scanBioPages($since, $protected);
+        $this->scanBioLinks($since, $protected);
+        $this->suspendRepeatOffenders($protected);
+        if ($this->option('purge')) {
+            $this->purge();
+        }
+
+        $this->table(array_keys($this->stats), [array_values($this->stats)]);
+        foreach (array_slice($this->notable, 0, 50) as $line) {
+            $this->line('  '.$line);
+        }
+        if ($this->dryRun) {
+            $this->warn('Dry run: nothing was changed.');
+        } else {
+            Cache::forever(self::LAST_RUN_KEY, [
+                'at' => now()->toIso8601String(),
+                'mode' => $this->option('full') ? 'full' : 'since '.$this->option('since'),
+                'stats' => $this->stats,
+            ]);
+            if ($this->stats['disabled'] + $this->stats['suspended'] > 0) {
+                Log::warning('abuse:scan took action', ['stats' => $this->stats, 'items' => array_slice($this->notable, 0, 50)]);
+            }
+        }
+
+        return self::SUCCESS;
+    }
+
+    private function scanBioPages(?\DateTimeInterface $since, array $protected): void
+    {
+        $query = BioPage::query()->where('is_published', true)->whereNotIn('user_id', $protected);
+        $this->window($query, $since)->chunkById(200, function ($pages) {
+            foreach ($pages as $page) {
+                $text = implode(' ', array_filter([$page->slug, $page->title, $page->bio, $page->seo_title, $page->seo_description]));
+                $result = $this->safety->assess(null, $text);
+                foreach ((array) $page->social_links as $social) {
+                    $value = trim((string) ($social['value'] ?? ''));
+                    $url = $value === '' ? '' : SocialUrlHelper::buildUrl((string) ($social['platform'] ?? ''), $value);
+                    if ($url !== '' && $this->safety->scheme($url) !== null) {
+                        $result = $this->merge($result, $this->safety->assess($url, '', $this->remote));
+                    }
+                }
+                $this->judge('bio_page', $page->id, $page->user_id, $result, '/b/'.$page->slug, function () use ($page) {
+                    $page->forceFill(['is_published' => false])->save();
+                });
+            }
+        });
+    }
+
+    private function scanBioLinks(?\DateTimeInterface $since, array $protected): void
+    {
+        $query = BioLink::query()->with('bioPage:id,user_id,slug')->where('is_active', true)
+            ->whereHas('bioPage', fn ($q) => $q->whereNotIn('user_id', $protected));
+        $this->window($query, $since)->chunkById(500, function ($blocks) {
+            foreach ($blocks as $block) {
+                $url = $block->url ?: $block->embed_url;
+                $text = implode(' ', array_filter([
+                    $block->title, $block->description,
+                    strip_tags((string) $block->content), strip_tags((string) $block->html_content),
+                ]));
+                $result = $this->safety->assess($url, $text, $this->remote);
+                $summary = '/b/'.$block->bioPage?->slug.' block #'.$block->id.' -> '.($this->safety->host($url) ?? $block->type);
+                $this->judge('bio_link', $block->id, $block->bioPage?->user_id, $result, $summary, function () use ($block) {
+                    $block->forceFill(['is_active' => false])->save();
+                });
+            }
+        });
+    }
+
+    /** Record a finding and disable the subject when the score is high enough. */
+    private function judge(string $type, int $id, ?int $userId, array $result, string $summary, callable $disable): void
+    {
+        $this->stats['scanned']++;
+        $score = $result['score'];
+        if ($score < 10) {
+            return;
+        }
+        // An admin dismissed a previous finding for this subject: trust that decision.
+        if (AbuseFlag::where('subject_type', $type)->where('subject_id', $id)->where('status', AbuseFlag::STATUS_DISMISSED)->exists()) {
+            return;
+        }
+        $isCsam = in_array('csam', $result['signals'], true);
+        // Never store full URLs for CSAM hits; the summary is slug/domain only.
+        $label = ($isCsam ? '[CSAM] ' : '').$summary.' ['.implode(',', $result['signals']).'] score '.$score;
+        $shouldDisable = $score >= (int) config('safety.thresholds.disable', 60);
+        if ($userId) {
+            $this->owners[$userId]['max'] = max($this->owners[$userId]['max'] ?? 0, $score);
+            $this->owners[$userId]['disabled'] = ($this->owners[$userId]['disabled'] ?? 0) + ($shouldDisable ? 1 : 0);
+        }
+        if (! $shouldDisable) {
+            if (! AbuseFlag::where('subject_type', $type)->where('subject_id', $id)->exists()) {
+                $this->stats['flagged']++;
+                $this->notable[] = 'REVIEW '.$label;
+                $this->record($type, $id, $userId, $result, AbuseFlag::ACTION_FLAGGED, $summary);
+            }
+
+            return;
+        }
+        $this->stats['disabled']++;
+        $this->notable[] = 'DISABLED '.$label;
+        if (! $this->dryRun) {
+            $disable();
+        }
+        $this->record($type, $id, $userId, $result, AbuseFlag::ACTION_DISABLED, $summary);
+    }
+
+    private function suspendRepeatOffenders(array $protected): void
+    {
+        $scoreLimit = (int) config('safety.thresholds.suspend_user', 100);
+        $countLimit = (int) config('safety.suspend_after_disabled_items', 3);
+        foreach ($this->owners as $userId => $o) {
+            if (in_array($userId, $protected, true) || (($o['max'] ?? 0) < $scoreLimit && ($o['disabled'] ?? 0) < $countLimit)) {
+                continue;
+            }
+            $user = User::find($userId);
+            if (! $user || $user->isSuspended()) {
+                continue;
+            }
+            $this->stats['suspended']++;
+            $this->notable[] = "SUSPENDED user #{$user->id} {$user->email} (max score {$o['max']}, {$o['disabled']} items disabled)";
+            $this->record('user', $user->id, $user->id, ['score' => $o['max'], 'signals' => []], AbuseFlag::ACTION_SUSPENDED, $user->email);
+            if ($this->dryRun) {
+                continue;
+            }
+            // The one write to the shared users table this app makes: the same status the hub sets.
+            $user->forceFill(['status' => User::STATUS_SUSPENDED])->save();
+            BioPage::where('user_id', $user->id)->update(['is_published' => false]);
+        }
+    }
+
+    private function purge(): void
+    {
+        $cutoff = now()->subDays((int) config('safety.purge_after_days', 30));
+        AbuseFlag::whereIn('subject_type', ['bio_page', 'bio_link'])
+            ->where('action', AbuseFlag::ACTION_DISABLED)
+            ->where('status', '!=', AbuseFlag::STATUS_DISMISSED)
+            ->where('created_at', '<', $cutoff)
+            ->chunkById(200, function ($flags) {
+                foreach ($flags as $flag) {
+                    // CSAM evidence (metadata) must be retained for reporting.
+                    if ($flag->isCsam()) {
+                        continue;
+                    }
+                    $subject = match ($flag->subject_type) {
+                        'bio_page' => BioPage::where('id', $flag->subject_id)->where('is_published', false)->first(),
+                        'bio_link' => BioLink::where('id', $flag->subject_id)->where('is_active', false)->first(),
+                        default => null,
+                    };
+                    if (! $subject) {
+                        continue;
+                    }
+                    $this->stats['purged']++;
+                    $this->notable[] = 'PURGED '.$flag->subject_type.' #'.$flag->subject_id.' '.$flag->summary;
+                    if ($this->dryRun) {
+                        continue;
+                    }
+                    $subject->delete();
+                    $flag->update(['action' => AbuseFlag::ACTION_PURGED]);
+                }
+            });
+    }
+
+    private function record(string $type, int $id, ?int $userId, array $result, string $action, string $summary): void
+    {
+        if ($this->dryRun) {
+            return;
+        }
+        AbuseFlag::create([
+            'subject_type' => $type,
+            'subject_id' => $id,
+            'user_id' => $userId,
+            'score' => $result['score'],
+            'signals' => $result['signals'],
+            'action' => $action,
+            'status' => AbuseFlag::STATUS_OPEN,
+            'summary' => mb_substr($summary, 0, 255),
+        ]);
+    }
+
+    private function merge(array $a, array $b): array
+    {
+        $signals = array_values(array_unique(array_merge($a['signals'], $b['signals'])));
+        $weights = config('safety.weights', []);
+
+        return [
+            'score' => array_sum(array_map(fn ($s) => (int) ($weights[$s] ?? 0), $signals)),
+            'signals' => $signals,
+        ];
+    }
+
+    private function window(Builder $query, ?\DateTimeInterface $since): Builder
+    {
+        return $since ? $query->where($query->getModel()->getTable().'.updated_at', '>=', $since) : $query;
+    }
+
+    private function parseWindow(string $value): \DateTimeInterface
+    {
+        if (! preg_match('/^(\d+)\s*([mhd])$/i', trim($value), $m)) {
+            return now()->subHours(2);
+        }
+
+        return match (strtolower($m[2])) {
+            'm' => now()->subMinutes((int) $m[1]),
+            'h' => now()->subHours((int) $m[1]),
+            'd' => now()->subDays((int) $m[1]),
+        };
+    }
+
+    /**
+     * The owner's content is never auto-actioned.
+     *
+     * @return array<int, int>
+     */
+    private function protectedUserIds(): array
+    {
+        $email = config('auth.superadmin_email');
+
+        return $email ? User::where('email', $email)->pluck('id')->all() : [];
+    }
+}
