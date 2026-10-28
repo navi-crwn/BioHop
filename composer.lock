@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7aa93be7d287152a30e87a61fb6c53e0",
+    "content-hash": "98bd623b528daec73528ab2801b36350",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -1298,15 +1298,22 @@
         {
             "name": "hop/auth",
             "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/navi-crwn/hop-auth.git",
+                "reference": "7d860e1334d23fd345b7c00430ced00dac275ef4"
+            },
             "dist": {
-                "type": "path",
-                "url": "/home/carawin/HEL.ink/packages/auth",
-                "reference": "d68e3234cdbfd7b94cbb135a319a1819054cd747"
+                "type": "zip",
+                "url": "https://api.github.com/repos/navi-crwn/hop-auth/zipball/7d860e1334d23fd345b7c00430ced00dac275ef4",
+                "reference": "7d860e1334d23fd345b7c00430ced00dac275ef4",
+                "shasum": ""
             },
             "require": {
                 "illuminate/support": "^12.0",
                 "php": "^8.3"
             },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "laravel": {
@@ -1324,18 +1331,19 @@
                 "MIT"
             ],
             "description": "HOP shared package: auth.",
-            "transport-options": {
-                "symlink": false,
-                "relative": false
-            }
+            "support": {
+                "source": "https://github.com/navi-crwn/hop-auth/tree/main",
+                "issues": "https://github.com/navi-crwn/hop-auth/issues"
+            },
+            "time": "2026-10-28T11:10:50+00:00"
         },
         {
             "name": "hop/bio",
-            "version": "dev-main",
+            "version": "dev-claude/fase-d-biohop",
             "dist": {
                 "type": "path",
                 "url": "packages/bio",
-                "reference": "ba32bf07fedb8ff15ab7ce96d421b18c6ea215bb"
+                "reference": "1f5661d63b1b6205a2ee48849f81ddbb2f5f35c5"
             },
             "require": {
                 "illuminate/support": "^12.0",
@@ -1357,7 +1365,7 @@
             "license": [
                 "MIT"
             ],
-            "description": "Link in bio pages for the HOP apps (hel.ink/b/{slug}). Used by LinkHop today, by BioHop once it has its own app.",
+            "description": "Link in bio pages for the HOP family (hel.ink/b/{slug}). Owned by BioHop (navi-crwn/BioHop).",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -1366,16 +1374,23 @@
         {
             "name": "hop/safety",
             "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/navi-crwn/hop-safety.git",
+                "reference": "2d4d561986d74afeec407ec44eca79db20f3ff7a"
+            },
             "dist": {
-                "type": "path",
-                "url": "/home/carawin/HEL.ink/packages/safety",
-                "reference": "26d8e83615a7c3c747d9780abfeae6db91b73a24"
+                "type": "zip",
+                "url": "https://api.github.com/repos/navi-crwn/hop-safety/zipball/2d4d561986d74afeec407ec44eca79db20f3ff7a",
+                "reference": "2d4d561986d74afeec407ec44eca79db20f3ff7a",
+                "shasum": ""
             },
             "require": {
                 "illuminate/support": "^12.0",
                 "php": "^8.3",
                 "symfony/html-sanitizer": "^7.4"
             },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "laravel": {
@@ -1393,23 +1408,31 @@
                 "MIT"
             ],
             "description": "HOP shared package: safety.",
-            "transport-options": {
-                "symlink": false,
-                "relative": false
-            }
+            "support": {
+                "source": "https://github.com/navi-crwn/hop-safety/tree/main",
+                "issues": "https://github.com/navi-crwn/hop-safety/issues"
+            },
+            "time": "2026-10-28T11:10:50+00:00"
         },
         {
             "name": "hop/ui",
             "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/navi-crwn/hop-ui.git",
+                "reference": "aae6adc936a600db4fdfb655816b66e9377c2717"
+            },
             "dist": {
-                "type": "path",
-                "url": "/home/carawin/HEL.ink/packages/ui",
-                "reference": "23f06110e0795165cb3059ccacad478ee0381144"
+                "type": "zip",
+                "url": "https://api.github.com/repos/navi-crwn/hop-ui/zipball/aae6adc936a600db4fdfb655816b66e9377c2717",
+                "reference": "aae6adc936a600db4fdfb655816b66e9377c2717",
+                "shasum": ""
             },
             "require": {
                 "illuminate/support": "^12.0",
                 "php": "^8.3"
             },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "laravel": {
@@ -1427,10 +1450,11 @@
                 "MIT"
             ],
             "description": "HOP shared package: ui.",
-            "transport-options": {
-                "symlink": false,
-                "relative": false
-            }
+            "support": {
+                "source": "https://github.com/navi-crwn/hop-ui/tree/main",
+                "issues": "https://github.com/navi-crwn/hop-ui/issues"
+            },
+            "time": "2026-10-28T11:10:50+00:00"
         },
         {
             "name": "laravel/framework",

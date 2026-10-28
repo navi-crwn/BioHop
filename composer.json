@@ -7,10 +7,10 @@
     "require": {
         "php": "^8.3",
         "geoip2/geoip2": "^3.2",
-        "hop/auth": "@dev",
+        "hop/auth": "dev-main",
         "hop/bio": "@dev",
-        "hop/safety": "@dev",
-        "hop/ui": "@dev",
+        "hop/safety": "dev-main",
+        "hop/ui": "dev-main",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "matomo/device-detector": "^6.5",
@@ -88,18 +88,10 @@
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
-    "_comment_repositories": [
-        "hop/auth, hop/ui and hop/safety are the HOP shared packages. They live in the hub repo (navi-crwn/HEL.ink, packages/*)",
-        "and are meant to be published as navi-crwn/hop-auth, hop-ui and hop-safety. Those repos are still empty, so for now",
-        "composer reads them from the hub checkout on the same machine (absolute path /home/carawin/HEL.ink/packages; adjust it on another machine).",
-        "Once the repos are filled, replace the three path entries below with:",
-        "{\"type\": \"vcs\", \"url\": \"https://github.com/navi-crwn/hop-auth\"}, {\"type\": \"vcs\", \"url\": \"https://github.com/navi-crwn/hop-ui\"},",
-        "{\"type\": \"vcs\", \"url\": \"https://github.com/navi-crwn/hop-safety\"} and require them as dev-main."
-    ],
     "repositories": [
         {"type": "path", "url": "packages/bio", "options": {"symlink": true}},
-        {"type": "path", "url": "/home/carawin/HEL.ink/packages/auth", "options": {"symlink": false}},
-        {"type": "path", "url": "/home/carawin/HEL.ink/packages/ui", "options": {"symlink": false}},
-        {"type": "path", "url": "/home/carawin/HEL.ink/packages/safety", "options": {"symlink": false}}
+        {"type": "vcs", "url": "https://github.com/navi-crwn/hop-auth.git"},
+        {"type": "vcs", "url": "https://github.com/navi-crwn/hop-ui.git"},
+        {"type": "vcs", "url": "https://github.com/navi-crwn/hop-safety.git"}
     ]
 }
