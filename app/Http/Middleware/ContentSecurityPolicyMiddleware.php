@@ -22,13 +22,17 @@ class ContentSecurityPolicyMiddleware
         $response = $next($request);
         $isPreviewRoute = $request->routeIs('bio.preview');
         $hub = rtrim((string) config('hop-auth.hub_url', config('hop.hub_url')), '/');
+        // Public bio pages are served at PUBLIC_URL (hel.ink/b/...) while the built assets and uploads
+        // live at ASSET_URL (bio.hel.ink), so that origin must be allowed next to 'self'.
+        $assets = rtrim((string) config('app.asset_url'), '/');
+        $assets = $assets !== '' ? ' '.$assets : '';
         $csp = [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.bunny.net https://fonts.googleapis.com https://cdn.jsdelivr.net https://unpkg.com https://static.cloudflareinsights.com https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net https://analytics.tiktok.com",
-            "style-src 'self' 'unsafe-inline' https://fonts.bunny.net https://fonts.googleapis.com https://cdn.jsdelivr.net https://unpkg.com",
+            "script-src 'self'{$assets} 'unsafe-inline' 'unsafe-eval' https://fonts.bunny.net https://fonts.googleapis.com https://cdn.jsdelivr.net https://unpkg.com https://static.cloudflareinsights.com https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net https://analytics.tiktok.com",
+            "style-src 'self'{$assets} 'unsafe-inline' https://fonts.bunny.net https://fonts.googleapis.com https://cdn.jsdelivr.net https://unpkg.com",
             "img-src 'self' data: https: blob: https://flagcdn.com https://www.google-analytics.com https://www.facebook.com",
-            "font-src 'self' https://fonts.bunny.net https://fonts.gstatic.com data:",
-            "connect-src 'self' data: blob: https://cdn.jsdelivr.net https://unpkg.com https://www.google-analytics.com https://analytics.google.com https://www.facebook.com https://analytics.tiktok.com",
+            "font-src 'self'{$assets} https://fonts.bunny.net https://fonts.gstatic.com data:",
+            "connect-src 'self'{$assets} data: blob: https://cdn.jsdelivr.net https://unpkg.com https://www.google-analytics.com https://analytics.google.com https://www.facebook.com https://analytics.tiktok.com",
             "frame-src 'self' https://maps.google.com https://www.google.com https://youtube.com ".implode(' ', BioEmbed::FRAME_HOSTS),
             "object-src 'none'",
             "base-uri 'self'",
