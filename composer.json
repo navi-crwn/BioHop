@@ -7,7 +7,7 @@
     "require": {
         "php": "^8.3",
         "geoip2/geoip2": "^3.2",
-        "hop/auth": "dev-main",
+        "hop/auth": "^0.1.1",
         "hop/bio": "@dev",
         "hop/safety": "dev-main",
         "hop/ui": "dev-main",
