@@ -91,6 +91,7 @@ class HopBioApiTest extends TestCase
 
         $this->signed('GET', '/api/hop/stats')
             ->assertOk()
+            ->assertJsonPath('data.kpi.pages', 2)
             ->assertJsonPath('data.totals.pages', 2)
             ->assertJsonPath('data.totals.pages_published', 1)
             ->assertJsonPath('data.totals.pages_draft', 1)
