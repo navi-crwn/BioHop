@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AdminBioController;
 use App\Http\Controllers\Api\HopBioController;
 use App\Http\Controllers\BrandAssetController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SitemapController;
 use App\Models\User;
@@ -24,8 +25,9 @@ Route::get('/email/verify', fn () => redirect()->away(User::hubUrl('settings')))
 // Abuse reports are handled by LinkHop (shared abuse_reports table); the public bio page links here.
 Route::get('/report-abuse', fn () => redirect()->away(rtrim((string) config('hop.apps.linkhop.url'), '/').'/report-abuse'))->name('report.create');
 
-Route::get('/', fn () => Auth::check() ? redirect()->route('bio.index') : redirect()->to('/auth/sso'))->name('home');
-Route::get('/dashboard', fn () => redirect()->route('bio.index'))->name('dashboard');
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/check-slug-public', [HomeController::class, 'checkSlug'])->middleware('throttle:60,1')->name('bio.check-slug.public');
+Route::get('/dashboard', fn () => redirect()->away(User::hubUrl('dashboard').'#biohop'))->name('dashboard');
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 // Brand images from resources/brand (BrandAssetController); URLs carry a version that changes with the files.
