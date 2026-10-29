@@ -119,20 +119,23 @@ class HopBioController extends Controller
             ? AbuseFlag::whereIn('subject_type', ['bio_page', 'bio_link'])->where('status', AbuseFlag::STATUS_OPEN)->count()
             : 0;
 
+        $totals = [
+            'pages' => $pagesTotal,
+            'pages_published' => $pagesPub,
+            'pages_draft' => $pagesDraft,
+            'pages_adult' => $pagesAdult,
+            'blocks' => $blocksTotal,
+            'views_total' => $viewsTotal,
+            'clicks_total' => $clicksTotal,
+            'reports_open' => $reportsOpen,
+        ];
+
         return response()->json([
             'ok' => true,
             'data' => [
                 'range' => ['since' => $since->toDateString(), 'until' => $until->toDateString()],
-                'totals' => [
-                    'pages' => $pagesTotal,
-                    'pages_published' => $pagesPub,
-                    'pages_draft' => $pagesDraft,
-                    'pages_adult' => $pagesAdult,
-                    'blocks' => $blocksTotal,
-                    'views_total' => $viewsTotal,
-                    'clicks_total' => $clicksTotal,
-                    'reports_open' => $reportsOpen,
-                ],
+                'kpi' => $totals,
+                'totals' => $totals,
                 'period' => [
                     'pages_created' => BioPage::whereBetween('created_at', [$since, $until])->count(),
                     'views' => Schema::hasTable('bio_analytics') ? DB::table('bio_analytics')->where('event_type', 'view')->whereBetween('created_at', [$since, $until])->count() : 0,
