@@ -266,6 +266,31 @@ class HopBioApiTest extends TestCase
             ],
         ], app: 'helink', secret: self::HUB_SECRET)->assertOk();
         Storage::disk('public')->assertMissing('bio-icons/icon-hop1.png');
+
+        // Sibling/admin apps in the registry with valid signatures must be rejected with 403
+        Storage::disk('public')->put('bio-icons/must-keep.png', 'png');
+        foreach (['pixelhop', 'notehop', 'imperium', 'citadel'] as $slug) {
+            $appSecret = $slug.'-secret-that-is-at-least-32-bytes-long-123';
+            HopApp::updateOrCreate(
+                ['slug' => $slug],
+                [
+                    'name' => ucfirst($slug),
+                    'url' => "https://{$slug}.hel.ink",
+                    'secret' => $appSecret,
+                    'capabilities' => ['events', 'admin_api', 'admin_client'],
+                    'status' => HopApp::STATUS_ACTIVE,
+                ]
+            );
+            $this->signed('POST', '/hop/events', [
+                'id' => "evt-forbid-{$slug}",
+                'type' => 'account.deleted',
+                'data' => [
+                    'sub' => '777777',
+                    'bio_uploads' => ['bio-icons/must-keep.png'],
+                ],
+            ], app: $slug, secret: $appSecret)->assertStatus(403);
+        }
+        Storage::disk('public')->assertExists('bio-icons/must-keep.png');
     }
 
     public function test_csp_allows_cloudflare_turnstile_and_data_connect_src(): void
