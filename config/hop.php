@@ -22,6 +22,12 @@ return [
     // The hub (HOP ID). hop/auth reads the same value as hop-auth.hub_url.
     'hub_url' => rtrim((string) env('HOP_HUB_URL', 'https://hub.hel.ink'), '/'),
 
+    // Imperium, the admin control panel. Admins who sign in at the hub land there
+    // (the hub dashboard stays one click away). citadel.hel.ink works from anywhere
+    // through Cloudflare Access; imperium.hel.ink only over Tailscale.
+    'control_url' => rtrim((string) env('HOP_CONTROL_URL', ''), '/'),
+    'control_name' => env('HOP_CONTROL_NAME', 'Control center'),
+
     // The apps, in launcher order. `url` empty: the app is not configured and is
     // skipped everywhere (launcher, SSO, watchdog).
     'apps' => [
