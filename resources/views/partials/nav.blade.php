@@ -7,10 +7,14 @@
         'settings' => 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm7.4-3a7.4 7.4 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7.6 7.6 0 0 0-2-1.2L14.5 3h-5l-.4 2.6a7.6 7.6 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6a7.4 7.4 0 0 0 0 2.4l-2 1.6 2 3.4 2.4-1a7.6 7.6 0 0 0 2 1.2l.4 2.6h5l.4-2.6a7.6 7.6 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2Z',
         'user' => 'M20 21a8 8 0 1 0-16 0m8-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z',
     ];
+    // Admins get the same menu plus the HOP control center (Imperium), where the
+    // admin pages went. Needs HOP_CONTROL_URL; without it the item stays hidden.
+    $control = $isAdmin && config('hop.control_url')
+        ? [['label' => config('hop.control_name', 'Control center'), 'icon' => 'shield', 'href' => config('hop.control_url'), 'active' => 'admin.control']]
+        : [];
     $items = array_filter([
         ['label' => 'My bio pages', 'icon' => 'bio', 'href' => route('bio.index'), 'active' => 'bio.*'],
-        $isAdmin ? ['label' => 'Admin: bio pages', 'icon' => 'shield', 'href' => route('admin.bio.index'), 'active' => 'admin.bio.index'] : null,
-        $isAdmin ? ['label' => 'Admin: monitor', 'icon' => 'chart', 'href' => route('admin.bio.monitor'), 'active' => 'admin.bio.monitor'] : null,
+        ...$control,
         ['label' => 'Settings', 'icon' => 'settings', 'href' => route('settings'), 'active' => 'settings*'],
         ['label' => 'HOP ID (account)', 'icon' => 'user', 'href' => \App\Models\User::hubUrl('settings'), 'active' => '-'],
     ]);
