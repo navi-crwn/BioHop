@@ -536,13 +536,18 @@ class HopBioController extends Controller
     }
 
     /**
-     * POST /hop/events and POST /api/hop/events: accepts either HOP-1 signed
-     * requests or hub.signed requests (X-Hop-Signature) so both SendHopEvent
-     * and sibling calls work.
+     * POST /hop/events and POST /api/hop/events: accepts only HOP-1 signed
+     * requests from the hub (X-HOP-App: helink) or hub.signed requests
+     * (X-Hop-Signature with the shared hub secret). Other registry apps are
+     * rejected with 403.
      */
     public function events(Request $request): JsonResponse
     {
-        if (! $this->verifyEventCaller($request)) {
+        $caller = $this->verifyEventCaller($request);
+        if ($caller === 'forbidden') {
+            return $this->fail('forbidden', 'only the hub may send account events', 403);
+        }
+        if ($caller !== 'ok') {
             return response()->json(['ok' => false, 'error' => 'unauthorized'], 401);
         }
         $type = (string) $request->input('type', '');
@@ -584,38 +589,43 @@ class HopBioController extends Controller
         return ['bio_pages' => $count];
     }
 
-    private function verifyEventCaller(Request $request): bool
+    private function verifyEventCaller(Request $request): string
     {
-        if ($request->headers->has('X-HOP-App') && HopSignature::verify($request) instanceof HopApp) {
-            return true;
+        $appHeader = (string) $request->header('X-HOP-App', '');
+        if ($appHeader !== '') {
+            if ($appHeader !== 'helink') {
+                return HopSignature::verify($request) instanceof HopApp ? 'forbidden' : 'unauthorized';
+            }
+            if (HopSignature::verify($request) instanceof HopApp) {
+                return 'ok';
+            }
         }
+        // The hub's own channel: the shared hub secret (hop-auth.secret), HOP-1 or legacy hub.signed.
         $secret = (string) config('hop-auth.secret');
         if (strlen($secret) < 32) {
-            return false;
+            return 'unauthorized';
         }
         $ts = (string) $request->header('X-Hop-Timestamp', '');
         $sig = (string) $request->header('X-Hop-Signature', '');
         $maxAge = (int) config('hop.request_max_age', 120);
-        if (! ctype_digit($ts) || abs(time() - (int) $ts) > $maxAge) {
-            return false;
+        if (! ctype_digit($ts) || abs(time() - (int) $ts) > $maxAge || $sig === '') {
+            return 'unauthorized';
         }
         $nonce = (string) $request->header('X-Hop-Nonce', '');
         if ($nonce !== '') {
             if (strlen($nonce) < 16 || strlen($nonce) > 128) {
-                return false;
+                return 'unauthorized';
             }
-            $app = (string) $request->header('X-Hop-App', 'helink');
-            $base = HopSignature::stringToSign($app, $ts, $nonce, $request->method(), $request->getRequestUri(), (string) $request->getContent());
-            $expectedHop1 = HopSignature::b64(hash_hmac('sha256', $base, $secret, true));
-            if ($sig === '' || ! hash_equals($expectedHop1, $sig)) {
-                return false;
+            $base = HopSignature::stringToSign('helink', $ts, $nonce, $request->method(), $request->getRequestUri(), (string) $request->getContent());
+            if (! hash_equals(HopSignature::b64(hash_hmac('sha256', $base, $secret, true)), $sig)) {
+                return 'unauthorized';
             }
 
-            return Cache::add('hop:nonce:'.$app.':'.sha1($nonce), 1, $maxAge * 2);
+            return Cache::add('hop:nonce:helink:'.sha1($nonce), 1, $maxAge * 2) ? 'ok' : 'unauthorized';
         }
         $expected = VerifyHubRequest::sign($secret, (int) $ts, $request->method(), '/'.ltrim($request->path(), '/'), (string) $request->getContent());
 
-        return $sig !== '' && hash_equals($expected, strtolower($sig));
+        return hash_equals($expected, strtolower($sig)) ? 'ok' : 'unauthorized';
     }
 
     private function pageRow(BioPage $p, string $type = 'page'): array
