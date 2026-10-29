@@ -23,11 +23,14 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <script nonce="{{ Vite::cspNonce() }}">
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
+        (function () {
+            try {
+                var t = localStorage.getItem('helink-theme');
+                if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.classList.add('dark');
+                }
+            } catch (e) {}
+        })();
     </script>
 </head>
 <body class="bg-slate-50 text-slate-900 antialiased dark:bg-[#0e1322] dark:text-slate-100 min-h-screen selection:bg-emerald-500/20 selection:text-emerald-500 relative overflow-x-hidden font-sans">
@@ -64,7 +67,7 @@
             <!-- Actions -->
             <div class="flex items-center gap-3">
                 <button type="button"
-                    onclick="localStorage.theme = document.documentElement.classList.toggle('dark') ? 'dark' : 'light'"
+                    onclick="try { var d = document.documentElement.classList.toggle('dark'); localStorage.setItem('helink-theme', d ? 'dark' : 'light'); } catch (e) {}"
                     class="rounded-xl border border-slate-200/80 p-2 text-slate-600 hover:bg-slate-100 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/5 transition-colors"
                     aria-label="Toggle theme">
                     <svg class="h-4 w-4 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
