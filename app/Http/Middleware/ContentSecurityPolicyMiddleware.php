@@ -28,12 +28,12 @@ class ContentSecurityPolicyMiddleware
         $assets = $assets !== '' ? ' '.$assets : '';
         $csp = [
             "default-src 'self'",
-            "script-src 'self'{$assets} 'unsafe-inline' 'unsafe-eval' https://fonts.bunny.net https://fonts.googleapis.com https://cdn.jsdelivr.net https://unpkg.com https://static.cloudflareinsights.com https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net https://analytics.tiktok.com",
+            "script-src 'self'{$assets} 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://fonts.bunny.net https://fonts.googleapis.com https://cdn.jsdelivr.net https://unpkg.com https://static.cloudflareinsights.com https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net https://analytics.tiktok.com",
             "style-src 'self'{$assets} 'unsafe-inline' https://fonts.bunny.net https://fonts.googleapis.com https://cdn.jsdelivr.net https://unpkg.com",
             "img-src 'self' data: https: blob: https://flagcdn.com https://www.google-analytics.com https://www.facebook.com",
             "font-src 'self'{$assets} https://fonts.bunny.net https://fonts.gstatic.com data:",
-            "connect-src 'self'{$assets} data: blob: https://cdn.jsdelivr.net https://unpkg.com https://www.google-analytics.com https://analytics.google.com https://www.facebook.com https://analytics.tiktok.com",
-            "frame-src 'self' https://maps.google.com https://www.google.com https://youtube.com ".implode(' ', BioEmbed::FRAME_HOSTS),
+            "connect-src 'self'{$assets} data: blob: https://challenges.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://www.google-analytics.com https://analytics.google.com https://www.facebook.com https://analytics.tiktok.com",
+            "frame-src 'self' https://challenges.cloudflare.com https://maps.google.com https://www.google.com https://youtube.com ".implode(' ', BioEmbed::FRAME_HOSTS),
             "object-src 'none'",
             "base-uri 'self'",
             // Signing in ends at the hub, and logging out hops hub -> each app's logout -> the home page.

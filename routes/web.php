@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminBioController;
+use App\Http\Controllers\Api\HopBioController;
 use App\Http\Controllers\BrandAssetController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SitemapController;
@@ -58,3 +59,11 @@ Route::middleware('hop.auth')->group(function () {
         Route::post('/bio/bulk-delete', [AdminBioController::class, 'bulkDelete'])->name('bio.bulk-delete');
     });
 });
+
+Route::delete('/internal/accounts/{user}', [HopBioController::class, 'purge'])
+    ->whereNumber('user')
+    ->middleware(['hub.signed', 'throttle:60,1,internal'])
+    ->name('internal.accounts.purge');
+Route::post('/hop/events', [HopBioController::class, 'events'])
+    ->middleware('throttle:600,1,hop')
+    ->name('hop.events');
