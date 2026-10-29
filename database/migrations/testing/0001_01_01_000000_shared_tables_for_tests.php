@@ -136,11 +136,53 @@ return new class extends Migration
             $table->index(['subject_type', 'subject_id']);
             $table->index(['status', 'created_at']);
         });
+        Schema::create('abuse_reports', function (Blueprint $table) {
+            $table->id();
+            $table->string('slug')->nullable()->index();
+            $table->text('url')->nullable();
+            $table->string('email')->nullable();
+            $table->text('reason')->nullable();
+            $table->string('ip_address', 45)->nullable();
+            $table->string('status', 20)->default('open')->index();
+            $table->timestamps();
+        });
+        Schema::create('apps', function (Blueprint $table) {
+            $table->id();
+            $table->string('slug', 32)->unique();
+            $table->string('name', 64);
+            $table->string('url');
+            $table->string('callback_path')->default('/auth/sso/callback');
+            $table->string('start_path')->default('/auth/sso');
+            $table->json('pages')->nullable();
+            $table->string('continue_page', 32)->default('default');
+            $table->string('menu_label', 32)->nullable();
+            $table->string('icon', 32)->default('grid');
+            $table->string('color', 32)->default('indigo');
+            $table->string('status', 20)->default('active');
+            $table->text('secret');
+            $table->text('secret_prev')->nullable();
+            $table->timestamp('secret_prev_until')->nullable();
+            $table->json('capabilities')->nullable();
+            $table->integer('sort_order')->default(100);
+            $table->boolean('hidden')->default(false);
+            $table->timestamps();
+        });
+        Schema::create('hop_audit', function (Blueprint $table) {
+            $table->id();
+            $table->string('actor', 64);
+            $table->string('app_slug', 32);
+            $table->string('action', 64);
+            $table->string('target_type', 32);
+            $table->string('target_id', 64);
+            $table->string('reason', 500)->nullable();
+            $table->json('params')->nullable();
+            $table->timestamp('created_at')->useCurrent();
+        });
     }
 
     public function down(): void
     {
-        foreach (['abuse_flags', 'domain_blacklist', 'ip_bans', 'roles', 'api_tokens', 'failed_jobs', 'jobs', 'cache_locks', 'cache', 'sessions', 'users'] as $t) {
+        foreach (['hop_audit', 'apps', 'abuse_reports', 'abuse_flags', 'domain_blacklist', 'ip_bans', 'roles', 'api_tokens', 'failed_jobs', 'jobs', 'cache_locks', 'cache', 'sessions', 'users'] as $t) {
             Schema::dropIfExists($t);
         }
     }
