@@ -22,7 +22,7 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    <script>
+    <script nonce="{{ Vite::cspNonce() }}">
         if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
         } else {
