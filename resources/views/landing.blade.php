@@ -64,8 +64,8 @@
                 <div class="grid grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-8">
                     <div class="min-w-0 space-y-8 lg:col-span-7">
                         <div class="space-y-4">
-                            <span class="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-3.5 py-1 font-mono text-[11px] font-semibold uppercase tracking-[0.25em] text-violet-700 dark:text-violet-400">
-                                <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-violet-500"></span>
+                            <span class="inline-flex items-center gap-2 rounded-full border border-slate-300/80 bg-white/70 px-3.5 py-1 font-mono text-[11px] font-semibold uppercase tracking-[0.25em] text-slate-600 dark:border-white/15 dark:bg-white/5 dark:text-slate-300">
+                                <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500"></span>
                                 BioHop · by hel.ink
                             </span>
                             <h1 class="text-[clamp(1.75rem,7.5vw,3.75rem)] font-extrabold leading-[1.1] tracking-tight text-slate-900 dark:text-white" dir="ltr">
@@ -208,7 +208,7 @@
                 <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
                     @foreach ([['i-palette', __('20+ themes'), __('Gradients, animations and button effects, or your own colors, fonts and CSS.')], ['i-chart', __('Click analytics'), __('Views and clicks per block, counted without storing visitor IP addresses.')], ['i-lock', __('Private pages'), __('A password or an 18+ check before the page opens.')], ['i-qr', __('Styled QR codes'), __('A QR code for your page, ready to print.')]] as $f)
                         <div class="rounded-3xl border border-slate-200/80 bg-white/70 p-6 dark:border-white/10 dark:bg-white/[0.03]">
-                            <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-500/10 text-violet-600 dark:text-violet-400"><svg class="h-5 w-5"><use href="#{{ $f[0] }}"/></svg></span>
+                            <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-900/5 text-slate-700 dark:bg-white/10 dark:text-slate-200"><svg class="h-5 w-5"><use href="#{{ $f[0] }}"/></svg></span>
                             <h3 class="mt-4 text-base font-bold">{{ $f[1] }}</h3>
                             <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">{{ $f[2] }}</p>
                         </div>
