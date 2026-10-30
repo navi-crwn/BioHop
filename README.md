@@ -4,6 +4,17 @@ Link-in-bio pages for the **HOP** family of apps behind [hel.ink](https://hel.in
 
 BioHop is the bio half of what used to be one app (now [LinkHop](https://github.com/navi-crwn/LinkHop), the shortener). Accounts live at the hub ([HEL.ink](https://github.com/navi-crwn/HEL.ink), `hub.hel.ink`): there is no registration or password login here, you sign in once with your HOP ID and every app knows you. The plan behind the split is in [`docs/planning/PLAN-pemisahan-aplikasi.md`](docs/planning/PLAN-pemisahan-aplikasi.md) (Fase D is this repo).
 
+### HOP Family Ecosystem
+
+| App | Live Address | Repository | Purpose |
+| --- | --- | --- | --- |
+| **Hub** | `hel.ink` · `hub.hel.ink` | [navi-crwn/HEL.ink](https://github.com/navi-crwn/HEL.ink) | Account portal, HOP ID, SSO issuer, launcher, admin |
+| **LinkHop** | `link.hel.ink` · `hel.ink/l/{slug}` | [navi-crwn/LinkHop](https://github.com/navi-crwn/LinkHop) | URL shortener, QR codes, click analytics, API |
+| **BioHop** (this repo) | `bio.hel.ink` · `hel.ink/b/{slug}` | [navi-crwn/BioHop](https://github.com/navi-crwn/BioHop) | Link-in-bio pages with custom blocks, themes, stats |
+| **PixelHop** | `p.hel.ink` (soon `pixel.hel.ink`) | [navi-crwn/PixelHop](https://github.com/navi-crwn/PixelHop) | Image & media hosting, EXIF/GPS scrubbing, studio |
+| **NoteHop** | `note.hel.ink` | [navi-crwn/NoteHop](https://github.com/navi-crwn/NoteHop) | Zero-knowledge client-encrypted live notes & docs |
+| **Imperium** | Internal / Tailscale | Private | Unified admin & operations console across all apps |
+
 ## What is here
 
 | Piece | Where | Notes |
