@@ -51,11 +51,11 @@ class HopBioApiTest extends TestCase
         ], $json);
     }
 
-    private function hubSigned(string $method, string $path, array $body = [])
+    private function hubSigned(string $method, string $path, array $body = [], ?string $secret = null)
     {
         $ts = time();
         $json = $body ? json_encode($body) : '';
-        $sig = VerifyHubRequest::sign(self::HUB_SECRET, $ts, $method, $path, $json);
+        $sig = VerifyHubRequest::sign($secret ?? self::HUB_SECRET, $ts, $method, $path, $json);
 
         return $this->call($method, $path, [], [], [], [
             'CONTENT_TYPE' => 'application/json',
@@ -330,5 +330,32 @@ class HopBioApiTest extends TestCase
         $csp = (string) $this->get('/login')->headers->get('Content-Security-Policy');
         $this->assertStringContainsString('https://challenges.cloudflare.com', $csp);
         $this->assertMatchesRegularExpression('#connect-src [^;]*data:#', $csp);
+    }
+
+    public function test_hub_requests_accept_previous_secret_during_rotation_transition(): void
+    {
+        $currentSecret = 'biohop-new-secret-that-is-long-enough-1234';
+        $previousSecret = 'biohop-old-secret-that-is-long-enough-5678';
+
+        config([
+            'hop-auth.secret' => $currentSecret,
+            'hop-auth.secret_prev' => $previousSecret,
+        ]);
+
+        // Request with current secret
+        $this->hubSigned('DELETE', '/internal/accounts/999999', [], secret: $currentSecret)->assertOk();
+
+        // Request with previous secret during transition
+        $this->hubSigned('DELETE', '/internal/accounts/999999', [], secret: $previousSecret)->assertOk();
+
+        // Event with previous secret
+        $this->hubSigned('POST', '/hop/events', [
+            'id' => 'evt-rot-1',
+            'type' => 'account.deleted',
+            'data' => ['sub' => '999999'],
+        ], secret: $previousSecret)->assertOk();
+
+        // Request with unknown secret is rejected
+        $this->hubSigned('DELETE', '/internal/accounts/999999', [], secret: 'unknown-secret-that-is-long-enough-9999')->assertStatus(401);
     }
 }
