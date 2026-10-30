@@ -3,14 +3,17 @@
 namespace Tests\Feature;
 
 use App\Http\Middleware\VerifyHubRequest;
+use App\Jobs\QueueHeartbeat;
 use App\Models\AbuseFlag;
 use App\Models\HopApp;
 use App\Models\User;
 use App\Support\HopSignature;
+use Carbon\CarbonImmutable;
 use Hop\Bio\Models\BioLink;
 use Hop\Bio\Models\BioPage;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -69,6 +72,35 @@ class HopBioApiTest extends TestCase
         HopApp::factory()->pixelhop('pixelhop-secret-that-is-long-enough-123456')->create();
         $this->signed('GET', '/api/hop/manifest', app: 'pixelhop', secret: 'pixelhop-secret-that-is-long-enough-123456')
             ->assertStatus(403);
+    }
+
+    public function test_health_queue_status_reflects_heartbeat(): void
+    {
+        Cache::forget('queue:heartbeat');
+
+        // Initially no heartbeat: queue is stale
+        $this->signed('GET', '/api/hop/health')
+            ->assertOk()
+            ->assertJsonPath('data.queue', 'stale')
+            ->assertJsonPath('data.queue_heartbeat_at', null);
+
+        // Run queue heartbeat job
+        (new QueueHeartbeat)->handle();
+
+        $res = $this->signed('GET', '/api/hop/health')
+            ->assertOk()
+            ->assertJsonPath('data.queue', 'ok');
+
+        $this->assertNotNull($res->json('data.queue_heartbeat_at'));
+
+        // Simulate stale heartbeat (> 5 minutes ago)
+        Cache::put('queue:heartbeat', [
+            'at' => CarbonImmutable::now('UTC')->subMinutes(6)->toIso8601String(),
+        ], now()->addMinutes(10));
+
+        $this->signed('GET', '/api/hop/health')
+            ->assertOk()
+            ->assertJsonPath('data.queue', 'stale');
     }
 
     public function test_health_manifest_and_stats(): void
