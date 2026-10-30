@@ -17,8 +17,7 @@
 
     <link rel="icon" type="image/svg+xml" href="{{ route('brand.favicon', ['v' => 'b10b1000']) }}">
 
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700|instrument-serif:400i" rel="stylesheet" />
+    <x-hop::fonts />
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -33,35 +32,30 @@
         })();
     </script>
 </head>
-<body class="bg-slate-50 text-slate-900 antialiased dark:bg-[#0e1322] dark:text-slate-100 min-h-screen selection:bg-emerald-500/20 selection:text-emerald-500 relative overflow-x-hidden font-sans">
+<body class="bg-slate-50 text-slate-900 antialiased dark:bg-[#0e1322] dark:text-slate-100 min-h-screen selection:bg-violet-500/20 selection:text-violet-500 relative overflow-x-hidden font-sans">
 
     <!-- Ambient background glows -->
     <div class="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
-        <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[42rem] h-[30rem] rounded-full bg-gradient-to-tr from-emerald-400/20 via-sky-400/20 to-indigo-400/20 blur-3xl dark:from-emerald-600/10 dark:via-sky-600/10 dark:to-indigo-600/10"></div>
-        <div class="absolute top-[28rem] -left-20 w-[28rem] h-[28rem] rounded-full bg-gradient-to-br from-teal-400/15 via-emerald-400/15 to-transparent blur-3xl dark:from-teal-600/10 dark:via-emerald-600/10"></div>
+        <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[42rem] h-[30rem] rounded-full bg-gradient-to-tr from-violet-400/20 via-sky-400/20 to-indigo-400/20 blur-3xl dark:from-violet-600/10 dark:via-sky-600/10 dark:to-indigo-600/10"></div>
+        <div class="absolute top-[28rem] -left-20 w-[28rem] h-[28rem] rounded-full bg-gradient-to-br from-fuchsia-400/15 via-violet-400/15 to-transparent blur-3xl dark:from-fuchsia-600/10 dark:via-violet-600/10"></div>
     </div>
 
     <!-- Header / Nav -->
     <header class="sticky top-0 z-40 border-b border-slate-200/80 bg-white/80 backdrop-blur-xl dark:border-white/10 dark:bg-[#0e1322]/80">
         <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
             <!-- Brand -->
-            <a href="{{ route('home') }}" class="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded-lg">
-                <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm shadow-emerald-500/30">
-                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M5 19c0-8 5-13 14-14-1 9-6 14-14 14Z"/>
-                        <path d="M5 19c3-4 6-7 10-9"/>
-                    </svg>
-                </span>
+            <a href="{{ route('home') }}" class="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-violet-500 rounded-lg">
+                <img src="{{ route('brand.favicon', ['v' => 'b10b1000']) }}" alt="" width="36" height="36" class="h-9 w-9 rounded-xl shadow-sm shadow-fuchsia-500/30">
                 <span class="font-bold text-lg tracking-tight">BioHop</span>
-                <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium tracking-wide text-slate-600 dark:bg-white/10 dark:text-slate-300">by hel.ink</span>
+                <span class="hidden sm:inline rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium tracking-wide text-slate-600 dark:bg-white/10 dark:text-slate-300">by hel.ink</span>
             </a>
 
             <!-- Navigation Links -->
             <nav class="hidden md:flex items-center gap-7 text-sm font-medium text-slate-600 dark:text-slate-300" aria-label="Main Navigation">
-                <a href="#features" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Features</a>
-                <a href="#themes" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Themes</a>
-                <a href="#family" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">HOP Family</a>
-                <a href="https://hel.ink/status" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Status</a>
+                <a href="#features" class="hover:text-violet-600 dark:hover:text-violet-400 transition-colors">Features</a>
+                <a href="#themes" class="hover:text-violet-600 dark:hover:text-violet-400 transition-colors">Themes</a>
+                <a href="#family" class="hover:text-violet-600 dark:hover:text-violet-400 transition-colors">HOP Family</a>
+                <a href="https://hel.ink/status" class="hover:text-violet-600 dark:hover:text-violet-400 transition-colors">Status</a>
             </nav>
 
             <!-- Actions -->
@@ -82,7 +76,7 @@
                     <a href="{{ route('login') }}" class="hidden sm:inline-flex rounded-xl px-3.5 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors">
                         Sign in
                     </a>
-                    <a href="{{ route('register') }}" class="rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-emerald-500/20 hover:from-emerald-600 hover:to-teal-700 transition-all">
+                    <a href="{{ route('register') }}" class="whitespace-nowrap rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-violet-500/20 hover:from-violet-600 hover:to-fuchsia-700 transition-all">
                         Create your Bio
                     </a>
                 @endauth
@@ -93,19 +87,20 @@
     <!-- Hero Section -->
     <main>
         <section class="relative pt-12 pb-20 sm:pt-20 sm:pb-28">
-            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <x-hop::float mode="section" aria-hidden="true" class="max-lg:hidden" />
+            <div class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
                     
                     <!-- Left: Copy & Claim Slug Form -->
                     <div class="lg:col-span-7 space-y-8">
                         <div class="space-y-4">
-                            <span class="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1 text-[11px] font-mono uppercase tracking-[0.25em] text-emerald-700 dark:text-emerald-400 font-semibold">
-                                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span class="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-3.5 py-1 text-[11px] font-mono uppercase tracking-[0.25em] text-violet-700 dark:text-violet-400 font-semibold">
+                                <span class="h-1.5 w-1.5 rounded-full bg-violet-500 animate-pulse"></span>
                                 BioHop · by hel.ink
                             </span>
 
                             <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.1]">
-                                hel.ink/b/<span class="font-serif italic font-normal bg-gradient-to-r from-emerald-500 via-teal-400 to-indigo-500 bg-clip-text text-transparent">you</span>
+                                hel.ink/b/<span class="hop-serif bg-gradient-to-r from-violet-500 via-fuchsia-400 to-indigo-500 bg-clip-text text-transparent">you</span>
                             </h1>
 
                             <p class="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-slate-200">
@@ -113,7 +108,7 @@
                             </p>
 
                             <p class="text-base sm:text-lg text-slate-600 dark:text-slate-400 max-w-2xl leading-relaxed">
-                                Share all your links, social profiles, embeds, vCard and QR code on one fast, customizable page at <code class="rounded bg-slate-200/60 px-1.5 py-0.5 font-mono text-sm dark:bg-white/10 text-emerald-600 dark:text-emerald-400">hel.ink/b/yourname</code>. Free, open source, and powered by your HOP ID.
+                                Share all your links, social profiles, embeds, vCard and QR code on one fast, customizable page at <code class="rounded bg-slate-200/60 px-1.5 py-0.5 font-mono text-sm dark:bg-white/10 text-violet-600 dark:text-violet-400">hel.ink/b/yourname</code>. Free, open source, and powered by your HOP ID.
                             </p>
                         </div>
 
@@ -145,7 +140,7 @@
                             }
                         }" class="space-y-3">
                             <form @submit.prevent="if (slug.trim().length >= 3) window.location.href = '{{ route('register') }}'" class="flex flex-col sm:flex-row items-stretch gap-2.5 max-w-lg">
-                                <div class="relative flex-1 flex items-center rounded-2xl border border-slate-300/80 bg-white/90 shadow-sm focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20 dark:border-white/15 dark:bg-white/5 dark:focus-within:border-emerald-400">
+                                <div class="relative flex-1 flex items-center rounded-2xl border border-slate-300/80 bg-white/90 shadow-sm focus-within:border-violet-500 focus-within:ring-2 focus-within:ring-violet-500/20 dark:border-white/15 dark:bg-white/5 dark:focus-within:border-violet-400">
                                     <span class="pl-4 pr-1 text-sm font-mono text-slate-400 dark:text-slate-500 select-none">hel.ink/b/</span>
                                     <input
                                         type="text"
@@ -164,17 +159,17 @@
                                 </div>
                                 <button
                                     type="submit"
-                                    class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-6 py-3.5 text-sm font-semibold text-white shadow-md shadow-emerald-600/20 hover:bg-emerald-500 active:scale-95 transition-all">
+                                    class="inline-flex items-center justify-center gap-2 rounded-2xl bg-violet-600 px-6 py-3.5 text-sm font-semibold text-white shadow-md shadow-violet-600/20 hover:bg-violet-500 active:scale-95 transition-all">
                                     <span>Claim my page</span>
                                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                                 </button>
                             </form>
 
                             <!-- Feedback message -->
-                            <div x-show="message" class="text-xs font-medium pl-1" :class="status === 'available' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'" x-text="message"></div>
+                            <div x-show="message" class="text-xs font-medium pl-1" :class="status === 'available' ? 'text-violet-600 dark:text-violet-400' : 'text-rose-600 dark:text-rose-400'" x-text="message"></div>
 
                             <p class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5 pt-1">
-                                <svg class="h-4 w-4 text-emerald-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                <svg class="h-4 w-4 text-violet-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
                                 Free forever with your HOP ID · No ads, no telemetry, zero tracking
                             </p>
                         </div>
@@ -185,7 +180,7 @@
                         
                         <!-- Floating decoration badges -->
                         <div class="absolute -top-6 -left-6 z-20 rounded-2xl border border-slate-200/80 bg-white/90 p-3 shadow-lg dark:border-white/10 dark:bg-slate-900/90 backdrop-blur-md hidden sm:flex items-center gap-2.5 motion-reduce:transform-none transform -rotate-3 hover:rotate-0 transition-transform">
-                            <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                            <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-500/10 text-violet-600 dark:text-violet-400">
                                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                             </span>
                             <div class="text-xs">
@@ -195,7 +190,7 @@
                         </div>
 
                         <!-- Mobile Mockup Wrapper -->
-                        <div class="relative mx-auto max-w-[340px] rounded-[2.5rem] border-4 border-slate-800 bg-slate-950 p-3 shadow-2xl shadow-emerald-500/10">
+                        <div class="relative mx-auto max-w-[340px] rounded-[2.5rem] border-4 border-slate-800 bg-slate-950 p-3 shadow-2xl shadow-violet-500/10">
                             <!-- Speaker / Notch -->
                             <div class="mx-auto mb-3 h-4 w-28 rounded-full bg-slate-800 flex items-center justify-center">
                                 <div class="h-1.5 w-1.5 rounded-full bg-slate-700 mr-2"></div>
@@ -206,14 +201,14 @@
                             <div class="overflow-hidden rounded-[2rem] p-5 text-center transition-all duration-300 min-h-[460px] flex flex-col justify-between"
                                 :class="{
                                     'bg-gradient-to-b from-slate-900 via-slate-950 to-black text-white': theme === 'midnight',
-                                    'bg-gradient-to-b from-teal-900 via-emerald-950 to-slate-950 text-emerald-50': theme === 'aurora',
+                                    'bg-gradient-to-b from-fuchsia-900 via-violet-950 to-slate-950 text-violet-50': theme === 'aurora',
                                     'bg-gradient-to-b from-slate-100 to-slate-200 text-slate-900 border border-slate-300': theme === 'minimal'
                                 }">
                                 
                                 <div class="space-y-4">
                                     <!-- Avatar & Handle -->
                                     <div class="space-y-2">
-                                        <div class="mx-auto h-18 w-18 rounded-full ring-4 ring-emerald-500/40 p-0.5 bg-gradient-to-tr from-emerald-500 to-sky-500 shadow-md">
+                                        <div class="mx-auto h-18 w-18 rounded-full ring-4 ring-violet-500/40 p-0.5 bg-gradient-to-tr from-violet-500 to-sky-500 shadow-md">
                                             <div class="h-full w-full rounded-full bg-slate-800 flex items-center justify-center text-xl font-bold text-white">
                                                 N
                                             </div>
@@ -275,7 +270,7 @@
 
                                 <!-- QR badge footer -->
                                 <div class="pt-4 flex items-center justify-center gap-1.5 text-[11px] opacity-70">
-                                    <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+                                    <span class="h-2 w-2 rounded-full bg-violet-400"></span>
                                     <span>hel.ink/b/navi</span>
                                 </div>
                             </div>
@@ -287,21 +282,21 @@
                             <button
                                 type="button"
                                 @click="theme = 'midnight'"
-                                :class="theme === 'midnight' ? 'ring-2 ring-emerald-500 font-bold' : 'opacity-70'"
+                                :class="theme === 'midnight' ? 'ring-2 ring-violet-500 font-bold' : 'opacity-70'"
                                 class="rounded-lg px-2.5 py-1 text-xs bg-slate-900 text-white transition-all">
                                 Midnight
                             </button>
                             <button
                                 type="button"
                                 @click="theme = 'aurora'"
-                                :class="theme === 'aurora' ? 'ring-2 ring-emerald-500 font-bold' : 'opacity-70'"
-                                class="rounded-lg px-2.5 py-1 text-xs bg-teal-800 text-teal-100 transition-all">
+                                :class="theme === 'aurora' ? 'ring-2 ring-violet-500 font-bold' : 'opacity-70'"
+                                class="rounded-lg px-2.5 py-1 text-xs bg-fuchsia-800 text-fuchsia-100 transition-all">
                                 Aurora
                             </button>
                             <button
                                 type="button"
                                 @click="theme = 'minimal'"
-                                :class="theme === 'minimal' ? 'ring-2 ring-emerald-500 font-bold' : 'opacity-70'"
+                                :class="theme === 'minimal' ? 'ring-2 ring-violet-500 font-bold' : 'opacity-70'"
                                 class="rounded-lg px-2.5 py-1 text-xs bg-slate-200 text-slate-800 transition-all">
                                 Minimal
                             </button>
@@ -316,7 +311,7 @@
         <section id="features" class="border-t border-slate-200/80 bg-slate-100/60 py-20 dark:border-white/10 dark:bg-white/[0.02]">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="text-center max-w-3xl mx-auto space-y-4 mb-16">
-                    <span class="text-xs font-mono font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Features</span>
+                    <span class="text-xs font-mono font-bold uppercase tracking-widest text-violet-600 dark:text-violet-400">Features</span>
                     <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Everything you need in a modern link-in-bio</h2>
                     <p class="text-slate-600 dark:text-slate-400">Crafted for creators, developers, and businesses who want speed, design control, and genuine data privacy.</p>
                 </div>
@@ -324,7 +319,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <!-- Feature 1 -->
                     <div class="rounded-3xl border border-slate-200/80 bg-white p-7 shadow-sm dark:border-white/10 dark:bg-white/5 space-y-3">
-                        <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xl font-bold">
+                        <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-500/10 text-violet-600 dark:text-violet-400 text-xl font-bold">
                             🎨
                         </span>
                         <h3 class="text-lg font-bold">20+ Themes</h3>
@@ -357,7 +352,7 @@
 
                     <!-- Feature 4 -->
                     <div class="rounded-3xl border border-slate-200/80 bg-white p-7 shadow-sm dark:border-white/10 dark:bg-white/5 space-y-3">
-                        <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-500/10 text-teal-600 dark:text-teal-400 text-xl font-bold">
+                        <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-fuchsia-500/10 text-fuchsia-600 dark:text-fuchsia-400 text-xl font-bold">
                             📱
                         </span>
                         <h3 class="text-lg font-bold">Styled QR Codes</h3>
@@ -373,42 +368,27 @@
         <section id="family" class="py-20 border-t border-slate-200/80 dark:border-white/10">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="text-center max-w-2xl mx-auto space-y-3 mb-12">
-                    <span class="text-xs font-mono font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Ecosystem</span>
+                    <span class="text-xs font-mono font-bold uppercase tracking-widest text-violet-600 dark:text-violet-400">Ecosystem</span>
                     <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">The HOP Suite</h2>
                     <p class="text-sm text-slate-600 dark:text-slate-400">One account unlocks the entire family of privacy-first creator tools.</p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <!-- LinkHop -->
-                    <a href="https://link.hel.ink" class="group rounded-3xl border border-slate-200/80 bg-white/70 p-6 shadow-sm hover:border-emerald-500/40 hover:shadow-md dark:border-white/10 dark:bg-white/5 transition-all">
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="text-xs font-mono font-bold text-sky-600 dark:text-sky-400">hel.ink/l/…</span>
-                            <span class="text-sm text-slate-400 group-hover:translate-x-1 transition-transform">→</span>
-                        </div>
-                        <h3 class="text-base font-bold text-slate-900 dark:text-white mb-1">LinkHop</h3>
-                        <p class="text-xs text-slate-600 dark:text-slate-400">Smart short links with geo-routing, branded domains, and click analytics.</p>
-                    </a>
-
-                    <!-- PixelHop -->
-                    <a href="https://p.hel.ink" class="group rounded-3xl border border-slate-200/80 bg-white/70 p-6 shadow-sm hover:border-emerald-500/40 hover:shadow-md dark:border-white/10 dark:bg-white/5 transition-all">
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400">p.hel.ink</span>
-                            <span class="text-sm text-slate-400 group-hover:translate-x-1 transition-transform">→</span>
-                        </div>
-                        <h3 class="text-base font-bold text-slate-900 dark:text-white mb-1">PixelHop</h3>
-                        <p class="text-xs text-slate-600 dark:text-slate-400">Fast, metadata-stripped image & media hosting with instant compression.</p>
-                    </a>
-
-                    <!-- NoteHop -->
-                    <a href="https://note.hel.ink" class="group rounded-3xl border border-slate-200/80 bg-white/70 p-6 shadow-sm hover:border-emerald-500/40 hover:shadow-md dark:border-white/10 dark:bg-white/5 transition-all">
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="text-xs font-mono font-bold text-teal-600 dark:text-teal-400">note.hel.ink</span>
-                            <span class="text-sm text-slate-400 group-hover:translate-x-1 transition-transform">→</span>
-                        </div>
-                        <h3 class="text-base font-bold text-slate-900 dark:text-white mb-1">NoteHop</h3>
-                        <p class="text-xs text-slate-600 dark:text-slate-400">Zero-knowledge end-to-end encrypted notes with self-destruct timers.</p>
-                    </a>
-                </div>
+                <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" role="list">
+                    {{-- The HOP family, from hel.ink's asset manifest (hop/ui), so every app lists the same apps. --}}
+                    @foreach (collect(\Hop\Ui\Assets::family('biohop'))->reject(fn ($app) => $app['current']) as $app)
+                        <li>
+                            <a href="{{ $app['url'] }}" class="group flex h-full flex-col rounded-3xl border border-slate-200/80 bg-white/70 p-6 shadow-sm transition hover:border-violet-500/40 hover:shadow-md dark:border-white/10 dark:bg-white/[0.03]">
+                                <div class="mb-4 flex items-center justify-between">
+                                    <img src="{{ $app['icons']['mark']['url'] }}" alt="" width="40" height="40" loading="lazy" class="h-10 w-10 rounded-xl">
+                                    <span class="text-sm text-slate-400 transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
+                                </div>
+                                <h3 class="mb-1 text-base font-bold text-slate-900 dark:text-white">{{ $app['name'] }}</h3>
+                                <p class="text-xs text-slate-600 dark:text-slate-400">{{ $app['tagline'] }}</p>
+                                <span class="mt-3 font-mono text-xs text-slate-500 dark:text-slate-400">{{ parse_url($app['url'], PHP_URL_HOST) }}</span>
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
             </div>
         </section>
     </main>
