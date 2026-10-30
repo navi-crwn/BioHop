@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Admin\AdminBioController;
 use App\Http\Controllers\Api\HopBioController;
 use App\Http\Controllers\BrandAssetController;
 use App\Http\Controllers\SettingsController;
@@ -48,15 +47,18 @@ Route::middleware('hop.auth')->group(function () {
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
     Route::get('/settings/export', [SettingsController::class, 'export'])->middleware('throttle:5,1,export')->name('settings.export');
 
-    Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/', fn () => redirect()->route('admin.bio.index'))->name('home');
-        Route::get('/bio', [AdminBioController::class, 'index'])->name('bio.index');
-        Route::get('/bio/monitor', [AdminBioController::class, 'monitor'])->name('bio.monitor');
-        Route::get('/bio/export', [AdminBioController::class, 'export'])->name('bio.export');
-        Route::get('/bio/{bioPage}', [AdminBioController::class, 'show'])->name('bio.show');
-        Route::delete('/bio/{bioPage}', [AdminBioController::class, 'destroy'])->name('bio.destroy');
-        Route::post('/bio/{bioPage}/toggle', [AdminBioController::class, 'togglePublish'])->name('bio.toggle');
-        Route::post('/bio/bulk-delete', [AdminBioController::class, 'bulkDelete'])->name('bio.bulk-delete');
+    // The admin pages moved to the HOP control center (Imperium), which works
+    // through the signed /api/hop/* API. /admin/* sends admins there.
+    Route::middleware('admin')->group(function () {
+        $control = function () {
+            if ($url = config('hop.control_url')) {
+                return redirect()->away($url);
+            }
+
+            return view('admin-retired');
+        };
+        Route::get('/admin', $control)->name('admin.control');
+        Route::get('/admin/{any}', $control)->where('any', '.*');
     });
 });
 
