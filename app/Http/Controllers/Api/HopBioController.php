@@ -600,9 +600,13 @@ class HopBioController extends Controller
                 return 'ok';
             }
         }
-        // The hub's own channel: the shared hub secret (hop-auth.secret), HOP-1 or legacy hub.signed.
-        $secret = (string) config('hop-auth.secret');
-        if (strlen($secret) < 32) {
+        // The hub's own channel: the shared hub secret (hop-auth.secret / hop-auth.secret_prev), HOP-1 or legacy hub.signed.
+        $secrets = array_values(array_filter([
+            (string) config('hop-auth.secret'),
+            (string) config('hop-auth.secret_prev'),
+        ], fn ($s) => strlen($s) >= 32));
+
+        if (empty($secrets)) {
             return 'unauthorized';
         }
         $ts = (string) $request->header('X-Hop-Timestamp', '');
@@ -617,15 +621,30 @@ class HopBioController extends Controller
                 return 'unauthorized';
             }
             $base = HopSignature::stringToSign('helink', $ts, $nonce, $request->method(), $request->getRequestUri(), (string) $request->getContent());
-            if (! hash_equals(HopSignature::b64(hash_hmac('sha256', $base, $secret, true)), $sig)) {
+            $matched = false;
+            foreach ($secrets as $s) {
+                if (hash_equals(HopSignature::b64(hash_hmac('sha256', $base, $s, true)), $sig)) {
+                    $matched = true;
+                    break;
+                }
+            }
+            if (! $matched) {
                 return 'unauthorized';
             }
 
             return Cache::add('hop:nonce:helink:'.sha1($nonce), 1, $maxAge * 2) ? 'ok' : 'unauthorized';
         }
-        $expected = VerifyHubRequest::sign($secret, (int) $ts, $request->method(), '/'.ltrim($request->path(), '/'), (string) $request->getContent());
+        $path = '/'.ltrim($request->path(), '/');
+        $matched = false;
+        foreach ($secrets as $s) {
+            $expected = VerifyHubRequest::sign($s, (int) $ts, $request->method(), $path, (string) $request->getContent());
+            if (hash_equals($expected, strtolower($sig))) {
+                $matched = true;
+                break;
+            }
+        }
 
-        return hash_equals($expected, strtolower($sig)) ? 'ok' : 'unauthorized';
+        return $matched ? 'ok' : 'unauthorized';
     }
 
     private function pageRow(BioPage $p, string $type = 'page'): array
