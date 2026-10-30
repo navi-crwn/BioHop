@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AbuseReportController;
 use App\Http\Controllers\Api\HopBioController;
 use App\Http\Controllers\BrandAssetController;
 use App\Http\Controllers\HomeController;
@@ -21,8 +22,10 @@ Route::get('/login', fn (Request $r) => redirect()->to('/auth/sso'.($r->query('n
 Route::get('/register', fn () => redirect()->away(User::hubUrl('register')))->name('register');
 // Email verification is done at the hub; `verified` routes send unverified members there.
 Route::get('/email/verify', fn () => redirect()->away(User::hubUrl('settings')))->name('verification.notice');
-// Abuse reports are handled by LinkHop (shared abuse_reports table); the public bio page links here.
-Route::get('/report-abuse', fn () => redirect()->away(rtrim((string) config('hop.apps.linkhop.url'), '/').'/report-abuse'))->name('report.create');
+// Abuse reports for bio pages. Stored in the abuse_reports table shared with LinkHop,
+// so the HOP control panel moderates both apps from one queue.
+Route::get('/report-abuse', [AbuseReportController::class, 'create'])->name('report.create');
+Route::post('/report-abuse', [AbuseReportController::class, 'store'])->middleware('throttle:5,10,report-abuse')->name('report.store');
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/check-slug-public', [HomeController::class, 'checkSlug'])->middleware('throttle:60,1')->name('bio.check-slug.public');
