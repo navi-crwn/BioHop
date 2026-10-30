@@ -6,6 +6,7 @@
     <meta name="robots" content="noindex">
     <title>Report a bio page - BioHop</title>
     <link rel="icon" type="image/svg+xml" href="{{ route('brand.favicon', ['v' => 'b10b1000']) }}">
+    <x-hop::fonts />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-full bg-slate-50 text-slate-900 antialiased dark:bg-[#0e1322] dark:text-slate-100">

@@ -1,11 +1,13 @@
 <?php
 
 test('BioHop pages load the HOP family fonts from hel.ink, not a font CDN', function () {
-    $html = $this->get('/')->assertOk()->getContent();
+    foreach (['/', '/report-abuse'] as $path) {
+        $html = $this->get($path)->assertOk()->getContent();
 
-    expect($html)->toContain('https://hel.ink/hop-assets/v1/fonts.css')
-        ->toContain('integrity="sha384-')
-        ->not->toContain('fonts.bunny.net');
+        expect($html)->toContain('https://hel.ink/hop-assets/v1/fonts.css')
+            ->toContain('integrity="sha384-')
+            ->not->toContain('fonts.bunny.net');
+    }
 });
 
 test('the header shows the official purple BioHop mark, not the old leaf', function () {
