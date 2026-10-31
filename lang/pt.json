@@ -1,4 +1,9 @@
 {
+    "Content warning": "Aviso de conteúdo",
+    "None": "Nenhum",
+    "Sensitive content": "Conteúdo sensível",
+    "Adult 18+": "Adultos maiores de 18 anos",
+    "Reason (optional)": "Motivo (opcional)",
     "(so we can follow up)": "(para que possamos responder se necessário)",
     "20+ themes": "Mais de 20 temas",
     "20+ themes such as Galaxy, Neon, Aurora and Midnight, or your own colors, fonts and custom CSS, with background animations and button effects. The editor shows a live preview.": "Mais de 20 temas como Galaxy, Neon, Aurora e Midnight, ou suas próprias cores, fontes e CSS customizado, com efeitos e animações. O editor mostra uma prévia em tempo real.",
@@ -168,5 +173,15 @@
     "Your page is one minute away.": "Sua página está a um minuto de distância.",
     "last seen :time": "visto por último às :time",
     "you": "voce",
-    "yourname": "seunome"
+    "yourname": "seunome",
+    "Age Verification Required": "Verificação de idade necessária",
+    "Sensitive Content Warning": "Aviso de conteúdo sensível",
+    "This page contains adult content intended strictly for viewers aged 18 and older.": "Esta página contém conteúdo adulto destinado estritamente a maiores de 18 anos.",
+    "The creator has marked this page as containing sensitive material.": "O criador marcou esta página como contendo material sensível.",
+    "Note from creator:": "Nota do criador:",
+    "I am 18+ — Enter": "Tenho 18+ — Entrar",
+    "I understand — Continue": "Entendi — Continuar",
+    "Go Back": "Voltar",
+    "Remember for 24 hours on this device": "Lembrar por 24 horas neste dispositivo",
+    "By continuing, you confirm that you are of legal age to view adult content in your jurisdiction.": "Ao continuar, você confirma que possui idade legal para visualizar conteúdo adulto em sua jurisdição."
 }

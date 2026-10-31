@@ -140,6 +140,8 @@ class BioPageController extends Controller
             'title' => 'required|string|max:'.BioPage::TITLE_MAX,
             'bio' => 'nullable|string|max:'.BioPage::BIO_MAX,
             'qr_settings' => 'nullable|json',
+            'content_warning' => 'nullable|in:none,sensitive,adult',
+            'warning_reason' => 'nullable|string|max:255',
         ]);
         $this->assertSafeContent($validated);
         $qrSettings = $request->filled('qr_settings') ? json_decode($request->qr_settings, true) : null;
@@ -149,7 +151,10 @@ class BioPageController extends Controller
         $bioPage = auth()->user()->bioPages()->create([
             'slug' => $validated['slug'],
             'title' => $validated['title'],
-            'bio' => $validated['bio'],
+            'bio' => $validated['bio'] ?? null,
+            'content_warning' => $validated['content_warning'] ?? 'none',
+            'warning_reason' => $validated['warning_reason'] ?? null,
+            'is_adult_content' => ($validated['content_warning'] ?? 'none') === 'adult',
             'theme' => 'default',
             'qr_settings' => $qrSettings,
         ]);
@@ -227,6 +232,8 @@ class BioPageController extends Controller
             'custom_css' => 'nullable|string',
             'is_published' => 'nullable|boolean',
             'is_adult_content' => 'nullable|boolean',
+            'content_warning' => 'nullable|in:none,sensitive,adult',
+            'warning_reason' => 'nullable|string|max:255',
             'is_public' => 'nullable|boolean',
             'show_in_directory' => 'nullable|boolean',
             'hide_branding' => 'nullable|boolean',
@@ -270,6 +277,11 @@ class BioPageController extends Controller
             } else {
                 unset($validated['password']);
             }
+        }
+        if (array_key_exists('content_warning', $validated)) {
+            $validated['is_adult_content'] = ($validated['content_warning'] === 'adult');
+        } elseif (array_key_exists('is_adult_content', $validated)) {
+            $validated['content_warning'] = $validated['is_adult_content'] ? 'adult' : 'none';
         }
         $bioPage->update($validated);
         BioUploads::deleteUnused($oldFiles);
