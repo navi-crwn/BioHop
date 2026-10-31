@@ -168,9 +168,20 @@
             </div>
         </section>
 
+        <section class="border-t border-slate-200/80 py-20 dark:border-white/10" aria-labelledby="editor-tour">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <p class="font-mono text-xs tracking-widest text-violet-600 dark:text-violet-400">01 / {{ __('Your page') }}</p>
+                <h2 id="editor-tour" class="mt-3 text-3xl font-bold sm:text-5xl">{{ __('Add your blocks') }}</h2>
+                <div class="mt-8 grid items-start gap-8 md:grid-cols-2">
+                    <article class="min-w-0"><x-feature-demo name="page" label="Your page" /><h3 class="text-xl font-bold">{{ __('Your page') }}</h3><p class="mt-2 text-slate-600 dark:text-slate-400">{{ __('Links, text, images, videos, music, a map or a contact card, in any order.') }}</p></article>
+                    <article class="min-w-0 md:pt-16"><x-feature-demo name="themes" label="Themes" /><h3 class="text-xl font-bold">{{ __('Themes') }}</h3><p class="mt-2 text-slate-600 dark:text-slate-400">{{ __('Gradients, animations and button effects, or your own colors, fonts and CSS.') }}</p></article>
+                </div>
+            </div>
+        </section>
         {{-- Three steps --}}
         <section class="border-t border-slate-200/80 py-20 dark:border-white/10">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <p class="mb-4 text-center font-mono text-xs tracking-widest">02 / {{ __('Live in three steps') }}</p>
                 <h2 class="text-center text-2xl font-extrabold tracking-tight sm:text-3xl">{{ __('Live in three steps') }}</h2>
                 <ol class="mt-12 grid gap-6 md:grid-cols-3">
                     @foreach ([[__('Claim your name'), __('Pick hel.ink/b/yourname and sign in with a free HOP ID.')], [__('Add your blocks'), __('Links, text, images, videos, music, a map or a contact card, in any order.')], [__('Share it everywhere'), __('Put the link in your profiles, or print the QR code.')]] as $i => $step)
@@ -188,6 +199,7 @@
         <section id="themes" class="scroll-mt-20 border-t border-slate-200/80 bg-slate-100/60 py-20 dark:border-white/10 dark:bg-white/[0.02]">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="mx-auto mb-12 max-w-2xl space-y-3 text-center">
+                    <p class="font-mono text-xs tracking-widest">03 / {{ __('Themes') }}</p>
                     <h2 class="text-2xl font-extrabold tracking-tight sm:text-3xl">{{ __('Try a theme') }}</h2>
                     <p class="text-sm text-slate-600 dark:text-slate-400">{{ __('Tap a theme to see it on the example page. Every theme can be tuned with your own colors, fonts and CSS.') }}</p>
                 </div>

@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Cookie;
 
 use function Illuminate\Support\defer;
 
@@ -59,14 +60,18 @@ class PublicBioController extends Controller
                 return view('bio::password', compact('bioPage'));
             }
         }
-        // 18+ Age verification check
-        if ($this->needsAgeCheck($bioPage)) {
+        // Content warning & 18+ Age verification check
+        if ($this->needsAgeCheck($bioPage, $request)) {
             $sessionKey = "bio_age_verified_{$bioPage->id}";
-            if ($request->isMethod('post') && $request->input('age_confirm') === 'yes') {
+            if ($request->isMethod('post') && in_array($request->input('age_confirm'), ['yes', '1', 'continue'], true)) {
                 session([$sessionKey => true]);
 
-                // Use 303 redirect (See Other) to convert POST to GET - prevents browser resubmit warning
-                return redirect()->to(url()->current(), 303);
+                $response = redirect()->to(url()->current(), 303);
+                if ($request->boolean('remember')) {
+                    $response->withCookie(new Cookie("hop_gate_bio_{$bioPage->id}", '1', now()->addDay(), '/', null, $request->isSecure(), true, false, 'lax'));
+                }
+
+                return $response;
             } else {
                 return view('bio::age-verify', compact('bioPage'));
             }
@@ -152,9 +157,23 @@ class PublicBioController extends Controller
         return $bioPage->password_enabled && $bioPage->password && ! session("bio_unlocked_{$bioPage->id}");
     }
 
-    protected function needsAgeCheck(BioPage $bioPage): bool
+    protected function needsAgeCheck(BioPage $bioPage, ?Request $request = null): bool
     {
-        return $bioPage->is_adult_content && ! session("bio_age_verified_{$bioPage->id}");
+        if (! $bioPage->requiresContentWarning()) {
+            return false;
+        }
+
+        $sessionKey = "bio_age_verified_{$bioPage->id}";
+        if (session($sessionKey)) {
+            return false;
+        }
+
+        $req = $request ?? request();
+        if ($req && $req->cookie("hop_gate_bio_{$bioPage->id}")) {
+            return false;
+        }
+
+        return true;
     }
 
     protected function trackView(BioPage $bioPage): void
