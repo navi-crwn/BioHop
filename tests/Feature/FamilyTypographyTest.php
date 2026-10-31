@@ -4,7 +4,7 @@ test('BioHop pages load the HOP family fonts from hel.ink, not a font CDN', func
     foreach (['/', '/report-abuse'] as $path) {
         $html = $this->get($path)->assertOk()->getContent();
 
-        expect($html)->toContain('https://hel.ink/hop-assets/v1/fonts.css')
+        expect($html)->toContain('https://hel.ink/hop-assets/v1/fonts-amnesia.css')
             ->toContain('integrity="sha384-')
             ->not->toContain('fonts.bunny.net');
     }
@@ -22,8 +22,10 @@ test('the HOP family section lists the other apps from the shared manifest', fun
 
     expect($html)->toContain('https://hel.ink/hop-assets/v1/apps/linkhop/mark.svg')
         ->toContain('https://hel.ink/hop-assets/v1/apps/pixelhop/mark.svg')
-        ->toContain('https://hel.ink/hop-assets/v1/apps/notehop/mark.svg')
-        ->not->toContain('https://hel.ink/hop-assets/v1/apps/biohop/mark.svg');
+        ->toContain('https://hel.ink/hop-assets/v1/apps/notehop/mark.svg');
+    $footer = substr($html, strpos($html, '<footer'));
+    expect($footer)->not->toContain('https://hel.ink/hop-assets/v1/apps/biohop/mark.svg');
+    expect($html)->toMatch('/href="https:\/\/bio\.hel\.ink"\s+aria-current="true"/');
 });
 
 test('the CSP allows the shared assets on hel.ink', function () {

@@ -100,7 +100,7 @@ test('the public page loads only the chosen font', function () {
         ->not->toContain('family=Inter:')
         ->not->toContain('@import url(\'https://fonts.googleapis.com')
         // The HOP family fonts are for BioHop's own pages; a bio keeps the owner's font.
-        ->not->toContain('hop-assets/v1/fonts.css');
+        ->not->toContain('hop-assets/v1/fonts-amnesia.css');
 });
 
 test('the editor preview only accepts messages from its own editor frame', function () {

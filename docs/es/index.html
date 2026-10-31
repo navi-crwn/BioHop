@@ -8,8 +8,8 @@
   <link rel="canonical" href="https://navi-crwn.github.io/BioHop/es/">
   <link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../assets/styles.css">
-  <link rel="stylesheet" href="https://hel.ink/hop-assets/v1/fonts.css" integrity="sha384-T1Y2aaMQ8CSfi7J2t9d1ZAbVcQ1FcO27Jwn3WtNWB+UVK137YCl3hIPvz0G4K22L" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://hel.ink/hop-assets/v1/hop-float.css" integrity="sha384-sl7D409xEmIT5gkArlQLoQQ4rOkqF7tOGf1VhI/iMb7c2/s9w9NtDEjLbJMU/MQ/" crossorigin="anonymous">
+  <link rel="stylesheet" href="../assets/product.css">
+  <link rel="stylesheet" href="https://hel.ink/hop-assets/v1/fonts-amnesia.css" integrity="sha384-750KEkFNx2ykcIsUyi1pZ0JC/Z6jfrK7OJtntqOzB8HKfEpjeostGTWJGAxh/5Zi" crossorigin="anonymous">
   <link rel="alternate" hreflang="x-default" href="https://navi-crwn.github.io/BioHop/">
   <link rel="alternate" hreflang="en" href="https://navi-crwn.github.io/BioHop/en/">
   <link rel="alternate" hreflang="id" href="https://navi-crwn.github.io/BioHop/id/">
@@ -19,8 +19,6 @@
   <link rel="alternate" hreflang="pt" href="https://navi-crwn.github.io/BioHop/pt/">
   <link rel="alternate" hreflang="fr" href="https://navi-crwn.github.io/BioHop/fr/">
   <link rel="alternate" hreflang="ja" href="https://navi-crwn.github.io/BioHop/ja/">
-  <!-- Open Graph: docs/og.png is a planned asset generated later by another agent;
-       it is referenced here as a plan, not as an existing file. -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="BioHop">
   <meta property="og:title" content="BioHop — Páginas link-in-bio para la familia HOP">
@@ -32,7 +30,7 @@
   <meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
-  <div data-hop-float></div>
+
   <a class="skip" href="#main">Saltar al contenido</a>
 
   <header class="site-header">
@@ -62,7 +60,7 @@
   </header>
 
   <main id="main">
-    <div class="hero">
+    <div class="hero product-hero">
       <div>
         <p class="kicker">HOP &middot; Link-in-bio</p>
         <h1>Tus enlaces, una página, publicados en segundos</h1>
@@ -73,13 +71,11 @@
         </div>
         <p class="note">Las direcciones en vivo de esta página apuntan a los sitios públicos de la familia HOP.</p>
       </div>
-      <div class="tile-wrap" aria-hidden="true">
-        <img class="tile" src="../assets/tile.svg" alt="" width="220" height="260">
-      </div>
+      <div class="product-art profile-art" aria-hidden="true"><div class="profile-sheet profile-sheet-back"></div><div class="profile-sheet"><img src="../assets/mark.svg" alt="" width="48" height="48"><strong>hel.ink/b/you</strong><span class="profile-line"></span><span class="profile-line"></span><span class="profile-line"></span><span class="profile-dots">● &nbsp; ● &nbsp; ●</span></div></div>
     </div>
 
     <section id="features" aria-labelledby="features-h">
-      <h2 id="features-h">Lo que hace BioHop</h2>
+      <span class="section-number" aria-hidden="true">01</span><h2 id="features-h">Lo que hace BioHop</h2>
       <ul class="features">
         <li><strong>Páginas bio públicas con QR y seguimiento de clics</strong><p>Cada página vive en hel.ink/b/{slug}, incluye su propio código QR y registra cuándo la gente hace clic en tus enlaces.</p></li>
         <li><strong>Un editor completo en /bio</strong><p>Gestiona páginas y enlaces, sube imágenes, avatares, iconos y logotipos para el QR, mira una vista previa en vivo, duplica páginas y consulta analíticas por página.</p></li>
@@ -92,18 +88,14 @@
       </ul>
     </section>
 
-    <section id="run" aria-labelledby="run-h">
-      <h2 id="run-h">Ejecútalo tú mismo</h2>
-      <div class="panel">
-        <p>BioHop se puede autoalojar. Estos pasos están documentados a partir del repositorio; no se han ejecutado al escribir esta página.</p>
-        <h3>Requisitos previos</h3>
-        <p>PHP 8.3, Composer y Node 20+. Los comandos completos de inicio rápido y pruebas están en el README de GitHub.</p>
-        <h3>Configuración de inicio de sesión</h3>
-        <p>El inicio de sesión usa el inicio de sesión único de HOP ID. Define HOP_HUB_URL, HOP_APP=biohop y el secreto SSO específico de la app o compartido (32+ caracteres) en tu .env antes de iniciar sesión.</p>
-        <h3>Base de datos</h3>
-        <p>BioHop está diseñado para compartir una base de datos MySQL con el hub y LinkHop, escribiendo sus tablas en el registro migrations_bio. Ejecuta primero las migraciones del hub para que existan tablas compartidas como users. La compatibilidad real de las migraciones no ha sido verificada por esta documentación.</p>
-        <p class="note">Los detalles de la base de datos anteriores son diseño documentado, no una garantía probada.</p>
-      </div>
+    <section id="run" class="source-card" aria-labelledby="run-h">
+      <div><span class="section-number" aria-hidden="true">02 / OPEN SOURCE</span><h2 id="run-h">Ejecútalo tú mismo</h2><p>Las direcciones en vivo de esta página apuntan a los sitios públicos de la familia HOP.</p></div>
+      <div class="cta-row"><a class="btn" href="https://github.com/navi-crwn/BioHop/blob/main/README.md">Ejecútalo tú mismo ↗</a><a class="btn" href="https://github.com/navi-crwn/BioHop">Ver el código ↗</a></div>
+    </section>
+
+    <section class="product-preview" aria-labelledby="preview-h">
+      <div class="preview-caption"><div><span class="section-number" aria-hidden="true">03</span><h2 id="preview-h">BioHop</h2></div><a class="btn primary" href="https://bio.hel.ink">Probar BioHop ↗</a></div>
+      <a class="preview-screen" href="https://bio.hel.ink" aria-label="Probar BioHop"><img class="preview-light" src="../assets/product-light.webp" alt="BioHop" width="1280" height="900" loading="lazy"><img class="preview-dark" src="../assets/product-dark.webp" alt="BioHop" width="1280" height="900" loading="lazy"></a>
     </section>
 
     <section id="faq" aria-labelledby="faq-h">
@@ -147,18 +139,17 @@
 
     <section id="help" aria-labelledby="help-h">
       <h2 id="help-h">Ayuda e incidencias</h2>
-      <p>¿Encontraste un error o algo poco claro en esta documentación? <a href="https://github.com/navi-crwn/BioHop/issues">Abre un issue en GitHub</a>.</p>
+      <p>¿Encontraste un error o algo poco claro en esta documentación? <a href="https://github.com/navi-crwn/BioHop/issues">Abre un issue en GitHub</a> .</p>
     </section>
   </main>
 
   <footer class="site-footer">
     <div class="inner">
       <p><strong>BioHop</strong> &middot; Páginas link-in-bio para la familia HOP</p>
-      <p>Licencia: <a href="https://github.com/navi-crwn/BioHop/blob/main/LICENSE">MIT</a>· Código:<a href="https://github.com/navi-crwn/BioHop">GitHub</a>· En vivo:<a href="https://bio.hel.ink">bio.hel.ink</a></p>
+      <p>Licencia: <a href="https://github.com/navi-crwn/BioHop/blob/main/LICENSE">MIT</a> · Código: <a href="https://github.com/navi-crwn/BioHop">GitHub</a> · En vivo: <a href="https://bio.hel.ink">bio.hel.ink</a></p>
     </div>
   </footer>
 
-  <script src="https://hel.ink/hop-assets/v1/hop-float.js" integrity="sha384-kNviPsMEO9lt9+b4n2S5lX6zHRVnePzGuj9VdgCETTsQwzt/5YJRnv842Xg0gRC+" crossorigin="anonymous" defer></script>
   <script src="../assets/theme.js"></script>
 </body>
 </html>

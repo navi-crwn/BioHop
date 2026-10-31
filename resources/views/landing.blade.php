@@ -58,7 +58,7 @@
 
     <main x-data="{ theme: 'galaxy', themes: @js($themes) }">
         {{-- Hero --}}
-        <section class="relative pt-12 pb-20 sm:pt-20 sm:pb-28">
+        <section class="bio-product-hero relative pt-12 pb-20 sm:pt-20 sm:pb-28">
             <x-hop::float mode="section" aria-hidden="true" class="max-lg:hidden" />
             <div class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-8">
@@ -114,7 +114,7 @@
 
                     {{-- Live preview: the same themes as the editor --}}
                     <div id="preview" class="relative scroll-mt-24 lg:col-span-5">
-                        <div class="relative mx-auto max-w-[340px] rounded-[2.5rem] border-4 border-slate-800 bg-slate-950 p-3 shadow-2xl shadow-violet-500/10">
+                        <div class="profile-hero-phone relative mx-auto max-w-[340px] rounded-[2.5rem] border-4 border-slate-800 bg-slate-950 p-3">
                             <div class="mx-auto mb-3 flex h-4 w-28 items-center justify-center rounded-full bg-slate-800">
                                 <div class="mr-2 h-1.5 w-1.5 rounded-full bg-slate-700"></div>
                                 <div class="h-1 w-8 rounded-full bg-slate-700"></div>
