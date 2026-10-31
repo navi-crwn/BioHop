@@ -294,14 +294,16 @@
                     <span>{{ $bioPage->isSensitive() ? __('I understand — Continue') : __('I am 18+ — Enter') }}</span>
                 </button>
 
-                <a href="{{ url('/') }}" class="btn-back" onclick="if(window.history.length > 1){ window.history.back(); return false; }">
+                <a href="{{ route('home') }}" class="btn-back">
                     {{ __('Go Back') }}
                 </a>
             </form>
 
+            @if($bioPage->isAdult())
             <p class="footer-note">
                 {{ __('By continuing, you confirm that you are of legal age to view adult content in your jurisdiction.') }}
             </p>
+            @endif
         </div>
 
         <div class="brand-credit">

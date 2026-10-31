@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Cookie;
 
 use function Illuminate\Support\defer;
 
@@ -67,7 +68,7 @@ class PublicBioController extends Controller
 
                 $response = redirect()->to(url()->current(), 303);
                 if ($request->boolean('remember')) {
-                    $response->withCookie(cookie("hop_gate_bio_{$bioPage->id}", '1', 1440, null, null, null, false, false, 'Lax'));
+                    $response->withCookie(new Cookie("hop_gate_bio_{$bioPage->id}", '1', now()->addDay(), '/', null, $request->isSecure(), true, false, 'lax'));
                 }
 
                 return $response;

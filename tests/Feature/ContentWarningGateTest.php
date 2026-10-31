@@ -53,6 +53,7 @@ class ContentWarningGateTest extends TestCase
         $response->assertSee('Contains discussions of fictional violence and gore.');
         $response->assertSee('I understand — Continue');
         $response->assertSee('Remember for 24 hours on this device');
+        $response->assertDontSee('legal age');
     }
 
     public function test_sensitive_page_can_be_unlocked_via_form_post_without_js(): void
@@ -82,6 +83,7 @@ class ContentWarningGateTest extends TestCase
 
     public function test_remember_24h_cookie_bypasses_gate_on_subsequent_visits(): void
     {
+        config(['session.domain' => '.hel.ink']);
         $page = BioPage::create([
             'user_id' => $this->user->id,
             'slug' => 'remember-me-bio',
@@ -98,6 +100,10 @@ class ContentWarningGateTest extends TestCase
 
         $postResponse->assertStatus(303);
         $postResponse->assertCookie("hop_gate_bio_{$page->id}", '1');
+        $cookie = collect($postResponse->headers->getCookies())->first(fn ($cookie) => $cookie->getName() === "hop_gate_bio_{$page->id}");
+        $this->assertNull($cookie->getDomain());
+        $this->assertTrue($cookie->isHttpOnly());
+        $this->assertEqualsWithDelta(86400, $cookie->getExpiresTime() - time(), 10);
 
         // New request simulating fresh session with cookie
         $this->flushSession();
@@ -164,4 +170,3 @@ class ContentWarningGateTest extends TestCase
         $response->assertDontSee('public-adult');
     }
 }
-
