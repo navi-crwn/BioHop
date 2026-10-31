@@ -36,6 +36,26 @@ class ContentWarningGateTest extends TestCase
         $response->assertSee('Clean Bio');
     }
 
+    public function test_creator_can_classify_a_page_before_first_publication(): void
+    {
+        $this->actingAs($this->user)->get(route('bio.create'))
+            ->assertOk()->assertSee('name="content_warning"', false);
+
+        $this->actingAs($this->user)->post(route('bio.store'), [
+            'slug' => 'maturestory',
+            'title' => 'A story',
+            'content_warning' => 'adult',
+            'warning_reason' => 'Mature themes',
+        ])->assertSessionHasNoErrors()->assertRedirect();
+
+        $this->assertDatabaseHas('bio_pages', [
+            'slug' => 'maturestory',
+            'content_warning' => 'adult',
+            'warning_reason' => 'Mature themes',
+            'is_adult_content' => true,
+        ]);
+    }
+
     public function test_sensitive_page_displays_content_warning_gate_and_reason(): void
     {
         $page = BioPage::create([

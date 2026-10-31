@@ -68,9 +68,9 @@
                         <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                         </svg>
-                        Content Warning & Gate
+                        {{ __('Content warning') }}
                     </p>
-                    <p class="text-sm editor-text-muted">Display a warning gate before visitors view your page</p>
+                    <p class="text-sm editor-text-muted">{{ __('The creator has marked this page as containing sensitive material.') }}</p>
                 </div>
             </div>
             <div class="grid grid-cols-3 gap-2">
@@ -79,26 +79,26 @@
                     <input type="radio" name="content_warning" value="none" 
                            :checked="(bioPage.content_warning || (bioPage.is_adult_content ? 'adult' : 'none')) === 'none'"
                            @change="bioPage.content_warning = 'none'; bioPage.is_adult_content = false" class="sr-only">
-                    <span>None</span>
+                    <span>{{ __('None') }}</span>
                 </label>
                 <label class="flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer text-xs font-medium"
                        :class="(bioPage.content_warning || (bioPage.is_adult_content ? 'adult' : 'none')) === 'sensitive' ? 'border-amber-500 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300' : 'border-(--editor-border)'">
                     <input type="radio" name="content_warning" value="sensitive" 
                            :checked="(bioPage.content_warning || (bioPage.is_adult_content ? 'adult' : 'none')) === 'sensitive'"
                            @change="bioPage.content_warning = 'sensitive'; bioPage.is_adult_content = false" class="sr-only">
-                    <span>Sensitive</span>
+                    <span>{{ __('Sensitive content') }}</span>
                 </label>
                 <label class="flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer text-xs font-medium"
                        :class="(bioPage.content_warning || (bioPage.is_adult_content ? 'adult' : 'none')) === 'adult' ? 'border-red-500 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300' : 'border-(--editor-border)'">
                     <input type="radio" name="content_warning" value="adult" 
                            :checked="(bioPage.content_warning || (bioPage.is_adult_content ? 'adult' : 'none')) === 'adult'"
                            @change="bioPage.content_warning = 'adult'; bioPage.is_adult_content = true" class="sr-only">
-                    <span>18+ Adult</span>
+                    <span>{{ __('Adult 18+') }}</span>
                 </label>
             </div>
             <div x-show="(bioPage.content_warning || (bioPage.is_adult_content ? 'adult' : 'none')) !== 'none'" x-collapse>
-                <label class="form-label text-xs">Optional reason for warning</label>
-                <input type="text" x-model="bioPage.warning_reason" class="form-input text-xs" placeholder="e.g. Graphic themes, spoilers, or adult content" maxlength="255">
+                <label for="bio-warning-reason" class="form-label text-xs">{{ __('Reason (optional)') }}</label>
+                <input id="bio-warning-reason" type="text" x-model="bioPage.warning_reason" class="form-input text-xs" maxlength="255">
             </div>
         </div>
         <!-- Password Protection -->

@@ -203,9 +203,16 @@ class HopBioApiTest extends TestCase
         $this->signed('POST', "/api/hop/content/page/{$page->id}/actions", ['action' => 'mark_nsfw', 'reason' => 'adult'])
             ->assertOk();
         $this->assertTrue((bool) $page->fresh()->is_adult_content);
+        $this->assertSame('adult', $page->fresh()->content_warning);
+        $this->signed('POST', "/api/hop/content/page/{$page->id}/actions", ['action' => 'mark_sensitive', 'reason' => 'sensitive'])
+            ->assertOk();
+        $this->assertSame('sensitive', $page->fresh()->content_warning);
+        $this->assertFalse((bool) $page->fresh()->is_adult_content);
         $this->signed('POST', "/api/hop/content/page/{$page->id}/actions", ['action' => 'unmark_nsfw', 'reason' => 'clean'])
             ->assertOk();
         $this->assertFalse((bool) $page->fresh()->is_adult_content);
+
+        $this->assertSame('none', $page->fresh()->content_warning);
 
         // Block actions: disable, enable, delete
         $this->signed('POST', "/api/hop/content/block/{$block->id}/actions", ['action' => 'disable', 'reason' => 'bad link'])
