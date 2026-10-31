@@ -1,6 +1,6 @@
 @import 'tailwindcss';
+@import './showcase.css';
 @import './profile-hero.css';
-@import './home-product.css';
 
 @plugin '@tailwindcss/forms';
 
