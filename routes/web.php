@@ -4,6 +4,7 @@ use App\Http\Controllers\AbuseReportController;
 use App\Http\Controllers\Api\HopBioController;
 use App\Http\Controllers\BrandAssetController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PageController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SitemapController;
 use App\Models\User;
@@ -28,6 +29,11 @@ Route::get('/report-abuse', [AbuseReportController::class, 'create'])->name('rep
 Route::post('/report-abuse', [AbuseReportController::class, 'store'])->middleware('throttle:5,10,report-abuse')->name('report.store');
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+// Dedicated pages on BioHop's own domain (U-07); menus link here, not to the hub.
+foreach (PageController::PAGES as $page) {
+    Route::get('/'.$page, [PageController::class, 'show'])->defaults('page', $page)->name('pages.'.$page);
+}
+Route::get('/status', [PageController::class, 'status'])->name('pages.status');
 Route::get('/check-slug-public', [HomeController::class, 'checkSlug'])->middleware('throttle:60,1')->name('bio.check-slug.public');
 Route::get('/dashboard', fn () => redirect()->away(User::hubUrl('dashboard').'#biohop'))->name('dashboard');
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
