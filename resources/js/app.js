@@ -4,6 +4,7 @@ import collapse from '@alpinejs/collapse';
 import Sortable from 'sortablejs';
 import modal from './modal';
 import installInlineActions from './inline-actions';
+import './turnstile';
 
 Alpine.plugin(collapse);
 Alpine.plugin(modal);
