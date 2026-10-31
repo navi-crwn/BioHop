@@ -164,3 +164,4 @@ class ContentWarningGateTest extends TestCase
         $response->assertDontSee('public-adult');
     }
 }
+
