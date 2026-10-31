@@ -1,6 +1,6 @@
 @php($locale = app()->getLocale())
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', $locale) }}" dir="{{ $locale === 'ar' ? 'rtl' : 'ltr' }}" class="scroll-smooth">
+<html lang="{{ str_replace('_', '-', $locale) }}" dir="{{ $locale === 'ar' ? 'rtl' : 'ltr' }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,358 +10,97 @@
     @foreach (\App\Http\Middleware\SetLocale::LOCALES as $code => $name)
         <link rel="alternate" hreflang="{{ $code }}" href="{{ url('/') }}?lang={{ $code }}">
     @endforeach
-
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ url('/') }}">
     <meta property="og:title" content="BioHop · {{ __('One link-in-bio page for everything you do.') }}">
-    <meta property="og:description" content="{{ __('Share all your links, social profiles, embeds, vCard and QR code on one fast, customizable page at hel.ink/b/yourname. Free, open source, and powered by your HOP ID.') }}">
+    <meta property="og:description" content="{{ __('One page. Every part of you.') }}">
     <meta property="og:image" content="{{ route('brand.logo', ['v' => 'b10b1000']) }}">
     <meta name="twitter:card" content="summary_large_image">
-
     <link rel="icon" type="image/svg+xml" href="{{ route('brand.favicon', ['v' => 'b10b1000']) }}">
     <x-hop::fonts />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
     <script nonce="{{ Vite::cspNonce() }}">
-        (function () {
-            try {
-                var t = localStorage.getItem('helink-theme');
-                if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                    document.documentElement.classList.add('dark');
-                }
-            } catch (e) {}
-        })();
+        try { const t = localStorage.getItem('helink-theme'); if (t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches)) document.documentElement.classList.add('dark'); } catch (e) {}
     </script>
 </head>
-<body class="bg-slate-50 text-slate-900 antialiased dark:bg-[#0e1322] dark:text-slate-100 min-h-screen selection:bg-violet-500/20 selection:text-violet-500 relative overflow-x-hidden font-sans">
-
-    {{-- Icon sprite: one set of line icons instead of emoji, so every system draws the same thing. --}}
-    <svg xmlns="http://www.w3.org/2000/svg" class="hidden" aria-hidden="true">
-        <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
-        <symbol id="i-image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></symbol>
-        <symbol id="i-note" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></symbol>
-        <symbol id="i-card" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="12" r="2"/><path d="M13 10h5M13 14h3"/></symbol>
-        <symbol id="i-palette" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a10 10 0 1 1 10-10c0 2.8-2.2 4-4 4h-1.5a1.5 1.5 0 0 0-1 2.6 1.5 1.5 0 0 1-1 2.6Z"/><circle cx="7.5" cy="11.5" r="1"/><circle cx="10.5" cy="7.5" r="1"/><circle cx="15.5" cy="7.5" r="1"/></symbol>
-        <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></symbol>
-        <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
-        <symbol id="i-qr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v.01M14 21h7v-4"/></symbol>
-        <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></symbol>
-        <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></symbol>
-    </svg>
-
-    <div class="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
-        <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[42rem] h-[30rem] rounded-full bg-gradient-to-tr from-violet-400/20 via-fuchsia-400/20 to-indigo-400/20 blur-3xl dark:from-violet-600/10 dark:via-fuchsia-600/10 dark:to-indigo-600/10"></div>
-        <div class="absolute top-[28rem] -left-20 w-[28rem] h-[28rem] rounded-full bg-gradient-to-br from-fuchsia-400/15 via-violet-400/15 to-transparent blur-3xl dark:from-fuchsia-600/10 dark:via-violet-600/10"></div>
-    </div>
-
+<body class="bio-home bg-slate-50 text-slate-900 antialiased dark:bg-[#0e1322] dark:text-slate-100 font-sans">
     @include('partials.site-header')
+    <main class="product-showcase" x-data="{ theme: 'galaxy', themes: @js($themes), selected: '' }">
+        <section class="showcase-wrap bio-hero" aria-labelledby="bio-title">
+            <div class="bio-hero-copy">
+                <p class="showcase-kicker">BioHop / {{ __('Your own little corner of the internet') }}</p>
+                <h1 id="bio-title">{{ __('One page.') }}<br><span class="hop-serif">{{ __('Every part of you.') }}</span></h1>
+                <p class="showcase-lead">{{ __('Your work, your links, your next big thing. Bring them together on a page that feels like you.') }}</p>
+                @include('partials.home-claim')
+                <div class="showcase-actions"><a class="showcase-text-link" href="#tour">{{ __('Explore the editor') }} ↓</a><a class="showcase-text-link" href="https://hel.ink/b/hel" target="_blank" rel="noopener">{{ __('Open the official profile') }} ↗</a></div>
+                <p class="showcase-caption">{{ __('Try the HEL.ink profile. Tilt it, tap a link, open the FAQ.') }}</p>
+            </div>
+            <div class="bio-universe" data-tilt-scene id="preview" aria-label="{{ __('Interactive HEL.ink profile') }}">
+                <div class="bio-orbit bio-orbit-one" aria-hidden="true"></div><div class="bio-orbit bio-orbit-two" aria-hidden="true"></div>
+                <div class="bio-orbit-label bio-orbit-links" aria-hidden="true"><span>↗</span>{{ __('Your links') }}<small>hel.ink/b/hel</small></div>
+                <div class="bio-orbit-label bio-orbit-style" aria-hidden="true"><span>◒</span>{{ __('Your style') }}<small>20+ {{ __('Themes') }}</small></div>
+                <div class="bio-profile-float"><div class="bio-profile-tilt" data-tilt-object><x-official-profile /></div></div>
+                <div class="bio-scene-controls" role="group" aria-label="{{ __('Rotate profile') }}"><button type="button" data-tilt-left aria-label="{{ __('Rotate left') }}">↶</button><button type="button" data-tilt-reset>{{ __('Reset view') }}</button><button type="button" data-tilt-right aria-label="{{ __('Rotate right') }}">↷</button><button type="button" data-motion-toggle aria-pressed="false">{{ __('Pause motion') }}</button></div>
+                <p class="bio-demo-status" aria-live="polite" x-text="selected ? @js(__('Preview selected:')) + ' ' + selected : @js(__('Interactive preview · official HEL.ink content'))"></p>
+            </div>
+        </section>
 
-    <main x-data="{ theme: 'galaxy', themes: @js($themes) }">
-        {{-- Hero --}}
-        <section class="bio-product-hero relative pt-12 pb-20 sm:pt-20 sm:pb-28">
-            <x-hop::float mode="section" aria-hidden="true" class="max-lg:hidden" />
-            <div class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div class="grid grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-8">
-                    <div class="min-w-0 space-y-8 lg:col-span-7">
-                        <div class="space-y-4">
-                            <span class="inline-flex items-center gap-2 rounded-full border border-slate-300/80 bg-white/70 px-3.5 py-1 font-mono text-[11px] font-semibold uppercase tracking-[0.25em] text-slate-600 dark:border-white/15 dark:bg-white/5 dark:text-slate-300">
-                                <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500"></span>
-                                BioHop · by hel.ink
-                            </span>
-                            <h1 class="text-[clamp(1.75rem,7.5vw,3.75rem)] font-extrabold leading-[1.1] tracking-tight text-slate-900 dark:text-white" dir="ltr">
-                                hel.ink/b/<span class="hop-serif bg-gradient-to-r from-violet-500 via-fuchsia-400 to-indigo-500 bg-clip-text text-transparent">{{ __('you') }}</span>
-                            </h1>
-                            <p class="text-2xl font-bold text-slate-800 sm:text-3xl dark:text-slate-200">{{ __('One link-in-bio page for everything you do.') }}</p>
-                            <p class="max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg dark:text-slate-400">{{ __('Share all your links, social profiles, embeds, vCard and QR code on one fast, customizable page at hel.ink/b/yourname. Free, open source, and powered by your HOP ID.') }}</p>
-                        </div>
+        <div class="showcase-wrap showcase-rail"><span>{{ __('Your name. Your space.') }}</span><span>{{ __('20+ themes') }}</span><span>{{ __('No premium tier') }}</span><span>{{ __('Open source') }}</span></div>
 
-                        <div x-data="{
-                            slug: '', status: null, message: '', loading: false,
-                            async check() {
-                                const clean = this.slug.trim().toLowerCase();
-                                if (clean.length < 3) { this.status = null; this.message = ''; return; }
-                                this.loading = true;
-                                try {
-                                    const res = await fetch('/check-slug-public?slug=' + encodeURIComponent(clean));
-                                    const data = await res.json();
-                                    this.status = data.available ? 'available' : 'unavailable';
-                                    this.message = data.message;
-                                } catch (e) { this.status = null; this.message = ''; } finally { this.loading = false; }
-                            }
-                        }" class="space-y-3">
-                            <form @submit.prevent="if (slug.trim().length >= 3) window.location.href = '{{ route('register') }}'" class="flex max-w-lg flex-col items-stretch gap-2.5 sm:flex-row">
-                                <div class="relative flex flex-1 items-center rounded-2xl border border-slate-300/80 bg-white/90 shadow-sm focus-within:border-violet-500 focus-within:ring-2 focus-within:ring-violet-500/20 dark:border-white/15 dark:bg-white/5 dark:focus-within:border-violet-400" dir="ltr">
-                                    <span class="select-none pl-4 pr-1 font-mono text-sm text-slate-400 dark:text-slate-500">hel.ink/b/</span>
-                                    <input type="text" x-model="slug" @input.debounce.300ms="check()" placeholder="{{ __('yourname') }}" aria-label="{{ __('Your bio name') }}"
-                                        class="w-full border-0 bg-transparent py-3 pr-4 font-mono text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0 dark:text-white"
-                                        required minlength="3" maxlength="30">
-                                    <span x-show="loading" class="animate-spin pr-3 text-slate-400" aria-hidden="true">
-                                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke-width="4" stroke="currentColor" stroke-opacity="0.2"/><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-                                    </span>
-                                </div>
-                                <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-6 py-3.5 text-sm font-semibold text-white shadow-md shadow-violet-600/20 transition-all hover:from-violet-500 hover:to-fuchsia-500 active:scale-95">
-                                    <span>{{ __('Claim my page') }}</span>
-                                    <svg class="h-4 w-4 rtl:-scale-x-100"><use href="#i-arrow"/></svg>
-                                </button>
-                            </form>
-                            <div x-show="message" class="pl-1 text-xs font-medium" :class="status === 'available' ? 'text-violet-600 dark:text-violet-400' : 'text-rose-600 dark:text-rose-400'" x-text="message" aria-live="polite"></div>
-                            <p class="flex items-center gap-1.5 pt-1 text-xs text-slate-500 dark:text-slate-400">
-                                <svg class="h-4 w-4 flex-none text-violet-500"><use href="#i-check"/></svg>
-                                {{ __('Free forever with your HOP ID · No ads, no trackers') }}
-                            </p>
+        <section id="tour" class="showcase-wrap showcase-section" aria-labelledby="tour-title">
+            <p class="showcase-kicker">01 / {{ __('From idea to your bio') }}</p>
+            <h2 id="tour-title">{{ __('A little building.') }}<br><span class="hop-serif">{{ __('A lot of you.') }}</span></h2>
+            <p class="showcase-lead">{{ __('Scroll through the story, or choose a step. Try the controls inside the preview.') }}</p>
+            <div class="showcase-story" data-story>
+                <div class="showcase-story-pin">
+                    <div class="showcase-story-nav" role="group" aria-label="{{ __('Page creation steps') }}">
+                        @foreach (['Add your blocks', 'Make it yours', 'Share it everywhere'] as $step)
+                            <button type="button" data-story-step="{{ $loop->index }}" aria-pressed="{{ $loop->first ? 'true' : 'false' }}"><span>0{{ $loop->iteration }}</span>{{ __($step) }}</button>
+                        @endforeach
+                    </div>
+                    <div class="showcase-story-progress" aria-hidden="true"><span data-story-progress></span></div>
+                    <div class="showcase-story-panel" data-story-panel="0" x-data="{ title: 'HEL.ink', extra: false, reversed: false }">
+                        <div class="showcase-story-copy"><p class="showcase-kicker">01 / {{ __('Build') }}</p><h3>{{ __('Everything you do, in blocks.') }}</h3><p>{{ __('Links, text, images, videos, music, a map or a contact card, in any order.') }}</p><p class="showcase-caption">{{ __('Demo editor · changes stay in this preview.') }}</p></div>
+                        <div class="bio-editor-demo">
+                            <div class="showcase-window-bar"><span>● ● ●</span> BioHop / {{ __('Your page') }} <span>{{ __('Preview') }}</span></div>
+                            <label>{{ __('Page title') }}<input type="text" maxlength="40" x-model="title" aria-label="{{ __('Demo page title') }}"></label>
+                            <div class="bio-editor-columns"><div class="bio-block-list" :class="reversed && 'is-reversed'"><div>⠿ <span>{{ __('Shorten a link') }}</span><span>↗</span></div><div>⠿ <span>{{ __('Source code on GitHub') }}</span><span>↗</span></div><div x-cloak x-show="extra">⠿ <span>{{ __('Get in touch') }}</span><span>↗</span></div></div><div class="bio-mini-result"><img src="{{ asset('images/brand/rabbit-mark.png') }}" alt="" width="44" height="44" loading="lazy"><strong x-text="title || 'HEL.ink'">HEL.ink</strong><span>{{ __('Your links, together.') }}</span><div class="bio-mini-lines" :class="reversed && 'is-reversed'"><i>{{ __('Shorten a link') }}</i><i>GitHub</i><i x-cloak x-show="extra">{{ __('Get in touch') }}</i></div></div></div>
+                            <div class="showcase-actions"><button type="button" class="showcase-button" @click="extra = !extra" :aria-pressed="extra">{{ __('Toggle contact block') }}</button><button type="button" class="showcase-button" @click="reversed = !reversed" :aria-pressed="reversed">{{ __('Reverse order') }}</button></div>
                         </div>
                     </div>
-
-                    {{-- Live preview: the same themes as the editor --}}
-                    <div id="preview" class="relative scroll-mt-24 lg:col-span-5">
-                        <div class="profile-hero-phone relative mx-auto max-w-[340px] rounded-[2.5rem] border-4 border-slate-800 bg-slate-950 p-3">
-                            <div class="mx-auto mb-3 flex h-4 w-28 items-center justify-center rounded-full bg-slate-800">
-                                <div class="mr-2 h-1.5 w-1.5 rounded-full bg-slate-700"></div>
-                                <div class="h-1 w-8 rounded-full bg-slate-700"></div>
-                            </div>
-                            <div class="flex min-h-[460px] flex-col justify-between overflow-hidden rounded-[2rem] p-5 text-center transition-all duration-300"
-                                 :style="`background:${themes[theme].background};color:${themes[theme].text}`">
-                                <div class="space-y-4">
-                                    <div class="space-y-2">
-                                        <div class="mx-auto h-[4.5rem] w-[4.5rem] rounded-full bg-gradient-to-tr from-violet-500 to-fuchsia-500 p-0.5 shadow-md">
-                                            <div class="flex h-full w-full items-center justify-center rounded-full bg-slate-900 text-xl font-bold text-white">M</div>
-                                        </div>
-                                        <div>
-                                            <div class="text-base font-bold tracking-tight">@mira</div>
-                                            <div class="text-xs" :style="`color:${themes[theme].bio}`">{{ __('Illustrator · Jakarta') }}</div>
-                                        </div>
-                                    </div>
-                                    <div class="space-y-2.5 pt-2">
-                                        @foreach ([['i-globe', __('Portfolio')], ['i-image', __('Latest drawings')], ['i-note', __('Commission prices')], ['i-card', __('Save my contact')]] as $demo)
-                                            <div class="flex items-center justify-between rounded-xl p-3 text-xs font-semibold transition-all"
-                                                 :style="`background:${themes[theme].link_bg};color:${themes[theme].link_text};border:1px solid ${themes[theme].link_border || 'transparent'}`">
-                                                <span class="flex items-center gap-2"><svg class="h-4 w-4"><use href="#{{ $demo[0] }}"/></svg><span>{{ $demo[1] }}</span></span>
-                                                <svg class="h-3.5 w-3.5 opacity-60 rtl:-scale-x-100"><use href="#i-arrow"/></svg>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-                                <div class="flex items-center justify-center gap-1.5 pt-4 text-[11px] opacity-70" dir="ltr">
-                                    <svg class="h-3.5 w-3.5"><use href="#i-qr"/></svg><span>hel.ink/b/mira</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Hero quick themes bar (5-6 themes + View all) --}}
-                        <div class="mt-4 flex flex-wrap items-center justify-center gap-1.5" role="group" aria-label="{{ __('Hero quick themes') }}">
-                            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ __('Theme:') }}</span>
-                            @foreach (array_slice($themes, 0, 5, true) as $k => $th)
-                                <button type="button" @click="theme = '{{ $k }}'"
-                                        :aria-pressed="theme === '{{ $k }}'"
-                                        class="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
-                                        :class="theme === '{{ $k }}' ? 'border-violet-500 bg-violet-500/10 text-violet-700 dark:text-violet-300 font-semibold' : 'border-slate-200 bg-white/70 text-slate-700 hover:bg-slate-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-300'">
-                                    <span class="h-2 w-2 rounded-full border border-black/10" style="background: {{ $th['background'] }}"></span>
-                                    <span>{{ $th['name'] }}</span>
-                                </button>
-                            @endforeach
-                            <a href="#themes" class="inline-flex items-center gap-1 text-xs font-semibold text-violet-600 underline underline-offset-2 hover:text-violet-700 dark:text-violet-400">
-                                {{ __('View all') }} &rarr;
-                            </a>
-                        </div>
+                    <div class="showcase-story-panel" data-story-panel="1">
+                        <div class="showcase-story-copy"><p class="showcase-kicker">02 / {{ __('Style') }}</p><h3>{{ __('Same links. A whole new feeling.') }}</h3><p>{{ __('Tap a theme to see it on the example page. Every theme can be tuned with your own colors, fonts and CSS.') }}</p><div class="bio-theme-picks" role="group" aria-label="{{ __('Try a theme') }}">@foreach (array_slice($themes, 0, 6, true) as $key => $t)<button type="button" @click="theme = @js($key)" :aria-pressed="theme === @js($key)"><i style="background: {{ $t['background'] }}"></i>{{ $t['name'] }}</button>@endforeach</div></div>
+                        <div class="bio-story-profile"><x-official-profile /></div>
                     </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="border-t border-slate-200/80 py-20 dark:border-white/10" aria-labelledby="editor-tour">
-            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <p class="font-mono text-xs tracking-widest text-violet-600 dark:text-violet-400">01 / {{ __('Your page') }}</p>
-                <h2 id="editor-tour" class="mt-3 text-3xl font-bold sm:text-5xl">{{ __('Add your blocks') }}</h2>
-                <div class="mt-8 grid items-start gap-8 md:grid-cols-2">
-                    <article class="min-w-0"><x-feature-demo name="page" label="Your page" /><h3 class="text-xl font-bold">{{ __('Your page') }}</h3><p class="mt-2 text-slate-600 dark:text-slate-400">{{ __('Links, text, images, videos, music, a map or a contact card, in any order.') }}</p></article>
-                    <article class="min-w-0 md:pt-16"><x-feature-demo name="themes" label="Themes" /><h3 class="text-xl font-bold">{{ __('Themes') }}</h3><p class="mt-2 text-slate-600 dark:text-slate-400">{{ __('Gradients, animations and button effects, or your own colors, fonts and CSS.') }}</p></article>
-                </div>
-            </div>
-        </section>
-        {{-- Three steps --}}
-        <section class="border-t border-slate-200/80 py-20 dark:border-white/10">
-            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <p class="mb-4 text-center font-mono text-xs tracking-widest">02 / {{ __('Live in three steps') }}</p>
-                <h2 class="text-center text-2xl font-extrabold tracking-tight sm:text-3xl">{{ __('Live in three steps') }}</h2>
-                <ol class="mt-12 grid gap-6 md:grid-cols-3">
-                    @foreach ([[__('Claim your name'), __('Pick hel.ink/b/yourname and sign in with a free HOP ID.')], [__('Add your blocks'), __('Links, text, images, videos, music, a map or a contact card, in any order.')], [__('Share it everywhere'), __('Put the link in your profiles, or print the QR code.')]] as $i => $step)
-                        <li class="rounded-3xl border border-slate-200/80 bg-white/70 p-6 dark:border-white/10 dark:bg-white/[0.03]">
-                            <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 font-bold text-white">{{ $i + 1 }}</span>
-                            <h3 class="mt-4 text-lg font-bold">{{ $step[0] }}</h3>
-                            <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">{{ $step[1] }}</p>
-                        </li>
-                    @endforeach
-                </ol>
-            </div>
-        </section>
-
-        {{-- Theme gallery: 2-column layout on desktop with sticky preview phone and theme grid --}}
-        <section id="themes" class="scroll-mt-20 border-t border-slate-200/80 bg-slate-100/60 py-20 dark:border-white/10 dark:bg-white/[0.02]">
-            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div class="mx-auto mb-12 max-w-2xl space-y-3 text-center">
-                    <p class="font-mono text-xs tracking-widest">03 / {{ __('Themes') }}</p>
-                    <h2 class="text-2xl font-extrabold tracking-tight sm:text-3xl">{{ __('Try a theme') }}</h2>
-                    <p class="text-sm text-slate-600 dark:text-slate-400">{{ __('Tap a theme to see it on the example page. Every theme can be tuned with your own colors, fonts and CSS.') }}</p>
-                </div>
-
-                <div class="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:items-start">
-                    {{-- Sticky phone preview column on desktop --}}
-                    <div class="lg:col-span-5 lg:sticky lg:top-24">
-                        <div id="gallery-preview" class="relative mx-auto max-w-[320px] rounded-[2.5rem] border-4 border-slate-800 bg-slate-950 p-3 shadow-2xl shadow-violet-500/10">
-                            <div class="mx-auto mb-3 flex h-4 w-28 items-center justify-center rounded-full bg-slate-800">
-                                <div class="mr-2 h-1.5 w-1.5 rounded-full bg-slate-700"></div>
-                                <div class="h-1 w-8 rounded-full bg-slate-700"></div>
-                            </div>
-                            <div class="flex min-h-[440px] flex-col justify-between overflow-hidden rounded-[2rem] p-5 text-center transition-all duration-300"
-                                 :style="`background:${themes[theme].background};color:${themes[theme].text}`">
-                                <div class="space-y-4">
-                                    <div class="space-y-2">
-                                        <div class="mx-auto h-16 w-16 rounded-full bg-gradient-to-tr from-violet-500 to-fuchsia-500 p-0.5 shadow-md">
-                                            <div class="flex h-full w-full items-center justify-center rounded-full bg-slate-900 text-lg font-bold text-white">M</div>
-                                        </div>
-                                        <div>
-                                            <div class="text-base font-bold tracking-tight">@mira</div>
-                                            <div class="text-xs" :style="`color:${themes[theme].bio}`">{{ __('Illustrator · Jakarta') }}</div>
-                                        </div>
-                                    </div>
-                                    <div class="space-y-2 pt-1">
-                                        @foreach ([['i-globe', __('Portfolio')], ['i-image', __('Latest drawings')], ['i-note', __('Commission prices')], ['i-card', __('Save my contact')]] as $demo)
-                                            <div class="flex items-center justify-between rounded-xl p-2.5 text-xs font-semibold transition-all"
-                                                 :style="`background:${themes[theme].link_bg};color:${themes[theme].link_text};border:1px solid ${themes[theme].link_border || 'transparent'}`">
-                                                <span class="flex items-center gap-2"><svg class="h-3.5 w-3.5"><use href="#{{ $demo[0] }}"/></svg><span>{{ $demo[1] }}</span></span>
-                                                <svg class="h-3 w-3 opacity-60 rtl:-scale-x-100"><use href="#i-arrow"/></svg>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-                                <div class="flex items-center justify-center gap-1.5 pt-3 text-[11px] opacity-70" dir="ltr">
-                                    <svg class="h-3.5 w-3.5"><use href="#i-qr"/></svg><span>hel.ink/b/mira</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Active theme label --}}
-                        <p class="mt-3 text-center text-xs text-slate-500 dark:text-slate-400">
-                            {{ __('Theme:') }} <strong class="text-slate-700 dark:text-slate-200" x-text="themes[theme].name"></strong>
-                        </p>
-
-                        {{-- Mobile horizontal swatch carousel directly under the preview (<= 768px) --}}
-                        <div class="mt-4 flex gap-2 overflow-x-auto pb-2 scrollbar-none snap-x lg:hidden" role="radiogroup" aria-label="{{ __('Theme swatch carousel') }}">
-                            @foreach ($themes as $key => $t)
-                                <button type="button" @click="theme = '{{ $key }}'"
-                                        role="radio"
-                                        :aria-checked="theme === '{{ $key }}'"
-                                        :aria-pressed="theme === '{{ $key }}'"
-                                        class="flex-none snap-start rounded-2xl border-2 p-1.5 text-center transition focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
-                                        :class="theme === '{{ $key }}' ? 'border-violet-500 ring-2 ring-violet-500/20 bg-violet-50/50 dark:bg-violet-950/30' : 'border-slate-200 bg-white dark:border-white/10 dark:bg-white/5'">
-                                    <span class="block h-8 w-14 rounded-xl border border-black/10" style="background: {{ $t['background'] }}"></span>
-                                    <span class="mt-1 block max-w-[56px] truncate text-[10px] font-semibold text-slate-700 dark:text-slate-200">{{ $t['name'] }}</span>
-                                </button>
-                            @endforeach
-                        </div>
+                    <div class="showcase-story-panel" data-story-panel="2">
+                        <div class="showcase-story-copy"><p class="showcase-kicker">03 / {{ __('Share') }}</p><h3>{{ __('One link. A thousand places.') }}</h3><p>{{ __('Put the link in your profiles, or print the QR code.') }}</p><a class="showcase-button primary" href="https://hel.ink/b/hel" target="_blank" rel="noopener">{{ __('Open the official profile') }} ↗</a></div>
+                        <div class="bio-share-scene"><span class="bio-share-orbit" aria-hidden="true"></span><img src="{{ asset('images/brand/rabbit-mark.png') }}" alt="HEL.ink" width="88" height="88" loading="lazy"><strong>hel.ink/b/hel</strong><div><span>{{ __('Social profiles') }}</span><span>{{ __('Business cards') }}</span><span>{{ __('Your next project') }}</span></div><p>{{ __('A single address for everything you want to share.') }}</p></div>
                     </div>
-
-                    {{-- Theme grid column --}}
-                    <div class="lg:col-span-7">
-                        <ul class="grid grid-cols-2 gap-4 sm:grid-cols-3" role="radiogroup" aria-label="{{ __('Theme gallery') }}">
-                            @foreach ($themes as $key => $t)
-                                <li>
-                                    <button type="button" @click="theme = '{{ $key }}'"
-                                            role="radio"
-                                            :aria-checked="theme === '{{ $key }}'"
-                                            :aria-pressed="theme === '{{ $key }}'"
-                                            class="group block w-full overflow-hidden rounded-2xl border-2 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
-                                            :class="theme === '{{ $key }}' ? 'border-violet-500 ring-2 ring-violet-500/20' : 'border-slate-200/80 bg-white/60 hover:border-violet-400/50 dark:border-white/10 dark:bg-white/[0.03]'">
-                                        <span class="flex h-24 flex-col justify-center gap-1.5 px-4" style="background: {{ $t['background'] }}">
-                                            <span class="h-2 rounded-full" style="background: {{ $t['link_bg'] }}; outline: 1px solid {{ $t['link_border'] ?? 'rgb(0 0 0 / .08)' }}"></span>
-                                            <span class="h-2 rounded-full" style="background: {{ $t['link_bg'] }}; outline: 1px solid {{ $t['link_border'] ?? 'rgb(0 0 0 / .08)' }}"></span>
-                                            <span class="h-2 w-2/3 rounded-full" style="background: {{ $t['link_bg'] }}; outline: 1px solid {{ $t['link_border'] ?? 'rgb(0 0 0 / .08)' }}"></span>
-                                        </span>
-                                        <span class="flex items-center justify-between bg-white px-3 py-2 text-xs font-semibold text-slate-700 dark:bg-slate-900 dark:text-slate-200">
-                                            <span>{{ $t['name'] }}</span>
-                                            <span x-show="theme === '{{ $key }}'" class="h-2 w-2 rounded-full bg-violet-500"></span>
-                                        </span>
-                                    </button>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
+                    <div class="showcase-story-footer"><span>{{ __('Scroll to explore · buttons work too') }}</span><div><button type="button" data-story-prev aria-label="{{ __('Previous step') }}">←</button><button type="button" data-story-next aria-label="{{ __('Next step') }}">→</button></div></div>
                 </div>
             </div>
         </section>
 
-        {{-- Features --}}
-        <section id="features" class="scroll-mt-20 border-t border-slate-200/80 py-20 dark:border-white/10">
-            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div class="mx-auto mb-12 max-w-2xl space-y-3 text-center">
-                    <h2 class="text-2xl font-extrabold tracking-tight sm:text-3xl">{{ __('Everything you need, nothing you pay for') }}</h2>
-                    <p class="text-sm text-slate-600 dark:text-slate-400">{{ __('No premium tier and no locked features.') }}</p>
-                </div>
-                <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-                    @foreach ([['i-palette', __('20+ themes'), __('Gradients, animations and button effects, or your own colors, fonts and CSS.')], ['i-chart', __('Click analytics'), __('Views and clicks per block, counted without storing visitor IP addresses.')], ['i-lock', __('Private pages'), __('A password or an 18+ check before the page opens.')], ['i-qr', __('Styled QR codes'), __('A QR code for your page, ready to print.')]] as $f)
-                        <div class="rounded-3xl border border-slate-200/80 bg-white/70 p-6 dark:border-white/10 dark:bg-white/[0.03]">
-                            <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-900/5 text-slate-700 dark:bg-white/10 dark:text-slate-200"><svg class="h-5 w-5"><use href="#{{ $f[0] }}"/></svg></span>
-                            <h3 class="mt-4 text-base font-bold">{{ $f[1] }}</h3>
-                            <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">{{ $f[2] }}</p>
-                        </div>
-                    @endforeach
-                </div>
-                <p class="mt-10 text-center text-sm"><a href="{{ route('pages.features') }}" class="font-semibold text-violet-600 underline underline-offset-4 dark:text-violet-400">{{ __('See all features') }}</a> · <a href="https://hel.ink/b/hel" class="font-semibold text-violet-600 underline underline-offset-4 dark:text-violet-400">{{ __('Open a live example') }}</a></p>
+        <section id="themes" class="showcase-wrap showcase-section" aria-labelledby="themes-title">
+            <p class="showcase-kicker">02 / {{ __('Your signature') }}</p><h2 id="themes-title">{{ __('Pick a mood.') }}<br><span class="hop-serif">{{ __('Make it yours.') }}</span></h2>
+            <div class="bio-theme-gallery"><div class="bio-gallery-preview"><x-official-profile /><p class="showcase-caption">{{ __('Theme:') }} <strong x-text="themes[theme].name"></strong></p></div><div><p class="showcase-lead">{{ __('Gradients, animations and button effects, or your own colors, fonts and CSS.') }}</p><div class="bio-theme-grid" role="group" aria-label="{{ __('Theme gallery') }}">@foreach ($themes as $key => $t)<button type="button" @click="theme = @js($key)" :aria-pressed="theme === @js($key)"><span class="bio-theme-swatch" style="background: {{ $t['background'] }}"><i style="background: {{ $t['link_bg'] }}; border: 1px solid {{ $t['link_border'] ?? '#94a3b8' }}"></i><i style="background: {{ $t['link_bg'] }}; border: 1px solid {{ $t['link_border'] ?? '#94a3b8' }}"></i></span><span>{{ $t['name'] }}</span></button>@endforeach</div></div></div>
+        </section>
+
+        <section id="features" class="showcase-wrap showcase-section" aria-labelledby="features-title">
+            <p class="showcase-kicker">03 / {{ __('Small page. Big possibilities.') }}</p><h2 id="features-title">{{ __('More than a list') }}<br><span class="hop-serif">{{ __('of links.') }}</span></h2>
+            <div class="showcase-bento">
+                <article class="showcase-card wide"><div class="showcase-card-head"><span class="showcase-kicker">{{ __('Your workspace') }}</span><h3>{{ __('Build it your way.') }}</h3><p>{{ __('Links, text, images, videos, music, a map or a contact card, in any order.') }}</p></div><x-feature-demo name="page" label="Your page" /></article>
+                <article class="showcase-card" x-data="{ period: 7 }"><span class="showcase-kicker">{{ __('Sample analytics') }}</span><h3>{{ __('See what connects.') }}</h3><p>{{ __('Views and clicks per block, counted without storing visitor IP addresses.') }}</p><div class="showcase-actions"><button class="showcase-button" type="button" @click="period = 7" :aria-pressed="period === 7">7 {{ __('days') }}</button><button class="showcase-button" type="button" @click="period = 30" :aria-pressed="period === 30">30 {{ __('days') }}</button></div><div class="showcase-chart" aria-hidden="true">@foreach ([42, 68, 35, 80, 55, 92, 72] as $height)<i :style="`height:${period === 7 ? {{ $height }} : {{ 105 - $height / 2 }}}%`"></i>@endforeach</div><p class="showcase-stat" x-text="period === 7 ? '1,284' : '4,820'">1,284</p><span class="showcase-caption">{{ __('Demo views · illustrative data') }}</span></article>
+                <article class="showcase-card" x-data="{ protected: false }"><span class="showcase-kicker">{{ __('Your boundaries') }}</span><h3>{{ __('Choose who gets in.') }}</h3><p>{{ __('A password or an 18+ check before the page opens.') }}</p><div class="bio-lock-demo" :class="protected && 'is-locked'"><span aria-hidden="true" x-text="protected ? '▣' : '↗'">↗</span><strong x-text="protected ? @js(__('Password required')) : @js(__('Public page'))"></strong></div><button class="showcase-button" type="button" @click="protected = !protected" :aria-pressed="protected">{{ __('Try password protection') }}</button><p class="showcase-caption">{{ __('Demo only · your page is unchanged.') }}</p></article>
+                <article class="showcase-card wide"><div class="showcase-card-head"><span class="showcase-kicker">{{ __('Designed to feel like you') }}</span><h3>{{ __('A fresh look, in a click.') }}</h3><p>{{ __('No premium tier and no locked features.') }}</p></div><x-feature-demo name="themes" label="Themes" /></article>
             </div>
         </section>
 
-        {{-- HOP family --}}
-        <section id="family" class="scroll-mt-20 border-t border-slate-200/80 py-20 dark:border-white/10">
-            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div class="mx-auto mb-12 max-w-2xl space-y-3 text-center">
-                    <h2 class="text-2xl font-extrabold tracking-tight sm:text-3xl">{{ __('Part of the HOP family') }}</h2>
-                    <p class="text-sm text-slate-600 dark:text-slate-400">{{ __('One free HOP ID signs you in to every app.') }}</p>
-                </div>
-                <ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4" role="list">
-                    @foreach (collect(\Hop\Ui\Assets::family('biohop'))->reject(fn ($app) => $app['current']) as $app)
-                        <li>
-                            <a href="{{ $app['url'] }}" class="group flex h-full flex-col rounded-3xl border border-slate-200/80 bg-white/70 p-6 shadow-sm transition hover:border-violet-500/40 hover:shadow-md dark:border-white/10 dark:bg-white/[0.03]">
-                                <div class="mb-4 flex items-center justify-between">
-                                    <img src="{{ $app['icons']['mark']['url'] }}" alt="" width="40" height="40" loading="lazy" class="h-10 w-10 rounded-xl">
-                                    <svg class="h-4 w-4 text-slate-400 transition-transform group-hover:translate-x-1 rtl:-scale-x-100" aria-hidden="true"><use href="#i-arrow"/></svg>
-                                </div>
-                                <h3 class="mb-1 text-base font-bold text-slate-900 dark:text-white">{{ $app['name'] }}</h3>
-                                <p class="text-xs text-slate-600 dark:text-slate-400">{{ $app['tagline'] }}</p>
-                                <span class="mt-3 font-mono text-xs text-slate-500 dark:text-slate-400" dir="ltr">{{ parse_url($app['url'], PHP_URL_HOST) }}</span>
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
-            </div>
-        </section>
+        <section id="faq" class="showcase-wrap showcase-section showcase-faq" aria-labelledby="faq-title"><p class="showcase-kicker">04 / {{ __('Good questions') }}</p><h2 id="faq-title">{{ __('A few things') }} <span class="hop-serif">{{ __('to know.') }}</span></h2>@foreach (['Is BioHop really free?' => 'Yes. No paid plan and no locked feature. The code is MIT licensed.', 'Do I need an account?' => 'Yes, a free HOP ID. The same account works in LinkHop, PixelHop and NoteHop.', 'Do you track my visitors?' => 'Views and clicks are counted with a keyed hash of the IP address, never the address itself. Pixels you add load only after the visitor agrees.', 'Can I move my page later?' => 'Yes. You can rename it, and export everything from the settings.'] as $question => $answer)<details><summary>{{ __($question) }}</summary><p>{{ __($answer) }}</p></details>@endforeach</section>
 
-        {{-- FAQ --}}
-        <section id="faq" class="scroll-mt-20 border-t border-slate-200/80 bg-slate-100/60 py-20 dark:border-white/10 dark:bg-white/[0.02]">
-            <div class="mx-auto max-w-3xl px-4 sm:px-6">
-                <h2 class="text-center text-2xl font-extrabold tracking-tight sm:text-3xl">{{ __('Questions') }}</h2>
-                <div class="mt-10 space-y-3">
-                    @foreach ([[__('Is BioHop really free?'), __('Yes. No paid plan and no locked feature. The code is MIT licensed.')], [__('Do I need an account?'), __('Yes, a free HOP ID. The same account works in LinkHop, PixelHop and NoteHop.')], [__('Do you track my visitors?'), __('Views and clicks are counted with a keyed hash of the IP address, never the address itself. Pixels you add load only after the visitor agrees.')], [__('Can I move my page later?'), __('Yes. You can rename it, and export everything from the settings.')]] as $qa)
-                        <details class="group rounded-2xl border border-slate-200/80 bg-white/80 p-5 dark:border-white/10 dark:bg-white/[0.03]">
-                            <summary class="cursor-pointer list-none font-semibold">{{ $qa[0] }}</summary>
-                            <p class="mt-3 text-sm text-slate-600 dark:text-slate-400">{{ $qa[1] }}</p>
-                        </details>
-                    @endforeach
-                </div>
-                <p class="mt-8 text-center text-sm"><a href="{{ route('pages.faq') }}" class="font-semibold text-violet-600 underline underline-offset-4 dark:text-violet-400">{{ __('More answers') }}</a></p>
-            </div>
-        </section>
-
-        {{-- Call to action --}}
-        <section class="border-t border-slate-200/80 py-20 dark:border-white/10">
-            <div class="mx-auto max-w-3xl px-4 text-center sm:px-6">
-                <h2 class="text-3xl font-extrabold tracking-tight sm:text-4xl">{{ __('Your page is one minute away.') }}</h2>
-                <a href="{{ route('register') }}" class="mt-8 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-7 py-4 font-semibold text-white shadow-lg shadow-violet-600/20 transition hover:from-violet-500 hover:to-fuchsia-500">
-                    {{ __('Create your bio') }} <svg class="h-4 w-4 rtl:-scale-x-100"><use href="#i-arrow"/></svg>
-                </a>
-            </div>
-        </section>
+        <section class="showcase-wrap showcase-section bio-final"><p class="showcase-kicker">{{ __('Your next chapter') }}</p><h2>{{ __('The internet is big.') }}<br><span class="hop-serif">{{ __('Make a little space.') }}</span></h2><a class="showcase-button primary" href="{{ route('register') }}">{{ __('Create your bio') }} ↗</a><a class="showcase-text-link" href="https://github.com/navi-crwn/BioHop" target="_blank" rel="noopener">{{ __('Open source') }} ↗</a></section>
+        <section id="family" class="showcase-wrap showcase-family" aria-label="{{ __('Part of the HOP family') }}"><p class="showcase-kicker">{{ __('One free HOP ID signs you in to every app.') }}</p><div>@foreach (collect(\Hop\Ui\Assets::family('biohop'))->reject(fn ($app) => $app['current']) as $app)<a href="{{ $app['url'] }}"><img src="{{ $app['icons']['mark']['url'] }}" alt="" width="32" height="32" loading="lazy"><span>{{ $app['name'] }}</span><span aria-hidden="true">↗</span></a>@endforeach</div></section>
     </main>
-
     @include('partials.site-footer')
 </body>
 </html>
