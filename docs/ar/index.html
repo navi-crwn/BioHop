@@ -8,8 +8,8 @@
   <link rel="canonical" href="https://navi-crwn.github.io/BioHop/ar/">
   <link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../assets/styles.css">
-  <link rel="stylesheet" href="https://hel.ink/hop-assets/v1/fonts.css" integrity="sha384-T1Y2aaMQ8CSfi7J2t9d1ZAbVcQ1FcO27Jwn3WtNWB+UVK137YCl3hIPvz0G4K22L" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://hel.ink/hop-assets/v1/hop-float.css" integrity="sha384-sl7D409xEmIT5gkArlQLoQQ4rOkqF7tOGf1VhI/iMb7c2/s9w9NtDEjLbJMU/MQ/" crossorigin="anonymous">
+  <link rel="stylesheet" href="../assets/product.css">
+  <link rel="stylesheet" href="https://hel.ink/hop-assets/v1/fonts-amnesia.css" integrity="sha384-750KEkFNx2ykcIsUyi1pZ0JC/Z6jfrK7OJtntqOzB8HKfEpjeostGTWJGAxh/5Zi" crossorigin="anonymous">
   <link rel="alternate" hreflang="x-default" href="https://navi-crwn.github.io/BioHop/">
   <link rel="alternate" hreflang="en" href="https://navi-crwn.github.io/BioHop/en/">
   <link rel="alternate" hreflang="id" href="https://navi-crwn.github.io/BioHop/id/">
@@ -19,8 +19,6 @@
   <link rel="alternate" hreflang="pt" href="https://navi-crwn.github.io/BioHop/pt/">
   <link rel="alternate" hreflang="fr" href="https://navi-crwn.github.io/BioHop/fr/">
   <link rel="alternate" hreflang="ja" href="https://navi-crwn.github.io/BioHop/ja/">
-  <!-- Open Graph: docs/og.png is a planned asset generated later by another agent;
-       it is referenced here as a plan, not as an existing file. -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="BioHop">
   <meta property="og:title" content="BioHop — صفحات link-in-bio لعائلة HOP">
@@ -32,7 +30,7 @@
   <meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
-  <div data-hop-float></div>
+
   <a class="skip" href="#main">الانتقال إلى المحتوى</a>
 
   <header class="site-header">
@@ -62,7 +60,7 @@
   </header>
 
   <main id="main">
-    <div class="hero">
+    <div class="hero product-hero">
       <div>
         <p class="kicker">HOP &middot; صفحة روابط</p>
         <h1>روابطك في صفحة واحدة، تُنشر في ثوانٍ</h1>
@@ -73,13 +71,11 @@
         </div>
         <p class="note">العناوين الحيّة في هذه الصفحة تشير إلى المواقع العامة لعائلة HOP.</p>
       </div>
-      <div class="tile-wrap" aria-hidden="true">
-        <img class="tile" src="../assets/tile.svg" alt="" width="220" height="260">
-      </div>
+      <div class="product-art profile-art" aria-hidden="true"><div class="profile-sheet profile-sheet-back"></div><div class="profile-sheet"><img src="../assets/mark.svg" alt="" width="48" height="48"><strong>hel.ink/b/you</strong><span class="profile-line"></span><span class="profile-line"></span><span class="profile-line"></span><span class="profile-dots">● &nbsp; ● &nbsp; ●</span></div></div>
     </div>
 
     <section id="features" aria-labelledby="features-h">
-      <h2 id="features-h">ماذا يفعل BioHop</h2>
+      <span class="section-number" aria-hidden="true">01</span><h2 id="features-h">ماذا يفعل BioHop</h2>
       <ul class="features">
         <li><strong>صفحات bio عامة مع رمز QR وتتبّع النقرات</strong><p>كل صفحة تعيش على hel.ink/b/{slug}، ومعها رمز QR خاص، وتسجيل لمن ينقر على روابطك.</p></li>
         <li><strong>محرّر كامل على /bio</strong><p>أدر الصفحات والروابط، وارفع الصور والصور الرمزية والأيقونات وشعارات QR، وشاهد معاينة حيّة، وانسخ الصفحات، واقرأ تحليلات كل صفحة.</p></li>
@@ -92,18 +88,14 @@
       </ul>
     </section>
 
-    <section id="run" aria-labelledby="run-h">
-      <h2 id="run-h">شغّلها بنفسك</h2>
-      <div class="panel">
-        <p>يمكن استضافة BioHop ذاتيًا. هذه الخطوات موثّقة من المستودع؛ ولم تُنفَّذ أثناء كتابة هذه الصفحة.</p>
-        <h3>المتطلبات</h3>
-        <p>‏PHP 8.3 وComposer وNode 20+. أوامر البدء السريع والاختبار الكاملة في README على GitHub.</p>
-        <h3>إعدادات تسجيل الدخول</h3>
-        <p>يستخدم تسجيل الدخول الدخول الموحّد عبر HOP ID. اضبط HOP_HUB_URL وHOP_APP=biohop وسر SSO الخاص بالتطبيق أو المشترك (32+ محرفًا) في ملف .env قبل تسجيل الدخول.</p>
-        <h3>قاعدة البيانات</h3>
-        <p>صُمّم BioHop ليشارك قاعدة بيانات MySQL واحدة مع المحور وLinkHop، ويكتب جداوله في سجل migrations_bio. شغّل ترحيلات المحور أولًا لتوجد الجداول المشتركة مثل users. لم يتحقّق هذا التوثيق من توافق الترحيلات الفعلي.</p>
-        <p class="note">تفاصيل قاعدة البيانات أعلاه تصميم موثّق، لا ضمان مُختبَر.</p>
-      </div>
+    <section id="run" class="source-card" aria-labelledby="run-h">
+      <div><span class="section-number" aria-hidden="true">02 / OPEN SOURCE</span><h2 id="run-h">شغّلها بنفسك</h2><p>العناوين الحيّة في هذه الصفحة تشير إلى المواقع العامة لعائلة HOP.</p></div>
+      <div class="cta-row"><a class="btn" href="https://github.com/navi-crwn/BioHop/blob/main/README.md">شغّلها بنفسك ↗</a><a class="btn" href="https://github.com/navi-crwn/BioHop">اطّلع على الشيفرة ↗</a></div>
+    </section>
+
+    <section class="product-preview" aria-labelledby="preview-h">
+      <div class="preview-caption"><div><span class="section-number" aria-hidden="true">03</span><h2 id="preview-h">BioHop</h2></div><a class="btn primary" href="https://bio.hel.ink">جرّب BioHop ↗</a></div>
+      <a class="preview-screen" href="https://bio.hel.ink" aria-label="جرّب BioHop"><img class="preview-light" src="../assets/product-light.webp" alt="BioHop" width="1280" height="900" loading="lazy"><img class="preview-dark" src="../assets/product-dark.webp" alt="BioHop" width="1280" height="900" loading="lazy"></a>
     </section>
 
     <section id="faq" aria-labelledby="faq-h">
@@ -147,18 +139,17 @@
 
     <section id="help" aria-labelledby="help-h">
       <h2 id="help-h">المساعدة والمشكلات</h2>
-      <p>وجدت خطأ أو شيئًا غير واضح في هذا التوثيق؟ <a href="https://github.com/navi-crwn/BioHop/issues">افتح issue على GitHub</a>.</p>
+      <p>وجدت خطأ أو شيئًا غير واضح في هذا التوثيق؟ <a href="https://github.com/navi-crwn/BioHop/issues">افتح issue على GitHub</a> .</p>
     </section>
   </main>
 
   <footer class="site-footer">
     <div class="inner">
       <p><strong>BioHop</strong> &middot; صفحات link-in-bio لعائلة HOP</p>
-      <p>الرخصة: <a href="https://github.com/navi-crwn/BioHop/blob/main/LICENSE">MIT</a>· الشيفرة:<a href="https://github.com/navi-crwn/BioHop">GitHub</a>· مباشر:<a href="https://bio.hel.ink">bio.hel.ink</a></p>
+      <p>الرخصة: <a href="https://github.com/navi-crwn/BioHop/blob/main/LICENSE">MIT</a> · الشيفرة: <a href="https://github.com/navi-crwn/BioHop">GitHub</a> · مباشر: <a href="https://bio.hel.ink">bio.hel.ink</a></p>
     </div>
   </footer>
 
-  <script src="https://hel.ink/hop-assets/v1/hop-float.js" integrity="sha384-kNviPsMEO9lt9+b4n2S5lX6zHRVnePzGuj9VdgCETTsQwzt/5YJRnv842Xg0gRC+" crossorigin="anonymous" defer></script>
   <script src="../assets/theme.js"></script>
 </body>
 </html>
