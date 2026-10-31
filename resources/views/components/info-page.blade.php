@@ -1,6 +1,6 @@
 {{-- A dedicated page on bio.hel.ink (features, about, help, …): BioHop's header and footer,
      a back link to BioHop's home, a title and the page body. --}}
-@props(['title', 'lead' => null, 'description' => null])
+@props(['title', 'lead' => null, 'description' => null, 'wide' => false])
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}" class="scroll-smooth">
 <head>
@@ -18,7 +18,7 @@
 </head>
 <body class="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased dark:bg-[#0e1322] dark:text-slate-100">
     @include('partials.site-header')
-    <main id="main" class="mx-auto max-w-3xl px-4 pb-16 pt-8 sm:px-6">
+    <main id="main" class="mx-auto {{ $wide ? 'max-w-6xl' : 'max-w-3xl' }} px-4 pb-16 pt-8 sm:px-6">
         <a href="{{ route('home') }}" class="inline-flex items-center gap-1.5 text-sm text-slate-500 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
             <span aria-hidden="true">&larr;</span> {{ __('Back to BioHop') }}
         </a>

@@ -146,10 +146,23 @@
                                 </div>
                             </div>
                         </div>
-                        <p class="mt-4 text-center text-xs text-slate-500 dark:text-slate-400">
-                            {{ __('Theme:') }} <strong class="text-slate-700 dark:text-slate-200" x-text="themes[theme].name"></strong> ·
-                            <a href="#themes" class="text-violet-600 underline underline-offset-2 dark:text-violet-400">{{ __('Try another') }}</a>
-                        </p>
+
+                        {{-- Hero quick themes bar (5-6 themes + View all) --}}
+                        <div class="mt-4 flex flex-wrap items-center justify-center gap-1.5" role="group" aria-label="{{ __('Hero quick themes') }}">
+                            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ __('Theme:') }}</span>
+                            @foreach (array_slice($themes, 0, 5, true) as $k => $th)
+                                <button type="button" @click="theme = '{{ $k }}'"
+                                        :aria-pressed="theme === '{{ $k }}'"
+                                        class="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+                                        :class="theme === '{{ $k }}' ? 'border-violet-500 bg-violet-500/10 text-violet-700 dark:text-violet-300 font-semibold' : 'border-slate-200 bg-white/70 text-slate-700 hover:bg-slate-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-300'">
+                                    <span class="h-2 w-2 rounded-full border border-black/10" style="background: {{ $th['background'] }}"></span>
+                                    <span>{{ $th['name'] }}</span>
+                                </button>
+                            @endforeach
+                            <a href="#themes" class="inline-flex items-center gap-1 text-xs font-semibold text-violet-600 underline underline-offset-2 hover:text-violet-700 dark:text-violet-400">
+                                {{ __('View all') }} &rarr;
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -171,30 +184,97 @@
             </div>
         </section>
 
-        {{-- Theme gallery: tap one and the preview above changes --}}
+        {{-- Theme gallery: 2-column layout on desktop with sticky preview phone and theme grid --}}
         <section id="themes" class="scroll-mt-20 border-t border-slate-200/80 bg-slate-100/60 py-20 dark:border-white/10 dark:bg-white/[0.02]">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="mx-auto mb-12 max-w-2xl space-y-3 text-center">
                     <h2 class="text-2xl font-extrabold tracking-tight sm:text-3xl">{{ __('Try a theme') }}</h2>
                     <p class="text-sm text-slate-600 dark:text-slate-400">{{ __('Tap a theme to see it on the example page. Every theme can be tuned with your own colors, fonts and CSS.') }}</p>
                 </div>
-                <ul class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6" role="list">
-                    @foreach ($themes as $key => $t)
-                        <li>
-                            <button type="button" @click="theme = '{{ $key }}'; document.getElementById('preview').scrollIntoView({ behavior: 'smooth', block: 'center' })"
-                                    :aria-pressed="theme === '{{ $key }}'"
-                                    class="group block w-full overflow-hidden rounded-2xl border-2 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
-                                    :class="theme === '{{ $key }}' ? 'border-violet-500' : 'border-transparent'">
-                                <span class="flex h-28 flex-col justify-center gap-1.5 px-4" style="background: {{ $t['background'] }}">
-                                    <span class="h-2.5 rounded-full" style="background: {{ $t['link_bg'] }}; outline: 1px solid {{ $t['link_border'] ?? 'rgb(0 0 0 / .08)' }}"></span>
-                                    <span class="h-2.5 rounded-full" style="background: {{ $t['link_bg'] }}; outline: 1px solid {{ $t['link_border'] ?? 'rgb(0 0 0 / .08)' }}"></span>
-                                    <span class="h-2.5 w-2/3 rounded-full" style="background: {{ $t['link_bg'] }}; outline: 1px solid {{ $t['link_border'] ?? 'rgb(0 0 0 / .08)' }}"></span>
-                                </span>
-                                <span class="block bg-white px-3 py-2 text-xs font-semibold text-slate-700 dark:bg-slate-900 dark:text-slate-200">{{ $t['name'] }}</span>
-                            </button>
-                        </li>
-                    @endforeach
-                </ul>
+
+                <div class="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:items-start">
+                    {{-- Sticky phone preview column on desktop --}}
+                    <div class="lg:col-span-5 lg:sticky lg:top-24">
+                        <div id="gallery-preview" class="relative mx-auto max-w-[320px] rounded-[2.5rem] border-4 border-slate-800 bg-slate-950 p-3 shadow-2xl shadow-violet-500/10">
+                            <div class="mx-auto mb-3 flex h-4 w-28 items-center justify-center rounded-full bg-slate-800">
+                                <div class="mr-2 h-1.5 w-1.5 rounded-full bg-slate-700"></div>
+                                <div class="h-1 w-8 rounded-full bg-slate-700"></div>
+                            </div>
+                            <div class="flex min-h-[440px] flex-col justify-between overflow-hidden rounded-[2rem] p-5 text-center transition-all duration-300"
+                                 :style="`background:${themes[theme].background};color:${themes[theme].text}`">
+                                <div class="space-y-4">
+                                    <div class="space-y-2">
+                                        <div class="mx-auto h-16 w-16 rounded-full bg-gradient-to-tr from-violet-500 to-fuchsia-500 p-0.5 shadow-md">
+                                            <div class="flex h-full w-full items-center justify-center rounded-full bg-slate-900 text-lg font-bold text-white">M</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-base font-bold tracking-tight">@mira</div>
+                                            <div class="text-xs" :style="`color:${themes[theme].bio}`">{{ __('Illustrator · Jakarta') }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-2 pt-1">
+                                        @foreach ([['i-globe', __('Portfolio')], ['i-image', __('Latest drawings')], ['i-note', __('Commission prices')], ['i-card', __('Save my contact')]] as $demo)
+                                            <div class="flex items-center justify-between rounded-xl p-2.5 text-xs font-semibold transition-all"
+                                                 :style="`background:${themes[theme].link_bg};color:${themes[theme].link_text};border:1px solid ${themes[theme].link_border || 'transparent'}`">
+                                                <span class="flex items-center gap-2"><svg class="h-3.5 w-3.5"><use href="#{{ $demo[0] }}"/></svg><span>{{ $demo[1] }}</span></span>
+                                                <svg class="h-3 w-3 opacity-60 rtl:-scale-x-100"><use href="#i-arrow"/></svg>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-center gap-1.5 pt-3 text-[11px] opacity-70" dir="ltr">
+                                    <svg class="h-3.5 w-3.5"><use href="#i-qr"/></svg><span>hel.ink/b/mira</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Active theme label --}}
+                        <p class="mt-3 text-center text-xs text-slate-500 dark:text-slate-400">
+                            {{ __('Theme:') }} <strong class="text-slate-700 dark:text-slate-200" x-text="themes[theme].name"></strong>
+                        </p>
+
+                        {{-- Mobile horizontal swatch carousel directly under the preview (<= 768px) --}}
+                        <div class="mt-4 flex gap-2 overflow-x-auto pb-2 scrollbar-none snap-x lg:hidden" role="radiogroup" aria-label="{{ __('Theme swatch carousel') }}">
+                            @foreach ($themes as $key => $t)
+                                <button type="button" @click="theme = '{{ $key }}'"
+                                        role="radio"
+                                        :aria-checked="theme === '{{ $key }}'"
+                                        :aria-pressed="theme === '{{ $key }}'"
+                                        class="flex-none snap-start rounded-2xl border-2 p-1.5 text-center transition focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+                                        :class="theme === '{{ $key }}' ? 'border-violet-500 ring-2 ring-violet-500/20 bg-violet-50/50 dark:bg-violet-950/30' : 'border-slate-200 bg-white dark:border-white/10 dark:bg-white/5'">
+                                    <span class="block h-8 w-14 rounded-xl border border-black/10" style="background: {{ $t['background'] }}"></span>
+                                    <span class="mt-1 block max-w-[56px] truncate text-[10px] font-semibold text-slate-700 dark:text-slate-200">{{ $t['name'] }}</span>
+                                </button>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    {{-- Theme grid column --}}
+                    <div class="lg:col-span-7">
+                        <ul class="grid grid-cols-2 gap-4 sm:grid-cols-3" role="radiogroup" aria-label="{{ __('Theme gallery') }}">
+                            @foreach ($themes as $key => $t)
+                                <li>
+                                    <button type="button" @click="theme = '{{ $key }}'"
+                                            role="radio"
+                                            :aria-checked="theme === '{{ $key }}'"
+                                            :aria-pressed="theme === '{{ $key }}'"
+                                            class="group block w-full overflow-hidden rounded-2xl border-2 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+                                            :class="theme === '{{ $key }}' ? 'border-violet-500 ring-2 ring-violet-500/20' : 'border-slate-200/80 bg-white/60 hover:border-violet-400/50 dark:border-white/10 dark:bg-white/[0.03]'">
+                                        <span class="flex h-24 flex-col justify-center gap-1.5 px-4" style="background: {{ $t['background'] }}">
+                                            <span class="h-2 rounded-full" style="background: {{ $t['link_bg'] }}; outline: 1px solid {{ $t['link_border'] ?? 'rgb(0 0 0 / .08)' }}"></span>
+                                            <span class="h-2 rounded-full" style="background: {{ $t['link_bg'] }}; outline: 1px solid {{ $t['link_border'] ?? 'rgb(0 0 0 / .08)' }}"></span>
+                                            <span class="h-2 w-2/3 rounded-full" style="background: {{ $t['link_bg'] }}; outline: 1px solid {{ $t['link_border'] ?? 'rgb(0 0 0 / .08)' }}"></span>
+                                        </span>
+                                        <span class="flex items-center justify-between bg-white px-3 py-2 text-xs font-semibold text-slate-700 dark:bg-slate-900 dark:text-slate-200">
+                                            <span>{{ $t['name'] }}</span>
+                                            <span x-show="theme === '{{ $key }}'" class="h-2 w-2 rounded-full bg-violet-500"></span>
+                                        </span>
+                                    </button>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
             </div>
         </section>
 
