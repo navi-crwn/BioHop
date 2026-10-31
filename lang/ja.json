@@ -168,5 +168,15 @@
     "Your page is one minute away.": "あなたのページまで、あと 1 分。",
     "last seen :time": "最終確認 :time",
     "you": "you",
-    "yourname": "yourname"
+    "yourname": "yourname",
+    "Age Verification Required": "年齢確認が必要です",
+    "Sensitive Content Warning": "センシティブなコンテンツの警告",
+    "This page contains adult content intended strictly for viewers aged 18 and older.": "このページには18歳以上の方のみを対象としたアダルトコンテンツが含まれています。",
+    "The creator has marked this page as containing sensitive material.": "作成者がこのページにセンシティブな内容が含まれていると設定しています。",
+    "Note from creator:": "作成者からのメモ：",
+    "I am 18+ — Enter": "18歳以上です — 閲覧する",
+    "I understand — Continue": "理解して続ける",
+    "Go Back": "戻る",
+    "Remember for 24 hours on this device": "この端末で24時間記憶する",
+    "By continuing, you confirm that you are of legal age to view adult content in your jurisdiction.": "続行することにより、お住まいの管轄地域でアダルトコンテンツを閲覧する法定年齢に達していることを確認したことになります。"
 }

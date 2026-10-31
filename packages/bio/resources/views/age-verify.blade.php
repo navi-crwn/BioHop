@@ -1,156 +1,171 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar', 'fa', 'ur', 'he']) ? 'rtl' : 'ltr' }}" class="h-full bg-slate-950 text-slate-100">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinkHop - Age Verification</title>
+    <title>{{ $bioPage->isSensitive() ? __('Sensitive Content Warning') : __('Age Verification Required') }} — {{ $bioPage->title ?: 'BioHop' }}</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="icon" href="{{ route('brand.favicon') }}">
     <x-hop::fonts />
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 1rem;
-            background: linear-gradient(135deg, #1a0a0a 0%, #2d1515 50%, #1a0a0a 100%);
-            position: relative;
-            overflow: hidden;
-        }
-        body::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(239, 68, 68, 0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 20%, rgba(185, 28, 28, 0.1) 0%, transparent 40%);
-            animation: float 20s ease-in-out infinite;
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(5deg); }
+            padding: 1.5rem 1rem;
+            background: radial-gradient(circle at 50% 10%, #1e1b4b 0%, #0f172a 45%, #020617 100%);
+            color: #f8fafc;
         }
         .container {
             width: 100%;
-            max-width: 420px;
-            position: relative;
-            z-index: 1;
+            max-width: 440px;
+            margin: 0 auto;
         }
         .card {
-            background: rgba(30, 20, 20, 0.9);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             border-radius: 24px;
-            padding: 2.5rem 2rem;
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-        }
-        .logo-container {
+            padding: 2.25rem 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
             text-align: center;
-            margin-bottom: 1.5rem;
         }
-        .logo {
+        .brand-header {
+            margin-bottom: 1.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .brand-logo {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            font-size: 1.5rem;
+            font-family: 'Syne', sans-serif;
+            font-size: 1.25rem;
             font-weight: 700;
             color: #fff;
             text-decoration: none;
         }
-        .logo img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+        .brand-logo img {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            padding: 3px;
         }
-        .logo-dot {
-            color: #3b82f6;
-        }
-        .warning-icon {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 1rem;
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(185, 28, 28, 0.3));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid rgba(239, 68, 68, 0.5);
-        }
-        .warning-icon svg {
-            width: 40px;
-            height: 40px;
-            color: #ef4444;
-        }
-        .age-badge {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 1.5rem;
-        }
-        .age-badge span {
+        .badge-pill {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            width: 72px;
-            height: 72px;
-            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            gap: 0.375rem;
+            padding: 0.35rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 1.25rem;
+        }
+        .badge-adult {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .badge-sensitive {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        .icon-circle {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 1.25rem;
             border-radius: 50%;
-            color: #fff;
-            font-weight: 800;
-            font-size: 1.75rem;
-            box-shadow: 0 10px 30px -10px rgba(220, 38, 38, 0.6);
-            border: 3px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .header {
-            text-align: center;
-            margin-bottom: 1.5rem;
+        .icon-adult {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(185, 28, 28, 0.2));
+            border: 2px solid rgba(239, 68, 68, 0.4);
+            color: #ef4444;
         }
-        .header h1 {
+        .icon-sensitive {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(180, 83, 9, 0.2));
+            border: 2px solid rgba(245, 158, 11, 0.4);
+            color: #f59e0b;
+        }
+        h1 {
+            font-family: 'Syne', sans-serif;
             font-size: 1.5rem;
             font-weight: 700;
-            color: #fff;
+            color: #ffffff;
             margin-bottom: 0.5rem;
+            line-height: 1.25;
         }
-        .header p {
-            color: #a1a1aa;
+        .target-title {
+            color: #94a3b8;
             font-size: 0.875rem;
-            line-height: 1.5;
-        }
-        .page-title {
-            color: #e4e4e7;
-            font-size: 0.95rem;
-            font-weight: 500;
-            margin-top: 0.75rem;
-            padding: 0.5rem 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
+            margin-bottom: 1rem;
             display: inline-block;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
-        .disclaimer {
-            color: #a1a1aa;
-            font-size: 0.8rem;
-            text-align: center;
-            margin-bottom: 1.5rem;
-            line-height: 1.6;
-            padding: 0.75rem;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+        .description {
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1.25rem;
         }
-        .enter-btn {
-            width: 100%;
-            padding: 1rem;
-            background: linear-gradient(135deg, #dc2626, #b91c1c);
-            border: none;
+        .reason-box {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 12px;
-            color: #fff;
-            font-size: 1rem;
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+            color: #e2e8f0;
+            text-align: left;
+            margin-bottom: 1.25rem;
+            line-height: 1.4;
+        }
+        .reason-box strong {
+            color: #94a3b8;
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 0.825rem;
+            color: #94a3b8;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+            user-select: none;
+        }
+        .checkbox-container input {
+            cursor: pointer;
+            accent-color: #7c3aed;
+            width: 16px;
+            height: 16px;
+        }
+        .btn-continue {
+            width: 100%;
+            padding: 0.875rem 1.25rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
             font-weight: 600;
+            border: none;
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
@@ -158,105 +173,141 @@
             justify-content: center;
             gap: 0.5rem;
             margin-bottom: 0.75rem;
+            color: #ffffff;
         }
-        .enter-btn:hover {
-            background: linear-gradient(135deg, #b91c1c, #991b1b);
+        .btn-adult {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.35);
+        }
+        .btn-adult:hover {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             transform: translateY(-1px);
-            box-shadow: 0 10px 25px -10px rgba(220, 38, 38, 0.6);
         }
-        .enter-btn svg {
-            width: 20px;
-            height: 20px;
+        .btn-sensitive {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+            box-shadow: 0 4px 15px rgba(217, 119, 6, 0.35);
         }
-        .leave-btn {
-            width: 100%;
-            padding: 0.875rem;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
-            color: #d4d4d8;
-            font-size: 0.95rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
+        .btn-sensitive:hover {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            transform: translateY(-1px);
+        }
+        .btn-back {
             display: block;
-            text-align: center;
-        }
-        .leave-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            color: #fff;
-        }
-        .footer-disclaimer {
-            color: #71717a;
-            font-size: 0.7rem;
-            text-align: center;
-            margin-top: 1.5rem;
-            line-height: 1.5;
-        }
-        .branding {
-            text-align: center;
-            margin-top: 1.5rem;
-        }
-        .branding p {
-            color: #52525b;
-            font-size: 0.75rem;
-        }
-        .branding a {
-            color: #71717a;
+            width: 100%;
+            padding: 0.75rem 1.25rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #94a3b8;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             text-decoration: none;
-            transition: color 0.2s;
+            transition: all 0.2s;
         }
-        .branding a:hover {
-            color: #ef4444;
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+        .footer-note {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 1.25rem;
+            line-height: 1.4;
+        }
+        .brand-credit {
+            margin-top: 1.5rem;
+            font-size: 0.8rem;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+        }
+        .brand-credit a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .brand-credit a:hover {
+            color: #ffffff;
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <main class="container" role="main">
         <div class="card">
-            <div class="logo-container">
-                <a href="{{ url('/') }}" class="logo">
-                    <img src="{{ route('brand.logo') }}" alt="LinkHop">
-                    HEL<span class="logo-dot">.</span>ink
+            <div class="brand-header">
+                <a href="{{ url('/') }}" class="brand-logo" aria-label="BioHop Homepage">
+                    <img src="{{ route('brand.logo') }}" alt="BioHop" width="32" height="32">
+                    <span>BioHop</span>
                 </a>
             </div>
-            <div class="warning-icon">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                </svg>
-            </div>
-            <div class="age-badge">
-                <span>18+</span>
-            </div>
-            <div class="header">
-                <h1>Age Verification Required</h1>
-                <p>This page contains content intended for adults only</p>
-                @if($bioPage->title)
-                    <span class="page-title">{{ $bioPage->title }}</span>
-                @endif
-            </div>
-            <div class="disclaimer">
-                By clicking "I'm 18+ Enter", you confirm that you are at least 18 years old and agree to view adult content.
-            </div>
-            <form method="POST" action="{{ url()->current() }}">
+
+            @if($bioPage->isSensitive())
+                <div class="icon-circle icon-sensitive" aria-hidden="true">
+                    <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                <div class="badge-pill badge-sensitive">
+                    {{ __('Sensitive Content Warning') }}
+                </div>
+                <h1>{{ __('Sensitive Content Warning') }}</h1>
+                <p class="description">{{ __('The creator has marked this page as containing sensitive material.') }}</p>
+            @else
+                <div class="icon-circle icon-adult" aria-hidden="true">
+                    <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                <div class="badge-pill badge-adult">
+                    18+ {{ __('Age Verification Required') }}
+                </div>
+                <h1>{{ __('Age Verification Required') }}</h1>
+                <p class="description">{{ __('This page contains adult content intended strictly for viewers aged 18 and older.') }}</p>
+            @endif
+
+            @if($bioPage->title)
+                <div class="target-title" title="{{ $bioPage->title }}">{{ $bioPage->title }}</div>
+            @endif
+
+            @if($bioPage->warning_reason)
+                <div class="reason-box">
+                    <strong>{{ __('Note from creator:') }}</strong>
+                    <span>{{ $bioPage->warning_reason }}</span>
+                </div>
+            @endif
+
+            <form method="POST" action="{{ url()->current() }}" novalidate>
                 @csrf
                 <input type="hidden" name="age_confirm" value="yes">
-                <button type="submit" class="enter-btn">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                
+                <label class="checkbox-container">
+                    <input type="checkbox" name="remember" value="1" id="remember-gate">
+                    <span>{{ __('Remember for 24 hours on this device') }}</span>
+                </label>
+
+                <button type="submit" class="btn-continue {{ $bioPage->isSensitive() ? 'btn-sensitive' : 'btn-adult' }}">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
-                    I'm 18+ Enter
+                    <span>{{ $bioPage->isSensitive() ? __('I understand — Continue') : __('I am 18+ — Enter') }}</span>
                 </button>
-                <a href="{{ url('/') }}" class="leave-btn">Leave Page</a>
+
+                <a href="{{ url('/') }}" class="btn-back" onclick="if(window.history.length > 1){ window.history.back(); return false; }">
+                    {{ __('Go Back') }}
+                </a>
             </form>
-            <p class="footer-disclaimer">
-                By continuing, you agree that you are of legal age to view adult content in your jurisdiction.
+
+            <p class="footer-note">
+                {{ __('By continuing, you confirm that you are of legal age to view adult content in your jurisdiction.') }}
             </p>
         </div>
-        <div class="branding">
-            <p>Powered by <a href="{{ url('/') }}">LinkHop</a></p>
+
+        <div class="brand-credit">
+            <span>Powered by</span>
+            <a href="{{ url('/') }}">BioHop</a>
         </div>
-    </div>
+    </main>
 </body>
 </html>

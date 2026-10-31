@@ -168,5 +168,15 @@
     "Your page is one minute away.": "صفحتك على بُعد دقيقة واحدة.",
     "last seen :time": "آخر نشاط :time",
     "you": "you",
-    "yourname": "yourname"
+    "yourname": "yourname",
+    "Age Verification Required": "مطلوب التحقق من العمر",
+    "Sensitive Content Warning": "تحذير من محتوى حساس",
+    "This page contains adult content intended strictly for viewers aged 18 and older.": "تحتوي هذه الصفحة على محتوى للبالغين مخصص فقط لمن يبلغون 18 عامًا فما فوق.",
+    "The creator has marked this page as containing sensitive material.": "وضع منشئ المحتوى علامة على أن هذه الصفحة تتضمن محتوى حساسًا.",
+    "Note from creator:": "ملاحظة من المنشئ:",
+    "I am 18+ — Enter": "عمري 18+ — دخول",
+    "I understand — Continue": "فهمت ذلك — متابعة",
+    "Go Back": "رجوع",
+    "Remember for 24 hours on this device": "تذكر لمدة 24 ساعة على هذا الجهاز",
+    "By continuing, you confirm that you are of legal age to view adult content in your jurisdiction.": "بالمتابعة، فإنك تؤكد أنك في السن القانونية لعرض محتوى البالغين في منطقتك."
 }
