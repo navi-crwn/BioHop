@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BioHop — HOP 家族的链接主页（link-in-bio）</title>
+  <meta name="description" content="一个页面汇集你的链接、嵌入内容、社交账号和二维码，发布在 hel.ink/b/{slug}，在 bio.hel.ink 管理。可自托管、开源（MIT）。">
+  <link rel="canonical" href="https://navi-crwn.github.io/BioHop/zh/">
+  <link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/styles.css">
+  <link rel="stylesheet" href="https://hel.ink/hop-assets/v1/fonts.css" integrity="sha384-T1Y2aaMQ8CSfi7J2t9d1ZAbVcQ1FcO27Jwn3WtNWB+UVK137YCl3hIPvz0G4K22L" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://hel.ink/hop-assets/v1/hop-float.css" integrity="sha384-sl7D409xEmIT5gkArlQLoQQ4rOkqF7tOGf1VhI/iMb7c2/s9w9NtDEjLbJMU/MQ/" crossorigin="anonymous">
+  <link rel="alternate" hreflang="x-default" href="https://navi-crwn.github.io/BioHop/">
+  <link rel="alternate" hreflang="en" href="https://navi-crwn.github.io/BioHop/en/">
+  <link rel="alternate" hreflang="id" href="https://navi-crwn.github.io/BioHop/id/">
+  <link rel="alternate" hreflang="zh" href="https://navi-crwn.github.io/BioHop/zh/">
+  <link rel="alternate" hreflang="es" href="https://navi-crwn.github.io/BioHop/es/">
+  <link rel="alternate" hreflang="ar" href="https://navi-crwn.github.io/BioHop/ar/">
+  <link rel="alternate" hreflang="pt" href="https://navi-crwn.github.io/BioHop/pt/">
+  <link rel="alternate" hreflang="fr" href="https://navi-crwn.github.io/BioHop/fr/">
+  <link rel="alternate" hreflang="ja" href="https://navi-crwn.github.io/BioHop/ja/">
+  <!-- Open Graph: docs/og.png is a planned asset generated later by another agent;
+       it is referenced here as a plan, not as an existing file. -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="BioHop">
+  <meta property="og:title" content="BioHop — HOP 家族的链接主页（link-in-bio）">
+  <meta property="og:description" content="一个页面汇集你的链接、嵌入内容、社交账号和二维码，发布在 hel.ink/b/{slug}，在 bio.hel.ink 管理。可自托管、开源（MIT）。">
+  <meta property="og:url" content="https://navi-crwn.github.io/BioHop/zh/">
+  <meta property="og:image" content="https://navi-crwn.github.io/BioHop/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+  <div data-hop-float></div>
+  <a class="skip" href="#main">跳到正文</a>
+
+  <header class="site-header">
+    <a class="brand" href="https://navi-crwn.github.io/BioHop/zh/">
+      <img src="../assets/mark.svg" alt="" width="27" height="27">
+      <span>BioHop</span>
+    </a>
+    <nav aria-label="页面导航">
+      <a href="#features">功能</a>
+      <a href="#run">自行部署</a>
+      <a href="#faq">常见问题</a>
+      <a href="#family">HOP 家族</a>
+    </nav>
+    <div class="header-actions">
+      <details class="langmenu"><summary aria-label="Language"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></svg>ZH</summary><ul>
+        <li><a href="../" hreflang="en" lang="en">English<small>EN</small></a></li>
+        <li><a href="../id/" hreflang="id" lang="id">Bahasa Indonesia<small>ID</small></a></li>
+        <li><a href="../zh/" hreflang="zh" lang="zh" aria-current="page">简体中文<small>ZH</small></a></li>
+        <li><a href="../es/" hreflang="es" lang="es">Español<small>ES</small></a></li>
+        <li><a href="../ar/" hreflang="ar" lang="ar">العربية<small>AR</small></a></li>
+        <li><a href="../pt/" hreflang="pt" lang="pt">Português<small>PT</small></a></li>
+        <li><a href="../fr/" hreflang="fr" lang="fr">Français<small>FR</small></a></li>
+        <li><a href="../ja/" hreflang="ja" lang="ja">日本語<small>JA</small></a></li>
+      </ul></details>
+      <button id="theme-toggle" type="button" data-action="dark" data-label-light="浅色主题" data-label-dark="深色主题">深色主题</button>
+    </div>
+  </header>
+
+  <main id="main">
+    <div class="hero">
+      <div>
+        <p class="kicker">HOP &middot; 链接主页</p>
+        <h1>你的链接，一个页面，几秒发布</h1>
+        <p class="lede">BioHop 把一个页面变成你在网上的门面：链接、嵌入内容、社交账号和二维码就在 hel.ink/b/{slug}，由 bio.hel.ink 管理。可自托管、开源，属于 HOP 家族。</p>
+        <div class="cta-row">
+          <a class="btn primary" href="https://bio.hel.ink">试用 BioHop</a>
+          <a class="btn" href="https://github.com/navi-crwn/BioHop">查看代码</a>
+        </div>
+        <p class="note">本页中的线上地址指向 HOP 家族的公开网站。</p>
+      </div>
+      <div class="tile-wrap" aria-hidden="true">
+        <img class="tile" src="../assets/tile.svg" alt="" width="220" height="260">
+      </div>
+    </div>
+
+    <section id="features" aria-labelledby="features-h">
+      <h2 id="features-h">BioHop 能做什么</h2>
+      <ul class="features">
+        <li><strong>公开 bio 页面，附二维码和点击跟踪</strong><p>每个页面都在 hel.ink/b/{slug}，配有专属二维码，并记录他人点击你链接的情况。</p></li>
+        <li><strong>/bio 上的完整编辑器</strong><p>管理页面和链接，上传图片、头像、图标和二维码 logo，实时预览，复制页面，查看每页分析。</p></li>
+        <li><strong>主题预设</strong><p>浅色、深色、极简、霓虹等许多预设，由编辑器、预览和公开页面共用。</p></li>
+        <li><strong>一次登录，全家族通用：HOP ID</strong><p>这里没有本地注册或密码。你在 hub 用 HOP ID 登录一次即可。登录前需配置 HOP_HUB_URL、HOP_APP 和 SSO 密钥。</p></li>
+        <li><strong>点击分析</strong><p>每次点击都有国家/地区（GeoIP）以及设备、浏览器和机器人识别。</p></li>
+        <li><strong>用 LinkHop 缩短链接</strong><p>区块中的“缩短此网址”会使用你自己的服务令牌调用 LinkHop 的 API。若 LinkHop 不可用，区块保留原始网址。</p></li>
+        <li><strong>网址与内容安全</strong><p>abuse:scan 命令按小时计划，依据 hop/safety 的共享 domain_blacklist 检查页面和区块。</p></li>
+        <li><strong>每日隐私清理</strong><p>privacy:prune 命令每天删除 bio 点击数据，分析数据不会无限堆积。</p></li>
+      </ul>
+    </section>
+
+    <section id="run" aria-labelledby="run-h">
+      <h2 id="run-h">自行部署</h2>
+      <div class="panel">
+        <p>BioHop 可自托管。以下步骤整理自仓库文档，撰写本页时并未实际执行。</p>
+        <h3>前提条件</h3>
+        <p>PHP 8.3、Composer 和 Node 20+。完整的快速开始与测试命令见 GitHub 上的 README。</p>
+        <h3>登录配置</h3>
+        <p>登录使用 HOP ID 单点登录。登录前请在 .env 中设置 HOP_HUB_URL、HOP_APP=biohop 以及应用专属或共享的 SSO 密钥（32 个字符以上）。</p>
+        <h3>数据库</h3>
+        <p>BioHop 的设计是与 hub 和 LinkHop 共用一个 MySQL 数据库，并把自身表记录到 migrations_bio 日志。请先运行 hub 的迁移，使 users 等共享表存在。实际迁移兼容性未经本文档验证。</p>
+        <p class="note">以上数据库细节是文档化的设计，不是经过测试的保证。</p>
+      </div>
+    </section>
+
+    <section id="faq" aria-labelledby="faq-h">
+      <h2 id="faq-h">常见问题</h2>
+      <details>
+        <summary>一次点击会记录什么数据？</summary>
+        <p>一次点击会记录时间、链接，以及推导出的国家/地区、设备和浏览器信息。BioHop 每天用 privacy:prune 清理 bio 点击数据。</p>
+      </details>
+      <details>
+        <summary>我需要注册账号吗？</summary>
+        <p>不需要。BioHop 没有本地注册或密码：你在 hub 用 HOP ID 登录一次，即可使用所有 HOP 应用。</p>
+      </details>
+      <details>
+        <summary>可以自托管吗？</summary>
+        <p>可以。BioHop 基于 MIT 许可证开源。前提条件和快速开始请见 GitHub 上的 README；hub 地址、应用名和 SSO 密钥由你自己配置。</p>
+      </details>
+      <details>
+        <summary>在哪里报告问题？</summary>
+        <p>请在 GitHub 上提交 issue。</p>
+      </details>
+    </section>
+
+    <section id="family" aria-labelledby="family-h">
+      <h2 id="family-h">HOP 家族</h2>
+      <p>BioHop 是 hel.ink 背后可自托管开源应用家族 HOP 的一员。</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th scope="col">应用</th><th scope="col">功能</th><th scope="col">线上地址</th><th scope="col">代码</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Hub</strong></td><td>账号门户，HOP ID 登录</td><td><code>hel.ink</code> <span class="live">&middot; <code>hub.hel.ink</code></span></td><td><a href="https://github.com/navi-crwn/HEL.ink">navi-crwn/HEL.ink</a></td></tr>
+            <tr><td><strong>LinkHop</strong></td><td>短网址服务</td><td><code>link.hel.ink</code> <span class="live">&middot; <code>hel.ink/l/{slug}</code></span></td><td><a href="https://github.com/navi-crwn/LinkHop">navi-crwn/LinkHop</a></td></tr>
+            <tr><td><strong>BioHop</strong></td><td>链接主页（link-in-bio）</td><td><code>bio.hel.ink</code> <span class="live">&middot; <code>hel.ink/b/{slug}</code></span></td><td>本仓库</td></tr>
+            <tr><td><strong>PixelHop</strong></td><td>图片与媒体托管</td><td><code>pixel.hel.ink</code> <span class="live">&middot; <code>p.hel.ink</code></span></td><td><a href="https://github.com/navi-crwn/PixelHop">navi-crwn/PixelHop</a></td></tr>
+            <tr><td><strong>NoteHop</strong></td><td>私密笔记与文档</td><td><code>note.hel.ink</code> <span class="live">&middot; <code>n.hel.ink</code></span></td><td><a href="https://github.com/navi-crwn/NoteHop">navi-crwn/NoteHop</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="help" aria-labelledby="help-h">
+      <h2 id="help-h">帮助与反馈</h2>
+      <p>发现 bug，或对本文档有疑问？ <a href="https://github.com/navi-crwn/BioHop/issues">在 GitHub 提交 issue</a>。</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="inner">
+      <p><strong>BioHop</strong> &middot; HOP 家族的链接主页</p>
+      <p>许可证： <a href="https://github.com/navi-crwn/BioHop/blob/main/LICENSE">MIT</a>· 代码：<a href="https://github.com/navi-crwn/BioHop">GitHub</a>· 线上：<a href="https://bio.hel.ink">bio.hel.ink</a></p>
+    </div>
+  </footer>
+
+  <script src="https://hel.ink/hop-assets/v1/hop-float.js" integrity="sha384-kNviPsMEO9lt9+b4n2S5lX6zHRVnePzGuj9VdgCETTsQwzt/5YJRnv842Xg0gRC+" crossorigin="anonymous" defer></script>
+  <script src="../assets/theme.js"></script>
+</body>
+</html>
