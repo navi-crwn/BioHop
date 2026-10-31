@@ -28,6 +28,14 @@ Route::get('/email/verify', fn () => redirect()->away(User::hubUrl('settings')))
 Route::get('/report-abuse', [AbuseReportController::class, 'create'])->name('report.create');
 Route::post('/report-abuse', [AbuseReportController::class, 'store'])->middleware('throttle:5,10,report-abuse')->name('report.store');
 
+// Root redirect fallback for hel.ink/b/ and /b when routed here (U-05).
+Route::match(['GET', 'HEAD'], '/b', function (Request $request) {
+    return redirect()->away('https://bio.hel.ink/'.($request->getQueryString() ? '?'.$request->getQueryString() : ''), 301);
+});
+Route::match(['GET', 'HEAD'], '/b/', function (Request $request) {
+    return redirect()->away('https://bio.hel.ink/'.($request->getQueryString() ? '?'.$request->getQueryString() : ''), 301);
+});
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 // Dedicated pages on BioHop's own domain (U-07); menus link here, not to the hub.
 foreach (PageController::PAGES as $page) {
