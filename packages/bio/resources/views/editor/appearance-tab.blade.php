@@ -1,12 +1,12 @@
 <!-- Appearance Tab Content - Enhanced Layout -->
-<div class="grid grid-cols-2 gap-4">
+<div class="grid grid-cols-1 gap-4">
     <!-- Left Column: Theme Selection -->
     <div class="editor-card">
-        <div class="editor-card-header pb-3">
+        <div class="editor-card-header pb-3" style="display:block">
             <h3 class="editor-card-title text-base font-semibold">Theme</h3>
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Applying a theme will reset all button custom colors</p>
         </div>
-        <div class="grid grid-cols-4 gap-2">
+        <div class="grid gap-2" style="grid-template-columns:repeat(auto-fit,minmax(70px,1fr))">
             <template x-for="(theme, id) in themes" :key="id">
                 <div class="relative group">
                     <button @click="bioPage.theme = id; applyTheme(id)" 
