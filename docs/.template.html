@@ -8,12 +8,10 @@
   <link rel="canonical" href="https://navi-crwn.github.io/BioHop/{{CANON_PATH}}">
   <link rel="icon" href="{{REL}}assets/mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="{{REL}}assets/styles.css">
-  <link rel="stylesheet" href="https://hel.ink/hop-assets/v1/fonts.css" integrity="sha384-T1Y2aaMQ8CSfi7J2t9d1ZAbVcQ1FcO27Jwn3WtNWB+UVK137YCl3hIPvz0G4K22L" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://hel.ink/hop-assets/v1/hop-float.css" integrity="sha384-sl7D409xEmIT5gkArlQLoQQ4rOkqF7tOGf1VhI/iMb7c2/s9w9NtDEjLbJMU/MQ/" crossorigin="anonymous">
+  <link rel="stylesheet" href="{{REL}}assets/product.css">
+  <link rel="stylesheet" href="https://hel.ink/hop-assets/v1/fonts-amnesia.css" integrity="sha384-750KEkFNx2ykcIsUyi1pZ0JC/Z6jfrK7OJtntqOzB8HKfEpjeostGTWJGAxh/5Zi" crossorigin="anonymous">
   <link rel="alternate" hreflang="x-default" href="https://navi-crwn.github.io/BioHop/">
 {{HREFLANGS}}
-  <!-- Open Graph: docs/og.png is a planned asset generated later by another agent;
-       it is referenced here as a plan, not as an existing file. -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="BioHop">
   <meta property="og:title" content="{{OG_TITLE}}">
@@ -25,7 +23,7 @@
   <meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
-  <div data-hop-float></div>
+
   <a class="skip" href="#main">{{SKIP}}</a>
 
   <header class="site-header">
@@ -46,7 +44,7 @@
   </header>
 
   <main id="main">
-    <div class="hero">
+    <div class="hero product-hero">
       <div>
         <p class="kicker">HOP &middot; {{KICKER}}</p>
         <h1>{{H1}}</h1>
@@ -57,13 +55,11 @@
         </div>
         <p class="note">{{HERO_NOTE}}</p>
       </div>
-      <div class="tile-wrap" aria-hidden="true">
-        <img class="tile" src="{{REL}}assets/tile.svg" alt="" width="220" height="260">
-      </div>
+      <div class="product-art profile-art" aria-hidden="true"><div class="profile-sheet profile-sheet-back"></div><div class="profile-sheet"><img src="{{REL}}assets/mark.svg" alt="" width="48" height="48"><strong>hel.ink/b/you</strong><span class="profile-line"></span><span class="profile-line"></span><span class="profile-line"></span><span class="profile-dots">● &nbsp; ● &nbsp; ●</span></div></div>
     </div>
 
     <section id="features" aria-labelledby="features-h">
-      <h2 id="features-h">{{FEATURES_H}}</h2>
+      <span class="section-number" aria-hidden="true">01</span><h2 id="features-h">{{FEATURES_H}}</h2>
       <ul class="features">
         <li><strong>{{F1_T}}</strong><p>{{F1_D}}</p></li>
         <li><strong>{{F2_T}}</strong><p>{{F2_D}}</p></li>
@@ -76,18 +72,14 @@
       </ul>
     </section>
 
-    <section id="run" aria-labelledby="run-h">
-      <h2 id="run-h">{{RUN_H}}</h2>
-      <div class="panel">
-        <p>{{RUN_INTRO}}</p>
-        <h3>{{RUN_REQ_H}}</h3>
-        <p>{{RUN_REQ}}</p>
-        <h3>{{RUN_SIGNIN_H}}</h3>
-        <p>{{RUN_SIGNIN}}</p>
-        <h3>{{RUN_DB_H}}</h3>
-        <p>{{RUN_DB}}</p>
-        <p class="note">{{RUN_NOTE}}</p>
-      </div>
+    <section id="run" class="source-card" aria-labelledby="run-h">
+      <div><span class="section-number" aria-hidden="true">02 / OPEN SOURCE</span><h2 id="run-h">{{RUN_H}}</h2><p>{{HERO_NOTE}}</p></div>
+      <div class="cta-row"><a class="btn" href="https://github.com/navi-crwn/BioHop/blob/main/README.md">{{NAV_RUN}} ↗</a><a class="btn" href="https://github.com/navi-crwn/BioHop">{{CTA_CODE}} ↗</a></div>
+    </section>
+
+    <section class="product-preview" aria-labelledby="preview-h">
+      <div class="preview-caption"><div><span class="section-number" aria-hidden="true">03</span><h2 id="preview-h">BioHop</h2></div><a class="btn primary" href="https://bio.hel.ink">{{CTA_MAIN}} ↗</a></div>
+      <a class="preview-screen" href="https://bio.hel.ink" aria-label="{{CTA_MAIN}}"><img class="preview-light" src="{{REL}}assets/product-light.webp" alt="BioHop" width="1280" height="900" loading="lazy"><img class="preview-dark" src="{{REL}}assets/product-dark.webp" alt="BioHop" width="1280" height="900" loading="lazy"></a>
     </section>
 
     <section id="faq" aria-labelledby="faq-h">
@@ -131,18 +123,17 @@
 
     <section id="help" aria-labelledby="help-h">
       <h2 id="help-h">{{HELP_H}}</h2>
-      <p>{{HELP_TEXT}} <a href="https://github.com/navi-crwn/BioHop/issues">{{HELP_ISSUES}}</a>{{HELP_TAIL}}</p>
+      <p>{{HELP_TEXT}} <a href="https://github.com/navi-crwn/BioHop/issues">{{HELP_ISSUES}}</a> {{HELP_TAIL}}</p>
     </section>
   </main>
 
   <footer class="site-footer">
     <div class="inner">
       <p><strong>BioHop</strong> &middot; {{FOOTER_TAG}}</p>
-      <p>{{FOOTER_LICENSE}} <a href="https://github.com/navi-crwn/BioHop/blob/main/LICENSE">MIT</a>{{FOOTER_MID}}<a href="https://github.com/navi-crwn/BioHop">GitHub</a>{{FOOTER_MID2}}<a href="https://bio.hel.ink">bio.hel.ink</a></p>
+      <p>{{FOOTER_LICENSE}} <a href="https://github.com/navi-crwn/BioHop/blob/main/LICENSE">MIT</a> {{FOOTER_MID}} <a href="https://github.com/navi-crwn/BioHop">GitHub</a> {{FOOTER_MID2}} <a href="https://bio.hel.ink">bio.hel.ink</a></p>
     </div>
   </footer>
 
-  <script src="https://hel.ink/hop-assets/v1/hop-float.js" integrity="sha384-kNviPsMEO9lt9+b4n2S5lX6zHRVnePzGuj9VdgCETTsQwzt/5YJRnv842Xg0gRC+" crossorigin="anonymous" defer></script>
   <script src="{{REL}}assets/theme.js"></script>
 </body>
 </html>

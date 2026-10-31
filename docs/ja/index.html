@@ -8,8 +8,8 @@
   <link rel="canonical" href="https://navi-crwn.github.io/BioHop/ja/">
   <link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../assets/styles.css">
-  <link rel="stylesheet" href="https://hel.ink/hop-assets/v1/fonts.css" integrity="sha384-T1Y2aaMQ8CSfi7J2t9d1ZAbVcQ1FcO27Jwn3WtNWB+UVK137YCl3hIPvz0G4K22L" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://hel.ink/hop-assets/v1/hop-float.css" integrity="sha384-sl7D409xEmIT5gkArlQLoQQ4rOkqF7tOGf1VhI/iMb7c2/s9w9NtDEjLbJMU/MQ/" crossorigin="anonymous">
+  <link rel="stylesheet" href="../assets/product.css">
+  <link rel="stylesheet" href="https://hel.ink/hop-assets/v1/fonts-amnesia.css" integrity="sha384-750KEkFNx2ykcIsUyi1pZ0JC/Z6jfrK7OJtntqOzB8HKfEpjeostGTWJGAxh/5Zi" crossorigin="anonymous">
   <link rel="alternate" hreflang="x-default" href="https://navi-crwn.github.io/BioHop/">
   <link rel="alternate" hreflang="en" href="https://navi-crwn.github.io/BioHop/en/">
   <link rel="alternate" hreflang="id" href="https://navi-crwn.github.io/BioHop/id/">
@@ -19,8 +19,6 @@
   <link rel="alternate" hreflang="pt" href="https://navi-crwn.github.io/BioHop/pt/">
   <link rel="alternate" hreflang="fr" href="https://navi-crwn.github.io/BioHop/fr/">
   <link rel="alternate" hreflang="ja" href="https://navi-crwn.github.io/BioHop/ja/">
-  <!-- Open Graph: docs/og.png is a planned asset generated later by another agent;
-       it is referenced here as a plan, not as an existing file. -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="BioHop">
   <meta property="og:title" content="BioHop — HOP ファミリーのリンクインバイオページ">
@@ -32,7 +30,7 @@
   <meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
-  <div data-hop-float></div>
+
   <a class="skip" href="#main">本文へスキップ</a>
 
   <header class="site-header">
@@ -62,7 +60,7 @@
   </header>
 
   <main id="main">
-    <div class="hero">
+    <div class="hero product-hero">
       <div>
         <p class="kicker">HOP &middot; リンクインバイオ</p>
         <h1>あなたのリンクを 1 ページに、数秒で公開</h1>
@@ -73,13 +71,11 @@
         </div>
         <p class="note">このページのライブアドレスは HOP ファミリーの公開サイトへつながります。</p>
       </div>
-      <div class="tile-wrap" aria-hidden="true">
-        <img class="tile" src="../assets/tile.svg" alt="" width="220" height="260">
-      </div>
+      <div class="product-art profile-art" aria-hidden="true"><div class="profile-sheet profile-sheet-back"></div><div class="profile-sheet"><img src="../assets/mark.svg" alt="" width="48" height="48"><strong>hel.ink/b/you</strong><span class="profile-line"></span><span class="profile-line"></span><span class="profile-line"></span><span class="profile-dots">● &nbsp; ● &nbsp; ●</span></div></div>
     </div>
 
     <section id="features" aria-labelledby="features-h">
-      <h2 id="features-h">BioHop にできること</h2>
+      <span class="section-number" aria-hidden="true">01</span><h2 id="features-h">BioHop にできること</h2>
       <ul class="features">
         <li><strong>QR コードとクリック計測付きの公開 bio ページ</strong><p>各ページは hel.ink/b/{slug} にあり、専用の QR コードを添え、リンクがクリックされた記録を残します。</p></li>
         <li><strong>/bio のフルエディター</strong><p>ページやリンクを管理し、画像・アバター・アイコン・QR ロゴをアップロード。ライブプレビュー、ページ複製、ページ別アナリティクスに対応。</p></li>
@@ -92,18 +88,14 @@
       </ul>
     </section>
 
-    <section id="run" aria-labelledby="run-h">
-      <h2 id="run-h">自分で動かす</h2>
-      <div class="panel">
-        <p>BioHop はセルフホストできます。以下の手順はリポジトリの文書に基づくもので、このページの作成時に実行されたものではありません。</p>
-        <h3>前提条件</h3>
-        <p>PHP 8.3、Composer、Node 20+。クイックスタートとテストのコマンド一式は GitHub の README を参照。</p>
-        <h3>サインインの設定</h3>
-        <p>サインインは HOP ID のシングルサインオンを使用します。サインイン前に .env に HOP_HUB_URL、HOP_APP=biohop、およびアプリ固有または共有の SSO シークレット（32 文字以上）を設定してください。</p>
-        <h3>データベース</h3>
-        <p>BioHop はハブおよび LinkHop と 1 つの MySQL データベースを共有する設計で、自身のテーブルを migrations_bio ログに記録します。users などの共有テーブルを確保するため、まずハブのマイグレーションを実行してください。実際のマイグレーション互換性はこのドキュメントでは検証されていません。</p>
-        <p class="note">上記のデータベースの詳細は文書化された設計であり、検証済みの保証ではありません。</p>
-      </div>
+    <section id="run" class="source-card" aria-labelledby="run-h">
+      <div><span class="section-number" aria-hidden="true">02 / OPEN SOURCE</span><h2 id="run-h">自分で動かす</h2><p>このページのライブアドレスは HOP ファミリーの公開サイトへつながります。</p></div>
+      <div class="cta-row"><a class="btn" href="https://github.com/navi-crwn/BioHop/blob/main/README.md">自分で動かす ↗</a><a class="btn" href="https://github.com/navi-crwn/BioHop">コードを見る ↗</a></div>
+    </section>
+
+    <section class="product-preview" aria-labelledby="preview-h">
+      <div class="preview-caption"><div><span class="section-number" aria-hidden="true">03</span><h2 id="preview-h">BioHop</h2></div><a class="btn primary" href="https://bio.hel.ink">BioHop を試す ↗</a></div>
+      <a class="preview-screen" href="https://bio.hel.ink" aria-label="BioHop を試す"><img class="preview-light" src="../assets/product-light.webp" alt="BioHop" width="1280" height="900" loading="lazy"><img class="preview-dark" src="../assets/product-dark.webp" alt="BioHop" width="1280" height="900" loading="lazy"></a>
     </section>
 
     <section id="faq" aria-labelledby="faq-h">
@@ -147,18 +139,17 @@
 
     <section id="help" aria-labelledby="help-h">
       <h2 id="help-h">ヘルプと Issue</h2>
-      <p>バグや、このドキュメントで分かりにくい点を見つけましたか？ <a href="https://github.com/navi-crwn/BioHop/issues">GitHub で issue を開く</a>。</p>
+      <p>バグや、このドキュメントで分かりにくい点を見つけましたか？ <a href="https://github.com/navi-crwn/BioHop/issues">GitHub で issue を開く</a> 。</p>
     </section>
   </main>
 
   <footer class="site-footer">
     <div class="inner">
       <p><strong>BioHop</strong> &middot; HOP ファミリーのリンクインバイオページ</p>
-      <p>ライセンス： <a href="https://github.com/navi-crwn/BioHop/blob/main/LICENSE">MIT</a>· コード：<a href="https://github.com/navi-crwn/BioHop">GitHub</a>· 公開：<a href="https://bio.hel.ink">bio.hel.ink</a></p>
+      <p>ライセンス： <a href="https://github.com/navi-crwn/BioHop/blob/main/LICENSE">MIT</a> · コード： <a href="https://github.com/navi-crwn/BioHop">GitHub</a> · 公開： <a href="https://bio.hel.ink">bio.hel.ink</a></p>
     </div>
   </footer>
 
-  <script src="https://hel.ink/hop-assets/v1/hop-float.js" integrity="sha384-kNviPsMEO9lt9+b4n2S5lX6zHRVnePzGuj9VdgCETTsQwzt/5YJRnv842Xg0gRC+" crossorigin="anonymous" defer></script>
   <script src="../assets/theme.js"></script>
 </body>
 </html>

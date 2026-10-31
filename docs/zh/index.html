@@ -8,8 +8,8 @@
   <link rel="canonical" href="https://navi-crwn.github.io/BioHop/zh/">
   <link rel="icon" href="../assets/mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../assets/styles.css">
-  <link rel="stylesheet" href="https://hel.ink/hop-assets/v1/fonts.css" integrity="sha384-T1Y2aaMQ8CSfi7J2t9d1ZAbVcQ1FcO27Jwn3WtNWB+UVK137YCl3hIPvz0G4K22L" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://hel.ink/hop-assets/v1/hop-float.css" integrity="sha384-sl7D409xEmIT5gkArlQLoQQ4rOkqF7tOGf1VhI/iMb7c2/s9w9NtDEjLbJMU/MQ/" crossorigin="anonymous">
+  <link rel="stylesheet" href="../assets/product.css">
+  <link rel="stylesheet" href="https://hel.ink/hop-assets/v1/fonts-amnesia.css" integrity="sha384-750KEkFNx2ykcIsUyi1pZ0JC/Z6jfrK7OJtntqOzB8HKfEpjeostGTWJGAxh/5Zi" crossorigin="anonymous">
   <link rel="alternate" hreflang="x-default" href="https://navi-crwn.github.io/BioHop/">
   <link rel="alternate" hreflang="en" href="https://navi-crwn.github.io/BioHop/en/">
   <link rel="alternate" hreflang="id" href="https://navi-crwn.github.io/BioHop/id/">
@@ -19,8 +19,6 @@
   <link rel="alternate" hreflang="pt" href="https://navi-crwn.github.io/BioHop/pt/">
   <link rel="alternate" hreflang="fr" href="https://navi-crwn.github.io/BioHop/fr/">
   <link rel="alternate" hreflang="ja" href="https://navi-crwn.github.io/BioHop/ja/">
-  <!-- Open Graph: docs/og.png is a planned asset generated later by another agent;
-       it is referenced here as a plan, not as an existing file. -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="BioHop">
   <meta property="og:title" content="BioHop — HOP 家族的链接主页（link-in-bio）">
@@ -32,7 +30,7 @@
   <meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
-  <div data-hop-float></div>
+
   <a class="skip" href="#main">跳到正文</a>
 
   <header class="site-header">
@@ -62,7 +60,7 @@
   </header>
 
   <main id="main">
-    <div class="hero">
+    <div class="hero product-hero">
       <div>
         <p class="kicker">HOP &middot; 链接主页</p>
         <h1>你的链接，一个页面，几秒发布</h1>
@@ -73,13 +71,11 @@
         </div>
         <p class="note">本页中的线上地址指向 HOP 家族的公开网站。</p>
       </div>
-      <div class="tile-wrap" aria-hidden="true">
-        <img class="tile" src="../assets/tile.svg" alt="" width="220" height="260">
-      </div>
+      <div class="product-art profile-art" aria-hidden="true"><div class="profile-sheet profile-sheet-back"></div><div class="profile-sheet"><img src="../assets/mark.svg" alt="" width="48" height="48"><strong>hel.ink/b/you</strong><span class="profile-line"></span><span class="profile-line"></span><span class="profile-line"></span><span class="profile-dots">● &nbsp; ● &nbsp; ●</span></div></div>
     </div>
 
     <section id="features" aria-labelledby="features-h">
-      <h2 id="features-h">BioHop 能做什么</h2>
+      <span class="section-number" aria-hidden="true">01</span><h2 id="features-h">BioHop 能做什么</h2>
       <ul class="features">
         <li><strong>公开 bio 页面，附二维码和点击跟踪</strong><p>每个页面都在 hel.ink/b/{slug}，配有专属二维码，并记录他人点击你链接的情况。</p></li>
         <li><strong>/bio 上的完整编辑器</strong><p>管理页面和链接，上传图片、头像、图标和二维码 logo，实时预览，复制页面，查看每页分析。</p></li>
@@ -92,18 +88,14 @@
       </ul>
     </section>
 
-    <section id="run" aria-labelledby="run-h">
-      <h2 id="run-h">自行部署</h2>
-      <div class="panel">
-        <p>BioHop 可自托管。以下步骤整理自仓库文档，撰写本页时并未实际执行。</p>
-        <h3>前提条件</h3>
-        <p>PHP 8.3、Composer 和 Node 20+。完整的快速开始与测试命令见 GitHub 上的 README。</p>
-        <h3>登录配置</h3>
-        <p>登录使用 HOP ID 单点登录。登录前请在 .env 中设置 HOP_HUB_URL、HOP_APP=biohop 以及应用专属或共享的 SSO 密钥（32 个字符以上）。</p>
-        <h3>数据库</h3>
-        <p>BioHop 的设计是与 hub 和 LinkHop 共用一个 MySQL 数据库，并把自身表记录到 migrations_bio 日志。请先运行 hub 的迁移，使 users 等共享表存在。实际迁移兼容性未经本文档验证。</p>
-        <p class="note">以上数据库细节是文档化的设计，不是经过测试的保证。</p>
-      </div>
+    <section id="run" class="source-card" aria-labelledby="run-h">
+      <div><span class="section-number" aria-hidden="true">02 / OPEN SOURCE</span><h2 id="run-h">自行部署</h2><p>本页中的线上地址指向 HOP 家族的公开网站。</p></div>
+      <div class="cta-row"><a class="btn" href="https://github.com/navi-crwn/BioHop/blob/main/README.md">自行部署 ↗</a><a class="btn" href="https://github.com/navi-crwn/BioHop">查看代码 ↗</a></div>
+    </section>
+
+    <section class="product-preview" aria-labelledby="preview-h">
+      <div class="preview-caption"><div><span class="section-number" aria-hidden="true">03</span><h2 id="preview-h">BioHop</h2></div><a class="btn primary" href="https://bio.hel.ink">试用 BioHop ↗</a></div>
+      <a class="preview-screen" href="https://bio.hel.ink" aria-label="试用 BioHop"><img class="preview-light" src="../assets/product-light.webp" alt="BioHop" width="1280" height="900" loading="lazy"><img class="preview-dark" src="../assets/product-dark.webp" alt="BioHop" width="1280" height="900" loading="lazy"></a>
     </section>
 
     <section id="faq" aria-labelledby="faq-h">
@@ -147,18 +139,17 @@
 
     <section id="help" aria-labelledby="help-h">
       <h2 id="help-h">帮助与反馈</h2>
-      <p>发现 bug，或对本文档有疑问？ <a href="https://github.com/navi-crwn/BioHop/issues">在 GitHub 提交 issue</a>。</p>
+      <p>发现 bug，或对本文档有疑问？ <a href="https://github.com/navi-crwn/BioHop/issues">在 GitHub 提交 issue</a> 。</p>
     </section>
   </main>
 
   <footer class="site-footer">
     <div class="inner">
       <p><strong>BioHop</strong> &middot; HOP 家族的链接主页</p>
-      <p>许可证： <a href="https://github.com/navi-crwn/BioHop/blob/main/LICENSE">MIT</a>· 代码：<a href="https://github.com/navi-crwn/BioHop">GitHub</a>· 线上：<a href="https://bio.hel.ink">bio.hel.ink</a></p>
+      <p>许可证： <a href="https://github.com/navi-crwn/BioHop/blob/main/LICENSE">MIT</a> · 代码： <a href="https://github.com/navi-crwn/BioHop">GitHub</a> · 线上： <a href="https://bio.hel.ink">bio.hel.ink</a></p>
     </div>
   </footer>
 
-  <script src="https://hel.ink/hop-assets/v1/hop-float.js" integrity="sha384-kNviPsMEO9lt9+b4n2S5lX6zHRVnePzGuj9VdgCETTsQwzt/5YJRnv842Xg0gRC+" crossorigin="anonymous" defer></script>
   <script src="../assets/theme.js"></script>
 </body>
 </html>
