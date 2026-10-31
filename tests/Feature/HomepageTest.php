@@ -43,3 +43,12 @@ test('the public slug check answers in the page language and knows reserved name
     $this->getJson('/check-slug-public?slug=imperium')->assertOk()->assertJson(['available' => false, 'message' => 'This name is reserved.']);
     $this->withCredentials()->withUnencryptedCookie('hop_lang', 'id')->getJson('/check-slug-public?slug=fresh-creator')->assertJson(['available' => true, 'message' => 'Nama ini tersedia!']);
 });
+
+test('the theme switcher does not invoke scrollIntoView and renders gallery radio buttons', function () {
+    $html = $this->get('/')->assertOk()->getContent();
+
+    expect($html)->not->toContain('scrollIntoView')
+        ->toContain('role="radiogroup"')
+        ->toContain('id="gallery-preview"')
+        ->toContain('Hero quick themes');
+});
