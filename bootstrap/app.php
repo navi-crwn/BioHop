@@ -5,6 +5,7 @@ use App\Http\Middleware\CheckIpBan;
 use App\Http\Middleware\CheckSuspended;
 use App\Http\Middleware\ContentSecurityPolicyMiddleware;
 use App\Http\Middleware\RequireHopAdminClient;
+use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\VerifyHopSignature;
 use App\Http\Middleware\VerifyHubRequest;
 use Illuminate\Foundation\Application;
@@ -23,10 +24,13 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->appendToGroup('web', [
+            SetLocale::class,
             CheckSuspended::class,
             ContentSecurityPolicyMiddleware::class,
         ]);
         $middleware->validateCsrfTokens(except: ['internal/*', 'hop/events']);
+        // The language cookie is plain text (en, id, …), read before decryption.
+        $middleware->encryptCookies(except: [SetLocale::COOKIE]);
         // `hop.auth` and `hop.token` come from hop/auth; `verified` is Laravel's (verification.notice goes to the hub).
         $middleware->alias([
             'admin' => AdminMiddleware::class,
