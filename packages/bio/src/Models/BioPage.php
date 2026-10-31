@@ -96,7 +96,9 @@ class BioPage extends Model
     ];
 
     public const WARNING_NONE = 'none';
+
     public const WARNING_SENSITIVE = 'sensitive';
+
     public const WARNING_ADULT = 'adult';
 
     public function getContentWarningAttribute(?string $val): string
