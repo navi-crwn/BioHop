@@ -240,6 +240,8 @@ class HopBioController extends Controller
                 'theme' => $p->theme,
                 'custom_css' => $p->custom_css,
                 'adult' => (bool) $p->is_adult_content,
+                'content_warning' => $p->content_warning ?? ($p->is_adult_content ? 'adult' : 'none'),
+                'warning_reason' => $p->warning_reason,
                 'password' => (bool) $p->password_enabled,
                 'seo_noindex' => (bool) $p->seo_noindex,
                 'blocks' => BioLink::where('bio_page_id', $p->id)
@@ -324,13 +326,16 @@ class HopBioController extends Controller
                     $p->forceFill(['custom_css' => null])->save();
                     break;
                 case 'mark_nsfw':
-                    $p->forceFill(['is_adult_content' => true])->save();
+                    $p->forceFill(['is_adult_content' => true, 'content_warning' => 'adult'])->save();
                     break;
                 case 'unmark_nsfw':
-                    $p->forceFill(['is_adult_content' => false])->save();
+                    $p->forceFill(['is_adult_content' => false, 'content_warning' => 'none'])->save();
+                    break;
+                case 'mark_sensitive':
+                    $p->forceFill(['is_adult_content' => false, 'content_warning' => 'sensitive'])->save();
                     break;
                 default:
-                    return $this->fail('unknown_action', 'unpublish, publish, delete, transfer, clear_custom_css, mark_nsfw or unmark_nsfw', 422);
+                    return $this->fail('unknown_action', 'unpublish, publish, delete, transfer, clear_custom_css, mark_nsfw, unmark_nsfw or mark_sensitive', 422);
             }
             $this->recordAudit($audit + ['params' => $result ?: $params]);
 
@@ -662,7 +667,7 @@ class HopBioController extends Controller
             'updated_at' => $p->updated_at?->toIso8601String(),
             'url' => public_url('b/'.$p->slug),
             'flags' => array_values(array_filter([
-                $p->is_adult_content ? 'adult' : null,
+                $p->isAdult() ? 'adult' : ($p->isSensitive() ? 'sensitive' : null),
                 $p->password_enabled ? 'password' : null,
                 $p->seo_noindex ? 'noindex' : null,
                 ! empty($p->custom_css) ? 'custom_css' : null,

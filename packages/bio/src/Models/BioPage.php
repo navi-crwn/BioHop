@@ -59,6 +59,8 @@ class BioPage extends Model
         'custom_css',
         'is_published',
         'is_adult_content',
+        'content_warning',
+        'warning_reason',
         'password_enabled',
         'password',
         'is_public',
@@ -92,6 +94,34 @@ class BioPage extends Model
         'allow_indexing' => 'boolean',
         'view_count' => 'integer',
     ];
+
+    public const WARNING_NONE = 'none';
+    public const WARNING_SENSITIVE = 'sensitive';
+    public const WARNING_ADULT = 'adult';
+
+    public function getContentWarningAttribute(?string $val): string
+    {
+        if ($val && in_array($val, [self::WARNING_NONE, self::WARNING_SENSITIVE, self::WARNING_ADULT], true)) {
+            return $val;
+        }
+
+        return $this->is_adult_content ? self::WARNING_ADULT : self::WARNING_NONE;
+    }
+
+    public function isAdult(): bool
+    {
+        return $this->content_warning === self::WARNING_ADULT || (bool) $this->is_adult_content;
+    }
+
+    public function isSensitive(): bool
+    {
+        return $this->content_warning === self::WARNING_SENSITIVE;
+    }
+
+    public function requiresContentWarning(): bool
+    {
+        return $this->isAdult() || $this->isSensitive();
+    }
 
     public function getRouteKeyName()
     {

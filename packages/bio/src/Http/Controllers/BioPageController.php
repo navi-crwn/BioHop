@@ -227,6 +227,8 @@ class BioPageController extends Controller
             'custom_css' => 'nullable|string',
             'is_published' => 'nullable|boolean',
             'is_adult_content' => 'nullable|boolean',
+            'content_warning' => 'nullable|in:none,sensitive,adult',
+            'warning_reason' => 'nullable|string|max:255',
             'is_public' => 'nullable|boolean',
             'show_in_directory' => 'nullable|boolean',
             'hide_branding' => 'nullable|boolean',
@@ -270,6 +272,11 @@ class BioPageController extends Controller
             } else {
                 unset($validated['password']);
             }
+        }
+        if (array_key_exists('content_warning', $validated)) {
+            $validated['is_adult_content'] = ($validated['content_warning'] === 'adult');
+        } elseif (array_key_exists('is_adult_content', $validated)) {
+            $validated['content_warning'] = $validated['is_adult_content'] ? 'adult' : 'none';
         }
         $bioPage->update($validated);
         BioUploads::deleteUnused($oldFiles);

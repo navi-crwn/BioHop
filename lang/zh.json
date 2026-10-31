@@ -168,5 +168,15 @@
     "Your page is one minute away.": "一分钟就能拥有你的页面。",
     "last seen :time": "上次心跳 :time",
     "you": "you",
-    "yourname": "yourname"
+    "yourname": "yourname",
+    "Age Verification Required": "需要年龄验证",
+    "Sensitive Content Warning": "敏感内容警告",
+    "This page contains adult content intended strictly for viewers aged 18 and older.": "此页面包含仅限18岁及以上受众的成人内容。",
+    "The creator has marked this page as containing sensitive material.": "创作者已将此页面标记为包含敏感内容。",
+    "Note from creator:": "创作者留言：",
+    "I am 18+ — Enter": "我已满18岁 — 进入",
+    "I understand — Continue": "我了解 — 继续",
+    "Go Back": "返回",
+    "Remember for 24 hours on this device": "在此设备上记住24小时",
+    "By continuing, you confirm that you are of legal age to view adult content in your jurisdiction.": "继续操作即表示您确认符合您所在司法管辖区观看成人内容的法定年龄。"
 }

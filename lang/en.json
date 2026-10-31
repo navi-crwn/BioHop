@@ -168,5 +168,15 @@
     "Your page is one minute away.": "Your page is one minute away.",
     "last seen :time": "last seen :time",
     "you": "you",
-    "yourname": "yourname"
+    "yourname": "yourname",
+    "Age Verification Required": "Age Verification Required",
+    "Sensitive Content Warning": "Sensitive Content Warning",
+    "This page contains adult content intended strictly for viewers aged 18 and older.": "This page contains adult content intended strictly for viewers aged 18 and older.",
+    "The creator has marked this page as containing sensitive material.": "The creator has marked this page as containing sensitive material.",
+    "Note from creator:": "Note from creator:",
+    "I am 18+ — Enter": "I am 18+ — Enter",
+    "I understand — Continue": "I understand — Continue",
+    "Go Back": "Go Back",
+    "Remember for 24 hours on this device": "Remember for 24 hours on this device",
+    "By continuing, you confirm that you are of legal age to view adult content in your jurisdiction.": "By continuing, you confirm that you are of legal age to view adult content in your jurisdiction."
 }
