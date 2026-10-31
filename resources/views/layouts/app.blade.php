@@ -83,6 +83,8 @@
                         </button>
                         <p class="truncate pl-1 text-sm font-semibold text-ink">{{ $sectionTitle }}</p>
                         <div class="ml-auto flex items-center gap-1.5">
+                            <x-hop::app-switcher app="biohop" />
+                            <x-hop::language-switcher />
                             <a href="{{ route('bio.create') }}" class="btn-primary btn-sm sm:btn">
                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>
                                 <span class="hidden sm:inline">New bio</span>

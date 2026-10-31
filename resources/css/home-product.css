@@ -1,0 +1,5 @@
+.bio-product-hero { isolation: isolate; }
+.bio-product-hero::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(ellipse at 75% 30%, #94a3b81a, transparent 60%); }
+.bio-product-hero h1 { font-size: clamp(2rem, 5.8vw, 4.75rem); line-height: 1.06; letter-spacing: -.04em; }
+.bio-product-hero .profile-hero-phone { transform-style: preserve-3d; }
+@media (prefers-reduced-motion: reduce) { .bio-product-hero *, .bio-product-hero *::before, .bio-product-hero *::after { animation: none !important; } }

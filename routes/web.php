@@ -3,6 +3,7 @@
 use App\Http\Controllers\AbuseReportController;
 use App\Http\Controllers\Api\HopBioController;
 use App\Http\Controllers\BrandAssetController;
+use App\Http\Controllers\ChangelogController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\SettingsController;
@@ -37,6 +38,7 @@ Route::match(['GET', 'HEAD'], '/b/', function (Request $request) {
 });
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/changelog', ChangelogController::class)->name('changelog');
 // Dedicated pages on BioHop's own domain (U-07); menus link here, not to the hub.
 foreach (PageController::PAGES as $page) {
     Route::get('/'.$page, [PageController::class, 'show'])->defaults('page', $page)->name('pages.'.$page);

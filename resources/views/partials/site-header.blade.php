@@ -9,7 +9,7 @@
             </a>
 
             <!-- Navigation Links -->
-            <nav class="hidden md:flex items-center gap-7 text-sm font-medium text-slate-600 dark:text-slate-300" aria-label="Main Navigation">
+            <nav class="hidden xl:flex items-center gap-5 text-sm font-medium text-slate-600 dark:text-slate-300" aria-label="{{ __('Menu') }}">
                 @php
                     $mainNav = [__('Features') => route('pages.features'), __('Themes') => route('home').'#themes', __('Help') => route('pages.help'), __('FAQ') => route('pages.faq'), __('HOP family') => route('home').'#family'];
                 @endphp
@@ -20,8 +20,15 @@
 
             <!-- Actions -->
             <div class="flex min-w-0 flex-wrap items-center gap-2">
+                <x-hop::app-switcher app="biohop" />
+                <details class="hop-switcher xl:hidden" data-hop-switcher>
+                    <summary aria-label="{{ __('Menu') }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></summary>
+                    <nav class="hop-switcher-panel" aria-label="{{ __('Menu') }}">
+                        @foreach ($mainNav as $label => $href)<a href="{{ $href }}">{{ $label }}</a>@endforeach
+                    </nav>
+                </details>
                 {{-- Language: plain links (?lang=xx), no script needed. --}}
-                <details class="relative">
+                <details class="relative" data-hop-switcher>
                     <summary class="flex cursor-pointer list-none items-center gap-1 rounded-xl border border-slate-200/80 px-2 py-2 text-xs font-semibold uppercase text-slate-600 hover:bg-slate-100 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/5" aria-label="{{ __('Language') }}">
                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
                         <span>{{ app()->getLocale() }}</span>
