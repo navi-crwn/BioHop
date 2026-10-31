@@ -1,4 +1,9 @@
 {
+    "Content warning": "内容警告",
+    "None": "无",
+    "Sensitive content": "敏感内容",
+    "Adult 18+": "成人内容（18岁以上）",
+    "Reason (optional)": "原因（可选）",
     "(so we can follow up)": "（以便我们跟进处理）",
     "20+ themes": "20+ 主题",
     "20+ themes such as Galaxy, Neon, Aurora and Midnight, or your own colors, fonts and custom CSS, with background animations and button effects. The editor shows a live preview.": "提供银河、霓虹、极光、午夜等 20 多款主题，支持自定义配色、字体与 CSS 样式，包含背景动效与按钮特效。编辑器实时呈现效果预览。",

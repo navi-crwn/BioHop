@@ -1,5 +1,5 @@
 <x-app-layout>
-    <x-slot name="pageTitle">LinkHop - New bio page</x-slot>
+    <x-slot name="pageTitle">BioHop - New bio page</x-slot>
     <x-page-header title="New bio page" subtitle="Share all your important links from one page.">
         <x-slot name="actions">
             <a href="{{ route('bio.index') }}" class="btn-ghost btn-sm">All bio pages</a>
@@ -95,6 +95,18 @@
                                 @enderror
                             </div>
                         </div>
+                        <fieldset class="mt-4 space-y-3">
+                            <legend class="label">{{ __('Content warning') }}</legend>
+                            <select name="content_warning" class="input" aria-label="{{ __('Content warning') }}">
+                                @foreach(['none' => 'None', 'sensitive' => 'Sensitive content', 'adult' => 'Adult 18+'] as $value => $label)
+                                    <option value="{{ $value }}" @selected(old('content_warning', 'none') === $value)>{{ __($label) }}</option>
+                                @endforeach
+                            </select>
+                            <label class="label" for="warning_reason">{{ __('Reason (optional)') }}</label>
+                            <input class="input" id="warning_reason" name="warning_reason" maxlength="255" value="{{ old('warning_reason') }}">
+                            @error('content_warning')<p class="text-xs text-rose-500">{{ $message }}</p>@enderror
+                            @error('warning_reason')<p class="text-xs text-rose-500">{{ $message }}</p>@enderror
+                        </fieldset>
                         <div class="mt-6 flex justify-end gap-2">
                             <a href="{{ route('bio.index') }}" class="btn-ghost btn-sm">Cancel</a>
                             <button 

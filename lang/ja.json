@@ -1,4 +1,9 @@
 {
+    "Content warning": "コンテンツの警告",
+    "None": "なし",
+    "Sensitive content": "センシティブな内容",
+    "Adult 18+": "成人向け（18歳以上）",
+    "Reason (optional)": "理由（任意）",
     "(so we can follow up)": "（確認のご連絡用）",
     "20+ themes": "20 以上のテーマ",
     "20+ themes such as Galaxy, Neon, Aurora and Midnight, or your own colors, fonts and custom CSS, with background animations and button effects. The editor shows a live preview.": "ギャラクシー、ネオン、オーロラ、ミッドナイトなど20種類以上のテーマを搭載。独自カラーやフォント、カスタムCSS、背景アニメーションやボタン効果も設定可能で、プレビューで即座に確認できます。",

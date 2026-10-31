@@ -77,7 +77,7 @@ class HopBioController extends Controller
                     [
                         'type' => 'page',
                         'label' => 'Bio Pages',
-                        'actions' => ['unpublish', 'publish', 'delete', 'transfer', 'clear_custom_css', 'mark_nsfw', 'unmark_nsfw'],
+                        'actions' => ['unpublish', 'publish', 'delete', 'transfer', 'clear_custom_css', 'mark_nsfw', 'unmark_nsfw', 'mark_sensitive'],
                     ],
                     [
                         'type' => 'block',

@@ -1,4 +1,9 @@
 {
+    "Content warning": "Avertissement de contenu",
+    "None": "Aucun",
+    "Sensitive content": "Contenu sensible",
+    "Adult 18+": "Adultes de 18 ans et plus",
+    "Reason (optional)": "Motif (facultatif)",
     "(so we can follow up)": "(afin que nous puissions faire un suivi)",
     "20+ themes": "Plus de 20 thèmes",
     "20+ themes such as Galaxy, Neon, Aurora and Midnight, or your own colors, fonts and custom CSS, with background animations and button effects. The editor shows a live preview.": "Plus de 20 thèmes comme Galaxy, Neon, Aurora et Midnight, ou vos propres couleurs, polices et CSS sur mesure, avec animations et effets. L'éditeur intègre un aperçu en direct.",
