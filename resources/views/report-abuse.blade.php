@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}" class="h-full">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
-    <title>Report a bio page - BioHop</title>
+    <title>{{ __('Report a bio page') }} - BioHop</title>
     <link rel="icon" type="image/svg+xml" href="{{ route('brand.favicon', ['v' => 'b10b1000']) }}">
     <x-hop::fonts />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -16,16 +16,15 @@
                 <img src="{{ route('brand.logo', ['v' => 'b10b1000']) }}" alt="" class="h-8 w-8 rounded-lg">
                 <span>BioHop</span>
             </a>
-            <a href="{{ route('home') }}" class="text-sm text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white">&larr; Back to BioHop</a>
+            <a href="{{ route('home') }}" class="text-sm text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white">&larr; {{ __('Back to BioHop') }}</a>
         </div>
     </header>
 
     <main class="mx-auto max-w-2xl px-5 py-12">
         <div class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-white/10 dark:bg-white/5">
-            <h1 class="text-2xl font-semibold">Report a bio page</h1>
+            <h1 class="text-2xl font-semibold">{{ __('Report a bio page') }}</h1>
             <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                Tell us about scams, phishing, impersonation, malware, or anything else that breaks the rules.
-                A moderator reviews every report.
+                {{ __('Tell us about scams, phishing, impersonation, malware, or anything else that breaks the rules. A moderator reviews every report.') }}
             </p>
 
             @if (session('status'))
@@ -46,25 +45,25 @@
                 @csrf
                 <input type="hidden" name="slug" value="{{ old('slug', $slug) }}">
                 <div>
-                    <label for="report-url" class="text-sm font-medium">Page address</label>
+                    <label for="report-url" class="text-sm font-medium">{{ __('Page address') }}</label>
                     <input id="report-url" type="url" name="url" value="{{ old('url', $url) }}" placeholder="https://hel.ink/b/…"
                            class="mt-1 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 focus:border-violet-500 focus:ring-violet-500 dark:border-white/20 dark:bg-white/10">
                 </div>
                 <div>
-                    <label for="report-email" class="text-sm font-medium">Your email <span class="text-slate-500">(so we can follow up)</span></label>
+                    <label for="report-email" class="text-sm font-medium">{{ __('Your email') }} <span class="text-slate-500">{{ __('(so we can follow up)') }}</span></label>
                     <input id="report-email" type="email" name="email" value="{{ old('email') }}" required
                            class="mt-1 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 focus:border-violet-500 focus:ring-violet-500 dark:border-white/20 dark:bg-white/10">
                 </div>
                 <div>
-                    <label for="report-reason" class="text-sm font-medium">What is wrong?</label>
+                    <label for="report-reason" class="text-sm font-medium">{{ __('What is wrong?') }}</label>
                     <textarea id="report-reason" name="reason" rows="5" required minlength="10" maxlength="1000"
                               class="mt-1 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 focus:border-violet-500 focus:ring-violet-500 dark:border-white/20 dark:bg-white/10">{{ old('reason') }}</textarea>
                 </div>
                 <x-turnstile />
                 <button type="submit" class="w-full rounded-2xl bg-gradient-to-r from-violet-500 to-fuchsia-500 py-3 font-semibold text-white shadow-lg shadow-violet-500/30 hover:opacity-95">
-                    <span x-show="!waiting">Send report</span><span x-cloak x-show="waiting">Checking…</span>
+                    <span x-show="!waiting">{{ __('Send report') }}</span><span x-cloak x-show="waiting">{{ __('Checking…') }}</span>
                 </button>
-                <p class="text-xs text-slate-500 dark:text-slate-400">To prevent spam, each network can send a few reports per half hour.</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">{{ __('To prevent spam, each network can send a few reports per half hour.') }}</p>
             </form>
         </div>
     </main>
