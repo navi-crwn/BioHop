@@ -1,10 +1,109 @@
+<p align="center">🌐 <b>English</b> · <a href="README.zh.md">简体中文</a> · <a href="README.es.md">Español</a> · <a href="README.ar.md">العربية</a> · <a href="README.pt.md">Português</a> · <a href="README.fr.md">Français</a> · <a href="README.ja.md">日本語</a> · <a href="README.id.md">Bahasa Indonesia</a></p>
+
 # BioHop
 
-Link-in-bio pages for the **HOP** family of apps behind [hel.ink](https://hel.ink). One page with your links, embeds, socials and a QR code, published at `hel.ink/b/{slug}` and managed at `bio.hel.ink`.
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT license"></a>
+  <a href="https://github.com/navi-crwn/BioHop/actions/workflows/tests.yml"><img src="https://github.com/navi-crwn/BioHop/actions/workflows/tests.yml/badge.svg?branch=main" alt="tests workflow"></a>
+</p>
 
-BioHop is the bio half of what used to be one app (now [LinkHop](https://github.com/navi-crwn/LinkHop), the shortener). Accounts live at the hub ([HEL.ink](https://github.com/navi-crwn/HEL.ink), `hub.hel.ink`): there is no registration or password login here, you sign in once with your HOP ID and every app knows you. The plan behind the split is in [`docs/planning/PLAN-pemisahan-aplikasi.md`](docs/planning/PLAN-pemisahan-aplikasi.md) (Fase D is this repo).
+<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/readme/hero-en-dark.webp"><img src="docs/readme/hero-en-light.webp" alt="BioHop: one page with your links, embeds, socials and a QR code" width="100%"></picture></p>
 
-### HOP Family Ecosystem
+<p align="center"><b>One page with your links, embeds, socials and a QR code — published at <code>hel.ink/b/{slug}</code>.</b></p>
+
+<p align="center">
+  <a href="https://bio.hel.ink">bio.hel.ink</a> ·
+  <a href="#run-your-own">Run your own</a> ·
+  <a href="#features">Features</a> ·
+  <a href="#faq">FAQ</a> ·
+  <a href="#security">Security</a> ·
+  <a href="#license">License</a>
+</p>
+
+---
+
+## What is BioHop?
+
+BioHop is a link-in-bio app: you build one page with your links, images, embeds and socials, pick a theme, and publish it at `hel.ink/b/{slug}` — with a QR code ready to share.
+
+It is the bio half of what used to be one app (now [LinkHop](https://github.com/navi-crwn/LinkHop), the URL shortener). Accounts live at the hub ([HEL.ink](https://github.com/navi-crwn/HEL.ink)): there is no registration or password here — you sign in once with your **HOP ID** and the app knows you. The plan behind the split is documented in [`docs/planning/PLAN-pemisahan-aplikasi.md`](docs/planning/PLAN-pemisahan-aplikasi.md) (Phase D is this repo).
+
+<a id="features"></a>
+
+## Features
+
+- **Public bio pages at `hel.ink/b/{slug}`, each with a QR code and click tracking.**
+- **An editor at `/bio` for pages, links, image/avatar/icon/QR-logo uploads, live preview, duplication and per-page analytics.**
+- **Theme presets (light, dark, minimal, neon and many more) shared by the editor, its preview and the public page.**
+- **No local sign-up or passwords: you sign in once with your HOP ID at the hub.**
+- **Click analytics with country (GeoIP) plus device, browser and bot detection.**
+- **"Shorten this URL" in blocks via LinkHop's API with the member's own service token; if LinkHop is down the block keeps its original URL.**
+- **URL/content safety: `abuse:scan` with the shared `domain_blacklist` (hop/safety), scheduled hourly.**
+- **Daily click-data pruning (`privacy:prune`).**
+
+<a id="run-your-own"></a>
+
+## Run your own
+
+You need PHP 8.3, Composer and Node 20+. The shared packages `hop/auth`, `hop/ui` and `hop/safety` come from their GitHub repos (`navi-crwn/hop-auth`, `hop-ui`, `hop-safety`, branch `main`, listed as `vcs` repositories in `composer.json`).
+
+```bash
+git clone git@github.com:navi-crwn/BioHop.git
+cd BioHop
+composer install
+cp .env.example .env && php artisan key:generate
+```
+
+**Configure before you migrate.** Open `.env` (`.env.example` documents every key; the comments there are the reference) and set at least:
+
+| Key | What it is |
+|---|---|
+| `APP_URL` / `PUBLIC_URL` | This app's address and the public address pages are served under |
+| `HOP_HUB_URL` | Your hub's address (HOP ID sign-in goes there) |
+| `HOP_APP` | This app's slug at the hub: `biohop` |
+| `HOP_SSO_SECRET` or `HOP_SSO_SECRET_BIOHOP` | The SSO secret shared with the hub, 32+ characters |
+| `LINKHOP_URL` | Address of your LinkHop (enables "shorten this URL" in blocks) |
+| `DB_CONNECTION`, `DB_*`, `DB_MIGRATIONS_TABLE` | Database settings; `DB_MIGRATIONS_TABLE=migrations_bio` keeps this app's migration log separate |
+
+```bash
+php artisan migrate      # logs only in migrations_bio
+php artisan storage:link
+npm install && npm run build
+php artisan serve        # http://localhost:8000
+```
+
+**Database.** BioHop is designed to share one MySQL database with the hub and LinkHop (each app keeps its own migration log: `migrations_bio` here). Run the hub's migrations first, so tables like `users`, `roles`, `api_tokens` and `domain_blacklist` exist. This is the documented design; migration compatibility between the apps' releases is not verified in this README, so check it before pointing BioHop at a database you care about.
+
+**Tests** run on sqlite in memory; the tables other apps own are created by `database/migrations/testing/` (tests only).
+
+```bash
+php artisan test
+vendor/bin/pint --test
+```
+
+## Sign-in (HOP ID)
+
+Sign in with your HOP ID at the hub — no registration or password here. Sign-in and the editor use standard SSO, which requires the `HOP_HUB_URL`, `HOP_APP=biohop` and SSO secret settings above to be in place before you log in. Opening `/bio` sends you to the hub and back. Signing out ends your session here and redirects to the HOP ID logout.
+
+Public bio pages (`/b/{slug}`) don't require sign-in. BioHop is designed to run together with the hub — it is not a standalone app.
+
+<a id="faq"></a>
+
+## FAQ
+
+**What happens to my click data?** Click tracking exists to show you how your page performs, and the `privacy:prune` command removes click data daily. No long-term click archive is kept on purpose.
+
+**Does the safety scan run by itself?** Yes. `abuse:scan` is scheduled hourly and checks bio pages and blocks against the shared `domain_blacklist` from hop/safety. These are mechanisms, not guarantees: no automated scan promises to catch everything.
+
+**Can I use BioHop without the hub?** No. Editing requires a HOP ID at the hub, and there is no local registration or password. Public bio pages don't require sign-in, but the app is designed to run together with the hub, and BioHop can't promise that public routes never contact the hub.
+
+**Can I self-host it?** Yes — MIT licensed, and the section above is the whole quickstart. You bring your own hub, LinkHop and database.
+
+<a id="family"></a>
+
+## The HOP family
+
+BioHop is part of the **HOP** family of self-hostable open-source apps behind [hel.ink](https://hel.ink).
 
 <!-- hop-family:start -->
 <!-- Generated from HEL.ink resources/hop-assets/apps.source.json; edit there, then run scripts/hop_assets.py build. -->
@@ -18,147 +117,18 @@ BioHop is the bio half of what used to be one app (now [LinkHop](https://github.
 | **Imperium** | private (owner only) | private | The HOP control panel. |
 <!-- hop-family:end -->
 
-## What is here
+<a id="security"></a>
 
-| Piece | Where | Notes |
-| --- | --- | --- |
-| Bio pages, blocks, themes, uploads, analytics | `packages/bio` (`hop/bio`) | Owned by this repo. Public routes `/b/{slug}`, `/b/{slug}/qr`, `/b/click/{id}`; editor under `/bio`. |
-| Sign-in (HOP ID) | `hop/auth` | `/auth/sso` → hub → `/auth/sso/callback` (`Auth::loginUsingId`). `/logout` ends the session here, then at the hub. |
-| Cross-app navigation | `hop/ui` | `<x-hop::nav-items />` in the sidebar, from `config/hop.php`. |
-| URL/content safety | `hop/safety` | Same rules and the same shared `domain_blacklist` as LinkHop. `abuse:scan` for bio pages and blocks. |
-| Short links in blocks | `app/Bio/LinkHopClient.php`, `LinkHopShortlinks.php` | "Shorten this URL" calls LinkHop's API with the member's own service token (scope `link:create`, made on first use). If LinkHop is down the block keeps its original URL and the editor says so. |
-| GeoIP, user agents | `app/Services` | Country of a click (local MaxMind DB first, then free web APIs) and device/browser/bot detection. |
-| Admin | `/admin/bio` | List, inspect, monitor, export, unpublish, delete. For the HOP owner, global admins and `admin:biohop`. |
-| Housekeeping | `routes/console.php` | `abuse:scan` hourly (+ daily `--full --purge`), `privacy:prune` (bio clicks older than 30 days), `abuse:feeds` (threat feeds). |
+## Security
 
-## Running it locally
+Found a vulnerability? Please report it privately through GitHub's security advisories for this repo: [github.com/navi-crwn/BioHop/security/advisories](https://github.com/navi-crwn/BioHop/security/advisories). Please don't open public issues for security reports, and don't post secrets, tokens or exploit details in public places. See [SECURITY.md](SECURITY.md) for details.
 
-You need PHP 8.3, Composer and Node 20+. The shared packages `hop/auth`, `hop/ui` and `hop/safety` come from their GitHub repos (`navi-crwn/hop-auth`, `hop-ui`, `hop-safety`, branch `main`, as `vcs` repositories in `composer.json`).
-
-```bash
-git clone git@github.com:navi-crwn/BioHop.git
-cd BioHop
-composer install
-cp .env.example .env && php artisan key:generate
-```
-
-**Database.** BioHop shares one database with the hub and LinkHop. Point `DB_*` at the same database the hub uses (locally: run the hub's migrations first, so `users`, `roles`, `api_tokens`, `domain_blacklist`, … exist), then:
-
-```bash
-php artisan migrate      # logs only in migrations_bio; creates the bio tables when they are missing
-php artisan storage:link # uploads live on the public disk (storage/app/public/bio-*)
-npm install && npm run build
-php artisan serve        # http://localhost:8000
-```
-
-**Sign-in.** Set `HOP_HUB_URL` to your local hub, `HOP_APP=biohop`, and the same `HOP_SSO_SECRET` the hub has (or its `HOP_SSO_SECRET_BIOHOP`). Opening `/bio` sends you to the hub and back. `SUPERADMIN_EMAIL` makes that account an admin here too.
-
-**Public pages.** With nginx in front (production), `hel.ink/b/*` is routed here, so `PUBLIC_URL=https://hel.ink` while `APP_URL=https://bio.hel.ink`. Locally leave both at the same address.
-
-**Tests** run on sqlite in memory; the tables other apps own are created by `database/migrations/testing/` (tests only).
-
-```bash
-php artisan test
-vendor/bin/pint --test
-```
-
-## Shared database: who owns what
-
-| Tables | Migrations run by | Log table |
-| --- | --- | --- |
-| users, roles, api_tokens, sessions, cache, jobs, … | hub | `migrations_hub` |
-| links, link_clicks, domain_blacklist, ip_bans, abuse_flags, abuse_reports, … | LinkHop | `migrations_link` |
-| bio_pages, bio_links, bio_clicks, bio_linkhop_tokens | **BioHop** | `migrations_bio` |
-
-Rules this app follows:
-
-- `App\Models\User` only reads the shared `users` table. The one exception is `abuse:scan` suspending a repeat offender (`status`), the same column the hub sets.
-- `ip_bans` and `domain_blacklist` are read; findings of `abuse:scan` go to the shared `abuse_flags` (LinkHop's table, read by the hub's control center too).
-- The bio migrations in `packages/bio/database/migrations` are the ones LinkHop already ran in production. A baseline migration (`0000_00_00_000000_baseline_existing_bio_tables`) records them as done in `migrations_bio` when `bio_pages` already exists, and every one of them checks (`hasTable`/`hasColumn`) before it creates or adds anything, so `migrate` on the production database is a no-op for the old tables.
-
-## Installing on the server
-
-Layout agreed for the HOP family: `/var/www/helink/hub`, `/var/www/helink/linkhop`, `/var/www/helink/biohop`; nginx on the same machine routes `hel.ink/b/*` here, `/l/*` and `/api/*` to LinkHop, the rest to the hub; `bio.hel.ink` is this app's dashboard. Cloudflare (free) stays in front for DNS, TLS and WAF.
-
-```bash
-# 1. Code
-sudo -u www-data git clone git@github.com:navi-crwn/BioHop.git /var/www/helink/biohop
-cd /var/www/helink/biohop
-/usr/bin/php8.3 /usr/local/bin/composer install --no-dev --optimize-autoloader
-npm ci && npm run build
-
-# 2. Environment: same DB_* as LinkHop/hub, APP_URL=https://bio.hel.ink, PUBLIC_URL=https://hel.ink,
-#    HOP_HUB_URL=https://hub.hel.ink, HOP_SSO_SECRET (= the hub's HOP_SSO_SECRET_BIOHOP or HOP_SSO_SECRET),
-#    LINKHOP_URL=https://link.hel.ink, TRUSTED_PROXIES=cloudflare, SESSION_COOKIE=biohop_session
-cp .env.example .env && nano .env
-/usr/bin/php8.3 artisan key:generate
-/usr/bin/php8.3 artisan storage:link
-chown -R www-data:www-data storage bootstrap/cache
-
-# 3. Database (shared): records the old bio migrations, creates bio_linkhop_tokens
-/usr/bin/php8.3 artisan migrate --force
-/usr/bin/php8.3 artisan migrate:status
-
-# 4. Caches (repeat after every deploy)
-/usr/bin/php8.3 artisan config:cache && /usr/bin/php8.3 artisan route:cache && /usr/bin/php8.3 artisan view:cache
-```
-
-**PHP-FPM 8.3.** A pool for this app (or the shared `www` pool), document root `/var/www/helink/biohop/public`. Needed extensions: pdo_mysql, mbstring, gd (QR codes; imagick optional), intl, bcmath, curl, zip.
-
-**nginx** (sketch; the full router is in the hub's README):
-
-```nginx
-# bio.hel.ink: the dashboard
-server {
-    listen 443 ssl http2; server_name bio.hel.ink;
-    root /var/www/helink/biohop/public; index index.php;
-    location / { try_files $uri $uri/ /index.php?$query_string; }
-    location ~ \.php$ { include fastcgi_params; fastcgi_pass unix:/run/php/php8.3-fpm.sock; fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name; }
-}
-# hel.ink: inside the hub's server block, before the catch-all
-location ^~ /b/ { root /var/www/helink/biohop/public; try_files $uri /index.php?$query_string; }
-```
-
-**Queue worker and scheduler** (systemd or supervisor; the queue is `database`):
-
-```ini
-# /etc/systemd/system/biohop-queue.service
-[Service]
-User=www-data
-WorkingDirectory=/var/www/helink/biohop
-ExecStart=/usr/bin/php8.3 artisan queue:work --sleep=3 --tries=3 --max-time=3600
-Restart=always
-```
-
-```cron
-* * * * * www-data cd /var/www/helink/biohop && /usr/bin/php8.3 artisan schedule:run >> /dev/null 2>&1
-```
-
-**Uploads at cutover.** Bio images were uploaded by LinkHop to its public disk. Copy them once, before the router sends `/b/*` here (paths inside the disk are unchanged):
-
-```bash
-rsync -a /var/www/helink/linkhop/storage/app/public/bio-images/ /var/www/helink/biohop/storage/app/public/bio-images/
-rsync -a /var/www/helink/linkhop/storage/app/public/bio-avatars/ /var/www/helink/biohop/storage/app/public/bio-avatars/
-# any other storage/app/public/bio* folder LinkHop has, the same way
-```
-
-**GeoIP (optional).** Put `GeoLite2-City.mmdb` in `storage/app/` (or copy LinkHop's) for offline country lookups; otherwise the free web APIs are used within their quotas.
-
-## Configuration
-
-See `.env.example`; the comments there are the documentation. `config/hop.php` lists the apps of the family and must stay the same as the hub's copy (only `current` differs). `config/brands.php` and `packages/bio/config/bio-themes.php` hold the brand icons and themes of the editor.
-
-## Deploy checklist
-
-```bash
-cd /var/www/helink/biohop && git pull
-/usr/bin/php8.3 /usr/local/bin/composer install --no-dev --optimize-autoloader
-npm ci && npm run build
-/usr/bin/php8.3 artisan migrate --force
-/usr/bin/php8.3 artisan config:cache && /usr/bin/php8.3 artisan route:cache && /usr/bin/php8.3 artisan view:cache
-systemctl restart biohop-queue
-```
+<a id="license"></a>
 
 ## License
 
-MIT, like the rest of the HOP family.
+[MIT](LICENSE) — like the rest of the HOP family. Third-party licenses are listed in the [LICENSE](LICENSE) file.
+
+---
+
+<p align="center"><sub>BioHop · part of the HOP family · <a href="https://hel.ink">hel.ink</a></sub></p>
