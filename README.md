@@ -32,6 +32,8 @@ It is the bio half of what used to be one app (now [LinkHop](https://github.com/
 
 ## Features
 
+- **Interactive homepage:** tilt the official HEL.ink profile, try its links and FAQ, edit sample blocks, switch themes, and explore build/style/share chapters with scrolling or buttons. Demos are local, with mobile controls and reduced-motion support.
+
 - **Public bio pages at `hel.ink/b/{slug}`, each with a QR code and click tracking.**
 - **An editor at `/bio` for pages, links, image/avatar/icon/QR-logo uploads, live preview, duplication and per-page analytics.**
 - **Theme presets (light, dark, minimal, neon and many more) shared by the editor, its preview and the public page.**

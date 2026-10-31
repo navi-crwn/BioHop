@@ -35,7 +35,7 @@ test('the theme gallery shows the editor presets and the page uses no emoji', fu
     $html = $this->get('/')->assertOk()->getContent();
 
     expect($html)->toContain('Galaxy')->toContain('Cherry Blossom')->toContain('id="themes"')
-        ->toContain('id="i-palette"')
+        ->toContain('aria-label="Theme gallery"')
         ->and(preg_match('/[\x{1F300}-\x{1FAFF}]/u', $html))->toBe(0);
 });
 
@@ -44,11 +44,13 @@ test('the public slug check answers in the page language and knows reserved name
     $this->withCredentials()->withUnencryptedCookie('hop_lang', 'id')->getJson('/check-slug-public?slug=fresh-creator')->assertJson(['available' => true, 'message' => 'Nama ini tersedia!']);
 });
 
-test('the theme switcher does not invoke scrollIntoView and renders gallery radio buttons', function () {
+test('theme previews offer labelled toggle buttons without forcing the page to scroll', function () {
     $html = $this->get('/')->assertOk()->getContent();
 
     expect($html)->not->toContain('scrollIntoView')
-        ->toContain('role="radiogroup"')
-        ->toContain('id="gallery-preview"')
-        ->toContain('Hero quick themes');
+        ->toContain('role="group" aria-label="Theme gallery"')
+        ->toContain('bio-gallery-preview')
+        ->toContain('aria-pressed=')
+        ->toContain('https://hel.ink/b/hel')
+        ->toContain('images/brand/rabbit-mark.png');
 });
