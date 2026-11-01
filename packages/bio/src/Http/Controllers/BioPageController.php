@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Hop\Bio\Contracts\UrlSafety;
 use Hop\Bio\Models\BioClick;
 use Hop\Bio\Models\BioPage;
+use Hop\Bio\Support\BioRevisions;
 use Hop\Bio\Support\BioUploads;
 use Hop\Bio\Support\LinktreeImport;
 use Hop\Bio\Support\SvgSanitizer;
@@ -484,6 +485,7 @@ class BioPageController extends Controller
                 'conflict' => true,
             ], 409);
         }
+        BioRevisions::maybeSnapshot($bioPage);
         if ($request->has('slug')) {
             $request->merge(['slug' => strtolower($request->slug)]);
         }

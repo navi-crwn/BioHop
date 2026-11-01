@@ -8,6 +8,7 @@ use App\Support\CssValue;
 use Hop\Bio\Contracts\UrlSafety;
 use Hop\Bio\Models\BioLink;
 use Hop\Bio\Models\BioPage;
+use Hop\Bio\Support\BioRevisions;
 use Hop\Bio\Support\BioUploads;
 use Hop\Safety\SafeContent;
 use Illuminate\Http\Request;
@@ -133,6 +134,7 @@ class BioLinkController extends Controller
     public function store(Request $request, BioPage $bioPage)
     {
         $this->authorize('update', $bioPage);
+        BioRevisions::maybeSnapshot($bioPage);
         $validated = $request->validate([
             'type' => 'required|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code,product,collection,whatsapp,app,goal,audio,carousel,pdf,form,rss,poll',
             'title' => 'nullable|string|max:100',
@@ -279,6 +281,7 @@ class BioLinkController extends Controller
     public function update(Request $request, BioPage $bioPage, BioLink $bioLink)
     {
         $this->authorize('update', $bioPage);
+        BioRevisions::maybeSnapshot($bioPage);
         $validated = $request->validate([
             'type' => 'nullable|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code,product,collection,whatsapp,app,goal,audio,carousel,pdf,form,rss,poll',
             'title' => 'nullable|string|max:100',
@@ -436,6 +439,7 @@ class BioLinkController extends Controller
     public function destroy(BioPage $bioPage, BioLink $bioLink)
     {
         $this->authorize('update', $bioPage);
+        BioRevisions::maybeSnapshot($bioPage);
         $files = BioUploads::ofLink($bioLink);
         $bioLink->delete();
         BioUploads::deleteUnused($files);
@@ -449,6 +453,7 @@ class BioLinkController extends Controller
     public function reorder(Request $request, BioPage $bioPage)
     {
         $this->authorize('update', $bioPage);
+        BioRevisions::maybeSnapshot($bioPage);
         $validated = $request->validate([
             'links' => 'required|array',
             'links.*.id' => 'required|exists:bio_links,id',
@@ -469,6 +474,7 @@ class BioLinkController extends Controller
     public function toggle(BioPage $bioPage, BioLink $bioLink)
     {
         $this->authorize('update', $bioPage);
+        BioRevisions::maybeSnapshot($bioPage);
         if (! $bioLink->is_active && AbuseFlag::locks('bio_link', $bioLink->id)) {
             return response()->json(['success' => false, 'message' => 'This block was disabled by moderation.'], 422);
         }
@@ -487,6 +493,7 @@ class BioLinkController extends Controller
     public function archive(BioPage $bioPage, BioLink $bioLink)
     {
         $this->authorize('update', $bioPage);
+        BioRevisions::maybeSnapshot($bioPage);
         $bioLink->update(['archived_at' => now()]);
 
         return response()->json(['success' => true, 'link' => $bioLink->fresh()]);
@@ -495,6 +502,7 @@ class BioLinkController extends Controller
     public function restore(BioPage $bioPage, BioLink $bioLink)
     {
         $this->authorize('update', $bioPage);
+        BioRevisions::maybeSnapshot($bioPage);
         $bioLink->update(['archived_at' => null, 'order' => (int) $bioPage->links()->notArchived()->max('order') + 1]);
 
         return response()->json(['success' => true, 'link' => $bioLink->fresh()]);

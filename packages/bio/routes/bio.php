@@ -2,6 +2,7 @@
 
 use Hop\Bio\Http\Controllers\BioLinkController;
 use Hop\Bio\Http\Controllers\BioPageController;
+use Hop\Bio\Http\Controllers\BioRevisionController;
 use Hop\Bio\Http\Controllers\BioShortlinkController;
 use Hop\Bio\Http\Controllers\PublicBioController;
 use Hop\Bio\Http\Middleware\UploadStorageGate;
@@ -42,6 +43,12 @@ Route::middleware(['web', 'ip.ban', 'hop.auth', UploadStorageGate::class])->pref
     Route::post('/{bioPage}/upload-icon', [BioPageController::class, 'uploadIcon'])->name('upload-icon');
     Route::post('/{bioPage}/upload-qr-logo', [BioPageController::class, 'uploadQrLogo'])->name('upload-qr-logo');
     Route::get('/{bioPage}/preview', [BioPageController::class, 'preview'])->name('preview');
+    // Saved versions of a page: {revision} must belong to {bioPage}
+    Route::prefix('{bioPage}/revisions')->name('revisions.')->scopeBindings()->group(function () {
+        Route::get('/', [BioRevisionController::class, 'index'])->name('index');
+        Route::post('/', [BioRevisionController::class, 'store'])->middleware('verified')->name('store');
+        Route::post('/{revision}/restore', [BioRevisionController::class, 'restore'])->middleware('verified')->name('restore');
+    });
     // Short links for blocks, through the ShortlinkCreator contract (BioHop: LinkHop's API with the member's token).
     Route::get('/links/search', [BioShortlinkController::class, 'search'])->name('links.search');
     Route::post('/shorten', [BioShortlinkController::class, 'store'])
