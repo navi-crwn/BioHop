@@ -31,7 +31,7 @@
                         </template>
                     </div>
                     <template x-for="(item, idx) in blocks" :key="item.id">
-                        <div class="block-item" :data-id="item.id" :class="{ 'opacity-50': item && !item.is_active, 'is-collection': item.type === 'collection' }">
+                        <div class="block-item" :data-id="item.id" :class="{ 'opacity-50': item && !item.is_active, 'is-collection': item.type === 'collection', 'in-collection': !!collectionOf(idx), 'is-last-member': !!collectionOf(idx) && (idx + 1 >= blocks.length || ['collection', 'divider'].includes(blocks[idx + 1]?.type)) }">
                             <template x-if="selectMode">
                                 <input type="checkbox" class="mr-2" :checked="selectedIds.includes(item.id)" @change="toggleSelected(item.id)" :aria-label="'Select ' + getBlockDisplayTitle(item)">
                             </template>
@@ -58,7 +58,17 @@
                             <!-- Block Content -->
                             <div class="block-content">
                                 <div class="text-sm font-medium editor-text truncate" x-text="getBlockDisplayTitle(item)"></div>
-                                <div class="text-xs editor-text-muted truncate" x-text="item.url || item.type"></div>
+                                <template x-if="item.type === 'collection'">
+                                    <div class="text-xs editor-text-muted truncate">
+                                        <span x-text="collectionMembers(idx).length + (collectionMembers(idx).length === 1 ? ' block' : ' blocks') + ' · ' + (item.settings?.layout === 'grid' ? 'grid' : 'stack')"></span>
+                                        <span> · drop blocks right below to add them</span>
+                                    </div>
+                                </template>
+                                <template x-if="item.type !== 'collection'">
+                                    <div class="text-xs editor-text-muted truncate">
+                                        <span x-show="collectionOf(idx)" class="be-in-collection">in <b x-text="collectionOf(idx) ? getBlockDisplayTitle(collectionOf(idx)) : ''"></b> · </span><span x-text="item.url || item.type"></span>
+                                    </div>
+                                </template>
                             </div>
                             <!-- Block Actions -->
                             <div class="block-actions">
@@ -67,6 +77,13 @@
                                     <input type="checkbox" :checked="item.is_active" @change="toggleBlock(idx)" :aria-label="'Show ' + getBlockDisplayTitle(item) + ' on page'">
                                     <span class="toggle-slider"></span>
                                 </label>
+                                <!-- Out of the collection (members) / close the group with a divider (collections) -->
+                                <button type="button" x-show="collectionOf(idx)" @click="moveOutOfCollection(idx)" class="block-action-btn" :aria-label="'Move ' + getBlockDisplayTitle(item) + ' out of its collection'" title="Move out of collection">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l-4-4m0 0l4-4m-4 4h11a4 4 0 010 8h-1"/></svg>
+                                </button>
+                                <button type="button" x-show="item.type === 'collection' && collectionMembers(idx).length && !['collection', 'divider'].includes(blocks[collectionMembers(idx).slice(-1)[0] + 1]?.type)" @click="closeCollection(idx)" class="block-action-btn" :aria-label="'Close ' + getBlockDisplayTitle(item) + ' with a divider'" title="Close group with a divider">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12h16M12 4v4m0 8v4"/></svg>
+                                </button>
                                 <!-- Edit Button -->
                                 <button type="button" @click="openBlockEditor(item)" class="block-action-btn" :aria-label="'Edit ' + getBlockDisplayTitle(item)">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

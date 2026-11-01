@@ -294,6 +294,49 @@ window.bioEditorV2 = function() {
             this.$nextTick(() => { this.announcement = message; });
         },
         // Keyboard alternative to drag and drop (arrow keys on the drag handle).
+        // Collections group what follows them until the next collection or divider: the same rule as the public page.
+        // The list shows members indented, so dropping a block under a collection puts it inside.
+        collectionOf(index) {
+            let current = null;
+            for (let i = 0; i <= index && i < this.blocks.length; i++) {
+                const b = this.blocks[i];
+                if (b.type === 'collection') { current = i === index ? null : b; continue; }
+                if (b.type === 'divider') current = null;
+            }
+            return current;
+        },
+        collectionMembers(index) {
+            const out = [];
+            for (let i = index + 1; i < this.blocks.length; i++) {
+                const b = this.blocks[i];
+                if (b.type === 'collection' || b.type === 'divider') break;
+                out.push(i);
+            }
+            return out;
+        },
+        // Moves a member to just above its collection, so it is no longer part of it.
+        moveOutOfCollection(index) {
+            const owner = this.collectionOf(index);
+            const to = owner ? this.blocks.indexOf(owner) : -1;
+            if (to < 0) return;
+            const [moved] = this.blocks.splice(index, 1);
+            this.blocks.splice(to, 0, moved);
+            this.blocks.forEach((b, i) => b.order = i);
+            this._orderDirty = true; this.onModelChanged();
+            this.announce(`${this.getBlockDisplayTitle(moved)} moved out of ${this.getBlockDisplayTitle(owner)}`);
+        },
+        // Puts a divider after the collection's last member, so blocks added later start outside it.
+        closeCollection(index) {
+            const members = this.collectionMembers(index);
+            const at = (members.length ? members[members.length - 1] : index) + 1;
+            if (this.blocks[at]?.type === 'divider' || this.blocks[at]?.type === 'collection') return;
+            const divider = { id: Date.now(), type: 'divider', title: '', url: '', content: '', thumbnail_url: null, is_active: true, order: at, brand: null, is_new: true, settings: null };
+            this.blocks.splice(at, 0, divider);
+            this.blocks.forEach((b, i) => b.order = i);
+            this.markBlockDirty(divider.id);
+            this._orderDirty = true; this.onModelChanged();
+            this.announce(`${this.getBlockDisplayTitle(this.blocks[index])} closed with a divider`);
+        },
         moveBlock(index, step) {
             const to = index + step;
             if (to < 0 || to >= this.blocks.length) return;
