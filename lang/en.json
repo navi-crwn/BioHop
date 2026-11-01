@@ -527,5 +527,22 @@
     "Draft": "Draft",
     "No bio pages yet": "No bio pages yet",
     "Share all your important links from one page.": "Share all your important links from one page.",
-    "Create your first bio page": "Create your first bio page"
+    "Create your first bio page": "Create your first bio page",
+    "Import from Linktree": "Import from Linktree",
+    "Paste your Linktree address. Your title, picture, bio, links, groups and social icons come over as a draft page you can finish here.": "Paste your Linktree address. Your title, picture, bio, links, groups and social icons come over as a draft page you can finish here.",
+    "Your Linktree address": "Your Linktree address",
+    "New address here": "New address here",
+    "Only the public page is read; nothing is signed in to and nothing is changed on Linktree.": "Only the public page is read; nothing is signed in to and nothing is changed on Linktree.",
+    "Groups become collections, headers stay headers, link pictures are kept as thumbnails.": "Groups become collections, headers stay headers, link pictures are kept as thumbnails.",
+    "Colours and fonts are not copied: pick a theme in the editor afterwards.": "Colours and fonts are not copied: pick a theme in the editor afterwards.",
+    "Import my page": "Import my page",
+    "Start from scratch instead": "Start from scratch instead",
+    "Coming from Linktree? Import your page.": "Coming from Linktree? Import your page.",
+    "Enter your Linktree address, like linktr.ee/yourname.": "Enter your Linktree address, like linktr.ee/yourname.",
+    "Linktree did not answer. Try again in a moment.": "Linktree did not answer. Try again in a moment.",
+    "There is no Linktree page with that name.": "There is no Linktree page with that name.",
+    "That page could not be read. Linktree may have changed its layout, or the page is private.": "That page could not be read. Linktree may have changed its layout, or the page is private.",
+    "That Linktree page is locked, so nothing can be read from it.": "That Linktree page is locked, so nothing can be read from it.",
+    "Imported :links blocks and :socials social icons from linktr.ee/:name. The page stays a draft until you publish it.": "Imported :links blocks and :socials social icons from linktr.ee/:name. The page stays a draft until you publish it.",
+    ":count links were left out because their addresses are blocked here.": ":count links were left out because their addresses are blocked here."
 }

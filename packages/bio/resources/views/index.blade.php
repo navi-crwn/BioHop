@@ -14,6 +14,7 @@
     @endphp
     <x-page-header title="{{ $greeting }}, {{ $firstName }}" subtitle="{{ __(':count of :max pages used', ['count' => $bioPages->count(), 'max' => $max]) }}">
         <x-slot name="actions">
+            <a href="{{ route('bio.import') }}" class="btn-soft btn-sm">{{ __('Import from Linktree') }}</a>
             <a href="{{ route('bio.create') }}" class="btn-primary btn-sm">{{ __('New bio page') }}</a>
         </x-slot>
     </x-page-header>
@@ -80,6 +81,7 @@
             <p class="text-sm font-semibold text-ink">{{ __('No bio pages yet') }}</p>
             <p class="mx-auto mt-1 max-w-sm text-sm text-muted">{{ __('Share all your important links from one page.') }}</p>
             <a href="{{ route('bio.create') }}" class="btn-primary btn-sm mt-4">{{ __('Create your first bio page') }}</a>
+            <p class="mt-3 text-xs text-muted"><a href="{{ route('bio.import') }}" class="underline">{{ __('Coming from Linktree? Import your page.') }}</a></p>
         </div>
     @else
         @php

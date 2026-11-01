@@ -25,6 +25,9 @@
     <!-- Fake fields to prevent browser password autofill -->
     <input type="text" name="fake_username" style="display:none !important" tabindex="-1" autocomplete="username">
     <input type="password" name="fake_password" style="display:none !important" tabindex="-1" autocomplete="new-password">
+    @if (session('success'))
+        <div class="mb-3"><x-flash /></div>
+    @endif
     <div class="be-grid" autocomplete="off">
         <section class="be-main" aria-label="Page editor">
             <div class="be-head">

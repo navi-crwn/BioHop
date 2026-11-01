@@ -13,6 +13,7 @@
                     <p class="bw-hint" x-show="checking">{{ __('Checking…') }}</p>
                     <p class="bw-hint ok" x-show="!checking && available === true" x-cloak>✓ {{ __('Available') }}</p>
                     <p class="bw-hint bad" x-show="!checking && available === false" x-cloak x-text="'✗ ' + (slugMessage || '{{ __('Already taken') }}')"></p>
+                    <p class="bw-hint"><a href="{{ route('bio.import') }}">{{ __('Coming from Linktree? Import your page.') }}</a></p>
                 </section>
                 {{-- 2 goal --}}
                 <section x-show="step === 2" class="bw-step" x-cloak>
