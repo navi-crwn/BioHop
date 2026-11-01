@@ -111,6 +111,7 @@ class BioPage extends Model
         'footer_note',
         'footer_url',
         'privacy_mode',
+        'webhook_url',
         'fab_type',
         'fab_label',
         'fab_url',
@@ -127,6 +128,7 @@ class BioPage extends Model
 
     protected $hidden = [
         'password',
+        'webhook_secret',
     ];
 
     protected $casts = [
@@ -142,6 +144,7 @@ class BioPage extends Model
         'auto_utm' => 'boolean',
         'privacy_mode' => 'boolean',
         'status_until' => 'datetime',
+        'webhook_secret' => 'encrypted',
         'seo_noindex' => 'boolean',
         'allow_indexing' => 'boolean',
         'view_count' => 'integer',
@@ -185,6 +188,17 @@ class BioPage extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /** Route binding for /webhook/{delivery} looks for this name */
+    public function deliveries(): HasMany
+    {
+        return $this->hasMany(BioWebhookDelivery::class);
+    }
+
+    public function webhookDeliveries(): HasMany
+    {
+        return $this->hasMany(BioWebhookDelivery::class);
     }
 
     public function revisions(): HasMany

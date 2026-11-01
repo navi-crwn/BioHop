@@ -245,6 +245,45 @@
         </div>
     </div>
 </div>
+<!-- Webhook -->
+<div class="editor-card" x-data="{ info: null, show: false, busy: false, msg: '',
+        csrf() { return document.head.querySelector('meta[name=csrf-token]')?.content || ''; },
+        async load() { try { const r = await fetch(bioEditorUrl('/webhook'), { headers: { 'Accept': 'application/json' } }); this.info = r.ok ? await r.json() : null; } catch (e) { this.info = null; } },
+        when(iso) { return iso ? new Date(iso).toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''; },
+        async post(path, okMsg) { this.busy = true; this.msg = ''; try { const r = await fetch(bioEditorUrl('/webhook' + path), { method: 'POST', headers: { 'X-CSRF-TOKEN': this.csrf(), 'Accept': 'application/json' } }); this.msg = r.ok ? okMsg : 'Save the address first (it must be https).'; } catch (e) { this.msg = 'Something went wrong.'; } this.busy = false; await this.load(); } }"
+     x-init="$watch('activeTab', t => { if (t === 'settings') load(); }); if (activeTab === 'settings') load();">
+    <div class="editor-card-header">
+        <h3 class="editor-card-title">Webhook</h3>
+    </div>
+    <p class="text-xs editor-text-muted mb-3">Send each new entry of your sign-up forms to an address of yours (Zapier, Make, n8n, your own server) as soon as it arrives. It is signed so you can check it came from BioHop. Entries contain what visitors typed, so only send them to a service you trust.</p>
+    <div class="form-group">
+        <label for="bfsettin-wh" class="form-label">Address (https)</label>
+        <input id="bfsettin-wh" type="url" x-model="bioPage.webhook_url" class="form-input" placeholder="https://hooks.example.com/bio" autocomplete="off">
+        <p class="text-xs editor-text-muted mt-1">Save the page first, then send a test. Leave empty to turn it off.</p>
+    </div>
+    <template x-if="info && info.url">
+        <div class="mt-3 space-y-3">
+            <div class="flex items-center gap-2">
+                <input :type="show ? 'text' : 'password'" readonly class="form-input text-xs font-mono" :value="info.secret || ''" aria-label="Signing secret">
+                <button type="button" class="btn btn-secondary text-xs py-1.5 px-2" @click="show = !show" x-text="show ? 'Hide' : 'Show'"></button>
+                <button type="button" class="btn btn-secondary text-xs py-1.5 px-2" :disabled="busy" @click="if (confirm('Make a new secret? The old one stops working.')) post('/secret', 'New secret made.')">New secret</button>
+            </div>
+            <p class="text-xs editor-text-muted">Check each request: <code>X-BioHop-Signature</code> is <code>sha256=</code> and the HMAC-SHA256 of <code>timestamp.body</code> with this secret (the timestamp is in <code>X-BioHop-Timestamp</code>; ignore requests older than five minutes).</p>
+            <div class="flex items-center gap-2">
+                <button type="button" class="btn btn-secondary text-sm py-1.5" :disabled="busy" @click="post('/test', 'Test sent. It shows below in a moment.')">Send a test</button>
+                <span class="text-xs editor-text-muted" x-text="msg" role="status"></span>
+            </div>
+            <ul class="be-versions" x-show="info.deliveries.length">
+                <template x-for="d in info.deliveries" :key="d.id">
+                    <li>
+                        <span><b x-text="d.event + ' · ' + (d.status === 'sent' ? 'delivered' : d.status === 'pending' ? 'will try again' : 'failed')"></b><small x-text="when(d.created_at) + ' · ' + d.attempts + (d.attempts === 1 ? ' try' : ' tries') + (d.http_code ? ' · HTTP ' + d.http_code : '') + (d.error ? ' · ' + d.error : '')"></small></span>
+                        <button type="button" class="btn btn-secondary text-xs py-1 px-2" :disabled="busy" x-show="d.status !== 'sent'" @click="busy = true; fetch(bioEditorUrl('/webhook/' + d.id + '/resend'), { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf(), 'Accept': 'application/json' } }).then(() => load()).finally(() => busy = false)">Send again</button>
+                    </li>
+                </template>
+            </ul>
+        </div>
+    </template>
+</div>
 <!-- Versions -->
 <div class="editor-card" x-data="{ versions: [], loaded: false, label: '', busy: false,
         async load() { try { const r = await fetch(bioEditorUrl('/revisions'), { headers: { 'Accept': 'application/json' } }); this.versions = r.ok ? await r.json() : []; } catch (e) { this.versions = []; } this.loaded = true; },

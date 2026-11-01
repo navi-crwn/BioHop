@@ -16,6 +16,8 @@ use Hop\Bio\Support\BioUploads;
 use Hop\Bio\Support\ImageOptimizer;
 use Hop\Bio\Support\LinktreeImport;
 use Hop\Bio\Support\SvgSanitizer;
+use Hop\Bio\Support\Webhooks;
+use Hop\Safety\UrlGuard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
@@ -413,6 +415,14 @@ class BioPageController extends Controller
         if (! empty($data['fab_url']) && ($data['fab_type'] ?? null) === 'custom' && ($reason = $safety->rejectionReason($data['fab_url'], '', UrlSafety::BIO_SCHEMES))) {
             $errors['fab_url'] = $reason;
         }
+        if (! empty($data['webhook_url'])) {
+            if ($reason = $safety->rejectionReason($data['webhook_url'])) {
+                $errors['webhook_url'] = $reason;
+            } elseif (! app(UrlGuard::class)->isSafe($data['webhook_url'])) {
+                // our server must be able to reach it over the internet: no private or internal addresses
+                $errors['webhook_url'] = 'This address is not reachable from the internet. Use a public https address.';
+            }
+        }
         foreach (['fallback_url', 'footer_url'] as $field) {
             if (! empty($data[$field]) && ($reason = $safety->rejectionReason($data[$field], '', UrlSafety::BIO_SCHEMES))) {
                 $errors[$field] = $reason;
@@ -545,6 +555,7 @@ class BioPageController extends Controller
             'privacy_mode' => 'nullable|boolean',
             'status_text' => 'nullable|string|max:60',
             'status_until' => 'nullable|date',
+            'webhook_url' => ['nullable', 'string', 'max:500', 'regex:#^https://#i'],
             'fab_type' => 'nullable|in:'.implode(',', BioPage::FAB_TYPES),
             'fab_label' => 'nullable|string|max:30',
             'fab_url' => 'nullable|string|max:500',
@@ -605,6 +616,9 @@ class BioPageController extends Controller
         }
         $oldSlug = $bioPage->slug;
         $bioPage->update($validated);
+        if (! empty($bioPage->webhook_url) && ! $bioPage->webhook_secret) {
+            $bioPage->forceFill(['webhook_secret' => Webhooks::newSecret()])->save();
+        }
         // a password, content warning or new address changes whether a reader needs a session
         foreach (array_unique([$oldSlug, $bioPage->slug]) as $forgetSlug) {
             Cache::forget('bio-stateless:'.strtolower($forgetSlug));

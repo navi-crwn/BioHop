@@ -12,6 +12,7 @@ use Hop\Bio\Models\BioLink;
 use Hop\Bio\Models\BioPage;
 use Hop\Bio\Models\BioPollVote;
 use Hop\Bio\Support\ImageMeta;
+use Hop\Bio\Support\Webhooks;
 use Hop\Safety\SafeContent;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
@@ -340,12 +341,13 @@ class PublicBioController extends Controller
             return $back->withErrors(['form' => __('This form is not taking more entries right now.')], 'form_'.$bioLink->public_id);
         }
         $data = $validator->validated();
-        $bioLink->leads()->create([
+        $lead = $bioLink->leads()->create([
             'name' => isset($fields['name']) ? ($data['name'] ?? null) : null,
             'email' => isset($fields['email']) ? ($data['email'] ?? null) : null,
             'phone' => isset($fields['phone']) ? ($data['phone'] ?? null) : null,
             'ip_hash' => VisitorHash::make($request->ip()),
         ]);
+        Webhooks::leadCreated($bioLink, $lead);
 
         return $back->with('form_sent', $bioLink->public_id);
     }
