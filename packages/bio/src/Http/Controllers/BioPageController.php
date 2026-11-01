@@ -464,7 +464,7 @@ class BioPageController extends Controller
     {
         $this->authorize('update', $bioPage);
         $bioPage->load(['links' => function ($query) {
-            $query->orderBy('order');
+            $query->orderBy('order')->withCount('leads');
         }]);
         $brands = config('brands.platforms', []);
 

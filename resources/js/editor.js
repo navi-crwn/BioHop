@@ -548,11 +548,11 @@ window.bioEditorV2 = function() {
                 faq_items: [],
                 html_content: '',
                 description: '',
-                settings: type === 'product' ? { price: '', currency: 'IDR', sold_out: false } : (type === 'collection' ? { layout: 'stack' } : (type === 'whatsapp' ? { text: '', mode: 'round_robin', numbers: [{ number: '', label: '', weight: 1 }] } : (type === 'goal' ? { target: '', current: '', unit: '' } : (type === 'app' ? { ios: '', android: '', web: '' } : (type === 'carousel' ? { images: [] } : null)))))
+                settings: type === 'product' ? { price: '', currency: 'IDR', sold_out: false } : (type === 'collection' ? { layout: 'stack' } : (type === 'whatsapp' ? { text: '', mode: 'round_robin', numbers: [{ number: '', label: '', weight: 1 }] } : (type === 'goal' ? { target: '', current: '', unit: '' } : (type === 'form' ? { ask_name: true, ask_email: true, ask_phone: false, button: '', thanks: '', consent: '', retention_days: 90 } : type === 'app' ? { ios: '', android: '', web: '' } : (type === 'carousel' ? { images: [] } : null)))))
             };
             if (type === 'whatsapp') newBlock.brand = 'whatsapp';
             this.blocks.push(newBlock);
-            if (['link', 'header', 'text', 'video', 'music', 'vcard', 'html', 'countdown', 'map', 'faq', 'youtube', 'spotify', 'soundcloud', 'code', 'image', 'product', 'collection', 'whatsapp', 'app', 'goal', 'audio', 'carousel', 'pdf'].includes(type)) {
+            if (['link', 'header', 'text', 'video', 'music', 'vcard', 'html', 'countdown', 'map', 'faq', 'youtube', 'spotify', 'soundcloud', 'code', 'image', 'product', 'collection', 'whatsapp', 'app', 'goal', 'audio', 'carousel', 'pdf', 'form', 'rss', 'poll'].includes(type)) {
                 this.editingBlock = JSON.parse(JSON.stringify(newBlock));
             }
             this.showAddBlockModal = false;
@@ -575,7 +575,10 @@ window.bioEditorV2 = function() {
                 'goal': 'Our goal',
                 'audio': 'Listen',
                 'carousel': 'Pictures',
-                'pdf': 'Menu (PDF)'
+                'pdf': 'Menu (PDF)',
+                'form': 'Stay in touch',
+                'rss': 'Latest posts',
+                'poll': 'Quick poll'
             };
             return titles[type] || '';
         },
@@ -909,6 +912,17 @@ window.bioEditorV2 = function() {
             // Plain copies only: a reactive proxy inside settings cannot be posted to the preview frame.
             const plain = value && typeof value === 'object' ? JSON.parse(JSON.stringify(value)) : value;
             this.editingBlock.settings = Object.assign({}, JSON.parse(JSON.stringify(this.editingBlock.settings || {})), { [key]: plain });
+        },
+        async deleteLeads() {
+            if (!confirm('Delete every entry of this form? This cannot be undone.')) return;
+            try {
+                const res = await fetch(bioEditorUrl('/links/' + this.editingBlock.id + '/leads'), { method: 'DELETE', headers: { 'X-CSRF-TOKEN': csrf(), 'Accept': 'application/json' } });
+                if (!res.ok) throw new Error('Could not delete the entries');
+                this.editingBlock.leads_count = 0;
+                const b = this.blocks.find(x => x.id === this.editingBlock.id);
+                if (b) b.leads_count = 0;
+                this.showNotification('Entries deleted', 'success');
+            } catch (e) { this.showNotification(e.message, 'error'); }
         },
         addRule() {
             this.setProductSetting('rules', [...(this.editingBlock.settings?.rules || []), { country: '', device: 'any', os: 'any', from: '', to: '', url: '' }]);
