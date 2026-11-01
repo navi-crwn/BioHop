@@ -1,13 +1,13 @@
 @php($locale = app()->getLocale())
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', $locale) }}" dir="{{ $locale === 'ar' ? 'rtl' : 'ltr' }}">
+<html lang="{{ str_replace('_', '-', $locale) }}" dir="ltr">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>BioHop · {{ __('One link-in-bio page for everything you do.') }}</title>
     <meta name="description" content="{{ __('Share all your links, social profiles, embeds, vCard and QR code on one fast, customizable page at hel.ink/b/yourname. Free, open source, and powered by your HOP ID.') }}">
     <link rel="canonical" href="{{ url('/') }}">
-    @foreach (\App\Http\Middleware\SetLocale::LOCALES as $code => $name)
+    @foreach (\Hop\Ui\Locales::names() as $code => $name)
         <link rel="alternate" hreflang="{{ $code }}" href="{{ url('/') }}?lang={{ $code }}">
     @endforeach
     <meta property="og:type" content="website">

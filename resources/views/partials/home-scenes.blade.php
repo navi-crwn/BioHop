@@ -1,9 +1,9 @@
 {{-- The BioHop home below the hero: one scroll scene per feature (resources/js/home.js). Every scene is complete as plain HTML; the script only adds motion. --}}
-<div class="bx-marq" data-bx-marq aria-label="{{ __('What you get') }}"><div>@foreach (['Your name', '20+ themes', 'Blocks for everything', 'QR codes', 'Analytics without tracking', 'Password and 18+ gate', 'Your own CSS', 'Open source', '8 languages'] as $t)<span>{{ __($t) }}</span>@endforeach</div></div>
+<div class="bx-marq" data-bx-marq aria-label="{{ __('What you get') }}"><div>@foreach (['Your name', '20+ themes', 'Blocks for everything', 'QR codes', 'Analytics without tracking', 'Password and 18+ gate', 'Your own CSS', 'Open source', '9 languages'] as $t)<span>{{ __($t) }}</span>@endforeach</div></div>
 
 <div class="bx-nums" data-bx-nums>
     <div><b data-count="20" data-suffix="+">20+</b><span>{{ __('themes') }}</span></div>
-    <div><b data-count="{{ count(\App\Http\Middleware\SetLocale::LOCALES) }}">{{ count(\App\Http\Middleware\SetLocale::LOCALES) }}</b><span>{{ __('languages') }}</span></div>
+    <div><b data-count="{{ count(\Hop\Ui\Locales::codes()) }}">{{ count(\Hop\Ui\Locales::codes()) }}</b><span>{{ __('languages') }}</span></div>
     <div><b data-count="0">0</b><span>{{ __('ads and trackers') }}</span></div>
     <div><b data-count="100" data-suffix="%">100%</b><span>{{ __('free and open source') }}</span></div>
 </div>

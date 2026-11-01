@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b921a40e4443108ce4f2cd0fa217c746",
+    "content-hash": "ddee748cad9a74e86d7ba31704ebf0e1",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -1419,12 +1419,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/navi-crwn/hop-ui.git",
-                "reference": "2b44fa163c9bba7d10ac5f372587bc5cec124668"
+                "reference": "a5eb519b34a0b9ea572a1295bcd93d7d2506b187"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/navi-crwn/hop-ui/zipball/2b44fa163c9bba7d10ac5f372587bc5cec124668",
-                "reference": "2b44fa163c9bba7d10ac5f372587bc5cec124668",
+                "url": "https://api.github.com/repos/navi-crwn/hop-ui/zipball/a5eb519b34a0b9ea572a1295bcd93d7d2506b187",
+                "reference": "a5eb519b34a0b9ea572a1295bcd93d7d2506b187",
                 "shasum": ""
             },
             "require": {
@@ -1453,7 +1453,7 @@
                 "source": "https://github.com/navi-crwn/hop-ui/tree/main",
                 "issues": "https://github.com/navi-crwn/hop-ui/issues"
             },
-            "time": "2026-10-31T16:15:49+00:00"
+            "time": "2026-11-01T15:32:42+00:00"
         },
         {
             "name": "laravel/framework",
