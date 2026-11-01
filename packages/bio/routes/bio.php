@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 
 // Public pages: hel.ink/b/{slug}. The host app's ip.ban middleware keeps banned visitors out.
 Route::middleware(['web', 'ip.ban'])->prefix('b')->name('bio.public.')->group(function () {
+    Route::get('/shop/{slug}', [PublicBioController::class, 'shop'])->name('shop');
     Route::match(['get', 'post'], '/{slug}', [PublicBioController::class, 'show'])->name('show');
     Route::get('/{slug}/qr', [PublicBioController::class, 'qr'])->name('qr');
     Route::get('/click/{bioLink:public_id}', [PublicBioController::class, 'click'])->middleware('throttle:bio-click')->name('click');
@@ -23,6 +24,9 @@ Route::middleware(['web', 'ip.ban', 'hop.auth', UploadStorageGate::class])->pref
     Route::get('/check-slug', [BioPageController::class, 'checkSlug'])->name('check-slug');
     Route::get('/upload-status', fn () => response()->json(app(UploadStorage::class)->status())->header('Cache-Control', 'no-store'))->name('upload-status');
     Route::post('/', [BioPageController::class, 'store'])->middleware('verified')->name('store');
+    Route::post('/wizard', [BioPageController::class, 'storeWizard'])->middleware('verified')->name('wizard');
+    Route::get('/import', [BioPageController::class, 'importForm'])->name('import');
+    Route::post('/import', [BioPageController::class, 'import'])->middleware(['verified', 'throttle:6,1'])->name('import.store');
     Route::get('/{bioPage}/edit', [BioPageController::class, 'edit'])->name('edit');
     Route::put('/{bioPage}', [BioPageController::class, 'update'])->middleware('verified')->name('update');
     Route::delete('/{bioPage}', [BioPageController::class, 'destroy'])->name('destroy');
@@ -46,6 +50,8 @@ Route::middleware(['web', 'ip.ban', 'hop.auth', UploadStorageGate::class])->pref
         Route::delete('/{bioLink}', [BioLinkController::class, 'destroy'])->name('destroy');
         Route::post('/reorder', [BioLinkController::class, 'reorder'])->middleware('verified')->name('reorder');
         Route::post('/{bioLink}/toggle', [BioLinkController::class, 'toggle'])->middleware('verified')->name('toggle');
+        Route::post('/{bioLink}/archive', [BioLinkController::class, 'archive'])->middleware('verified')->name('archive');
+        Route::post('/{bioLink}/restore', [BioLinkController::class, 'restore'])->middleware('verified')->name('restore');
     });
 });
 
