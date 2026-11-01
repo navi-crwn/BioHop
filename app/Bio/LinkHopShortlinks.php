@@ -23,6 +23,11 @@ class LinkHopShortlinks implements ShortlinkCreator
 
     public function findOrCreate(Authenticatable $user, string $url, ?string $title = null): array
     {
+        // Links to our own sites (hel.ink and the HOP apps) are kept as typed: no second short link on top.
+        if (FamilyUrls::isFamily($url)) {
+            return ['id' => null, 'url' => $url, 'short_url' => $url, 'reused' => true, 'family' => true];
+        }
+
         return $this->withToken($user, fn (string $token) => $this->client->shorten($token, $url, $title));
     }
 

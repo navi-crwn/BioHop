@@ -18,6 +18,7 @@
         'previewUrl' => route('bio.preview', $bioPage),
         'publicBase' => public_url('b'),
         'pages' => auth()->user()->bioPages()->orderBy('title')->get(['slug', 'title'])->map(fn ($p) => ['slug' => $p->slug, 'title' => $p->title])->values(),
+        'familyHosts' => \App\Bio\FamilyUrls::hosts(),
     ];
 @endphp
 <script type="application/json" id="bio-editor-config">{!! json_encode($editorConfig, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
@@ -147,7 +148,7 @@
             <div class="be-preview-stage">
                 <div class="mobile-frame">
                     <div class="mobile-frame-inner">
-                        <iframe title="Live preview of your bio page" x-ref="previewFrame" :src="previewUrl" @load="onPreviewLoad()"></iframe>
+                        <iframe title="Live preview of your bio page" x-ref="previewFrame" :src="previewUrl" :style="previewHeight ? 'height:' + previewHeight + 'px' : ''" scrolling="no" @load="onPreviewLoad()"></iframe>
                     </div>
                 </div>
             </div>
