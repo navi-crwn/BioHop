@@ -19,7 +19,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -215,7 +214,7 @@ class PublicBioController extends Controller
         $icons = [];
         if ($bioPage->avatar_url && ($meta = ImageMeta::for($bioPage->avatar_url))) {
             $ext = strtolower(pathinfo($bioPage->avatar_url, PATHINFO_EXTENSION));
-            $icons[] = ['src' => Storage::disk('public')->url($bioPage->avatar_url), 'sizes' => $meta['w'].'x'.$meta['h'], 'type' => ['webp' => 'image/webp', 'png' => 'image/png', 'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'gif' => 'image/gif'][$ext] ?? 'image/png', 'purpose' => 'any'];
+            $icons[] = ['src' => bio_media_url($bioPage->avatar_url), 'sizes' => $meta['w'].'x'.$meta['h'], 'type' => ['webp' => 'image/webp', 'png' => 'image/png', 'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'gif' => 'image/gif'][$ext] ?? 'image/png', 'purpose' => 'any'];
         }
 
         return response()->json([
