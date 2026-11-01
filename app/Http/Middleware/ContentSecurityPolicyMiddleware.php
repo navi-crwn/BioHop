@@ -31,15 +31,16 @@ class ContentSecurityPolicyMiddleware
         $assets = ' '.self::originOf(bio_asset_origin());
         // The BioHop home frames the official page from the public host (hel.ink/b/hel?embed=1).
         $publicHost = self::originOf(public_url());
-        // https://hel.ink serves the shared HOP family assets (fonts, floating tiles; hop/ui).
+        // https://hel.ink serves the shared HOP family assets (fonts, floating tiles; hop/ui). Nothing is loaded from a CDN;
+        // the hosts named below for pixels are a page owner's own optional, consent-gated Google, Meta and TikTok pixels.
         $csp = [
             "default-src 'self'",
-            "script-src 'self'{$assets} https://hel.ink 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://fonts.bunny.net https://fonts.googleapis.com https://cdn.jsdelivr.net https://unpkg.com https://static.cloudflareinsights.com https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net https://analytics.tiktok.com",
-            "style-src 'self'{$assets} https://hel.ink 'unsafe-inline' https://fonts.bunny.net https://fonts.googleapis.com https://cdn.jsdelivr.net https://unpkg.com",
-            "img-src 'self' data: https: blob: https://flagcdn.com https://www.google-analytics.com https://www.facebook.com",
+            "script-src 'self'{$assets} https://hel.ink 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net https://analytics.tiktok.com",
+            "style-src 'self'{$assets} https://hel.ink 'unsafe-inline'",
+            "img-src 'self' data: https: blob: https://www.google-analytics.com https://www.facebook.com",
             "media-src 'self'{$assets}",
-            "font-src 'self'{$assets} https://hel.ink https://fonts.bunny.net https://fonts.gstatic.com data:",
-            "connect-src 'self'{$assets} data: blob: https://challenges.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://www.google-analytics.com https://analytics.google.com https://www.facebook.com https://analytics.tiktok.com",
+            "font-src 'self'{$assets} https://hel.ink data:",
+            "connect-src 'self'{$assets} data: blob: https://challenges.cloudflare.com https://www.google-analytics.com https://analytics.google.com https://www.facebook.com https://analytics.tiktok.com",
             "frame-src 'self' {$publicHost} https://challenges.cloudflare.com https://maps.google.com https://www.google.com https://youtube.com ".implode(' ', BioEmbed::FRAME_HOSTS),
             "object-src 'none'",
             "base-uri 'self'",
