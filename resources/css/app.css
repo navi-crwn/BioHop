@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import './showcase.css';
 @import './profile-hero.css';
+@import './editor.css';
 
 @plugin '@tailwindcss/forms';
 
@@ -71,16 +72,17 @@
     :is(h1, h2, h3):not(.bio-container *) { font-family: var(--font-display); letter-spacing: -0.01em; }
     body { @apply font-sans antialiased; color: rgb(var(--ink)); }
 
-    /* Soft gradient backdrop that the glass surfaces blur. */
-    .app-bg {
-        background-color: rgb(var(--bg));
+    /* Soft gradient backdrop that the glass surfaces blur. It lives on a fixed layer of its own: a `fixed` background
+       on the body is repainted on every scroll frame, a fixed layer is only composited. */
+    .app-bg { background-color: rgb(var(--bg)); position: relative; isolation: isolate; }
+    .app-bg::before {
+        content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
         background-image:
             radial-gradient(40rem 28rem at 8% -6%, rgb(129 140 248 / 0.18), transparent 60%),
             radial-gradient(36rem 26rem at 100% 0%, rgb(125 211 252 / 0.14), transparent 60%),
             radial-gradient(42rem 30rem at 85% 105%, rgb(148 163 184 / 0.16), transparent 60%);
-        background-attachment: fixed;
     }
-    .dark .app-bg {
+    .dark .app-bg::before {
         background-image:
             radial-gradient(40rem 28rem at 8% -6%, rgb(99 102 241 / 0.18), transparent 60%),
             radial-gradient(36rem 26rem at 100% 0%, rgb(14 165 233 / 0.10), transparent 60%),
