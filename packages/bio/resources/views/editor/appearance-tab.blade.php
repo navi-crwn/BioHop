@@ -1,19 +1,18 @@
-<!-- Design tab: Header · Theme · Wallpaper · Text · Buttons · Footer, each a collapsible section, with a jump bar on top. -->
+<!-- Design tab: Header · Theme · Wallpaper · Text · Buttons · Footer as sub-tabs; one section shows at a time, so no long scroll. -->
 <div class="be-design" x-data="designTab()">
-    <nav class="be-design-nav" aria-label="Design sections">
+    <nav class="be-design-nav" role="tablist" aria-label="Design sections" @keydown.arrow-right.prevent="step(1)" @keydown.arrow-left.prevent="step(-1)">
         <template x-for="s in sections" :key="s[0]">
-            <a :href="'#design-' + s[0]" @click.prevent="jump(s[0])" x-text="s[1]"></a>
+            <button type="button" role="tab" :id="'design-tab-' + s[0]" :aria-selected="String(current === s[0])" :aria-controls="'design-' + s[0]" :tabindex="current === s[0] ? 0 : -1" :class="{ 'is-active': current === s[0] }" @click="select(s[0])" x-text="s[1]"></button>
         </template>
         <a :href="publicUrl" target="_blank" rel="noopener" class="be-design-visit">Preview as visitor ↗</a>
     </nav>
-    <section class="be-sec" id="design-header" :class="{ 'is-open': open.header }">
-        <button type="button" class="be-sec-head" @click="toggle('header')" :aria-expanded="open.header" aria-controls="design-header-body">
+    <section class="be-sec" id="design-header" role="tabpanel" :aria-labelledby="'design-tab-header'" x-show="current === 'header'" x-cloak>
+        <div class="be-sec-head">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5h16v6H4zM4 15h16M4 19h10"/></svg>
             <span class="be-sec-title">Header</span>
             <span class="be-sec-hint" x-text="({classic:'Classic',hero:'Hero',banner:'Banner',cutout:'Cutout'})[bioPage.header_layout || 'classic']"></span>
-            <svg class="be-sec-chev w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-        </button>
-        <div class="be-sec-body" id="design-header-body" x-show="open.header" x-collapse>
+        </div>
+        <div class="be-sec-body" id="design-header-body">
             <label class="form-label text-xs mb-2">Layout</label>
                 <div class="be-heads" role="radiogroup" aria-label="Header layout">
                     <template x-for="h in [['classic','Classic'],['hero','Hero'],['banner','Banner'],['cutout','Cutout']]" :key="h[0]">
@@ -48,14 +47,13 @@
             </div>
         </div>
     </section>
-    <section class="be-sec" id="design-theme" :class="{ 'is-open': open.theme }">
-        <button type="button" class="be-sec-head" @click="toggle('theme')" :aria-expanded="open.theme" aria-controls="design-theme-body">
+    <section class="be-sec" id="design-theme" role="tabpanel" :aria-labelledby="'design-tab-theme'" x-show="current === 'theme'" x-cloak>
+        <div class="be-sec-head">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
             <span class="be-sec-title">Theme</span>
             <span class="be-sec-hint" x-text="themes[bioPage.theme]?.name || 'Default'"></span>
-            <svg class="be-sec-chev w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-        </button>
-        <div class="be-sec-body" id="design-theme-body" x-show="open.theme" x-collapse>
+        </div>
+        <div class="be-sec-body" id="design-theme-body">
             <p class="text-xs editor-text-muted mb-3">A theme sets the wallpaper, text and button colours at once. Pick Default to set everything yourself, or use the copy icon on a theme to start from it.</p>
         <div class="grid gap-2" style="grid-template-columns:repeat(auto-fit,minmax(70px,1fr))">
             <template x-for="(theme, id) in themes" :key="id">
@@ -119,14 +117,13 @@
         </div>
         </div>
     </section>
-    <section class="be-sec" id="design-wallpaper" :class="{ 'is-open': open.wallpaper }">
-        <button type="button" class="be-sec-head" @click="toggle('wallpaper')" :aria-expanded="open.wallpaper" aria-controls="design-wallpaper-body">
+    <section class="be-sec" id="design-wallpaper" role="tabpanel" :aria-labelledby="'design-tab-wallpaper'" x-show="current === 'wallpaper'" x-cloak>
+        <div class="be-sec-head">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
             <span class="be-sec-title">Wallpaper</span>
             <span class="be-sec-hint" x-text="bioPage.theme !== 'default' ? 'From theme' : ({solid:'Colour',gradient:'Gradient',image:'Picture'})[bioPage.background_type] || 'Colour'"></span>
-            <svg class="be-sec-chev w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-        </button>
-        <div class="be-sec-body" id="design-wallpaper-body" x-show="open.wallpaper" x-collapse>
+        </div>
+        <div class="be-sec-body" id="design-wallpaper-body">
             <div x-show="bioPage.theme === 'default'">
                 <div class="space-y-3">
                     <!-- Background Type Tabs -->
@@ -247,14 +244,13 @@
             </div>
         </div>
     </section>
-    <section class="be-sec" id="design-text" :class="{ 'is-open': open.text }">
-        <button type="button" class="be-sec-head" @click="toggle('text')" :aria-expanded="open.text" aria-controls="design-text-body">
+    <section class="be-sec" id="design-text" role="tabpanel" :aria-labelledby="'design-tab-text'" x-show="current === 'text'" x-cloak>
+        <div class="be-sec-head">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16"/></svg>
             <span class="be-sec-title">Text</span>
             <span class="be-sec-hint" x-text="getFontDisplayName(bioPage.font_family || 'inter')"></span>
-            <svg class="be-sec-chev w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-        </button>
-        <div class="be-sec-body" id="design-text-body" x-show="open.text" x-collapse>
+        </div>
+        <div class="be-sec-body" id="design-text-body">
                 <div class="space-y-3">
                     <div class="relative" x-data="{ showFontPicker: false }">
                         <label class="form-label text-xs mb-1">Font Family</label>
@@ -289,14 +285,13 @@
                 </div>
         </div>
     </section>
-    <section class="be-sec" id="design-buttons" :class="{ 'is-open': open.buttons }">
-        <button type="button" class="be-sec-head" @click="toggle('buttons')" :aria-expanded="open.buttons" aria-controls="design-buttons-body">
+    <section class="be-sec" id="design-buttons" role="tabpanel" :aria-labelledby="'design-tab-buttons'" x-show="current === 'buttons'" x-cloak>
+        <div class="be-sec-head">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/></svg>
             <span class="be-sec-title">Buttons</span>
             <span class="be-sec-hint" x-text="({'rounded-sm':'Rounded',rounded:'Rounded',pill:'Pill',square:'Square'})[bioPage.block_shape] || 'Rounded'"></span>
-            <svg class="be-sec-chev w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-        </button>
-        <div class="be-sec-body" id="design-buttons-body" x-show="open.buttons" x-collapse>
+        </div>
+        <div class="be-sec-body" id="design-buttons-body">
                 <div class="space-y-3">
                     <!-- Shape -->
                     <div>
@@ -425,14 +420,13 @@
                 </div>
         </div>
     </section>
-    <section class="be-sec" id="design-footer" :class="{ 'is-open': open.footer }">
-        <button type="button" class="be-sec-head" @click="toggle('footer')" :aria-expanded="open.footer" aria-controls="design-footer-body">
+    <section class="be-sec" id="design-footer" role="tabpanel" :aria-labelledby="'design-tab-footer'" x-show="current === 'footer'" x-cloak>
+        <div class="be-sec-head">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5h16v10H4zM8 19h8"/></svg>
             <span class="be-sec-title">Footer</span>
             <span class="be-sec-hint" x-text="bioPage.hide_branding ? 'Hidden' : 'Powered by'"></span>
-            <svg class="be-sec-chev w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-        </button>
-        <div class="be-sec-body" id="design-footer-body" x-show="open.footer" x-collapse>
+        </div>
+        <div class="be-sec-body" id="design-footer-body">
             <label class="flex items-start gap-3 cursor-pointer">
                 <input type="checkbox" class="mt-0.5" :checked="!bioPage.hide_branding" @change="bioPage.hide_branding = !$event.target.checked">
                 <span><span class="text-sm font-medium block">Show "Powered by" at the bottom</span><span class="text-xs editor-text-muted">A small line that links to BioHop. You can switch it off; the page stays free either way.</span></span>

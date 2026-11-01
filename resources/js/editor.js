@@ -48,22 +48,25 @@ const BLOCK_CATALOG = [
     ]],
 ];
 
-// The Design tab: six collapsible sections; which ones are open is remembered per browser.
+// The Design tab: six sub-tabs, one section at a time; the last one used is remembered per browser.
 window.designTab = function() {
-    const KEY = 'bio-design-open';
-    let saved = {};
-    try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+    const KEY = 'bio-design-section';
+    const sections = [['header', 'Header'], ['theme', 'Theme'], ['wallpaper', 'Wallpaper'], ['text', 'Text'], ['buttons', 'Buttons'], ['footer', 'Footer']];
+    let saved = '';
+    try { saved = localStorage.getItem(KEY) || ''; } catch (e) {}
     return {
-        sections: [['header', 'Header'], ['theme', 'Theme'], ['wallpaper', 'Wallpaper'], ['text', 'Text'], ['buttons', 'Buttons'], ['footer', 'Footer']],
-        open: { header: true, theme: true, wallpaper: true, text: true, buttons: true, footer: true, ...saved },
+        sections,
+        current: sections.some(s => s[0] === saved) ? saved : 'header',
         publicUrl: CONFIG.publicBase + '/' + encodeURIComponent(CONFIG.bioPage.slug),
-        toggle(key) {
-            this.open[key] = !this.open[key];
-            try { localStorage.setItem(KEY, JSON.stringify(this.open)); } catch (e) {}
+        select(key) {
+            this.current = key;
+            try { localStorage.setItem(KEY, key); } catch (e) {}
         },
-        jump(key) {
-            this.open[key] = true;
-            this.$nextTick(() => document.getElementById('design-' + key)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+        step(dir) {
+            const i = sections.findIndex(s => s[0] === this.current);
+            const next = sections[(i + dir + sections.length) % sections.length][0];
+            this.select(next);
+            this.$nextTick(() => document.getElementById('design-tab-' + next)?.focus());
         },
     };
 };

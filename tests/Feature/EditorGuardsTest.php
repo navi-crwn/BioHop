@@ -41,7 +41,7 @@ test('the password page can not be dragged sideways by its decorative background
 
 test('a very long page title wraps inside the phone screen', function () {
     $view = file_get_contents(base_path('packages/bio/resources/views/show.blade.php'));
-    expect($view)->toContain('overflow-wrap: anywhere');
+    expect($view)->toContain('overflow-wrap: break-word')->not->toContain('overflow-wrap: anywhere'); // anywhere shrinks the title to one letter per line in a flex row
 });
 
 test('someone who has used all their pages is told so on the create screen, before filling in the wizard', function () {
@@ -74,4 +74,16 @@ test('inputs that carry an icon keep their side padding over the base input styl
 test('the weekly bar chart on the dashboard home grows with its card instead of leaving a gap', function () {
     $view = file_get_contents(base_path('packages/bio/resources/views/index.blade.php'));
     expect($view)->toContain('flex min-h-24')->toContain('items-stretch')->not->toContain('* 56');
+});
+
+test('the sticky top bar is nearly opaque and has a scrim, so rows do not read through it while scrolling', function () {
+    $css = file_get_contents(base_path('resources/css/app.css'));
+    $layout = file_get_contents(base_path('resources/views/layouts/app.blade.php'));
+    expect($css)->toContain('.glass.glass-bar')->toContain('.app-topbar::before');
+    expect($layout)->toContain('app-topbar')->toContain('glass-bar');
+});
+
+test('the phone preview is sized by its stage, so the whole screen is reachable on short windows', function () {
+    $css = file_get_contents(base_path('resources/css/editor.css'));
+    expect($css)->toContain('grid-template: minmax(0, 1fr) / minmax(0, 1fr)');
 });

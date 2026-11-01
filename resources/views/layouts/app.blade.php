@@ -73,8 +73,8 @@
                 </aside>
 
                 {{-- Top bar --}}
-                <header class="sticky top-0 z-30 px-3 pt-3 sm:px-5">
-                    <div class="glass flex h-14 items-center gap-2 rounded-2xl px-2 sm:px-3">
+                <header class="app-topbar sticky top-0 z-30 px-3 pt-3 sm:px-5">
+                    <div class="glass glass-bar flex h-14 items-center gap-2 rounded-2xl px-2 sm:px-3">
                         <button type="button" class="icon-btn lg:hidden" @click="nav = true" aria-label="Open menu">
                             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h10"/></svg>
                         </button>
