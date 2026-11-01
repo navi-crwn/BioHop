@@ -278,3 +278,31 @@
 .be-rule .be-rule-url { grid-column: 1 / span 2; }
 .be-rule > .icon-btn { grid-column: 3; grid-row: 1; }
 .be-rule input[type=number] { width: 100%; min-width: 0; }
+
+/* Bento block picker. */
+.bio-editor .bento-card, .modal-content .bento-card { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 14px; text-align: left; }
+.bento-icon { flex: none; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; }
+.bento-text { display: grid; gap: 1px; min-width: 0; }
+.bento-text b { font-size: 13px; font-weight: 600; color: var(--editor-text); }
+.bento-text small { font-size: 11px; line-height: 1.3; color: var(--editor-text-muted); }
+/* Page switcher under the page name. */
+.be-pages-menu { position: absolute; top: 100%; left: 0; z-index: 30; min-width: 220px; max-height: 260px; overflow: auto; margin-top: 6px; padding: 6px; border-radius: 14px; background: var(--editor-panel-bg); border: 1px solid var(--editor-border); box-shadow: 0 18px 40px -16px rgb(15 23 42 / .45); }
+.be-pages-item { display: grid; width: 100%; text-align: left; padding: 8px 10px; border-radius: 10px; background: none; border: 0; color: inherit; cursor: pointer; }
+.be-pages-item:hover, .be-pages-item:focus-visible { background: var(--editor-input-bg); }
+.be-pages-item.is-current { box-shadow: inset 3px 0 0 #2563eb; }
+.be-pages-item small { color: var(--editor-text-muted); font-size: 11px; }
+.be-kbd { width: auto !important; padding: 0 9px; font-size: 11px; font-weight: 700; letter-spacing: .02em; }
+@media (max-width: 640px) { .be-kbd { display: none; } }
+/* Command palette. */
+.be-palette-overlay { position: fixed; inset: 0; z-index: 100; display: flex; justify-content: center; align-items: flex-start; padding: 12vh 16px 16px; background: rgb(15 23 42 / .45); }
+.be-palette { width: 100%; max-width: 560px; border-radius: 18px; background: var(--editor-panel-bg); border: 1px solid var(--editor-border); box-shadow: 0 30px 70px -20px rgb(0 0 0 / .55); overflow: hidden; }
+.be-palette input { width: 100%; padding: 16px 18px; background: transparent; border: 0; border-bottom: 1px solid var(--editor-border); color: var(--editor-text); font-size: 15px; outline: none; }
+.be-palette ul { max-height: 340px; overflow: auto; padding: 6px; list-style: none; margin: 0; }
+.be-palette li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 9px 12px; border-radius: 10px; cursor: pointer; }
+.be-palette li.is-on { background: var(--editor-input-bg); box-shadow: inset 3px 0 0 #2563eb; }
+.be-palette li b { font-size: 13px; font-weight: 600; margin-right: 8px; }
+.be-palette li small { font-size: 11px; color: var(--editor-text-muted); }
+.be-palette li em { font-style: normal; font-size: 11px; color: var(--editor-text-muted); white-space: nowrap; }
+.be-palette-empty { color: var(--editor-text-muted); cursor: default !important; }
+.be-palette-foot { padding: 8px 14px; font-size: 11px; color: var(--editor-text-muted); border-top: 1px solid var(--editor-border); }
+.be-palette kbd { padding: 1px 5px; border-radius: 5px; border: 1px solid var(--editor-border); font-size: 10px; }

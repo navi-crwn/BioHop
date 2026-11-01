@@ -11,6 +11,43 @@ const NOT_SAVED = new Set(['id', 'user_id', 'links', 'user', 'created_at', 'upda
 window.bioEditorSlug = CONFIG.bioPage.slug;
 window.bioEditorUrl = (path = '') => '/bio/' + encodeURIComponent(window.bioEditorSlug) + path;
 
+
+// The block picker and the command palette read the same list: [group, [type, label, hint, colour, icon path, action, keywords]].
+// action: add = open the block form, quick = text/image quick editors, divider = add at once.
+const BLOCK_CATALOG = [
+    ['Essentials', [
+        ['link', 'Link', 'A button to any address', '#2563eb', 'M13.8 10.2a4 4 0 00-5.7 0l-4 4a4 4 0 105.7 5.7l1.1-1.1m-.8-4.9a4 4 0 005.7 0l4-4a4 4 0 00-5.7-5.7l-1.1 1.1', 'add', 'url website button'],
+        ['text', 'Text', 'A paragraph with formatting', '#16a34a', 'M4 6h16M4 12h10M4 18h14', 'quick', 'paragraph note about'],
+        ['header', 'Header', 'A title that splits the page', '#7c3aed', 'M5 5v14M19 5v14M5 12h14', 'add', 'heading title section'],
+        ['image', 'Image', 'A picture, tap to enlarge', '#e11d48', 'M4 16l4.6-4.6a2 2 0 012.8 0L16 16m-2-2l1.6-1.6a2 2 0 012.8 0L20 14M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z', 'quick', 'photo picture'],
+        ['divider', 'Divider', 'A line between groups', '#475569', 'M20 12H4', 'divider', 'line separator'],
+    ]],
+    ['Media & embeds', [
+        ['youtube', 'YouTube', 'A video that plays on the page', '#dc2626', 'M14.7 12L10 9v6l4.7-3zM21 12a9 9 0 11-18 0 9 9 0 0118 0z', 'add', 'video'],
+        ['spotify', 'Spotify', 'A track, album or playlist', '#16a34a', 'M9 19V6l12-3v13M9 19a3 3 0 11-6 0 3 3 0 016 0zm12-3a3 3 0 11-6 0 3 3 0 016 0z', 'add', 'music podcast'],
+        ['soundcloud', 'SoundCloud', 'A track or set', '#ea580c', 'M9 19V6l12-3v13M9 19a3 3 0 11-6 0 3 3 0 016 0zm12-3a3 3 0 11-6 0 3 3 0 016 0z', 'add', 'music audio'],
+        ['audio', 'Audio clip', 'Your own recording, up to 12 MB', '#c026d3', 'M12 3v10m0 0a3 3 0 100 6 3 3 0 000-6zm0 0V3m6 6v4a6 6 0 01-12 0V9', 'add', 'voice podcast sample mp3'],
+        ['carousel', 'Picture carousel', 'Swipe through up to 10 pictures', '#ea580c', 'M4 16l4.6-4.6a2 2 0 012.8 0L16 16m-2-2l1.6-1.6a2 2 0 012.8 0L20 14M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z', 'add', 'gallery slider photos'],
+        ['pdf', 'PDF document', 'A menu, price list or catalogue', '#dc2626', 'M7 21h10a2 2 0 002-2V9l-6-6H7a2 2 0 00-2 2v14a2 2 0 002 2zm6-18v6h6', 'add', 'file menu catalogue'],
+    ]],
+    ['Shop & promotion', [
+        ['product', 'Product', 'Picture, price, variants and stock', '#db2777', 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z', 'add', 'shop sell price store'],
+        ['collection', 'Collection', 'A titled group of blocks', '#d97706', 'M4 6h16M4 12h16M4 18h7', 'add', 'group section category'],
+        ['goal', 'Goal bar', 'A progress bar toward a target', '#059669', 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6', 'add', 'progress fundraising'],
+        ['app', 'App store link', 'iPhone, Android and web in one button', '#0284c7', 'M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z', 'add', 'ios android play download'],
+    ]],
+    ['Smart & conversion', [
+        ['whatsapp', 'WhatsApp rotator', 'Share chats between several numbers', '#16a34a', 'M21 11.5a8.4 8.4 0 01-12.4 7.4L3 21l2.1-5.4A8.4 8.4 0 1121 11.5z', 'add', 'chat customer service'],
+        ['form', 'Sign-up form', 'Collect names, e-mails or numbers', '#4f46e5', 'M3 8l7.9 5.3a2 2 0 002.2 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z', 'add', 'lead newsletter subscribe contact'],
+        ['poll', 'Poll', 'Ask visitors to vote', '#65a30d', 'M9 19v-6H5v6h4zm0 0V9h4v10m-4 0h4m0 0V5h4v14h-4z', 'add', 'vote survey question'],
+        ['countdown', 'Countdown', 'Time left to a launch or sale', '#0891b2', 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z', 'add', 'timer event launch'],
+        ['rss', 'Blog / podcast feed', 'The latest posts, kept up to date', '#d97706', 'M6 5c7.7 0 14 6.3 14 14M6 11a8 8 0 018 8M7 18a1 1 0 11-2 0 1 1 0 012 0z', 'add', 'rss atom articles news'],
+        ['vcard', 'Contact card', 'A button that saves you to contacts', '#0d9488', 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z', 'add', 'vcard phone address book'],
+        ['map', 'Location', 'A map with an address', '#0d9488', 'M17.7 16.7L13.4 20.9a2 2 0 01-2.8 0l-4.2-4.2a8 8 0 1111.3 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z', 'add', 'address place'],
+        ['faq', 'FAQ', 'Questions that open to answers', '#6366f1', 'M8.2 9a3 3 0 115.8 1c-.7 1-2 1.3-2 2.5M12 17h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z', 'add', 'questions answers help'],
+    ]],
+];
+
 // The Design tab: six collapsible sections; which ones are open is remembered per browser.
 window.designTab = function() {
     const KEY = 'bio-design-open';
@@ -51,6 +88,7 @@ window.bioEditorV2 = function() {
         showAddBlockModal: false,
         blockCategoryFilter: 'all',
         blockSearch: '',
+        pages: CONFIG.pages || [],
         showSocialPicker: false,
         showSocialEditor: false,
         editingSocial: null,
@@ -294,6 +332,106 @@ window.bioEditorV2 = function() {
             this.$nextTick(() => { this.announcement = message; });
         },
         // Keyboard alternative to drag and drop (arrow keys on the drag handle).
+        // ---- block picker (bento) and command palette --------------------------------------------------------
+        blockGroups() {
+            const q = this.blockSearch.trim().toLowerCase();
+            return BLOCK_CATALOG.map(([title, items]) => ({
+                title,
+                items: items.filter(i => !q || (i[1] + ' ' + i[2] + ' ' + i[6] + ' ' + title).toLowerCase().includes(q)),
+            })).filter(g => g.items.length);
+        },
+        runCatalogItem(item) {
+            const type = item[0], action = item[5];
+            if (action === 'quick') this.addQuickBlock(type);
+            else if (action === 'divider') { this.addDividerInstant(); this.showAddBlockModal = false; }
+            else this.addBlock(type);
+        },
+        paletteOpen: false,
+        paletteQuery: '',
+        paletteIndex: 0,
+        openPalette() {
+            this.paletteQuery = '';
+            this.paletteIndex = 0;
+            this.paletteOpen = true;
+            this.$nextTick(() => this.$refs.paletteInput?.focus());
+        },
+        closePalette() { this.paletteOpen = false; },
+        paletteCommands() {
+            const cmds = [];
+            BLOCK_CATALOG.forEach(([group, items]) => items.forEach(i => cmds.push({ group: 'Add a block', label: 'Add ' + i[1], hint: i[2], keys: i[6], run: () => { this.activeTab = 'links'; this.runCatalogItem(i); } })));
+            [['profile', 'Profile'], ['links', 'Build (your blocks)'], ['socials', 'Socials'], ['appearance', 'Design'], ['settings', 'Settings']].forEach(([id, name]) =>
+                cmds.push({ group: 'Go to', label: 'Open ' + name, hint: '', keys: id, run: () => { this.activeTab = id; } }));
+            cmds.push({ group: 'Page', label: 'Copy the page link', hint: '', keys: 'share url', run: () => this.copyPageUrl() });
+            cmds.push({ group: 'Page', label: 'Open the page in a new tab', hint: '', keys: 'visit preview visitor', run: () => window.open(CONFIG.publicBase + '/' + this.bioPage.slug, '_blank', 'noopener') });
+            cmds.push({ group: 'Page', label: 'Save now', hint: '', keys: 'store', run: () => { this._autoBlocked = false; this.saveBioPage(); } });
+            cmds.push({ group: 'Page', label: this.autosave ? 'Turn autosave off' : 'Turn autosave on', hint: '', keys: 'auto save', run: () => this.toggleAutosave() });
+            cmds.push({ group: 'Page', label: 'Sort blocks by clicks', hint: 'Most clicked first, inside each group', keys: 'order popular', run: () => { this.activeTab = 'links'; this.sortByClicks(); } });
+            cmds.push({ group: 'Page', label: 'Select several blocks', hint: 'Show, hide, archive, move or delete together', keys: 'bulk', run: () => { this.activeTab = 'links'; if (!this.selectMode) this.toggleSelectMode(); } });
+            cmds.push({ group: 'Page', label: 'Toggle dark mode', hint: '', keys: 'theme light night', run: () => document.querySelector('button[aria-label*="theme" i], button[aria-label*="dark" i], button[aria-label*="mode" i]')?.click() });
+            (CONFIG.pages || []).filter(pg => pg.slug !== this.bioPage.slug).forEach(pg =>
+                cmds.push({ group: 'Switch page', label: 'Edit ' + (pg.title || pg.slug), hint: '/b/' + pg.slug, keys: pg.slug, run: () => this.handleNavigation('/bio/' + encodeURIComponent(pg.slug) + '/edit') }));
+            return cmds;
+        },
+        paletteResults() {
+            const q = this.paletteQuery.trim().toLowerCase().split(/\s+/).filter(Boolean);
+            const all = this.paletteCommands();
+            return q.length ? all.filter(c => q.every(w => (c.label + ' ' + c.hint + ' ' + c.keys + ' ' + c.group).toLowerCase().includes(w))) : all.slice(0, 12);
+        },
+        paletteKey(e) {
+            const n = this.paletteResults().length;
+            if (e.key === 'ArrowDown') { e.preventDefault(); this.paletteIndex = (this.paletteIndex + 1) % Math.max(n, 1); }
+            else if (e.key === 'ArrowUp') { e.preventDefault(); this.paletteIndex = (this.paletteIndex - 1 + Math.max(n, 1)) % Math.max(n, 1); }
+            else if (e.key === 'Enter') { e.preventDefault(); this.runPalette(this.paletteResults()[this.paletteIndex]); }
+            else if (e.key === 'Escape') { e.preventDefault(); this.closePalette(); }
+        },
+        runPalette(cmd) {
+            if (!cmd) return;
+            this.closePalette();
+            this.$nextTick(() => cmd.run());
+        },
+        // ---- order by clicks, and move several blocks into a collection --------------------------------------
+        _beforeSort: null,
+        // Most clicked first inside each run of blocks; collections, dividers and headers stay where they are.
+        sortByClicks() {
+            this._beforeSort = this.blocks.map(b => b.id);
+            const fixed = b => ['collection', 'divider', 'header'].includes(b.type);
+            const out = [];
+            let run = [];
+            const flush = () => { out.push(...run.sort((a, b) => (b.click_count || 0) - (a.click_count || 0))); run = []; };
+            this.blocks.forEach(b => { if (fixed(b)) { flush(); out.push(b); } else run.push(b); });
+            flush();
+            this.blocks.splice(0, this.blocks.length, ...out);
+            this.blocks.forEach((b, i) => b.order = i);
+            this._orderDirty = true; this.onModelChanged();
+            this.announce('Blocks sorted by clicks');
+            this.showNotification('Sorted by clicks. Undo is in the list header.', 'success');
+        },
+        undoSort() {
+            if (!this._beforeSort) return;
+            const byId = new Map(this.blocks.map(b => [b.id, b]));
+            const restored = this._beforeSort.map(id => byId.get(id)).filter(Boolean);
+            this.blocks.forEach(b => { if (!restored.includes(b)) restored.push(b); });
+            this.blocks.splice(0, this.blocks.length, ...restored);
+            this.blocks.forEach((b, i) => b.order = i);
+            this._beforeSort = null;
+            this._orderDirty = true; this.onModelChanged();
+        },
+        // The selected blocks go to the end of the chosen collection, in their current order.
+        bulkMoveToCollection(collectionId) {
+            const target = this.blocks.find(b => b.id === collectionId && b.type === 'collection');
+            if (!target) return;
+            const moving = this.blocks.filter(b => this.selectedIds.includes(b.id) && b.type !== 'collection' && b !== target);
+            if (!moving.length) return;
+            const rest = this.blocks.filter(b => !moving.includes(b));
+            let at = rest.indexOf(target) + 1;
+            while (at < rest.length && !['collection', 'divider'].includes(rest[at].type)) at++;
+            rest.splice(at, 0, ...moving);
+            this.blocks.splice(0, this.blocks.length, ...rest);
+            this.blocks.forEach((b, i) => b.order = i);
+            this._orderDirty = true; this.onModelChanged();
+            this.announce(moving.length + ' blocks moved to ' + this.getBlockDisplayTitle(target));
+            this.selectedIds = [];
+        },
         // Collections group what follows them until the next collection or divider: the same rule as the public page.
         // The list shows members indented, so dropping a block under a collection puts it inside.
         collectionOf(index) {

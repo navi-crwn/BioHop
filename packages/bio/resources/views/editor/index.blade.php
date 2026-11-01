@@ -17,10 +17,11 @@
         'defaults' => config('bio-themes.defaults'),
         'previewUrl' => route('bio.preview', $bioPage),
         'publicBase' => public_url('b'),
+        'pages' => auth()->user()->bioPages()->orderBy('title')->get(['slug', 'title'])->map(fn ($p) => ['slug' => $p->slug, 'title' => $p->title])->values(),
     ];
 @endphp
 <script type="application/json" id="bio-editor-config">{!! json_encode($editorConfig, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
-<div class="bio-editor" :class="{ 'preview-open': previewOpen }" x-data="window.bioEditorV2()" @keydown.escape.window="previewOpen = false">
+<div class="bio-editor" :class="{ 'preview-open': previewOpen }" x-data="window.bioEditorV2()" @keydown.escape.window="previewOpen = false" @keydown.window="if ((($event.metaKey || $event.ctrlKey) && $event.key.toLowerCase() === 'k')) { $event.preventDefault(); paletteOpen ? closePalette() : openPalette(); }">
     <div class="sr-only" role="status" aria-live="polite" aria-atomic="true" x-text="announcement"></div>
     <!-- Fake fields to prevent browser password autofill -->
     <input type="text" name="fake_username" style="display:none !important" tabindex="-1" autocomplete="username">
@@ -36,7 +37,17 @@
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                     </a>
                     <div class="min-w-0">
-                        <h1 x-text="bioPage.title || 'Untitled'"></h1>
+                        <div class="relative flex items-center gap-1" x-data="{ pagesOpen: false }" @click.outside="pagesOpen = false" @keydown.escape="pagesOpen = false">
+                            <h1 x-text="bioPage.title || 'Untitled'"></h1>
+                            <button type="button" class="be-iconbtn" style="width:24px;height:24px" x-show="pages.length > 1" @click="pagesOpen = !pagesOpen" :aria-expanded="pagesOpen" aria-haspopup="menu" aria-label="Switch to another page">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </button>
+                            <div x-show="pagesOpen" x-cloak x-transition class="be-pages-menu" role="menu">
+                                <template x-for="pg in pages" :key="pg.slug">
+                                    <button type="button" role="menuitem" class="be-pages-item" :class="{ 'is-current': pg.slug === bioPage.slug }" @click="pagesOpen = false; pg.slug !== bioPage.slug && handleNavigation('/bio/' + encodeURIComponent(pg.slug) + '/edit')"><b x-text="pg.title || pg.slug"></b><small x-text="'/b/' + pg.slug"></small></button>
+                                </template>
+                            </div>
+                        </div>
                         <a :href="'{{ public_url('b') }}/' + bioPage.slug" target="_blank" rel="noopener" class="be-url">
                             <span x-text="'{{ public_host() }}/b/' + bioPage.slug"></span>
                             <svg class="h-3 w-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
@@ -48,6 +59,9 @@
                         <i aria-hidden="true"></i>
                         <span x-text="saveState === 'saving' ? 'Saving…' : saveState === 'error' ? 'Not saved' : saveState === 'dirty' ? (autosave ? 'Saving soon…' : 'Unsaved changes') : 'All changes saved'"></span>
                     </span>
+                    <button type="button" class="be-iconbtn be-kbd" @click="openPalette()" title="Commands (Ctrl or Cmd + K)" aria-label="Open the command palette" aria-keyshortcuts="Control+K Meta+K">
+                        <span aria-hidden="true">⌘K</span>
+                    </button>
                     <button type="button" class="be-iconbtn" @click="copyPageUrl()" title="Copy link" aria-label="Copy page link">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                     </button>
@@ -992,6 +1006,23 @@
             </div>
         </div>
     </div>
+    </template>
+    <template x-if="paletteOpen">
+        <div class="be-palette-overlay" @click.self="closePalette()">
+            <div class="be-palette" role="dialog" aria-modal="true" aria-label="Command palette">
+                <input x-ref="paletteInput" type="text" x-model="paletteQuery" @input="paletteIndex = 0" @keydown="paletteKey($event)" placeholder="Type a command: add WhatsApp, open Design, copy link…" aria-label="Search commands" autocomplete="off" role="combobox" aria-expanded="true" aria-controls="palette-list" :aria-activedescendant="'palette-' + paletteIndex">
+                <ul id="palette-list" role="listbox">
+                    <template x-for="(c, i) in paletteResults()" :key="c.group + c.label">
+                        <li :id="'palette-' + i" role="option" :aria-selected="i === paletteIndex" :class="{ 'is-on': i === paletteIndex }" @mouseenter="paletteIndex = i" @click="runPalette(c)">
+                            <span><b x-text="c.label"></b><small x-show="c.hint" x-text="c.hint"></small></span>
+                            <em x-text="c.group"></em>
+                        </li>
+                    </template>
+                    <li class="be-palette-empty" x-show="!paletteResults().length">Nothing matches. Try fewer words.</li>
+                </ul>
+                <p class="be-palette-foot"><kbd>↑</kbd> <kbd>↓</kbd> to move · <kbd>Enter</kbd> to run · <kbd>Esc</kbd> to close</p>
+            </div>
+        </div>
     </template>
     <template x-if="showAddBlockModal">
     <div class="modal-overlay" @click.self="showAddBlockModal = false">
