@@ -187,6 +187,11 @@ class BioPage extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function revisions(): HasMany
+    {
+        return $this->hasMany(BioRevision::class);
+    }
+
     public function links(): HasMany
     {
         return $this->hasMany(BioLink::class)->orderBy('order');

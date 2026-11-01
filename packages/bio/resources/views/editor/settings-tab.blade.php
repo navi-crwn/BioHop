@@ -245,6 +245,30 @@
         </div>
     </div>
 </div>
+<!-- Versions -->
+<div class="editor-card" x-data="{ versions: [], loaded: false, label: '', busy: false,
+        async load() { try { const r = await fetch(bioEditorUrl('/revisions'), { headers: { 'Accept': 'application/json' } }); this.versions = r.ok ? await r.json() : []; } catch (e) { this.versions = []; } this.loaded = true; },
+        when(iso) { return new Date(iso).toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); },
+        async save() { this.busy = true; await fetch(bioEditorUrl('/revisions'), { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.head.querySelector('meta[name=csrf-token]')?.content || '', 'Accept': 'application/json' }, body: JSON.stringify({ label: this.label }) }); this.label = ''; this.busy = false; await this.load(); },
+        async restore(v) { if (!confirm('Bring back the version from ' + this.when(v.created_at) + '? Your page as it is now is saved as a version first, so you can undo this.')) return; this.busy = true; const r = await fetch(bioEditorUrl('/revisions/' + v.id + '/restore'), { method: 'POST', headers: { 'X-CSRF-TOKEN': document.head.querySelector('meta[name=csrf-token]')?.content || '', 'Accept': 'application/json' } }); if (r.ok) { window.location.reload(); } else { this.busy = false; alert('Could not restore this version.'); } } }" x-init="$watch('activeTab', t => { if (t === 'settings' && !loaded) load(); }); if (activeTab === 'settings') load();">
+    <div class="editor-card-header">
+        <h3 class="editor-card-title">Versions</h3>
+    </div>
+    <p class="text-xs editor-text-muted mb-3">BioHop keeps a version before each editing session, and you can save one by name before a big change (a campaign, a redesign). Restoring brings back the design, text and blocks; the address, publishing, password, tracking and click counts stay as they are. Blocks added after a version are archived, not deleted. The last 30 are kept.</p>
+    <div class="flex gap-2 mb-3">
+        <input type="text" maxlength="60" x-model="label" class="form-input text-sm" placeholder="Name this version, e.g. Before the sale" aria-label="Version name" autocomplete="off">
+        <button type="button" class="btn btn-secondary text-sm py-2 shrink-0" :disabled="busy" @click="save()">Save a version</button>
+    </div>
+    <p class="text-xs editor-text-muted" x-show="loaded && !versions.length">No versions yet. The first one is taken when you next change something.</p>
+    <ul class="be-versions" x-show="versions.length">
+        <template x-for="v in versions" :key="v.id">
+            <li>
+                <span><b x-text="v.label || 'Automatic version'"></b><small x-text="when(v.created_at) + ' · ' + v.blocks_count + ' blocks'"></small></span>
+                <button type="button" class="btn btn-secondary text-xs py-1 px-2" :disabled="busy" @click="restore(v)">Restore</button>
+            </li>
+        </template>
+    </ul>
+</div>
 <!-- Floating button -->
 <div class="editor-card">
     <div class="editor-card-header">
