@@ -54,6 +54,10 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    // Where uploads (/storage) and built files (/build, /images, /fonts) are served. Empty: APP_URL (see bio_asset_origin()).
+    // Public bio pages live on another host (hel.ink/b/...), so every file they use is addressed here in full.
+    'asset_url' => env('ASSET_URL'),
+
     // TRUSTED_PROXIES: "cloudflare", "*", or a comma-separated list (see AppServiceProvider).
     'trusted_proxies' => env('TRUSTED_PROXIES'),
 

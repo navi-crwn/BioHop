@@ -96,7 +96,7 @@
                     <div class="-mt-8 space-y-3 px-4 pb-4">
                         <div class="flex items-start gap-3">
                             @if ($bioPage->avatar_url)
-                                <img src="{{ Storage::disk('public')->url($bioPage->avatar_url) }}" alt="" class="h-14 w-14 shrink-0 rounded-2xl border-2 border-white object-cover shadow-sm dark:border-slate-900">
+                                <img src="{{ bio_media_url($bioPage->avatar_url) }}" alt="" class="h-14 w-14 shrink-0 rounded-2xl border-2 border-white object-cover shadow-sm dark:border-slate-900">
                             @else
                                 <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border-2 border-white bg-indigo-500 text-xl font-semibold text-white shadow-sm dark:border-slate-900">{{ strtoupper(mb_substr($bioPage->title, 0, 1)) }}</span>
                             @endif
