@@ -17,6 +17,7 @@ use Hop\Bio\Support\ImageOptimizer;
 use Hop\Bio\Support\LinktreeImport;
 use Hop\Bio\Support\SvgSanitizer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -602,7 +603,12 @@ class BioPageController extends Controller
         if (array_key_exists('status_until', $validated)) {
             $validated['status_until'] = ! empty($validated['status_until']) ? Carbon::parse($validated['status_until'])->setTimezone(config('app.timezone')) : null;
         }
+        $oldSlug = $bioPage->slug;
         $bioPage->update($validated);
+        // a password, content warning or new address changes whether a reader needs a session
+        foreach (array_unique([$oldSlug, $bioPage->slug]) as $forgetSlug) {
+            Cache::forget('bio-stateless:'.strtolower($forgetSlug));
+        }
         BioUploads::deleteUnused($oldFiles);
         // Return JSON for AJAX requests
         if ($request->expectsJson() || $request->wantsJson()) {

@@ -13,6 +13,7 @@ use Hop\Bio\Support\BioUploads;
 use Hop\Safety\SafeContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -84,6 +85,8 @@ class BioLinkController extends Controller
     private function touchPage(BioPage $bioPage): string
     {
         $bioPage->touch();
+        // a form or poll added (or removed) changes whether a reader needs a session
+        Cache::forget('bio-stateless:'.strtolower($bioPage->slug));
 
         return $bioPage->updated_at->toJSON();
     }
