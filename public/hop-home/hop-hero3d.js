@@ -17,7 +17,7 @@
     if (scheduled || document.hidden || preference.matches || !scenes.some(function (s) { return s.visible && !s.dead; })) return;
     scheduled = requestAnimationFrame(function tick(now) {
       scheduled = 0;
-      // The few most visible scenes animate together (the four app marks sit side by side and each must settle);
+      // The few most visible scenes animate together (the app marks sit side by side and each must settle);
       // anything beyond that waits for a slot.
       var live = scenes.filter(function (s) { return s.visible && !s.dead; }).sort(function (a, b) { return b.ratio - a.ratio; }).slice(0, 4);
       scenes.forEach(function (s) { var state = String(live.indexOf(s) !== -1); if (s.canvas.dataset.animating !== state) s.canvas.dataset.animating = state; });
