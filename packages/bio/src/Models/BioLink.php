@@ -370,6 +370,9 @@ class BioLink extends Model
         'email' => 'Email', 'code' => 'Code',
     ];
 
+    /** Blocks a visitor can only read or use in place: they never get a click, so analytics leaves them out. */
+    public const INERT_TYPES = ['text', 'header', 'divider', 'spacer', 'html', 'code', 'countdown', 'faq', 'collection', 'poll', 'form', 'rss', 'carousel', 'map', 'youtube', 'video', 'music', 'spotify', 'soundcloud', 'audio'];
+
     public function typeName(): string
     {
         return self::TYPE_NAMES[$this->type] ?? Str::headline($this->type ?: 'block');

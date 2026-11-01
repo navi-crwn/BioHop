@@ -577,5 +577,9 @@
     "Loads from :site when you tap": "Loads from :site when you tap",
     "A picture for Instagram or WhatsApp stories": "A picture for Instagram or WhatsApp stories",
     "Story image": "Story image",
-    "Scan to open": "Scan to open"
+    "Scan to open": "Scan to open",
+    "PIN accepted.": "PIN accepted.",
+    "Your pages are full": "Your pages are full",
+    "You are using all :max of your bio pages. Delete one you no longer need to make room for a new page.": "You are using all :max of your bio pages. Delete one you no longer need to make room for a new page.",
+    "Go to my pages": "Go to my pages"
 }

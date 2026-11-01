@@ -577,5 +577,9 @@
     "Loads from :site when you tap": "点击后从 :site 加载",
     "A picture for Instagram or WhatsApp stories": "适用于 Instagram 或 WhatsApp 快拍的图片",
     "Story image": "快拍图片",
-    "Scan to open": "扫码打开"
+    "Scan to open": "扫码打开",
+    "PIN accepted.": "PIN 已通过。",
+    "Your pages are full": "页面已满",
+    "You are using all :max of your bio pages. Delete one you no longer need to make room for a new page.": "你已用完全部 :max 个简介页。删除一个不再需要的页面，才能新建。",
+    "Go to my pages": "前往我的页面"
 }
