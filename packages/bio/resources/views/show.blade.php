@@ -1108,6 +1108,7 @@
                         @endforeach
                     </div>
                 @endif
+                @unless($bioPage->hide_branding)
                 <div class="mt-8 text-center">
                     <a href="{{ url('/') }}" class="powered-link inline-flex items-center gap-2 text-sm transition-colors">
                         <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
@@ -1116,6 +1117,7 @@
                         Powered by LinkHop
                     </a>
                 </div>
+                @endunless
             </div>
         </div>
     </div>
