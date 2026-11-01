@@ -2,6 +2,7 @@
 
 namespace Hop\Bio\Models;
 
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -107,6 +108,76 @@ class BioLink extends Model
     }
 
     public const WHATSAPP_MODES = ['round_robin', 'weighted'];
+
+    /** @return array<int, array{country:array<int,string>, device:string, os:string, from:?int, to:?int, url:string}> */
+    public function routingRules(): array
+    {
+        $out = [];
+        foreach ((array) ($this->settings['rules'] ?? []) as $r) {
+            $url = is_array($r) ? trim((string) ($r['url'] ?? '')) : '';
+            if (! preg_match('#^https?://#i', $url)) {
+                continue;
+            }
+            $countries = array_values(array_filter(array_map(fn ($c) => strtoupper(trim($c)), explode(',', (string) ($r['country'] ?? ''))), fn ($c) => preg_match('/^[A-Z]{2}$/', $c)));
+            $from = isset($r['from']) && $r['from'] !== '' && $r['from'] !== null ? (int) $r['from'] : null;
+            $to = isset($r['to']) && $r['to'] !== '' && $r['to'] !== null ? (int) $r['to'] : null;
+            $out[] = [
+                'country' => $countries,
+                'device' => in_array($r['device'] ?? 'any', ['mobile', 'tablet', 'desktop'], true) ? $r['device'] : 'any',
+                'os' => in_array($r['os'] ?? 'any', ['ios', 'android'], true) ? $r['os'] : 'any',
+                'from' => $from !== null && $to !== null ? $from : null,
+                'to' => $from !== null && $to !== null ? $to : null,
+                'url' => $url,
+            ];
+        }
+
+        return $out;
+    }
+
+    /**
+     * The first rule whose conditions all hold decides the address: a rule with a country list needs the visitor's country,
+     * one with hours needs the time in the owner's zone, the others need only the device or system. Null when none matches.
+     *
+     * @param  array{device?:string, os?:string}  $ua
+     * @param  callable():?string  $country  looked up only when a rule asks for it
+     */
+    public function routedUrl(array $ua, callable $country, CarbonInterface $now): ?string
+    {
+        $device = strtolower((string) ($ua['device'] ?? ''));
+        $os = strtolower((string) ($ua['os'] ?? ''));
+        $isIos = (bool) preg_match('/ios|ipados/', $os);
+        $isAndroid = str_contains($os, 'android');
+        $code = null;
+        $looked = false;
+        foreach ($this->routingRules() as $rule) {
+            if ($rule['device'] !== 'any' && $rule['device'] !== $device) {
+                continue;
+            }
+            if (($rule['os'] === 'ios' && ! $isIos) || ($rule['os'] === 'android' && ! $isAndroid)) {
+                continue;
+            }
+            if ($rule['from'] !== null) {
+                $h = (int) $now->format('G');
+                $inside = $rule['from'] <= $rule['to'] ? ($h >= $rule['from'] && $h < $rule['to']) : ($h >= $rule['from'] || $h < $rule['to']);
+                if (! $inside) {
+                    continue;
+                }
+            }
+            if ($rule['country'] !== []) {
+                if (! $looked) {
+                    $code = $country();
+                    $looked = true;
+                }
+                if (! $code || ! in_array(strtoupper($code), $rule['country'], true)) {
+                    continue;
+                }
+            }
+
+            return $rule['url'];
+        }
+
+        return null;
+    }
 
     /** The app block's address for a visitor's operating system: iOS → App Store, Android → Play, else the web address. */
     public function appTarget(string $os): ?string

@@ -842,6 +842,28 @@
                             </div>
                         </template>
                         <template x-if="editingBlock?.type === 'link'">
+                            <div class="p-3 rounded-lg space-y-3" style="background: var(--editor-card-bg)">
+                                <div class="flex items-center justify-between gap-2">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4M16 17H4m0 0l4 4m-4-4l4-4"/></svg>
+                                        <span class="text-sm font-medium editor-text">Send some visitors elsewhere</span>
+                                    </div>
+                                    <button type="button" class="btn btn-secondary text-xs py-1 px-2" @click="addRule()" x-show="(editingBlock.settings?.rules || []).length < 10">+ Add rule</button>
+                                </div>
+                                <p class="text-[10px] editor-text-muted" x-show="!(editingBlock.settings?.rules || []).length">Rules are checked top to bottom, the first that fits wins; everyone else goes to the address above. Match by country, phone or computer, iPhone or Android, and the hours of the day (your time zone).</p>
+                                <template x-for="(r, i) in (editingBlock.settings?.rules || [])" :key="i">
+                                    <div class="be-rule">
+                                        <input type="text" maxlength="60" :value="r.country ?? ''" @input="setRule(i, 'country', $event.target.value)" class="form-input text-xs" placeholder="Countries: ID, SG" :aria-label="'Rule ' + (i + 1) + ' countries'">
+                                        <select :value="r.device || 'any'" @change="setRule(i, 'device', $event.target.value)" class="form-input text-xs" :aria-label="'Rule ' + (i + 1) + ' device'"><option value="any">Any device</option><option value="mobile">Phone</option><option value="tablet">Tablet</option><option value="desktop">Computer</option></select>
+                                        <select :value="r.os || 'any'" @change="setRule(i, 'os', $event.target.value)" class="form-input text-xs" :aria-label="'Rule ' + (i + 1) + ' system'"><option value="any">Any system</option><option value="ios">iPhone / iPad</option><option value="android">Android</option></select>
+                                        <div class="flex items-center gap-1 text-xs"><input type="number" min="0" max="23" :value="r.from ?? ''" @input="setRule(i, 'from', $event.target.value)" class="form-input text-xs" placeholder="From h" :aria-label="'Rule ' + (i + 1) + ' from hour'"><span>–</span><input type="number" min="0" max="23" :value="r.to ?? ''" @input="setRule(i, 'to', $event.target.value)" class="form-input text-xs" placeholder="To h" :aria-label="'Rule ' + (i + 1) + ' to hour'"></div>
+                                        <input type="url" :value="r.url ?? ''" @input="setRule(i, 'url', $event.target.value)" class="form-input text-xs be-rule-url" placeholder="https://… go here instead" :aria-label="'Rule ' + (i + 1) + ' address'">
+                                        <button type="button" class="icon-btn" @click="removeRule(i)" :aria-label="'Remove rule ' + (i + 1)"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                        <template x-if="editingBlock?.type === 'link'">
                             <div class="p-3 rounded-lg space-y-4" style="background: var(--editor-card-bg)">
                                 <div class="flex items-center gap-2 mb-2">
                                     <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

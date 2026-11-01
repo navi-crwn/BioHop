@@ -272,3 +272,9 @@
 .be-wa-row { display: grid; grid-template-columns: 1.3fr 1fr auto auto; gap: 6px; align-items: center; }
 .be-wa-row input[type=number] { width: 72px; }
 @media (max-width: 640px) { .be-wa-row { grid-template-columns: 1fr 1fr; } }
+
+/* Routing rules in the link form: countries · device · system · hours · address · remove. */
+.be-rule { display: grid; grid-template-columns: 1.1fr .9fr .9fr 1.2fr auto; gap: 6px; align-items: center; padding: 8px; border: 1px solid var(--editor-border); border-radius: 10px; }
+.be-rule .be-rule-url { grid-column: 1 / span 4; }
+.be-rule input[type=number] { width: 100%; min-width: 0; }
+@media (max-width: 640px) { .be-rule { grid-template-columns: 1fr 1fr; } .be-rule .be-rule-url { grid-column: 1 / span 2; } }

@@ -46,6 +46,12 @@ class BioLinkController extends Controller
                 $errors[$field] = $reason;
             }
         }
+        foreach ((array) ($data['settings']['rules'] ?? []) as $i => $rule) {
+            $value = trim((string) ($rule['url'] ?? ''));
+            if ($value !== '' && ($reason = $safety->rejectionReason($value, '', UrlSafety::WEB_SCHEMES))) {
+                $errors["settings.rules.{$i}.url"] = $reason;
+            }
+        }
         foreach (['ios', 'android', 'web'] as $k) {
             $value = trim((string) ($data['settings'][$k] ?? ''));
             if ($value !== '' && ($reason = $safety->rejectionReason($value, '', UrlSafety::WEB_SCHEMES))) {
@@ -143,6 +149,13 @@ class BioLinkController extends Controller
             'settings.layout' => 'nullable|in:stack,grid',
             'settings.text' => 'nullable|string|max:500',
             'settings.pin' => ['nullable', 'regex:/^[0-9]{4,8}$/'],
+            'settings.rules' => 'nullable|array|max:10',
+            'settings.rules.*.url' => ['required_with:settings.rules', 'string', 'max:500', 'regex:#^https?://#i'],
+            'settings.rules.*.country' => ['nullable', 'string', 'max:60', 'regex:/^\s*[A-Za-z]{2}(\s*,\s*[A-Za-z]{2})*\s*$/'],
+            'settings.rules.*.device' => 'nullable|in:any,mobile,tablet,desktop',
+            'settings.rules.*.os' => 'nullable|in:any,ios,android',
+            'settings.rules.*.from' => 'nullable|integer|min:0|max:23',
+            'settings.rules.*.to' => 'nullable|integer|min:0|max:23',
             'settings.ios' => ['nullable', 'string', 'max:500', 'regex:#^https://#i'],
             'settings.android' => ['nullable', 'string', 'max:500', 'regex:#^https://#i'],
             'settings.web' => ['nullable', 'string', 'max:500', 'regex:#^https?://#i'],
@@ -270,6 +283,13 @@ class BioLinkController extends Controller
             'settings.layout' => 'nullable|in:stack,grid',
             'settings.text' => 'nullable|string|max:500',
             'settings.pin' => ['nullable', 'regex:/^[0-9]{4,8}$/'],
+            'settings.rules' => 'nullable|array|max:10',
+            'settings.rules.*.url' => ['required_with:settings.rules', 'string', 'max:500', 'regex:#^https?://#i'],
+            'settings.rules.*.country' => ['nullable', 'string', 'max:60', 'regex:/^\s*[A-Za-z]{2}(\s*,\s*[A-Za-z]{2})*\s*$/'],
+            'settings.rules.*.device' => 'nullable|in:any,mobile,tablet,desktop',
+            'settings.rules.*.os' => 'nullable|in:any,ios,android',
+            'settings.rules.*.from' => 'nullable|integer|min:0|max:23',
+            'settings.rules.*.to' => 'nullable|integer|min:0|max:23',
             'settings.ios' => ['nullable', 'string', 'max:500', 'regex:#^https://#i'],
             'settings.android' => ['nullable', 'string', 'max:500', 'regex:#^https://#i'],
             'settings.web' => ['nullable', 'string', 'max:500', 'regex:#^https?://#i'],

@@ -115,6 +115,19 @@ class PublicBioController extends Controller
         if (! $bioLink->is_active || $bioLink->archived_at || ! $bioLink->isLive() || ! $this->isVisible($bioPage) || $target === '#') {
             abort(404);
         }
+        // Rules on a link (country, device, system, hours) can send this visitor somewhere else; the first match wins.
+        if ($bioLink->type === 'link' && $bioLink->routingRules() !== []) {
+            $zone = $bioPage->user?->timezone ?: config('app.timezone');
+            try {
+                $now = now($zone);
+            } catch (\Throwable) {
+                $now = now();
+            }
+            $routed = $bioLink->routedUrl($ua, fn () => $this->getCountryFromIp(request()->ip()), $now);
+            if ($routed && SafeContent::url($routed) !== '#') {
+                $target = SafeContent::url($routed);
+            }
+        }
         if ($bioPage->auto_utm) {
             $target = self::withUtm($target, $bioPage->slug);
         }
