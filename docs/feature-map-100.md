@@ -12,9 +12,9 @@ Legend: **have** = in BioHop today (feat/home-p8); **partly** = a piece exists; 
 | 2 | Deep linking / in-app browser bypass | build | Small: for known hosts (Shopee, Tokopedia, TikTok, Instagram, YouTube) emit the app scheme or intent URL on the click route when the user agent is an in-app browser. Needs a per-host table and a fallback. |
 | 3 | Geo / device / time routing | build (M) | The click route already knows country, device and time. A "rules" setting per link: list of `[condition → url]`, first match wins. |
 | 4 | Fallback links when the main one is down or blocked | later | Needs a background checker (queue + scheduler) and a notion of "blocked by ISP", which is hard to measure from one server. Do the checker first (#55), then this. |
-| 5 | WhatsApp rotator | build (S) | A `whatsapp` block kind with several numbers, round-robin or weighted, plus the pre-filled text. Rotation state is one counter per block. |
-| 6 | Link scheduling | build (S) | `publish_at` / `expire_at` on a block; the page and the editor list both respect it. |
-| 7 | Spotlight / priority link animation | partly | Hover effects exist (scale, glow, lift, glossy, colour shift); a per-block "spotlight" (pulse/shake, reduced-motion safe) is small. |
+| 5 | WhatsApp rotator | have | `whatsapp` block: up to 10 numbers, in turn (one cache counter per block) or by weight, pre-filled text; the number is picked on the click route. |
+| 6 | Link scheduling | have | `publish_at` / `expire_at` on every block kind (Schedule section in the block form); hidden on the page and the preview outside the window, the click address answers 404, the list shows Scheduled / Expired chips. |
+| 7 | Spotlight / priority link animation | have | Per-link "Attention animation" (pulse, bounce, shake, wiggle, glow, heartbeat) and entrance animations already existed in the link form. |
 | 8 | Built-in shortener and cloaking | have | LinkHop short links from the editor (`/bio/shorten`), via the member's token. |
 | 9 | Media embeds | have | YouTube, Spotify, SoundCloud, video, music blocks. TikTok and Twitch embeds: build, small. |
 | 10 | Rich content blocks | have / partly | Text, divider, spacer, FAQ, image, map, countdown, HTML, code. Missing: image carousel, PDF viewer (build, S each). |
@@ -62,7 +62,7 @@ Legend: **have** = in BioHop today (feat/home-p8); **partly** = a piece exists; 
 |---|---|---|---|
 | 38 | Real-time analytics (views, clicks, CTR) | have / partly | Clicks per day, per link, countries, devices, referrers, CTR; views are only a counter. Build: a daily views table (privacy: keyed hash, 30 days) so the dashboard can show visitors per week. |
 | 39 | Third-party pixels | have | GA, Meta, TikTok pixel ids on the page (consent is the owner's responsibility; see #98). GTM: small. |
-| 40 | Automatic UTM | build (S) | Page setting: append `utm_source=biohop&utm_medium=bio&utm_campaign=<slug>` on outgoing links, unless the link already has UTMs. |
+| 40 | Automatic UTM | have | Settings → "Add UTM to outgoing links": the click route appends `utm_source=biohop&utm_medium=bio&utm_campaign=<slug>` to http(s) links that carry no UTM of their own. |
 | 41 | Referrer and geography | have | |
 | 42 | A/B testing | build (M) | Two titles/colours per block, visitor bucket by keyed hash, click counts per variant. |
 | 43 | Multiple pages per account | have | Up to the page limit; dashboard home lists them. |
@@ -143,7 +143,7 @@ Legend: **have** = in BioHop today (feat/home-p8); **partly** = a piece exists; 
 
 ## What this suggests for the next rounds
 
-Small and clearly in scope (S, one PR each): link scheduling (6), spotlight (7), automatic UTM (40), WhatsApp rotator (5), live status chip (67), floating button (71), app-store redirect (61), goal progress bar (85), PWA manifest (89), `?src=` sources (90), weekly digest (99), consent banner (98), icon library (19), custom OG image (45), full-page cache (48), one-click restore (96), share card PNG (75).
+Small and clearly in scope (S, one PR each): live status chip (67), floating button (71), app-store redirect (61), goal progress bar (85), PWA manifest (89), `?src=` sources (90), weekly digest (99), consent banner (98), icon library (19), custom OG image (45), full-page cache (48), one-click restore (96), share card PNG (75).
 
 Medium (M): geo/device/time routing (3), lead-capture form with CSV and webhooks (30, 49), broken-link checker (55) and then fallback links (4), RSS block (56), product metadata fetch (52), polls (64), guestbook (68), A/B titles (42), daily views table (38).
 
