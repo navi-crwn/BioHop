@@ -24,7 +24,7 @@
     @unless ($bioPages->isEmpty())
         <div class="mt-4 grid gap-3 md:grid-cols-3">
             <section class="glass-card flex flex-col justify-between gap-4 md:col-span-2">
-                <div class="flex flex-wrap items-end justify-between gap-3">
+                <div class="flex flex-1 flex-wrap items-stretch justify-between gap-x-6 gap-y-3">
                     <div>
                         <p class="text-xs font-medium uppercase tracking-wide text-muted">{{ __('Clicks this week') }}</p>
                         <p class="mt-1 text-3xl font-semibold tabular-nums text-ink">{{ number_format($weekClicks) }}</p>
@@ -34,11 +34,13 @@
                             <p class="mt-0.5 text-xs text-muted">{{ __('No clicks last week to compare with') }}</p>
                         @endif
                     </div>
-                    <div class="flex items-end gap-1" role="img" aria-label="{{ __('Clicks per day, last seven days') }}">
+                    <div class="flex min-h-24 min-w-0 flex-1 items-stretch gap-1.5 sm:max-w-md" role="img" aria-label="{{ __('Clicks per day, last seven days') }}">
                         @foreach ($week as $i => $n)
                             @php $d = now()->subDays(6 - $i); @endphp
-                            <div class="flex w-7 flex-col items-center gap-1">
-                                <div class="w-full rounded-t-md bg-indigo-500/80" style="height: {{ max(3, round($n / $weekMax * 56)) }}px" title="{{ $d->format('D d M') }}: {{ $n }}"></div>
+                            <div class="flex min-w-0 flex-1 flex-col items-center gap-1">
+                                <div class="flex w-full flex-1 items-end">
+                                    <div class="w-full rounded-t-md bg-indigo-500/80" style="height: {{ max(4, round($n / $weekMax * 100)) }}%" title="{{ $d->format('D d M') }}: {{ $n }}"></div>
+                                </div>
                                 <span class="text-[10px] text-muted">{{ $d->isoFormat('dd') }}</span>
                             </div>
                         @endforeach

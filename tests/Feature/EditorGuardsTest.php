@@ -70,3 +70,8 @@ test('inputs that carry an icon keep their side padding over the base input styl
     $css = file_get_contents(base_path('resources/css/editor.css'));
     expect($css)->toContain('.bio-editor .form-input.pl-10')->toContain('.bio-editor .form-input.pr-10');
 });
+
+test('the weekly bar chart on the dashboard home grows with its card instead of leaving a gap', function () {
+    $view = file_get_contents(base_path('packages/bio/resources/views/index.blade.php'));
+    expect($view)->toContain('flex min-h-24')->toContain('items-stretch')->not->toContain('* 56');
+});
