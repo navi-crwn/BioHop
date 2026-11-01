@@ -693,7 +693,7 @@
             </div>
         </div>
     </div>
-    <div class="min-h-screen flex flex-col {{ $containerAlign }} justify-center p-4" x-data="{ tab: '{{ ($hasShopTab ?? (request()->query('tab') === 'shop')) ? 'shop' : 'links' }}' }">
+    <div class="min-h-screen flex flex-col {{ $containerAlign }} justify-center p-4" x-data="{ tab: '{{ (request()->attributes->get('openShop') || request()->query('tab') === 'shop') ? 'shop' : 'links' }}' }">
         <div class="w-full {{ $maxWidth }}">
             <div class="rounded-3xl p-8">
                 <div class="text-center {{ $showHeaderBg ? 'bio-header-bg' : '' }}">

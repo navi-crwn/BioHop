@@ -16,7 +16,8 @@
                 <!-- Blocks List (Sortable) -->
                 <div id="blocks-list" class="space-y-2 mb-4" x-show="blocks.length > 0">
                     <!-- Select mode: tick blocks, then archive, hide, show or delete them together -->
-                    <div class="flex flex-wrap items-center gap-2 mb-3 text-sm">
+                    <style>.be-select-bar button { padding: 6px 12px; border: 1px solid var(--editor-border); border-radius: 999px; font-size: 12px; font-weight: 600; line-height: 1.2; } .be-select-bar button:disabled { opacity: .4; } .be-select-bar button.delete { color: #e11d48; }</style>
+                    <div class="be-select-bar flex flex-wrap items-center gap-2 mb-3 text-sm">
                         <button type="button" @click="toggleSelectMode()" class="block-action-btn px-3" x-text="selectMode ? 'Done' : 'Select'"></button>
                         <template x-if="selectMode">
                             <div class="flex flex-wrap items-center gap-2">

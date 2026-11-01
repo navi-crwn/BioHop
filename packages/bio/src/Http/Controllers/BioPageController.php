@@ -32,9 +32,147 @@ class BioPageController extends Controller
         return view('bio::index', compact('bioPages'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        return view('bio::create');
+        // The wizard builds a finished page in five steps; ?classic=1 keeps the plain form.
+        if ($request->boolean('classic')) {
+            return view('bio::create');
+        }
+
+        return view('bio::create-wizard', [
+            'platforms' => collect(config('brands.platforms', []))->only(self::WIZARD_PLATFORMS)->map(fn ($p, $id) => ['id' => $id, 'name' => $p['name'], 'color' => $p['color'] ?? '#6b7280', 'placeholder' => $p['placeholder'] ?? ''])->values(),
+            'palettes' => self::WIZARD_PALETTES,
+            'slugMin' => auth()->user()?->isAdmin() ? 3 : (int) config('bio.slug_min_length', 5),
+        ]);
+    }
+
+    /** The platforms the wizard offers first; everything else can be added in the editor. */
+    public const WIZARD_PLATFORMS = ['instagram', 'whatsapp', 'tiktok', 'youtube', 'website', 'spotify', 'threads', 'facebook', 'x', 'telegram', 'email', 'linkedin'];
+
+    /** Wallpaper and button pairs the wizard offers: [wallpaper, button, button text]. */
+    public const WIZARD_PALETTES = [
+        ['#2b1120', '#f4c7d6', '#2b1120'], ['#1f2a14', '#d6e8a8', '#1f2a14'], ['#f6d6e8', '#5b1f47', '#ffffff'], ['#f8dcc4', '#8a3b12', '#ffffff'],
+        ['#1a120c', '#e8c39e', '#1a120c'], ['#dfe8c8', '#2f4a1c', '#ffffff'], ['#0b1b2b', '#9ad0ff', '#0b1b2b'], ['#ffffff', '#111111', '#ffffff'],
+        ['#000000', '#ffffff', '#000000'], ['#eef2ff', '#4f46e5', '#ffffff'],
+    ];
+
+    /** One request from the wizard: a page with its socials, first links, profile and colours. */
+    public function storeWizard(Request $request)
+    {
+        if (auth()->user()->bioPages()->count() >= self::MAX_PAGES) {
+            return response()->json(['message' => 'You have reached the maximum limit of '.self::MAX_PAGES.' bio pages.'], 422);
+        }
+        $request->merge(['slug' => strtolower((string) $request->slug)]);
+        $validated = $request->validate([
+            'slug' => $this->slugRules(),
+            'title' => 'required|string|max:'.BioPage::TITLE_MAX,
+            'bio' => 'nullable|string|max:'.BioPage::BIO_MAX,
+            'goal' => 'nullable|in:creator,business,personal',
+            'platforms' => 'nullable|array|max:12',
+            'platforms.*.platform' => 'required_with:platforms|string|max:40',
+            'platforms.*.value' => 'nullable|string|max:255',
+            'links' => 'nullable|array|max:10',
+            'links.*' => 'nullable|string|max:500',
+            'palette' => 'nullable|integer|min:0|max:'.(count(self::WIZARD_PALETTES) - 1),
+            'avatar' => 'nullable|image|max:2048',
+            'content_warning' => 'nullable|in:none,sensitive,adult',
+        ]);
+        $this->assertSafeContent($validated);
+        $safety = app(UrlSafety::class);
+        $brands = config('brands.platforms', []);
+        $socials = [];
+        foreach ($validated['platforms'] ?? [] as $i => $social) {
+            $platform = $social['platform'];
+            $value = trim((string) ($social['value'] ?? ''));
+            if (! isset($brands[$platform]) || $value === '') {
+                continue;
+            }
+            $url = SocialUrlHelper::buildUrl($platform, $value);
+            if ($safety->scheme($url) !== null && ($reason = $safety->rejectionReason($url, '', UrlSafety::BIO_SCHEMES))) {
+                throw ValidationException::withMessages(["platforms.{$i}.value" => $reason]);
+            }
+            $socials[] = ['platform' => $platform, 'value' => $value, 'enabled' => true];
+        }
+        $links = [];
+        foreach (array_values(array_filter($validated['links'] ?? [], fn ($u) => trim((string) $u) !== '')) as $i => $url) {
+            $url = trim($url);
+            if (! preg_match('#^https?://#i', $url)) {
+                $url = 'https://'.$url;
+            }
+            if ($reason = $safety->rejectionReason($url)) {
+                throw ValidationException::withMessages(["links.{$i}" => $reason]);
+            }
+            $brand = self::brandForUrl($url, $brands);
+            $links[] = ['url' => $url, 'brand' => $brand, 'title' => $brand ? $brands[$brand]['name'] : self::hostTitle($url)];
+        }
+        $palette = isset($validated['palette']) ? self::WIZARD_PALETTES[(int) $validated['palette']] : null;
+        $goalTheme = ['creator' => 'galaxy', 'business' => 'minimal-light', 'personal' => 'sunset'][$validated['goal'] ?? ''] ?? 'default';
+
+        $bioPage = auth()->user()->bioPages()->create([
+            'slug' => $validated['slug'],
+            'title' => $validated['title'],
+            'bio' => $validated['bio'] ?? null,
+            'content_warning' => $validated['content_warning'] ?? 'none',
+            'is_adult_content' => ($validated['content_warning'] ?? 'none') === 'adult',
+            'theme' => $palette ? 'none' : $goalTheme,
+            'background_type' => $palette ? 'solid' : null,
+            'background_value' => $palette[0] ?? null,
+            'background_color' => $palette[0] ?? null,
+            'link_bg_color' => $palette[1] ?? null,
+            'link_text_color' => $palette[2] ?? null,
+            'button_bg_color' => $palette[1] ?? null,
+            'button_text_color' => $palette[2] ?? null,
+            'text_color' => $palette ? $palette[1] : null,
+            'title_color' => $palette ? $palette[1] : null,
+            'bio_color' => $palette ? $palette[1] : null,
+            'social_links' => $socials,
+            'button_shape' => 'pill',
+        ]);
+        if ($request->hasFile('avatar')) {
+            $bioPage->update(['avatar_url' => $this->storeImageOrSvg($request, 'avatar', 'avatars')]);
+        }
+        foreach ($links as $i => $link) {
+            $bioPage->links()->create(['type' => 'link', 'title' => $link['title'], 'url' => $link['url'], 'brand' => $link['brand'], 'order' => $i, 'is_active' => true]);
+        }
+
+        return response()->json(['success' => true, 'redirect' => route('bio.edit', $bioPage), 'url' => public_url('b/'.$bioPage->slug)]);
+    }
+
+    /** The brand whose placeholder host matches the address, so "youtube.com/@x" becomes a YouTube button. */
+    public static function brandForUrl(string $url, array $brands): ?string
+    {
+        $host = strtolower((string) parse_url($url, PHP_URL_HOST));
+        $host = preg_replace('/^(www|m|mobile)\./', '', $host);
+        if ($host === '') {
+            return null;
+        }
+        // hosts whose placeholder is a handle rather than an address
+        $known = ['youtube.com' => 'youtube', 'youtu.be' => 'youtube', 'instagram.com' => 'instagram', 'tiktok.com' => 'tiktok', 'x.com' => 'x', 'twitter.com' => 'x',
+            'facebook.com' => 'facebook', 'fb.com' => 'facebook', 'threads.net' => 'threads', 'threads.com' => 'threads', 'open.spotify.com' => 'spotify', 'spotify.com' => 'spotify',
+            'linkedin.com' => 'linkedin', 't.me' => 'telegram', 'telegram.me' => 'telegram', 'wa.me' => 'whatsapp', 'whatsapp.com' => 'whatsapp', 'github.com' => 'github',
+            'twitch.tv' => 'twitch', 'pinterest.com' => 'pinterest', 'snapchat.com' => 'snapchat', 'discord.gg' => 'discord', 'discord.com' => 'discord', 'soundcloud.com' => 'soundcloud',
+            'medium.com' => 'medium', 'substack.com' => 'substack', 'behance.net' => 'behance', 'dribbble.com' => 'dribbble', 'patreon.com' => 'patreon', 'gumroad.com' => 'gumroad', 'etsy.com' => 'etsy', 'shopee.co.id' => 'shop', 'tokopedia.com' => 'shop'];
+        foreach ($known as $kh => $kid) {
+            if (($host === $kh || str_ends_with($host, '.'.$kh)) && isset($brands[$kid])) {
+                return $kid;
+            }
+        }
+        foreach ($brands as $id => $brand) {
+            $bh = strtolower((string) parse_url($brand['placeholder'] ?? '', PHP_URL_HOST));
+            $bh = preg_replace('/^(www|m)\./', '', $bh);
+            if ($bh !== '' && $bh !== null && ($host === $bh || str_ends_with($host, '.'.$bh))) {
+                return $id;
+            }
+        }
+
+        return null;
+    }
+
+    private static function hostTitle(string $url): string
+    {
+        $host = preg_replace('/^www\./', '', strtolower((string) parse_url($url, PHP_URL_HOST)));
+
+        return ucfirst(explode('.', $host)[0] ?: 'Link');
     }
 
     public function checkSlug(Request $request)

@@ -24,6 +24,7 @@ Route::middleware(['web', 'ip.ban', 'hop.auth', UploadStorageGate::class])->pref
     Route::get('/check-slug', [BioPageController::class, 'checkSlug'])->name('check-slug');
     Route::get('/upload-status', fn () => response()->json(app(UploadStorage::class)->status())->header('Cache-Control', 'no-store'))->name('upload-status');
     Route::post('/', [BioPageController::class, 'store'])->middleware('verified')->name('store');
+    Route::post('/wizard', [BioPageController::class, 'storeWizard'])->middleware('verified')->name('wizard');
     Route::get('/{bioPage}/edit', [BioPageController::class, 'edit'])->name('edit');
     Route::put('/{bioPage}', [BioPageController::class, 'update'])->middleware('verified')->name('update');
     Route::delete('/{bioPage}', [BioPageController::class, 'destroy'])->name('destroy');
