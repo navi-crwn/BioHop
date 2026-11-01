@@ -20,7 +20,7 @@ Page-level: SEO title/description, noindex, pixels (GA, Meta, TikTok), age gate 
 7. **Unlisted switch** that sets noindex + hidden from directory together (Singlelink study).
 8. **Privacy mode**: stop counting views and clicks for a page.
 
-### Blocks and links (small to medium) — items 9–14 done 2026-11-01 evening on `feat/page-settings`: status chip, floating button, app-store redirect, goal bar, audio clip (no track list yet), image carousel, PDF
+### Blocks and links (small to medium) — also done 2026-11-01 night on `feat/page-settings`: 18 routing rules, 19 RSS block, 21 polls (not the guestbook), 22 sign-up form with CSV (not subscribe-to-unlock or RSVP yet) — items 9–14 done 2026-11-01 evening on `feat/page-settings`: status chip, floating button, app-store redirect, goal bar, audio clip (no track list yet), image carousel, PDF
 9. **Status chip** under the name ("Open for commissions"), optional expiry.
 10. **Floating action button** (sticky WhatsApp / shop / custom), reduced-motion safe.
 11. **App-store redirect** block (App Store / Play / web by device).
