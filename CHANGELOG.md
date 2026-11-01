@@ -4,6 +4,11 @@ All notable changes to BioHop are listed here. The format follows [Keep a Change
 
 ## [Unreleased]
 
+### Added
+- The home page has a scroll scene for every feature, in the manner of the Amnesia and NoteHop sites: blocks that come to life, a pinned story from claiming a name to reading the numbers, themes that change as you scroll, analytics that draw themselves, a share map, the password and 18+ gates, CSS that types itself while the phone restyles, and a self-host terminal. GSAP and Lenis are bundled with the app (no CDN). With "reduce motion" on, every scene shows its finished state.
+- The hero: pixels assemble into the BioHop logo, then the word BIO, then a phone, and the phone shows the real hel.ink/b/hel page live (an iframe of `?embed=1`), so whatever changes on that page shows there. Then the blocks scatter and start again. The loop waits while you hover or focus the phone.
+- Only the official page (`HOP_OFFICIAL_BIO`, default `hel`), and only as `?embed=1`, may be framed by the HOP sites. An embedded view does not count as a visit, its links open in a new tab and it stays out of search. Every other page keeps `frame-ancestors 'none'`.
+
 ### Changed
 - The editor is one page that scrolls normally, with the preview sticking beside it. It no longer sits in a fixed-height box that cut off its bottom and trapped the scroll wheel; on phones the preview is a full-screen sheet opened from a Preview button. The Save button and the tab bar no longer sit on top of each other.
 - Editing saves by itself, as in Linktree: about a second after you stop, only what changed is sent (one field, one block, the new order). A status next to the button says "All changes saved", "Saving…" or "Not saved", Ctrl/Cmd+S saves at once, and autosave can be switched off. A problem is shown where you are working, with the field's own message, a jump to the right tab and a Try again button, instead of a short toast.
