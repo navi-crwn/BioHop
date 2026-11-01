@@ -66,6 +66,7 @@ test('there is no local registration or password login', function () {
 
 it('lets the logout chain leave for every HOP host (form-action covers the redirects)', function () {
     config([
+        'hop-auth.hub_url' => 'https://hub.hel.ink',
         'hop.public_url' => 'https://hel.ink',
         'hop.apps.linkhop.url' => 'https://link.hel.ink',
         'hop.apps.biohop.url' => 'https://bio.hel.ink',
@@ -76,4 +77,6 @@ it('lets the logout chain leave for every HOP host (form-action covers the redir
     foreach (['https://hel.ink', 'https://link.hel.ink', 'https://bio.hel.ink', 'https://p.hel.ink'] as $origin) {
         expect($m[1] ?? '')->toContain($origin);
     }
+    // NoteHop is a step of the chain too but is not in hop.apps: the family's subdomains cover it.
+    expect($m[1] ?? '')->toContain('https://*.hel.ink');
 });

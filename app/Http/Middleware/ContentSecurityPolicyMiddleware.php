@@ -43,7 +43,7 @@ class ContentSecurityPolicyMiddleware
             "base-uri 'self'",
             // Signing in ends at the hub, and logging out hops hub -> each app's logout -> the home page.
             // form-action applies to every redirect after a form post, so every HOP host is allowed.
-            "form-action 'self' ".self::hopOrigins($hub),
+            "form-action 'self' ".self::chainOrigins($hub),
             $embed ? "frame-ancestors 'self' ".self::hopOrigins($hub) : ($isPreviewRoute ? "frame-ancestors 'self'" : "frame-ancestors 'none'"),
             'upgrade-insecure-requests',
         ];
@@ -59,6 +59,22 @@ class ContentSecurityPolicyMiddleware
         $response->headers->set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
 
         return $response;
+    }
+
+    /**
+     * Where the sign-out chain may go after a form post: every origin above plus every https subdomain of the family's
+     * domain (hub.hel.ink -> *.hel.ink), because the chain passes apps this app does not list (NoteHop).
+     */
+    private static function chainOrigins(string $hub): string
+    {
+        $origins = self::hopOrigins($hub);
+        $parts = parse_url($hub);
+        $host = strtolower((string) ($parts['host'] ?? ''));
+        if (($parts['scheme'] ?? '') === 'https' && substr_count($host, '.') >= 2) {
+            $origins .= ' https://*.'.preg_replace('/^[^.]+\./', '', $host);
+        }
+
+        return $origins;
     }
 
     /** Origins of the hub, every HOP app and the public host, space-separated, without duplicates. */
