@@ -39,10 +39,10 @@
             </ol>
         </div>
         <div class="bx-story-vis" aria-hidden="true">
-            <div class="bx-addr"><span class="bx-dot"></span><span class="bx-addr-text">hel.ink/b/<b data-story-type="mira">mira</b></span><em class="bx-ok" data-story-ok>{{ __('Available') }} ✓</em></div>
+            <div class="bx-addr"><span class="bx-dot"></span><span class="bx-addr-text">hel.ink/b/<b data-story-type="helena">helena</b></span><em class="bx-ok" data-story-ok>{{ __('Available') }} ✓</em></div>
             <div class="bx-story-body">
                 <x-bx-phone id="story-phone"></x-bx-phone>
-                <div class="bx-qr" data-story-qr>@for ($q = 0; $q < 49; $q++)<i></i>@endfor<small>hel.ink/b/mira</small></div>
+                <div class="bx-qr" data-story-qr>@for ($q = 0; $q < 49; $q++)<i></i>@endfor<small>hel.ink/b/helena</small></div>
                 <span class="bx-chip c1">Instagram</span><span class="bx-chip c2">TikTok</span><span class="bx-chip c3">{{ __('Email signature') }}</span><span class="bx-chip c4">YouTube</span>
                 <div class="bx-stats" data-story-stats><small>{{ __('Views') }}</small><b data-story-views>1,284</b><div class="bx-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
             </div>
@@ -81,7 +81,7 @@
         <div class="bx-head"><p class="h-label"><span class="n">05</span> · <span>{{ __('Share') }}</span></p><h2 id="share-title"><span>{{ __('One link.') }} <em>{{ __('A thousand places.') }}</em></span></h2><p class="h-sub"><span>{{ __('Put it in your profiles, your email signature or on a poster. The QR code carries your colours.') }}</span></p></div>
         <div class="bx-net" aria-hidden="true">
             <svg viewBox="0 0 400 320" preserveAspectRatio="xMidYMid meet"><g class="links"><path d="M200 160 L60 50"/><path d="M200 160 L340 50"/><path d="M200 160 L40 160"/><path d="M200 160 L360 160"/><path d="M200 160 L60 270"/><path d="M200 160 L340 270"/></g><circle class="pkt" r="4"/><circle class="pkt" r="4"/><circle class="pkt" r="4"/></svg>
-            <div class="bx-core"><img src="{{ asset('images/brand/rabbit-mark.png') }}" alt="" width="44" height="44" loading="lazy"><b>hel.ink/b/mira</b></div>
+            <div class="bx-core"><img src="{{ asset('images/brand/rabbit-mark.png') }}" alt="" width="44" height="44" loading="lazy"><b>hel.ink/b/helena</b></div>
             <span class="bx-dest d1" style="left:15%;top:15%">Instagram</span><span class="bx-dest d2" style="left:85%;top:15%">TikTok</span><span class="bx-dest d3" style="left:10%;top:50%">YouTube</span><span class="bx-dest d4" style="left:90%;top:50%">X</span><span class="bx-dest d5" style="left:15%;top:84%">{{ __('Email signature') }}</span><span class="bx-dest d6" style="left:85%;top:84%">{{ __('Printed QR') }}</span>
         </div>
     </div>
