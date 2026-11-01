@@ -29,7 +29,7 @@
                 </details>
                 {{-- Language: plain links (?lang=xx), no script needed. --}}
                 <details class="relative" data-hop-switcher>
-                    <summary class="flex cursor-pointer list-none items-center gap-1 rounded-xl border border-slate-200/80 px-2 py-2 text-xs font-semibold uppercase text-slate-600 hover:bg-slate-100 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/5" aria-label="{{ __('Language') }}">
+                    <summary class="flex cursor-pointer list-none items-center gap-1 rounded-xl border border-slate-200/80 px-2 py-2 text-xs font-semibold uppercase text-slate-600 hover:bg-slate-100 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/5" aria-label="{{ __('Language') }}: {{ strtoupper(app()->getLocale()) }}">
                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
                         <span>{{ app()->getLocale() }}</span>
                     </summary>
