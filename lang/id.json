@@ -544,5 +544,8 @@
     "That page could not be read. Linktree may have changed its layout, or the page is private.": "Halaman itu tidak bisa dibaca. Linktree mungkin mengubah tata letaknya, atau halamannya privat.",
     "That Linktree page is locked, so nothing can be read from it.": "Halaman Linktree itu terkunci, jadi tidak ada yang bisa dibaca.",
     "Imported :links blocks and :socials social icons from linktr.ee/:name. The page stays a draft until you publish it.": "Mengimpor :links blok dan :socials ikon sosial dari linktr.ee/:name. Halaman tetap draf sampai kamu terbitkan.",
-    ":count links were left out because their addresses are blocked here.": ":count tautan dilewati karena alamatnya diblokir di sini."
+    ":count links were left out because their addresses are blocked here.": ":count tautan dilewati karena alamatnya diblokir di sini.",
+    "from :price": "mulai :price",
+    "Only :count left": "Sisa :count",
+    "Variants": "Varian"
 }

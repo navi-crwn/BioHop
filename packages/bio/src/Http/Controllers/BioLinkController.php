@@ -46,6 +46,13 @@ class BioLinkController extends Controller
                 $errors[$field] = $reason;
             }
         }
+        // a variant's own "where to buy" address follows the same rules as the block's
+        foreach ((array) ($data['settings']['variants'] ?? []) as $i => $variant) {
+            $value = trim((string) ($variant['url'] ?? ''));
+            if ($value !== '' && ($reason = $safety->rejectionReason($value, '', UrlSafety::WEB_SCHEMES))) {
+                $errors["settings.variants.{$i}.url"] = $reason;
+            }
+        }
         if (! isset($errors['url']) && $text !== '') {
             $result = $safety->assess(null, $text);
             if (array_intersect($result['signals'], config('safety.block_categories', [])) !== []) {
@@ -101,6 +108,14 @@ class BioLinkController extends Controller
             'settings.price' => 'nullable|numeric|min:0|max:999999999',
             'settings.currency' => 'nullable|string|size:3|alpha',
             'settings.sold_out' => 'nullable|boolean',
+            'settings.compare_price' => 'nullable|numeric|min:0|max:999999999',
+            'settings.stock' => 'nullable|integer|min:0|max:999999',
+            'settings.variants' => 'nullable|array|max:20',
+            'settings.variants.*.name' => 'required_with:settings.variants|string|max:40',
+            'settings.variants.*.price' => 'nullable|numeric|min:0|max:999999999',
+            'settings.variants.*.stock' => 'nullable|integer|min:0|max:999999',
+            'settings.variants.*.sold_out' => 'nullable|boolean',
+            'settings.variants.*.url' => ['nullable', 'string', 'max:500', 'regex:#^https?://#i'],
             'settings.layout' => 'nullable|in:stack,grid',
             'is_active' => 'nullable|boolean',
             'order' => 'nullable|integer',
@@ -195,6 +210,14 @@ class BioLinkController extends Controller
             'settings.price' => 'nullable|numeric|min:0|max:999999999',
             'settings.currency' => 'nullable|string|size:3|alpha',
             'settings.sold_out' => 'nullable|boolean',
+            'settings.compare_price' => 'nullable|numeric|min:0|max:999999999',
+            'settings.stock' => 'nullable|integer|min:0|max:999999',
+            'settings.variants' => 'nullable|array|max:20',
+            'settings.variants.*.name' => 'required_with:settings.variants|string|max:40',
+            'settings.variants.*.price' => 'nullable|numeric|min:0|max:999999999',
+            'settings.variants.*.stock' => 'nullable|integer|min:0|max:999999',
+            'settings.variants.*.sold_out' => 'nullable|boolean',
+            'settings.variants.*.url' => ['nullable', 'string', 'max:500', 'regex:#^https?://#i'],
             'settings.layout' => 'nullable|in:stack,grid',
             'is_active' => 'nullable|boolean',
             'order' => 'nullable|integer',

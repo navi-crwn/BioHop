@@ -85,3 +85,29 @@ test('an archived block leaves the page and the editor list, keeps its clicks an
     // "shop" and "click" can no longer be page slugs
     expect(ReservedSlugs::isReserved('shop'))->toBeTrue()->and(ReservedSlugs::isReserved('click'))->toBeTrue();
 });
+
+test('a product keeps variants, stock and a was-price, and the page shows them', function () {
+    [$user, $page] = shopPage('shop-variants');
+    $this->actingAs($user);
+    $settings = ['price' => '120000', 'currency' => 'IDR', 'compare_price' => '150000', 'stock' => 3, 'variants' => [
+        ['name' => 'S', 'price' => '', 'stock' => '', 'url' => ''],
+        ['name' => 'M', 'price' => '125000', 'stock' => 0, 'url' => 'https://shop.example/linen?size=m'],
+        ['name' => 'L', 'price' => '130000', 'stock' => 2, 'url' => 'https://shop.example/linen?size=l'],
+    ]];
+    $this->postJson("/bio/{$page->slug}/links", ['type' => 'product', 'title' => 'Linen shirt', 'url' => 'https://shop.example/linen', 'settings' => $settings])->assertOk();
+    $link = BioLink::where('bio_page_id', $page->id)->firstOrFail();
+    expect($link->variants())->toHaveCount(3)->and($link->variants()[1]['sold_out'])->toBeTrue()->and($link->variants()[0]['sold_out'])->toBeFalse()
+        ->and($link->isSoldOut())->toBeFalse()->and($link->lowStock())->toBe(3)
+        ->and($link->priceLabel())->toStartWith('from ')->toContain('120')
+        ->and($link->comparePriceLabel())->toContain('150');
+    $html = $this->get('/b/shop-variants?tab=shop')->assertOk()->getContent();
+    expect($html)->toContain('Only 3 left')->toContain('class="bio-product-was"')->toContain('href="https://shop.example/linen?size=l"')
+        ->toContain('class="bio-variant is-out"')->not->toContain('href="https://shop.example/linen?size=m"');
+
+    // stock 0 means sold out even without the switch; a bad variant address and too many variants are refused
+    $this->putJson("/bio/{$page->slug}/links/{$link->id}", ['settings' => ['price' => '120000', 'currency' => 'IDR', 'stock' => 0]])->assertOk();
+    expect($link->fresh()->isSoldOut())->toBeTrue();
+    $this->get('/b/shop-variants?tab=shop')->assertSee('Sold out');
+    $this->putJson("/bio/{$page->slug}/links/{$link->id}", ['settings' => ['variants' => [['name' => 'X', 'url' => 'javascript:alert(1)']]]])->assertStatus(422);
+    $this->putJson("/bio/{$page->slug}/links/{$link->id}", ['settings' => ['variants' => array_fill(0, 21, ['name' => 'X'])]])->assertStatus(422);
+});

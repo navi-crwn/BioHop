@@ -850,6 +850,21 @@ window.bioEditorV2 = function() {
                 }
             });
         },
+        // Product settings are replaced as a whole so Alpine sees the change (same pattern as the price field).
+        setProductSetting(key, value) {
+            this.editingBlock.settings = Object.assign({}, this.editingBlock.settings, { [key]: value });
+        },
+        addVariant() {
+            const variants = [...(this.editingBlock.settings?.variants || []), { name: '', price: '', stock: '', url: '' }];
+            this.setProductSetting('variants', variants);
+        },
+        removeVariant(i) {
+            this.setProductSetting('variants', (this.editingBlock.settings?.variants || []).filter((_, k) => k !== i));
+        },
+        setVariant(i, key, value) {
+            const variants = (this.editingBlock.settings?.variants || []).map((v, k) => k === i ? Object.assign({}, v, { [key]: value }) : v);
+            this.setProductSetting('variants', variants);
+        },
         // Button colours live in link_* (and the older button_* pair); a custom colour means the Default theme.
         setButtonColor(which, value) {
             if (which === 'bg') { this.bioPage.link_bg_color = value; this.bioPage.button_bg_color = value; }
