@@ -407,7 +407,12 @@ class BioPageController extends Controller
             }
         }
         // An uploaded background is a path on our own disk (bio-images/…); only an outside address is checked.
-        foreach (['background_image', 'cover_image'] as $field) {
+        foreach (['fallback_url', 'footer_url'] as $field) {
+            if (! empty($data[$field]) && ($reason = $safety->rejectionReason($data[$field], '', UrlSafety::BIO_SCHEMES))) {
+                $errors[$field] = $reason;
+            }
+        }
+        foreach (['background_image', 'cover_image', 'og_image', 'favicon'] as $field) {
             if (! empty($data[$field]) && ! str_starts_with($data[$field], '/')
                 && ! preg_match('#^bio-images/[A-Za-z0-9._-]+$#', $data[$field])
                 && ($reason = $safety->rejectionReason($data[$field]))) {
@@ -530,6 +535,13 @@ class BioPageController extends Controller
             'show_in_directory' => 'nullable|boolean',
             'hide_branding' => 'nullable|boolean',
             'auto_utm' => 'nullable|boolean',
+            'privacy_mode' => 'nullable|boolean',
+            'og_image' => ['nullable', 'string', 'max:500', 'regex:'.CssValue::IMAGE],
+            'favicon' => ['nullable', 'string', 'max:500', 'regex:'.CssValue::IMAGE],
+            'gtm_id' => ['nullable', 'regex:/^GTM-[A-Z0-9]{4,12}$/'],
+            'fallback_url' => ['nullable', 'string', 'max:500', 'regex:#^https?://#i'],
+            'footer_note' => 'nullable|string|max:200',
+            'footer_url' => ['nullable', 'string', 'max:500', 'regex:#^(https?://|mailto:)#i'],
             'google_analytics_id' => 'nullable|string|max:50',
             'facebook_pixel_id' => 'nullable|string|max:50',
             'tiktok_pixel_id' => ['nullable', 'regex:/^[A-Z0-9]{20,30}$/'],
@@ -550,7 +562,7 @@ class BioPageController extends Controller
         if (array_key_exists('avatar_url', $validated) && $validated['avatar_url'] !== null && $validated['avatar_url'] !== $bioPage->avatar_url) {
             unset($validated['avatar_url']);
         }
-        $oldFiles = [$bioPage->avatar_url, $bioPage->background_image, $bioPage->cover_image, $bioPage->qr_settings['image'] ?? null, $bioPage->qr_settings['logo_url'] ?? null];
+        $oldFiles = [$bioPage->avatar_url, $bioPage->background_image, $bioPage->cover_image, $bioPage->og_image, $bioPage->favicon, $bioPage->qr_settings['image'] ?? null, $bioPage->qr_settings['logo_url'] ?? null];
         if ($request->hasFile('avatar')) {
             $validated['avatar_url'] = $request->file('avatar')->store('avatars', 'public');
         }

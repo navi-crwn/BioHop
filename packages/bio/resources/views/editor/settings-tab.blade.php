@@ -36,6 +36,34 @@
         </div>
     </div>
 </div>
+<!-- Sharing: picture and favicon -->
+<div class="editor-card">
+    <div class="editor-card-header">
+        <h3 class="editor-card-title">Sharing</h3>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+            <label class="form-label">Share picture (Open Graph)</label>
+            <p class="text-xs editor-text-muted mb-2">Shown when the page is shared on WhatsApp, Telegram, X or Facebook. 1200×630 works best; without one the profile picture is used.</p>
+            <input aria-label="Upload share picture" type="file" accept="image/*" class="hidden" x-ref="ogInput" @change="uploadPageImage('og_image', $event)">
+            <div class="flex items-center gap-2">
+                <button type="button" @click="$refs.ogInput.click()" class="btn btn-secondary text-sm py-2 flex-1">Upload picture</button>
+                <button type="button" x-show="bioPage.og_image" @click="bioPage.og_image = ''" class="btn btn-secondary text-sm py-2">Remove</button>
+            </div>
+            <template x-if="bioPage.og_image"><img :src="pageImageUrl(bioPage.og_image)" alt="Share picture" class="mt-2 w-full h-24 object-cover rounded-lg"></template>
+        </div>
+        <div>
+            <label class="form-label">Favicon</label>
+            <p class="text-xs editor-text-muted mb-2">The small icon in the browser tab. A square PNG, 64×64 or larger.</p>
+            <input aria-label="Upload favicon" type="file" accept="image/png,image/x-icon,image/svg+xml,image/webp" class="hidden" x-ref="favInput" @change="uploadPageImage('favicon', $event)">
+            <div class="flex items-center gap-2">
+                <button type="button" @click="$refs.favInput.click()" class="btn btn-secondary text-sm py-2 flex-1">Upload favicon</button>
+                <button type="button" x-show="bioPage.favicon" @click="bioPage.favicon = ''" class="btn btn-secondary text-sm py-2">Remove</button>
+            </div>
+            <template x-if="bioPage.favicon"><img :src="pageImageUrl(bioPage.favicon)" alt="Favicon" class="mt-2 w-10 h-10 rounded-md object-contain" style="background: var(--editor-input-bg)"></template>
+        </div>
+    </div>
+</div>
 <!-- Privacy & Visibility -->
 <div class="editor-card">
     <div class="editor-card-header">
@@ -61,6 +89,34 @@
                 <input type="checkbox" x-model="bioPage.allow_indexing" aria-label="Search engine indexing">
                 <span class="toggle-slider"></span>
             </label>
+        </div>
+        <!-- Unlisted: not in search engines, not in the directory; the address still works -->
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="font-medium text-slate-900 dark:text-white">Unlisted</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Only people with the address find the page: no search engines, not in the directory.</p>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" :checked="!bioPage.allow_indexing && !bioPage.show_in_directory" @change="bioPage.allow_indexing = !$event.target.checked; bioPage.show_in_directory = !$event.target.checked" aria-label="Unlisted">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        <!-- Privacy mode: no counting at all -->
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="font-medium text-slate-900 dark:text-white">Privacy mode</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Stops counting views and clicks for this page. Analytics stay as they are and stop growing.</p>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" x-model="bioPage.privacy_mode" aria-label="Privacy mode">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        <!-- Fallback address while unpublished -->
+        <div x-show="!bioPage.is_published" x-transition>
+            <label for="bfsettin-fb" class="form-label">While unpublished, send visitors to</label>
+            <input id="bfsettin-fb" type="url" x-model="bioPage.fallback_url" class="form-input" placeholder="https://your-site.example" autocomplete="off">
+            <p class="text-xs editor-text-muted mt-1">Leave empty to show the usual "not found" page.</p>
         </div>
         <!-- UTM on outgoing links -->
         <div class="flex items-center justify-between">
@@ -182,7 +238,30 @@
             <input id="bfsettin-6" type="text" x-model="bioPage.tiktok_pixel_id" class="form-input" placeholder="CXXXXXXXXXXXXXXXXXX" pattern="[A-Z0-9]{20,30}" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-form-type="other" inputmode="text">
             <p class="text-xs editor-text-muted mt-1">Format: 20-30 character ID (e.g., C123ABC456DEF789GHI)</p>
         </div>
+        <div class="form-group">
+            <label for="bfsettin-7" class="form-label">Google Tag Manager</label>
+            <input id="bfsettin-7" type="text" x-model="bioPage.gtm_id" class="form-input" placeholder="GTM-XXXXXXX" pattern="GTM-[A-Z0-9]{4,12}" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-form-type="other">
+            <p class="text-xs editor-text-muted mt-1">Like the pixels, it loads only after the visitor agrees in the consent banner.</p>
+        </div>
     </div>
+</div>
+<!-- Footer line -->
+<div class="editor-card">
+    <div class="editor-card-header">
+        <h3 class="editor-card-title">Footer</h3>
+    </div>
+    <div class="grid gap-3 sm:grid-cols-2">
+        <div class="form-group">
+            <label for="bfsettin-8" class="form-label">Footer line</label>
+            <input id="bfsettin-8" type="text" maxlength="200" x-model="bioPage.footer_note" class="form-input" placeholder="Prices in IDR · Affiliate links marked" autocomplete="off">
+            <p class="text-xs editor-text-muted mt-1">A short disclaimer, imprint or thank-you under the blocks.</p>
+        </div>
+        <div class="form-group">
+            <label for="bfsettin-9" class="form-label">Footer link <span class="editor-text-muted font-normal">(optional)</span></label>
+            <input id="bfsettin-9" type="url" x-model="bioPage.footer_url" class="form-input" placeholder="https://your-site.example/terms" autocomplete="off">
+        </div>
+    </div>
+    <p class="text-xs editor-text-muted mt-2">The "Powered by" line is in Design → Footer.</p>
 </div>
 <!-- Danger Zone -->
 <div class="editor-card border-red-200 dark:border-red-900">

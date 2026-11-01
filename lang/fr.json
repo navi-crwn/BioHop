@@ -547,5 +547,12 @@
     ":count links were left out because their addresses are blocked here.": ":count liens ont été laissés de côté car leurs adresses sont bloquées ici.",
     "from :price": "à partir de :price",
     "Only :count left": "Plus que :count",
-    "Variants": "Variantes"
+    "Variants": "Variantes",
+    "PIN required": "PIN requis",
+    "The owner protected this link with a PIN.": "Le propriétaire a protégé ce lien par un PIN.",
+    "PIN": "PIN",
+    "Open link": "Ouvrir le lien",
+    "Back to the page": "Retour à la page",
+    "Wrong PIN.": "PIN incorrect.",
+    "Too many attempts. Try again later.": "Trop de tentatives. Réessayez plus tard."
 }

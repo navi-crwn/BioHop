@@ -547,5 +547,12 @@
     ":count links were left out because their addresses are blocked here.": "有 :count 个链接因地址在此被屏蔽而未导入。",
     "from :price": "起价 :price",
     "Only :count left": "仅剩 :count 件",
-    "Variants": "款式"
+    "Variants": "款式",
+    "PIN required": "需要 PIN",
+    "The owner protected this link with a PIN.": "页面所有者为此链接设置了 PIN。",
+    "PIN": "PIN",
+    "Open link": "打开链接",
+    "Back to the page": "返回页面",
+    "Wrong PIN.": "PIN 错误。",
+    "Too many attempts. Try again later.": "尝试次数过多，请稍后再试。"
 }
