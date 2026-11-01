@@ -2,11 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Console\Commands\OfficialPage;
 use App\Models\User;
 use Hop\Bio\Models\BioLink;
 use Hop\Bio\Models\BioPage;
 use Hop\Ui\Assets;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class OfficialPageCommandTest extends TestCase
@@ -23,9 +25,12 @@ class OfficialPageCommandTest extends TestCase
 
     public function test_it_lists_every_public_app_and_can_run_again_without_duplicates(): void
     {
+        Storage::fake('public');
         $user = User::factory()->create();
         $this->artisan('bio:official-page', ['--user' => $user->email, '--apply' => true])->assertSuccessful();
         $page = BioPage::where('slug', 'hel')->firstOrFail();
+        Storage::disk('public')->assertExists(OfficialPage::AVATAR);
+        $this->assertSame(OfficialPage::AVATAR, $page->avatar_url);
         $this->assertTrue($page->is_published);
         $this->assertSame('HEL.ink', $page->title);
         foreach (Assets::family() as $app) {
