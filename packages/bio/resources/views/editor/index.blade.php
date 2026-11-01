@@ -790,6 +790,11 @@
                                     </div>
                                 </div>
                                 <p class="text-[10px] editor-text-muted">Leave both empty to show it always. Times are in your time zone; outside the window the block is hidden from the page and its address stops working.</p>
+                                <div x-show="['link', 'product', 'whatsapp'].includes(editingBlock.type)">
+                                    <label for="bfindex-s3" class="form-label text-xs mb-1">PIN <span class="editor-text-muted font-normal">(optional, 4–8 digits)</span></label>
+                                    <input id="bfindex-s3" type="text" inputmode="numeric" pattern="[0-9]{4,8}" maxlength="8" :value="editingBlock.settings?.pin ?? ''" @input="setProductSetting('pin', $event.target.value.replace(/\D/g, ''))" class="form-input text-xs" placeholder="e.g. 2468" autocomplete="off">
+                                    <p class="text-[10px] editor-text-muted mt-1">Visitors enter it once before the address opens. Share the PIN yourself (a story, a newsletter).</p>
+                                </div>
                             </div>
                         </template>
                         <template x-if="editingBlock?.type === 'link'">

@@ -936,6 +936,30 @@ window.bioEditorV2 = function() {
             else { this.bioPage.link_text_color = value; this.bioPage.button_text_color = value; }
             if (this.bioPage.theme !== 'default') this.bioPage.theme = 'default';
         },
+        // Share picture and favicon: stored like the cover, as a path on the public disk.
+        uploadPageImage(field, event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const formData = new FormData();
+            formData.append('image', file);
+            formData.append('_token', csrf());
+            fetch(bioEditorUrl('/upload-image'), { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.path) {
+                    this.bioPage[field] = data.path;
+                    this.showNotification('Uploaded!', 'success');
+                } else {
+                    throw new Error(data.message || 'Upload failed');
+                }
+            })
+            .catch(error => this.showNotification(error.message || 'Failed to upload', 'error'));
+            event.target.value = '';
+        },
+        pageImageUrl(path) {
+            if (!path) return '';
+            return path.startsWith('/') || path.startsWith('http') ? path : '/storage/' + path;
+        },
         uploadCoverImage(event) {
             const file = event.target.files[0];
             if (!file) return;

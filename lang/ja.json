@@ -547,5 +547,12 @@
     ":count links were left out because their addresses are blocked here.": ":count 件のリンクは、アドレスがここでブロックされているため除外されました。",
     "from :price": ":price から",
     "Only :count left": "残り :count 点",
-    "Variants": "バリエーション"
+    "Variants": "バリエーション",
+    "PIN required": "PIN が必要です",
+    "The owner protected this link with a PIN.": "所有者がこのリンクを PIN で保護しています。",
+    "PIN": "PIN",
+    "Open link": "リンクを開く",
+    "Back to the page": "ページに戻る",
+    "Wrong PIN.": "PIN が違います。",
+    "Too many attempts. Try again later.": "試行回数が多すぎます。後でもう一度お試しください。"
 }

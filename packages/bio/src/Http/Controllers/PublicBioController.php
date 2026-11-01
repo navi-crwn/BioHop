@@ -48,6 +48,11 @@ class PublicBioController extends Controller
             return response()->view('bio::not-found', ['slug' => $slug], 404);
         }
         if (! $this->isVisible($bioPage)) {
+            // The owner can send visitors of an unpublished page somewhere else (a real address, checked on save).
+            if ($bioPage->fallback_url && $bioPage->is_published === false && ! $bioPage->user?->isSuspended() && ! $request->attributes->get('hop.embed')) {
+                return redirect()->away(SafeContent::url($bioPage->fallback_url))->header('Referrer-Policy', 'strict-origin-when-cross-origin');
+            }
+
             return response()->view('bio::not-found', ['slug' => $slug, 'unpublished' => true], 404);
         }
         // Password protection check
@@ -112,6 +117,10 @@ class PublicBioController extends Controller
         if ($this->needsPassword($bioPage) || $this->needsAgeCheck($bioPage)) {
             return redirect()->route('bio.public.show', $bioPage->slug);
         }
+        // A link with its own PIN asks for it once per session.
+        if ($this->needsPin($bioLink)) {
+            return response()->view('bio::link-pin', compact('bioLink'));
+        }
         $ipAddress = request()->ip();
         $ua = app(UserAgentParser::class)->parse(request()->userAgent());
         $visitorId = $this->visitorId();
@@ -121,7 +130,7 @@ class PublicBioController extends Controller
         // At most 20 counted clicks per IP per block per 10 minutes, so clearing cookies cannot inflate counts.
         $dedupKey = 'bio_click:'.$bioLink->id.':'.($visitorId ?? sha1($ipAddress.'|'.request()->userAgent()));
         $ipKey = "bio_click_ip:{$bioLink->id}:{$ipAddress}";
-        if (! $ua['bot']
+        if (! $ua['bot'] && ! $bioPage->privacy_mode
             && ! RateLimiter::tooManyAttempts($ipKey, self::COUNTED_CLICKS_PER_IP)
             && Cache::add($dedupKey, true, now()->addMinutes(10))) {
             RateLimiter::hit($ipKey, 600);
@@ -207,8 +216,39 @@ class PublicBioController extends Controller
         return true;
     }
 
+    protected function needsPin(BioLink $bioLink): bool
+    {
+        $pin = (string) ($bioLink->settings['pin'] ?? '');
+
+        return $pin !== '' && ! session("bio_link_unlocked_{$bioLink->id}");
+    }
+
+    /** POST /b/click/{public_id}/pin: checks the link's PIN, remembers it for the session, then redirects to the click route. */
+    public function pin(Request $request, BioLink $bioLink)
+    {
+        $pin = (string) ($bioLink->settings['pin'] ?? '');
+        if ($pin === '' || ! $bioLink->is_active || ! $this->isVisible($bioLink->bioPage)) {
+            abort(404);
+        }
+        $key = 'bio-link-pin:'.$bioLink->id.':'.$request->ip();
+        if (RateLimiter::tooManyAttempts($key, 10)) {
+            return response()->view('bio::link-pin', compact('bioLink'))->withErrors(['pin' => __('Too many attempts. Try again later.')]);
+        }
+        RateLimiter::hit($key, 600);
+        if (! hash_equals($pin, (string) $request->input('pin'))) {
+            return view('bio::link-pin', compact('bioLink'))->withErrors(['pin' => __('Wrong PIN.')]);
+        }
+        RateLimiter::clear($key);
+        session(["bio_link_unlocked_{$bioLink->id}" => true]);
+
+        return redirect()->route('bio.public.click', $bioLink->public_id, 303);
+    }
+
     protected function trackView(BioPage $bioPage): void
     {
+        if ($bioPage->privacy_mode) {
+            return;
+        }
         $ipAddress = request()->ip();
         $cacheKey = "bio_view:{$bioPage->id}:{$ipAddress}";
         if (! Cache::has($cacheKey)) {

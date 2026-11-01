@@ -547,5 +547,12 @@
     ":count links were left out because their addresses are blocked here.": "تم استبعاد :count روابط لأن عناوينها محظورة هنا.",
     "from :price": "ابتداءً من :price",
     "Only :count left": "لم يتبقَّ سوى :count",
-    "Variants": "الأنواع"
+    "Variants": "الأنواع",
+    "PIN required": "مطلوب رمز PIN",
+    "The owner protected this link with a PIN.": "حمى المالك هذا الرابط برمز PIN.",
+    "PIN": "رمز PIN",
+    "Open link": "فتح الرابط",
+    "Back to the page": "العودة إلى الصفحة",
+    "Wrong PIN.": "رمز PIN خاطئ.",
+    "Too many attempts. Try again later.": "محاولات كثيرة جدًا. حاول لاحقًا."
 }

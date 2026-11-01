@@ -14,6 +14,7 @@ Route::middleware(['web', 'ip.ban'])->prefix('b')->name('bio.public.')->group(fu
     Route::match(['get', 'post'], '/{slug}', [PublicBioController::class, 'show'])->name('show');
     Route::get('/{slug}/qr', [PublicBioController::class, 'qr'])->name('qr');
     Route::get('/click/{bioLink:public_id}', [PublicBioController::class, 'click'])->middleware('throttle:bio-click')->name('click');
+    Route::post('/click/{bioLink:public_id}/pin', [PublicBioController::class, 'pin'])->middleware('throttle:bio-click')->name('click.pin');
 });
 
 // The editor, for signed-in members. `hop.auth` (hop/auth) sends guests through the hub (HOP ID);

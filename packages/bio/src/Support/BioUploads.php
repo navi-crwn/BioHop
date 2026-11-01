@@ -55,7 +55,9 @@ class BioUploads
             ->orWhere('qr_settings', 'like', $like)
             ->orWhere('background_value', 'like', $like)
             ->orWhere('background_image', 'like', $like)
-            ->orWhere('cover_image', 'like', $like))->exists()
+            ->orWhere('cover_image', 'like', $like)
+            ->orWhere('og_image', 'like', $like)
+            ->orWhere('favicon', 'like', $like))->exists()
             || BioLink::where(fn ($q) => $q->where('thumbnail_url', 'like', $like)
                 ->orWhere('custom_icon', 'like', $like)
                 ->orWhere('content', 'like', $like))->exists();

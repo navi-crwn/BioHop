@@ -16,11 +16,16 @@
     @if(!($bioPage->allow_indexing ?? true))
         <meta name="robots" content="noindex, nofollow">
     @endif
-    <link rel="icon" href="{{ route('brand.favicon') }}">
+    @php
+        $pageFile = fn ($v) => $v ? (str_starts_with($v, 'http') || str_starts_with($v, '/') ? $v : Storage::disk('public')->url($v)) : null;
+        $ogImage = $pageFile($bioPage->og_image) ?: ($bioPage->avatar_url ? Storage::disk('public')->url($bioPage->avatar_url) : null);
+    @endphp
+    <link rel="icon" href="{{ $pageFile($bioPage->favicon) ?: route('brand.favicon') }}">
     <meta property="og:title" content="{{ $bioPage->seo_title ?? $bioPage->title }} | By LinkHop">
     <meta property="og:description" content="{{ $bioPage->seo_description ?? $bioPage->bio ?? 'Check out my links' }}">
-    @if($bioPage->avatar_url)
-        <meta property="og:image" content="{{ Storage::disk('public')->url($bioPage->avatar_url) }}">
+    @if($ogImage)
+        <meta property="og:image" content="{{ $ogImage }}">
+        <meta name="twitter:card" content="summary_large_image">
     @endif
     <meta property="og:url" content="{{ public_url('b/'.$bioPage->slug) }}">
     <meta property="og:type" content="profile">
@@ -1134,8 +1139,13 @@
                         @endforeach
                     </div>
                 @endif
+                @if(trim((string) $bioPage->footer_note) !== '')
+                <p class="bio-footer-note mt-8 text-center text-xs" style="color: {{ $bioColor }}; opacity: .85">
+                    @if($bioPage->footer_url)<a href="{{ \Hop\Safety\SafeContent::url($bioPage->footer_url) }}" target="_blank" rel="nofollow noopener" class="underline">{{ $bioPage->footer_note }}</a>@else{{ $bioPage->footer_note }}@endif
+                </p>
+                @endif
                 @unless($bioPage->hide_branding)
-                <div class="mt-8 text-center">
+                <div class="{{ trim((string) $bioPage->footer_note) !== '' ? 'mt-3' : 'mt-8' }} text-center">
                     <a href="{{ url('/') }}" class="powered-link inline-flex items-center gap-2 text-sm transition-colors">
                         <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
