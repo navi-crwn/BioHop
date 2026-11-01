@@ -19,12 +19,18 @@
                     <style>.be-select-bar button { padding: 6px 12px; border: 1px solid var(--editor-border); border-radius: 999px; font-size: 12px; font-weight: 600; line-height: 1.2; } .be-select-bar button:disabled { opacity: .4; } .be-select-bar button.delete { color: #e11d48; }</style>
                     <div class="be-select-bar flex flex-wrap items-center gap-2 mb-3 text-sm">
                         <button type="button" @click="toggleSelectMode()" class="block-action-btn px-3" x-text="selectMode ? 'Done' : 'Select'"></button>
+                        <button type="button" @click="sortByClicks()" class="block-action-btn px-3" x-show="blocks.length > 1" title="Most clicked first, inside each group">Sort by clicks</button>
+                        <button type="button" @click="undoSort()" class="block-action-btn px-3" x-show="_beforeSort">Undo sort</button>
                         <template x-if="selectMode">
                             <div class="flex flex-wrap items-center gap-2">
                                 <button type="button" @click="selectAllBlocks()" class="block-action-btn px-3">All</button>
                                 <span class="editor-text-muted" x-text="selectedIds.length + ' selected'"></span>
                                 <button type="button" :disabled="!selectedIds.length" @click="bulkSetActive(true)" class="block-action-btn px-3">Show</button>
                                 <button type="button" :disabled="!selectedIds.length" @click="bulkSetActive(false)" class="block-action-btn px-3">Hide</button>
+                                <select class="block-action-btn px-2" :disabled="!selectedIds.length || !blocks.some(b => b.type === 'collection')" x-show="blocks.some(b => b.type === 'collection')" @change="bulkMoveToCollection(parseInt($event.target.value, 10)); $event.target.value = ''" aria-label="Move the selected blocks to a collection">
+                                    <option value="">Move to…</option>
+                                    <template x-for="c in blocks.filter(b => b.type === 'collection')" :key="c.id"><option :value="c.id" x-text="getBlockDisplayTitle(c)"></option></template>
+                                </select>
                                 <button type="button" :disabled="!selectedIds.length" @click="bulkArchive()" class="block-action-btn px-3">Archive</button>
                                 <button type="button" :disabled="!selectedIds.length" @click="bulkDelete()" class="block-action-btn delete px-3">Delete</button>
                             </div>
