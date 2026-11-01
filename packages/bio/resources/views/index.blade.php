@@ -22,8 +22,8 @@
     <x-flash />
 
     @unless ($bioPages->isEmpty())
-        <div class="mt-4 grid gap-3 md:grid-cols-3 md:items-start">
-            <section class="glass-card md:col-span-2">
+        <div class="mt-4 grid gap-3 md:grid-cols-3">
+            <section class="glass-card flex flex-col justify-between gap-4 md:col-span-2">
                 <div class="flex flex-wrap items-end justify-between gap-3">
                     <div>
                         <p class="text-xs font-medium uppercase tracking-wide text-muted">{{ __('Clicks this week') }}</p>
@@ -44,7 +44,7 @@
                         @endforeach
                     </div>
                 </div>
-                <dl class="mt-4 grid grid-cols-2 gap-2 text-center sm:grid-cols-3">
+                <dl class="grid grid-cols-2 gap-2 text-center sm:grid-cols-3">
                     <div class="glass-inset rounded-xl py-2"><dt class="text-[11px] text-muted">{{ __('Views, all time') }}</dt><dd class="text-sm font-semibold tabular-nums text-ink">{{ number_format($bioPages->sum('view_count')) }}</dd></div>
                     <div class="glass-inset rounded-xl py-2"><dt class="text-[11px] text-muted">{{ __('Clicks, all time') }}</dt><dd class="text-sm font-semibold tabular-nums text-ink">{{ number_format($bioPages->sum(fn ($p) => $p->getTotalClicks())) }}</dd></div>
                     <div class="glass-inset rounded-xl py-2 max-sm:hidden"><dt class="text-[11px] text-muted">{{ __('Published pages') }}</dt><dd class="text-sm font-semibold tabular-nums text-ink">{{ $bioPages->where('is_published', true)->count() }} / {{ $bioPages->count() }}</dd></div>

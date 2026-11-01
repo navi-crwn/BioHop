@@ -247,6 +247,8 @@
         }
         .bio-title {
             color: {{ $titleColor }};
+            max-width: 100%;
+            overflow-wrap: anywhere;
         }
         .bio-bio {
             color: {{ $bioColor }};
@@ -276,11 +278,13 @@
         .social-icon {
             color: {{ $isDarkTheme ? '#f1f5f9' : '#475569' }};
         }
+        /* Same colour as the page's own text, so it reads on any theme or wallpaper. */
         .powered-link {
-            color: {{ $isDarkTheme ? '#94a3b8' : '#64748b' }};
+            color: {{ $bioColor }};
+            opacity: .8;
         }
         .powered-link:hover {
-            color: {{ $isDarkTheme ? '#cbd5e1' : '#475569' }};
+            opacity: 1;
         }
         /* Header layouts: classic (small avatar), hero (picture fills the top), banner (cover strip), cutout (big fading picture). */
         .bio-head { position: relative; }
@@ -807,7 +811,7 @@
                         @else
                         <div class="bio-avatar mx-auto mb-4 flex h-24 w-24 items-center justify-center bg-linear-to-br from-blue-500 to-indigo-600 text-3xl font-bold text-white"
                              style="border-radius: {{ $avatarRadius }};">
-                            {{ substr($bioPage->title, 0, 1) }}
+                            {{ mb_strtoupper(mb_substr($bioPage->title, 0, 1)) }}
                         </div>
                         @endif
                     @endif

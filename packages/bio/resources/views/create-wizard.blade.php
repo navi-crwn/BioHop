@@ -2,6 +2,13 @@
     <x-slot name="pageTitle">BioHop - {{ __('New bio page') }}</x-slot>
     {{-- Five steps that end in a finished page: name, goal, platforms, links, profile and colours, with the phone on the right. --}}
     <div class="bio-wizard" x-data="bioWizard()" x-init="init()">
+        @if($atLimit)
+        <div class="bw-limit" role="status">
+            <h1 class="bw-title">{{ __('Your pages are full') }}</h1>
+            <p class="bw-lead">{{ __('You are using all :max of your bio pages. Delete one you no longer need to make room for a new page.', ['max' => $max]) }}</p>
+            <a href="{{ route('bio.index') }}" class="btn-primary btn-sm">{{ __('Go to my pages') }}</a>
+        </div>
+        @else
         <div class="bw-progress" aria-hidden="true"><i :style="'width:' + Math.round(step / steps * 100) + '%'"></i></div>
         <div class="bw-grid">
             <div class="bw-main">
@@ -100,6 +107,7 @@
                 </div>
             </aside>
         </div>
+        @endif
     </div>
     <script type="application/json" id="bio-wizard-config">{!! json_encode(['platforms' => $platforms, 'palettes' => $palettes, 'checkUrl' => route('bio.check-slug'), 'submitUrl' => route('bio.wizard'), 'goals' => [
         ['id' => 'creator', 'title' => __('Creator'), 'text' => __('Grow a following and share what you make.'), 'color' => 'linear-gradient(135deg,#d9f99d,#d946ef)'],
@@ -158,6 +166,7 @@
         .bio-wizard { max-width: 1040px; margin: 0 auto; padding: 8px 0 40px; }
         .bw-progress { height: 6px; width: 240px; margin: 0 auto 28px; border-radius: 99px; background: rgba(120,120,140,.2); overflow: hidden; }
         .bw-progress i { display: block; height: 100%; background: linear-gradient(90deg, #a855f7, #ec4899); transition: width .4s; }
+        .bw-limit { max-width: 520px; margin: 12vh auto 0; text-align: center; display: grid; gap: 14px; justify-items: center; }
         .bw-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr); gap: 40px; align-items: start; }
         .bw-step { max-width: 560px; }
         .bw-title { font-size: clamp(28px, 4vw, 40px); font-weight: 800; letter-spacing: -.03em; line-height: 1.05; margin: 0 0 10px; }

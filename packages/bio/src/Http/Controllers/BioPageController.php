@@ -10,6 +10,7 @@ use App\Support\ReservedSlugs;
 use Carbon\Carbon;
 use Hop\Bio\Contracts\UrlSafety;
 use Hop\Bio\Models\BioClick;
+use Hop\Bio\Models\BioLink;
 use Hop\Bio\Models\BioPage;
 use Hop\Bio\Support\BioRevisions;
 use Hop\Bio\Support\BioUploads;
@@ -114,6 +115,8 @@ class BioPageController extends Controller
             'platforms' => collect(config('brands.platforms', []))->only(self::WIZARD_PLATFORMS)->map(fn ($p, $id) => ['id' => $id, 'name' => $p['name'], 'color' => $p['color'] ?? '#6b7280', 'placeholder' => $p['placeholder'] ?? ''])->values(),
             'palettes' => self::WIZARD_PALETTES,
             'slugMin' => auth()->user()?->isAdmin() ? 3 : (int) config('bio.slug_min_length', 5),
+            'atLimit' => auth()->user()->bioPages()->count() >= self::MAX_PAGES,
+            'max' => self::MAX_PAGES,
         ]);
     }
 
@@ -671,6 +674,7 @@ class BioPageController extends Controller
         $topLinks = $bioPage->links()
             ->reorder()
             ->where('is_active', true)
+            ->whereNotIn('type', BioLink::INERT_TYPES)
             ->orderByDesc('click_count')
             ->limit(10)
             ->get();
@@ -729,7 +733,7 @@ class BioPageController extends Controller
             'totalViews' => $bioPage->view_count,
             'totalClicks' => $totalClicks,
             'ctr' => $ctr,
-            'activeLinks' => $bioPage->links()->where('is_active', true)->count(),
+            'activeLinks' => $bioPage->links()->where('is_active', true)->whereNotIn('type', BioLink::INERT_TYPES)->count(),
             'viewsChart' => [
                 'labels' => $viewsChartLabels,
                 'data' => $viewsChartData,

@@ -359,7 +359,7 @@ class PublicBioController extends Controller
         return $pin !== '' && ! session("bio_link_unlocked_{$bioLink->id}");
     }
 
-    /** POST /b/click/{public_id}/pin: checks the link's PIN, remembers it for the session, then redirects to the click route. */
+    /** POST /b/click/{public_id}/pin: checks the link's PIN, remembers it for the session, then moves on to the click route with a normal navigation. */
     public function pin(Request $request, BioLink $bioLink)
     {
         $pin = (string) ($bioLink->settings['pin'] ?? '');
@@ -377,7 +377,9 @@ class PublicBioController extends Controller
         RateLimiter::clear($key);
         session(["bio_link_unlocked_{$bioLink->id}" => true]);
 
-        return redirect()->route('bio.public.click', $bioLink->public_id, 303);
+        // Not a redirect: browsers apply the page's form-action CSP to every redirect after a form post, so a 303 that ends
+        // on the external destination is blocked. A plain page that moves on with a normal navigation is not.
+        return response()->view('bio::link-pin', ['bioLink' => $bioLink, 'unlocked' => true]);
     }
 
     protected function trackView(BioPage $bioPage): void

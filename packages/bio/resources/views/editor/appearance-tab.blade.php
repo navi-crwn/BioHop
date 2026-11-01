@@ -18,8 +18,8 @@
                 <div class="be-heads" role="radiogroup" aria-label="Header layout">
                     <template x-for="h in [['classic','Classic'],['hero','Hero'],['banner','Banner'],['cutout','Cutout']]" :key="h[0]">
                         <button type="button" role="radio" :aria-checked="(bioPage.header_layout || 'classic') === h[0]" @click="bioPage.header_layout = h[0]"
-                                class="be-head" :class="{ 'is-on': (bioPage.header_layout || 'classic') === h[0] }">
-                            <span class="be-head-pic" :data-head="h[0]"><i></i><b></b><u></u></span>
+                                class="be-hp" :class="{ 'is-on': (bioPage.header_layout || 'classic') === h[0] }">
+                            <span class="be-hp-pic" :data-head="h[0]"><i></i><b></b><u></u></span>
                             <span x-text="h[1]"></span>
                         </button>
                     </template>

@@ -431,6 +431,10 @@
         .product-variants { display: flex; flex-wrap: wrap; gap: 3px; }
         .product-variants i { font-style: normal; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 999px; border: 1px solid currentColor; opacity: .85; }
         .product-variants i.is-out { opacity: .45; text-decoration: line-through; }
+        .pv-facade { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 84px; padding: 12px; border-radius: 12px; background: linear-gradient(135deg, #1e293b, #0f172a); color: #fff; text-align: left; font-size: 12px; }
+        .pv-facade b { display: block; font-size: 13px; }
+        .pv-facade small { display: block; opacity: .7; font-size: 10px; }
+        .pv-play { flex: none; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.35); font-size: 14px; }
         .goal-block { padding: 10px 12px; border-radius: var(--button-radius, 12px); font-size: 12px; display: grid; gap: 6px; }
         .pv-field { display: block; padding: 6px 10px; border-radius: 8px; background: rgba(255,255,255,.75); color: #475569; font-size: 11px; }
         .pv-btn { display: block; text-align: center; padding: 6px; border-radius: 8px; background: rgba(15,23,42,.9); color: #fff; font-size: 11px; font-weight: 700; }
@@ -1218,16 +1222,7 @@
                     <template x-if="block.type === 'map'">
                         <div class="map-block" :key="'map-' + block.id + '-' + (block._embedKey || block.map_address || '')">
                             <div class="block-title-header" x-text="block.title || 'Location'" x-show="block.title"></div>
-                            <div class="map-embed">
-                                <iframe 
-                                    :src="'https://maps.google.com/maps?q=' + encodeURIComponent(block.map_address || '') + '&z=' + (block.map_zoom || 15) + '&output=embed'"
-                                    width="100%" 
-                                    height="200" 
-                                    style="border:0; border-radius: 12px;" 
-                                    allowfullscreen="" 
-                                    loading="lazy">
-                                </iframe>
-                            </div>
+                            <div class="map-embed"><div class="pv-facade"><span class="pv-play">▶</span><span><b>Show map</b><small>Loads from Google Maps when tapped</small></span></div></div>
                             <div class="map-address" x-text="block.map_address"></div>
                         </div>
                     </template>
@@ -1589,81 +1584,18 @@
                     }
                     return true;
                 },
-                // Video embed helper - more versatile
-                getVideoEmbed(url) {
-                    if (!url) return '<div class="text-center opacity-50">No video URL</div>';
-                    // Already an embed URL - extract and use
-                    if (url.includes('/embed/') || url.includes('youtube.com/embed')) {
-                        const embedMatch = url.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]+)/);
-                        if (embedMatch) {
-                            return `<iframe src="https://www.youtube.com/embed/${embedMatch[1]}?rel=0" style="width:100%;aspect-ratio:16/9;border-radius:12px;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-                        }
-                    }
-                    // YouTube - various URL formats
-                    const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]+)/);
-                    if (ytMatch) {
-                        return `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}?rel=0" style="width:100%;aspect-ratio:16/9;border-radius:12px;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-                    }
-                    // YouTube shorts/live/playlist
-                    const ytPlaylistMatch = url.match(/youtube\.com\/playlist\?list=([a-zA-Z0-9_-]+)/);
-                    if (ytPlaylistMatch) {
-                        return `<iframe src="https://www.youtube.com/embed/videoseries?list=${ytPlaylistMatch[1]}" style="width:100%;aspect-ratio:16/9;border-radius:12px;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-                    }
-                    // Vimeo
-                    const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-                    if (vimeoMatch) {
-                        return `<iframe src="https://player.vimeo.com/video/${vimeoMatch[1]}?dnt=1" style="width:100%;aspect-ratio:16/9;border-radius:12px;" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
-                    }
-                    // TikTok embed
-                    const tiktokMatch = url.match(/tiktok\.com\/(?:@[\w.]+\/video|embed(?:\/v2)?)\/(\d+)/);
-                    if (tiktokMatch) {
-                        return `<iframe src="https://www.tiktok.com/embed/v2/${tiktokMatch[1]}" style="width:100%;max-width:325px;height:740px;display:block;margin:0 auto;border-radius:12px;" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-                    }
-                    return '<div class="text-center opacity-50 p-4">Paste YouTube, Vimeo, or TikTok URL</div>';
+                // Players are shown as placeholders here, as on the public page: the real player is made only when a
+                // visitor taps it. Real iframes in this preview were re-made on every change (a request storm to YouTube,
+                // Spotify and SoundCloud while you edit). The text is fixed, never taken from the address.
+                playerFacade(url, kind) {
+                    const hosts = [['youtu', 'YouTube'], ['vimeo', 'Vimeo'], ['tiktok', 'TikTok'], ['spotify', 'Spotify'], ['soundcloud', 'SoundCloud'], ['music.apple', 'Apple Music']];
+                    const h = hosts.find(([k]) => String(url || '').toLowerCase().includes(k));
+                    if (!url) return '<div class="text-center opacity-50 p-4">' + (kind === 'music' ? 'Paste a Spotify, SoundCloud or Apple Music address' : 'Paste a YouTube, Vimeo or TikTok address') + '</div>';
+                    if (!h) return '<div class="text-center opacity-50 p-4">This address is not a supported player</div>';
+                    return '<div class="pv-facade"><span class="pv-play">▶</span><span><b>' + (kind === 'music' ? 'Play music' : 'Play video') + '</b><small>Loads from ' + h[1] + ' when tapped</small></span></div>';
                 },
-                // Music embed helper - more versatile
-                getMusicEmbed(url) {
-                    if (!url) return '<div class="text-center opacity-50">No music URL</div>';
-                    // Spotify - handle various formats including embed URLs
-                    if (url.includes('spotify.com')) {
-                        // Already an embed URL
-                        if (url.includes('/embed/')) {
-                            const embedMatch = url.match(/spotify\.com\/embed\/(track|album|playlist|artist|episode|show)\/([a-zA-Z0-9]+)/);
-                            if (embedMatch) {
-                                return `<iframe src="https://open.spotify.com/embed/${embedMatch[1]}/${embedMatch[2]}?utm_source=generator&theme=0" style="width:100%;border-radius:12px;" height="152" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
-                            }
-                        }
-                        // Regular Spotify URLs
-                        const spotifyMatch = url.match(/spotify\.com\/(track|album|playlist|artist|episode|show)\/([a-zA-Z0-9]+)/);
-                        if (spotifyMatch) {
-                            const height = ['album', 'playlist'].includes(spotifyMatch[1]) ? '380' : '152';
-                            return `<iframe src="https://open.spotify.com/embed/${spotifyMatch[1]}/${spotifyMatch[2]}?utm_source=generator&theme=0" style="width:100%;border-radius:12px;" height="${height}" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
-                        }
-                    }
-                    // SoundCloud - handle various formats
-                    if (url.includes('soundcloud.com')) {
-                        // Get track/playlist from URL
-                        const isPlaylist = url.includes('/sets/');
-                        const height = isPlaylist ? '300' : '166';
-                        return `<iframe style="width:100%;border-radius:12px;" height="${height}" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%230ea5e9&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=${isPlaylist}"></iframe>`;
-                    }
-                    // Apple Music
-                    if (url.includes('music.apple.com')) {
-                        const appleMatch = url.match(/music\.apple\.com\/([a-z]{2})\/(album|playlist|song)\/[^\/]+\/([A-Za-z0-9.\-]+)/i);
-                        if (appleMatch) {
-                            const type = appleMatch[2] === 'song' ? 'song' : appleMatch[2];
-                            return `<iframe allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write" frameborder="0" height="175" style="width:100%;max-width:660px;overflow:hidden;border-radius:10px;" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation" src="https://embed.music.apple.com/${appleMatch[1]}/${type}/${appleMatch[3]}"></iframe>`;
-                        }
-                    }
-                    // YouTube Music - redirect to regular YouTube embed
-                    if (url.includes('music.youtube.com')) {
-                        const ytMusicMatch = url.match(/watch\?v=([a-zA-Z0-9_-]+)/);
-                        if (ytMusicMatch) {
-                            return `<iframe src="https://www.youtube.com/embed/${ytMusicMatch[1]}?rel=0" style="width:100%;aspect-ratio:16/9;border-radius:12px;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-                        }
-                    }
-                    return '<div class="text-center opacity-50 p-4">Paste Spotify, SoundCloud, or Apple Music URL</div>';
-                },
+                getVideoEmbed(url) { return this.playerFacade(url, 'video'); },
+                getMusicEmbed(url) { return this.playerFacade(url, 'music'); },
                 // Countdown calculator
                 calculateCountdown(targetDate) {
                     if (!targetDate) return { days: '00', hours: '00', minutes: '00', seconds: '00' };
