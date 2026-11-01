@@ -26,11 +26,11 @@
             </div>
         @endforeach
     </div>
-    <div class="mx-auto mt-10 flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 text-xs text-slate-400 sm:px-6 lg:px-8">
+    <div class="mx-auto mt-10 flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 text-xs text-slate-500 dark:text-slate-400 sm:px-6 lg:px-8">
         <p>&copy; {{ date('Y') }} navi-crwn · MIT License</p>
         <nav aria-label="{{ __('Language') }}" class="flex flex-wrap gap-x-3 gap-y-1">
             @foreach (\App\Http\Middleware\SetLocale::LOCALES as $code => $name)
-                <a href="?lang={{ $code }}" lang="{{ $code }}" @class(['hover:text-violet-600 dark:hover:text-violet-400', 'font-semibold text-slate-600 dark:text-slate-200' => app()->getLocale() === $code])>{{ $name }}</a>
+                <a href="?lang={{ $code }}" lang="{{ $code }}" @class(['inline-flex min-h-8 items-center hover:text-violet-600 dark:hover:text-violet-400', 'font-semibold text-slate-600 dark:text-slate-200' => app()->getLocale() === $code])>{{ $name }}</a>
             @endforeach
         </nav>
     </div>
