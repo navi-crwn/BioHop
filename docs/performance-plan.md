@@ -1,6 +1,6 @@
 # Making the public page light and the clicks instant
 
-**Status 2026-11-01 night: points 1, 3, 5, 6, 7, 8, 14 and the click fix are built on `feat/page-settings`; 2 is capped instead of converted; 10 and 11 are not built; 4 and 9 are rejected. Results are in the last section.**
+**Status 2026-11-01 late night: points 1, 3, 5, 6, 7, 8, 14, the click fix, the slim public bundle and session-free reading are built on `feat/page-settings`; 2 is capped instead of converted; the page cache (10) and nginx stale (11) are not built; 4 and 9 are rejected. Results are in the last two sections.**
 
 Written 2026-11-01 night from the owner's performance list (15 points and a benchmark table). Every claim below was measured or read in code on that day, not assumed. Local numbers come from `php artisan serve` on the Mac with a SQLite database, no gzip, no opcache, the sample page `/b/helena` at 390 px in Chromium. They show where the weight is; they are not production numbers. Re-measure on the VPS after each step (the VPS has 4 cores, 8 GB, PHP with GD + WebP + Imagick, and ffmpeg).
 
@@ -105,3 +105,23 @@ A pill beside the live preview (⚡ 94/100) opens a short list of plain-language
 
 ### After merging (owner)
 `php artisan migrate`, then `php artisan bio:optimize-images --apply`; nginx should serve `/fonts/bio/` and `/storage/` with long cache headers (the file names change when a font or picture changes); gzip or brotli for text if not already on. No new environment variables.
+
+
+## Second round: the slim bundle and session-free reading
+
+| Metric (same page, same method) | After round one | After round two |
+|---|---|---|
+| Stylesheet on a public page | 183 KB raw / 30 KB gzip (the whole app) | **33 KB raw / 6.5 KB gzip** |
+| Script on a public page | 108 KB app + 55 KB Alpine | **0.5 KB + 55 KB Alpine + 7 KB lazy loader** (no editor, charts, drag-and-drop, modals or axios) |
+| First view, uncompressed | 469 KB | **237 KB** (about 103 KB gzipped: HTML ~18, CSS 7, JS ~23, font 48, picture 7) |
+| Cookies for a first-time reader | `XSRF-TOKEN` + session | **none** |
+| Database write per new visitor | one row in `sessions` | **none** |
+| LCP / CLS | 520 ms / 0.00 | 424 ms / 0.00 |
+
+**Slim bundle.** Public pages load `resources/js/public.js` and `resources/css/public.css` (Tailwind scanned from the public views only, `source(none)`), not `app.js`/`app.css`. I compared the rendered page element by element (position, size, colours, fonts, spacing) before and after at 390 px, 1280 px and in dark mode; the only differences were an equivalent `box-shadow` notation and the direction of the `space-y` margin with the same gap. Share, QR, FAQ, countdown and the Shop tab were exercised in a browser. A test keeps the page on the small entry and the built CSS under 60 KB.
+
+**Session-free reading.** `OptionalSession` replaces Laravel's session start for web routes. A first-time visit (no session cookie) to a public page, its shop address, its manifest or its QR picture, where the page has no password, no content warning and no form or poll block, gets a throw-away in-memory session and no cookies; everything else is unchanged. The decision is cached for 60 seconds per page and forgotten the moment the page or one of its blocks is saved, so adding a form or a password takes effect at once. Logged-in members, visitors who already have a cookie, gated pages and every other route behave as before. This also removes the obstacle to a shared page cache (point 10): an anonymous GET now carries no per-visitor state.
+
+### Still open
+1. **Page cache and nginx stale-while-revalidate** (10, 11). With no cookies on plain pages, nginx `fastcgi_cache` with `use_stale error timeout updating` on `/b/{slug}` for requests without a cookie would now work; it is the owner's nginx change. Views and the `Save-Data` class need care: send `Vary: Save-Data`, and note that a cached response skips the view counter.
+2. **GIF to video**, only if members upload GIFs.

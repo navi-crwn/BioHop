@@ -38,6 +38,8 @@ Page-level: SEO title/description, noindex, pixels (GA, Meta, TikTok), age gate 
 23. **Webhooks** per page (https URL + secret, signed payloads, retries, a retry button) for form entries and daily stats.
 24. **A/B titles** on a link (two titles, bucket by keyed hash, clicks per variant).
 
+### Also done 2026-11-01 late night (feat/page-settings): 20 product details from a shop address (2.5 s guard, own copy of the picture), 23 webhooks for form entries (signed, retried, delivery log, test, resend), 34 story image from the share dialog, 35 installable web app manifest per page and `?src=qr|nfc|pwa` sources with analytics cards for sources and referring sites, 36 page cache groundwork (session-free reading)
+
 ### Dashboard and editor (small to medium)
 25. **Bento block picker**: the add-block modal grouped as Essentials · Media · Shop · Smart (same blocks, better found).
 26. **Advanced-settings row on each card**: schedule, routing, animation, PIN, UTM as small icons that open an accordion under the card instead of the modal.

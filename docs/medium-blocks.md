@@ -17,3 +17,13 @@ RSS 2.0 and Atom. `FeedReader` checks the address with `Hop\Safety\UrlGuard` (no
 
 ## Not done from this group
 Guestbook with approval, subscribe-to-unlock and RSVP/.ics (both build on the form), A/B titles, webhooks, metadata from a product URL.
+
+
+## Added later the same night
+
+### Product details from an address (`ProductMeta`, `SafeFetch`)
+In a product block, "Fill the details from this address" reads the shop page's Open Graph, `product:price:*` and JSON-LD tags and fills what is still empty (name, description, price, currency, picture). Limits: 2.5 seconds, 600 KB, two redirects each checked against private networks, html only. The picture is downloaded through the same checks and shrunk into our own storage, so the page never hot-links a shop. A site that fails is not asked again for ten minutes. Many marketplaces refuse bots; then the member sees a plain "type the details yourself". Rate limit: 20 a minute. `SafeFetch` is also what the feed block uses now.
+
+### Webhook for form entries (`Webhooks`, table `bio_webhook_deliveries`)
+Settings → Webhook: an https address, a signing secret (`whsec_…`, stored encrypted, shown to the owner only, can be replaced), a delivery log, "Send a test" and "Send again". Each request has `X-BioHop-Event`, `X-BioHop-Delivery`, `X-BioHop-Timestamp` and `X-BioHop-Signature: sha256=` plus the HMAC-SHA256 of `timestamp.body`. The first try runs after the visitor's response; a failed try is repeated after 1, 5 and 30 minutes by `bio:webhooks:retry` (scheduled every minute), four tries in all. Only https addresses that resolve to public networks are called, checked when saved and again before every send, with no redirects. The last 50 deliveries per page are kept.
+**Needs the owner's attention:** a webhook moves visitors' details to a third party the page owner chose. The privacy policy wording about forms (see above) should cover it. The scheduler must be running on the VPS (it already runs `privacy:prune`).
