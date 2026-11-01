@@ -27,17 +27,19 @@
         <meta name="robots" content="noindex, nofollow">
     @endif
     @php
-        $pageFile = fn ($v) => $v ? (str_starts_with($v, 'http') || str_starts_with($v, '/') ? $v : Storage::disk('public')->url($v)) : null;
+        // Files live on the asset host (bio.hel.ink) while this page is served from the public host (hel.ink/b/...),
+        // so every stored picture, icon and file goes through bio_media_url() and is addressed in full.
         $cardSource = trim((string) ($bioPage->background_value ?: $bioPage->background_gradient ?: $bioPage->background_color ?: ($themeData['background'] ?? '')));
         preg_match_all('/#[0-9a-fA-F]{6}\b/', $cardSource, $cardMatches);
         $cardColors = array_slice($cardMatches[0] ?? [], 0, 3) ?: ['#6366f1', '#a855f7'];
         $srcTag = in_array(request()->query('src'), \Hop\Bio\Http\Controllers\PublicBioController::SOURCES, true) ? request()->query('src') : null;
         $clickHref = fn ($publicId) => route('bio.public.click', ['bioLink' => $publicId] + ($srcTag ? ['s' => $srcTag] : []));
-        $ogImage = $pageFile($bioPage->og_image) ?: ($bioPage->avatar_url ? Storage::disk('public')->url($bioPage->avatar_url) : null);
+        $ogImage = bio_media_url($bioPage->og_image) ?: bio_media_url($bioPage->avatar_url);
     @endphp
-    <link rel="icon" href="{{ $pageFile($bioPage->favicon) ?: route('brand.favicon') }}">
-    <link rel="manifest" href="{{ route('bio.public.manifest', $bioPage->slug) }}">
-    @if($bioPage->avatar_url)<link rel="apple-touch-icon" href="{{ Storage::disk('public')->url($bioPage->avatar_url) }}">@endif
+    <link rel="icon" href="{{ bio_media_url($bioPage->favicon) ?: route('brand.favicon') }}">
+    {{-- Same host as the page: a manifest from another host is blocked by CSP and its start_url would be ignored. --}}
+    <link rel="manifest" href="{{ public_url('b/'.$bioPage->slug.'/manifest.webmanifest') }}">
+    @if($bioPage->avatar_url)<link rel="apple-touch-icon" href="{{ bio_media_url($bioPage->avatar_url) }}">@endif
     <meta name="apple-mobile-web-app-title" content="{{ \Illuminate\Support\Str::limit($bioPage->title, 12, '') }}">
     <meta property="og:title" content="{{ $bioPage->seo_title ?? $bioPage->title }} | By LinkHop">
     <meta property="og:description" content="{{ $bioPage->seo_description ?? $bioPage->bio ?? 'Check out my links' }}">
@@ -154,12 +156,12 @@
         };
         $headerBgColor = $bioPage->header_bg_color ?? '';
         $headerLayout = $bioPage->headerLayout();
-        $avatarSrc = $bioPage->avatar_url ? Storage::disk('public')->url($bioPage->avatar_url) : null;
+        $avatarSrc = bio_media_url($bioPage->avatar_url);
         // hero and cutout are built around the picture: without one they fall back to classic
         if (! $avatarSrc && in_array($headerLayout, ['hero', 'cutout'], true)) {
             $headerLayout = 'classic';
         }
-        $coverSrc = $bioPage->cover_image ? (str_starts_with($bioPage->cover_image, 'http') || str_starts_with($bioPage->cover_image, '/') ? $bioPage->cover_image : Storage::disk('public')->url($bioPage->cover_image)) : null;
+        $coverSrc = bio_media_url($bioPage->cover_image);
         $avatarRadius = $bioPage->avatar_shape === 'rounded-sm' ? '16px' : ($bioPage->avatar_shape === 'square' ? '0' : '50%');
         $showHeaderBg = !$hasTheme && $layout === 'wide' && $headerBgColor;
         $isLightColor = function($color) {
@@ -893,8 +895,8 @@
                         @foreach($groupProducts as $product)
                             @php
                                 $pHref = $product->url ? $clickHref($product->public_id) : null;
-                                $pImg = $product->thumbnail_url ?: $product->content;
-                                $pImg = bio_media_url($pImg);
+                                $pImgPath = $product->thumbnail_url ?: $product->content;
+                                $pImg = bio_media_url($pImgPath);
                                 $soldOut = $product->isSoldOut();
                                 $variants = $product->variants();
                                 $lowStock = $product->lowStock();
@@ -903,7 +905,7 @@
                             @php $buy = $pHref && !$soldOut; @endphp
                             <article class="bio-product {{ $soldOut ? 'is-sold-out' : '' }} {{ $buy ? 'can-buy' : '' }}" style="--pbg: {{ $linkBgColor ?? $blockBg ?? 'rgba(255,255,255,.2)' }}; --ptext: {{ $linkTextColor }}">
                                 @if($buy)<a href="{{ $pHref }}" target="_blank" rel="nofollow noopener" class="bio-product-pic" aria-label="{{ $product->title }}">@else<span class="bio-product-pic">@endif
-                                    @if($pImg)<img src="{{ $pImg }}" alt="" loading="lazy" decoding="async" {!! \Hop\Bio\Support\ImageMeta::attrs($pImg) !!}>@else<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>@endif
+                                    @if($pImg)<img src="{{ $pImg }}" alt="" loading="lazy" decoding="async" {!! \Hop\Bio\Support\ImageMeta::attrs($pImgPath) !!}>@else<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>@endif
                                     @if($soldOut)<b class="bio-product-flag">{{ __('Sold out') }}</b>@endif
                                 @if($buy)</a>@else</span>@endif
                                 <span class="bio-product-body"><b class="bio-product-name">@if($buy)<a href="{{ $pHref }}" target="_blank" rel="nofollow noopener">{{ $product->title }}</a>@else{{ $product->title }}@endif</b>@if($product->description)<small class="bio-product-desc">{{ $product->description }}</small>@endif
@@ -1200,16 +1202,16 @@
                         @elseif($link->type === 'audio' && $link->content)
                             <div class="bio-audio w-full rounded-2xl p-3" style="background: {{ $blockBg }}; color: {{ $linkTextColor }};">
                                 @if($link->title)<div class="mb-2 text-sm font-semibold">{{ $link->title }}</div>@endif
-                                <audio controls preload="none" class="w-full" src="{{ $link->content }}">{{ __('Your browser cannot play this clip.') }}</audio>
+                                <audio controls preload="none" class="w-full" src="{{ bio_media_url($link->content) }}">{{ __('Your browser cannot play this clip.') }}</audio>
                             </div>
                         @elseif($link->type === 'pdf' && $link->content)
-                            <a href="{{ $link->content }}" target="_blank" rel="noopener" class="bio-pdf link-block" style="background: {{ $blockBg }}; color: {{ $linkTextColor }};">
+                            <a href="{{ bio_media_url($link->content) }}" target="_blank" rel="noopener" class="bio-pdf link-block" style="background: {{ $blockBg }}; color: {{ $linkTextColor }};">
                                 <span class="block-title">📄 {{ $link->title ?: __('Document') }} <small class="opacity-70">PDF</small></span>
                             </a>
                         @elseif($link->type === 'carousel' && $link->carouselImages())
                             <div class="bio-carousel w-full" role="region" aria-roledescription="carousel" aria-label="{{ $link->title ?: __('Pictures') }}" tabindex="0">
                                 @foreach($link->carouselImages() as $img)
-                                    <figure class="bio-slide"><img src="{{ $img['url'] }}" alt="{{ $img['caption'] }}" loading="lazy" decoding="async" {!! \Hop\Bio\Support\ImageMeta::attrs($img['url']) !!}>@if($img['caption'])<figcaption>{{ $img['caption'] }}</figcaption>@endif</figure>
+                                    <figure class="bio-slide"><img src="{{ bio_media_url($img['url']) }}" alt="{{ $img['caption'] }}" loading="lazy" decoding="async" {!! \Hop\Bio\Support\ImageMeta::attrs($img['url']) !!}>@if($img['caption'])<figcaption>{{ $img['caption'] }}</figcaption>@endif</figure>
                                 @endforeach
                             </div>
                         @elseif($link->type === 'faq' && $link->faq_items)
@@ -1337,20 +1339,14 @@ END:VCARD`;
         const qrCornerSquareColor = qrSettings.cornersSquareOptions?.color || qrColor;
         const qrCornerDotType = qrSettings.cornersDotOptions?.type || (qrCornerSquareType === 'extra-rounded' ? 'dot' : qrCornerSquareType);
         const qrCornerDotColor = qrSettings.cornersDotOptions?.color || qrColor;
-        const qrLogoUrl = qrSettings.image || qrSettings.logo_url || null;
+        const qrLogoUrl = @js(bio_media_url(($bioPage->qr_settings['image'] ?? null) ?: ($bioPage->qr_settings['logo_url'] ?? null)));
         let shareQrInstance = null;
         // Alpine comes from app.js; the QR library loads only when the share dialog opens (P2).
         let qrLibrary = null;
         function loadQrLibrary() {
             if (window.QRCodeStyling) return Promise.resolve();
-            qrLibrary ??= new Promise((resolve, reject) => {
-                const script = document.createElement('script');
-                script.src = 'https://unpkg.com/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js';
-                script.nonce = @js(Vite::cspNonce());
-                script.addEventListener('load', resolve);
-                script.addEventListener('error', () => { qrLibrary = null; reject(); });
-                document.head.appendChild(script);
-            });
+            // Our own bundled copy (resources/js/lazy-libs.js), loaded on demand; no third-party CDN.
+            qrLibrary ??= window.loadQr().catch((e) => { qrLibrary = null; throw e; });
             return qrLibrary;
         }
         // The address without any query, plus ?src= so scans of this code are counted as QR visits.
@@ -1400,7 +1396,7 @@ END:VCARD`;
         async function downloadShareCard() {
             try { await loadQrLibrary(); } catch (e) { return; }
             if (!window.QRCodeStyling) return;
-            const W = 1080, H = 1920, colors = @js($cardColors), name = @js($bioPage->title), line = @js(html_entity_decode((string) $bioPage->bio)), avatar = @js($bioPage->avatar_url ? Storage::disk('public')->url($bioPage->avatar_url) : null), shown = @js(preg_replace('#^https?://#', '', rtrim(public_url('b/'.$bioPage->slug), '/')));
+            const W = 1080, H = 1920, colors = @js($cardColors), name = @js($bioPage->title), line = @js(html_entity_decode((string) $bioPage->bio)), avatar = @js($avatarSrc), shown = @js(preg_replace('#^https?://#', '', rtrim(public_url('b/'.$bioPage->slug), '/')));
             const family = getComputedStyle(document.body).fontFamily;
             try { await Promise.all([document.fonts.load('700 72px ' + family), document.fonts.load('400 38px ' + family)]); } catch (e) {}
             const c = document.createElement('canvas');

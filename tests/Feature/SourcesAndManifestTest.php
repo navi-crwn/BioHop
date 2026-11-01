@@ -41,11 +41,11 @@ test('each page is an installable web app with its own name, colour, start addre
     [, $page] = srcPage('pwapage', ['background_type' => 'solid', 'background_value' => '#112233', 'avatar_url' => 'avatars/pwa.png']);
     Storage::disk('public')->put('avatars/pwa.png', file_get_contents(public_path('images/brand/rabbit-mark.png')));
     $html = $this->get('/b/pwapage')->assertOk()->getContent();
-    expect($html)->toContain('rel="manifest" href="'.route('bio.public.manifest', 'pwapage').'"')->toContain('rel="apple-touch-icon"');
+    expect($html)->toContain('rel="manifest" href="'.public_url('b/pwapage/manifest.webmanifest').'"')->toContain('rel="apple-touch-icon"');
     $res = $this->get(route('bio.public.manifest', 'pwapage'))->assertOk();
     $m = $res->json();
     expect($m)->toMatchArray(['name' => 'Helena Studio', 'short_name' => 'Helena Studi', 'start_url' => '/b/pwapage?src=pwa', 'scope' => '/b/pwapage', 'display' => 'standalone', 'theme_color' => '#112233'])
-        ->and($m['icons'][0]['src'])->toContain('/storage/avatars/pwa.png')->and($m['icons'][0]['sizes'])->toMatch('/^\d+x\d+$/');
+        ->and($m['icons'][0]['src'])->toBe(bio_asset_origin().'/storage/avatars/pwa.png')->and($m['icons'][0]['sizes'])->toMatch('/^\d+x\d+$/');
     expect($res->headers->get('Content-Type'))->toContain('manifest+json');
     $this->get('/b/nothere/manifest.webmanifest')->assertNotFound();
 });

@@ -20,7 +20,7 @@ test('an uploaded picture becomes the page background and shows on the public pa
     $page = BioPage::where('slug', 'bgpic')->firstOrFail();
     expect($page->background_type)->toBe('image')->and($page->background_image)->toBe($up['path']);
 
-    $this->get('/b/bgpic')->assertOk()->assertSee("url('".Storage::disk('public')->url($up['path'])."')", false);
+    $this->get('/b/bgpic')->assertOk()->assertSee("url('".bio_media_url($up['path'])."')", false);
 });
 
 test('a replaced background picture is deleted and an outside address is still checked', function () {
