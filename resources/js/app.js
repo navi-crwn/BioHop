@@ -6,6 +6,7 @@ import modal from './modal';
 import installInlineActions from './inline-actions';
 import './turnstile';
 import './showcase';
+import './lazy-libs';
 
 Alpine.plugin(collapse);
 Alpine.plugin(modal);

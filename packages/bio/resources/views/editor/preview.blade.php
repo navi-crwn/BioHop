@@ -1169,7 +1169,7 @@
             </div>
         </template>
     </div>
-    <script nonce="{{ Vite::cspNonce() }}" src="https://unpkg.com/alpinejs@3.15.2/dist/cdn.min.js" defer></script>
+    @vite('resources/js/preview.js')
     <script nonce="{{ Vite::cspNonce() }}">
         // Brand colors from config
         const brandColors = @json(collect(config('brands.platforms', []))->mapWithKeys(fn($b, $k) => [$k => $b['color'] ?? '#000000']));
@@ -1234,11 +1234,21 @@
                     document.documentElement.style.setProperty('--hover-hue-shift', themeHueShifts[theme] || '30deg');
                 },
                 updatePreview(data) {
-                    if (data.profile) this.profile = { ...this.profile, ...data.profile };
+                    // Only values that really changed are written: replacing a whole object made every binding that reads
+                    // it run again, which is what made fast edits (a colour being dragged) feel heavy.
+                    if (data.profile) this.assign(this.profile, data.profile);
                     if (data.blocks) this.updateBlocksSmart(data.blocks);
-                    if (data.socials) this.socials = { ...this.socials, ...data.socials };
-                    if (data.design) this.design = { ...this.design, ...data.design };
-                    if (data.settings) this.settings = { ...this.settings, ...data.settings };
+                    if (data.socials) this.assign(this.socials, data.socials);
+                    if (data.design) this.assign(this.design, data.design);
+                    if (data.settings) this.assign(this.settings, data.settings);
+                },
+                assign(target, source) {
+                    for (const key in source) {
+                        const next = source[key], prev = target[key];
+                        if (prev === next) continue;
+                        if (next && typeof next === 'object' && JSON.stringify(prev) === JSON.stringify(next)) continue;
+                        target[key] = next;
+                    }
                 },
                 // Smart block update to prevent embed flickering
                 updateBlocksSmart(newBlocks) {

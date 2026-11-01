@@ -467,7 +467,8 @@
                     const qrContainer = this.$refs.qrContainer;
                     qrContainer.innerHTML = '<div class="flex items-center justify-center h-full"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>';
                     const url = `{{ public_url('b') }}/${this.currentSlug}`;
-                    setTimeout(() => {
+                    setTimeout(async () => {
+                        await window.loadQr();
                         qrContainer.innerHTML = '';
                         const qrCode = new QRCodeStyling({
                             width: 180,
