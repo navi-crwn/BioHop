@@ -581,5 +581,7 @@
     "PIN accepted.": "تم قبول رمز PIN.",
     "Your pages are full": "صفحاتك ممتلئة",
     "You are using all :max of your bio pages. Delete one you no longer need to make room for a new page.": "أنت تستخدم جميع صفحات السيرة الـ :max. احذف صفحة لم تعد بحاجة إليها لإنشاء صفحة جديدة.",
-    "Go to my pages": "الذهاب إلى صفحاتي"
+    "Go to my pages": "الذهاب إلى صفحاتي",
+    "Choose a free address to continue.": "اختر عنوانًا متاحًا للمتابعة.",
+    "Add a display name to continue.": "أضف اسم العرض للمتابعة."
 }

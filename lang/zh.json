@@ -581,5 +581,7 @@
     "PIN accepted.": "PIN 已通过。",
     "Your pages are full": "页面已满",
     "You are using all :max of your bio pages. Delete one you no longer need to make room for a new page.": "你已用完全部 :max 个简介页。删除一个不再需要的页面，才能新建。",
-    "Go to my pages": "前往我的页面"
+    "Go to my pages": "前往我的页面",
+    "Choose a free address to continue.": "请选择一个可用的地址后继续。",
+    "Add a display name to continue.": "请填写显示名称后继续。"
 }

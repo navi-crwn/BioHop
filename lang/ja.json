@@ -581,5 +581,7 @@
     "PIN accepted.": "PIN を確認しました。",
     "Your pages are full": "ページがいっぱいです",
     "You are using all :max of your bio pages. Delete one you no longer need to make room for a new page.": ":max 個のバイオページをすべて使っています。不要なページを削除すると新しく作れます。",
-    "Go to my pages": "マイページへ"
+    "Go to my pages": "マイページへ",
+    "Choose a free address to continue.": "続けるには空いているアドレスを選んでください。",
+    "Add a display name to continue.": "続けるには表示名を入力してください。"
 }

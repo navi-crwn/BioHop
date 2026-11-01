@@ -581,5 +581,7 @@
     "PIN accepted.": "PIN accepté.",
     "Your pages are full": "Vos pages sont complètes",
     "You are using all :max of your bio pages. Delete one you no longer need to make room for a new page.": "Vous utilisez les :max pages bio autorisées. Supprimez-en une dont vous n'avez plus besoin pour en créer une nouvelle.",
-    "Go to my pages": "Aller à mes pages"
+    "Go to my pages": "Aller à mes pages",
+    "Choose a free address to continue.": "Choisissez une adresse libre pour continuer.",
+    "Add a display name to continue.": "Ajoutez un nom affiché pour continuer."
 }

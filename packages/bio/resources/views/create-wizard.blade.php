@@ -85,6 +85,7 @@
                     </div>
                 </section>
                 <p class="bw-error" x-show="error" x-text="error" x-cloak role="alert"></p>
+                <p class="bw-hint bw-blocker" x-show="step < steps && !canContinue()" x-cloak x-text="blocker()"></p>
                 <div class="bw-nav">
                     <button type="button" class="bw-ghost" x-show="step > 1" @click="step--">{{ __('Back') }}</button>
                     <button type="button" class="bw-next" x-show="step < steps" :disabled="!canContinue()" @click="step++">{{ __('Continue') }}</button>
@@ -133,6 +134,7 @@
             },
             togglePlatform(id) { if (this.picked[id] !== undefined) { delete this.picked[id]; this.picked = { ...this.picked }; } else { this.picked = { ...this.picked, [id]: '' }; } },
             pickAvatar(e) { const f = e.target.files[0]; if (!f) return; this.avatarFile = f; this.avatarUrl = URL.createObjectURL(f); },
+            blocker() { return this.step === 1 ? '{{ __('Choose a free address to continue.') }}' : this.step === 5 ? '{{ __('Add a display name to continue.') }}' : ''; },
             canContinue() {
                 if (this.step === 1) return this.slug.trim().length >= 3 && this.available !== false;
                 if (this.step === 5) return this.title.trim().length > 0;
@@ -141,7 +143,18 @@
             wallpaper() { return this.palette === null ? '#1e1b4b' : this.palettes[this.palette][0]; },
             button() { return this.palette === null ? '#ffffff' : this.palettes[this.palette][1]; },
             buttonText() { return this.palette === null ? '#1e1b4b' : this.palettes[this.palette][2]; },
-            linkTitle(u) { try { const h = new URL(u.startsWith('http') ? u : 'https://' + u).hostname.replace(/^(www|m)\./, ''); const p = this.platforms.find(p => p.placeholder && p.placeholder.includes(h.split('.')[0])); return p ? p.name : h.split('.')[0].charAt(0).toUpperCase() + h.split('.')[0].slice(1); } catch (e) { return u; } },
+            linkTitle(u) {
+                try {
+                    const h = new URL(u.startsWith('http') ? u : 'https://' + u).hostname.toLowerCase().replace(/^(www|m)\./, '');
+                    const p = this.platforms.find(p => p.placeholder && p.placeholder.includes(h.split('.')[0]));
+                    if (p) return p.name;
+                    const parts = h.split('.').filter(Boolean); parts.pop();
+                    if (parts.length > 1 && ['co', 'com', 'net', 'org', 'ac', 'or', 'go', 'gov', 'edu'].includes(parts[parts.length - 1])) parts.pop();
+                    let label = parts[0] || 'Link';
+                    if (parts.length > 1 && ['shop', 'store', 'blog', 'app', 'link', 'go', 'web', 'my', 'pages', 'site'].includes(label)) label = parts[1];
+                    return label.replace(/[-_]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                } catch (e) { return u; }
+            },
             async submit() {
                 this.busy = true; this.error = '';
                 const fd = new FormData();
