@@ -11,6 +11,26 @@ const NOT_SAVED = new Set(['id', 'user_id', 'links', 'user', 'created_at', 'upda
 window.bioEditorSlug = CONFIG.bioPage.slug;
 window.bioEditorUrl = (path = '') => '/bio/' + encodeURIComponent(window.bioEditorSlug) + path;
 
+// The Design tab: six collapsible sections; which ones are open is remembered per browser.
+window.designTab = function() {
+    const KEY = 'bio-design-open';
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+    return {
+        sections: [['header', 'Header'], ['theme', 'Theme'], ['wallpaper', 'Wallpaper'], ['text', 'Text'], ['buttons', 'Buttons'], ['footer', 'Footer']],
+        open: { header: true, theme: true, wallpaper: true, text: true, buttons: true, footer: true, ...saved },
+        publicUrl: CONFIG.publicBase + '/' + encodeURIComponent(CONFIG.bioPage.slug),
+        toggle(key) {
+            this.open[key] = !this.open[key];
+            try { localStorage.setItem(KEY, JSON.stringify(this.open)); } catch (e) {}
+        },
+        jump(key) {
+            this.open[key] = true;
+            this.$nextTick(() => document.getElementById('design-' + key)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+        },
+    };
+};
+
 window.bioEditorV2 = function() {
     return {
         // State
@@ -68,6 +88,10 @@ window.bioEditorV2 = function() {
         platforms: PLATFORMS,
         bioPage: CONFIG.bioPage,
         blocks: CONFIG.blocks,
+        archived: CONFIG.archived || [],
+        selectMode: false,
+        selectedIds: [],
+        showArchived: false,
         brands: PLATFORMS,
         // Themes - using hex colors only for input compatibility
         themes: THEMES,
@@ -104,6 +128,9 @@ window.bioEditorV2 = function() {
         init() {
             // Expose bioPage to window for child components (like qrGenerator)
             window.bioEditorData = { bioPage: this.bioPage };
+            // ?tab=profile|links|socials|appearance|settings opens that tab (the dashboard checklist links here)
+            const wanted = new URLSearchParams(location.search).get('tab');
+            if (['profile', 'links', 'socials', 'appearance', 'settings'].includes(wanted)) this.activeTab = wanted;
             this.$nextTick(() => {
                 this.initSortable();
             });
@@ -281,6 +308,49 @@ window.bioEditorV2 = function() {
             this.$nextTick(() => { this.announcement = message; });
         },
         // Keyboard alternative to drag and drop (arrow keys on the drag handle).
+        // Collections group what follows them until the next collection or divider: the same rule as the public page.
+        // The list shows members indented, so dropping a block under a collection puts it inside.
+        collectionOf(index) {
+            let current = null;
+            for (let i = 0; i <= index && i < this.blocks.length; i++) {
+                const b = this.blocks[i];
+                if (b.type === 'collection') { current = i === index ? null : b; continue; }
+                if (b.type === 'divider') current = null;
+            }
+            return current;
+        },
+        collectionMembers(index) {
+            const out = [];
+            for (let i = index + 1; i < this.blocks.length; i++) {
+                const b = this.blocks[i];
+                if (b.type === 'collection' || b.type === 'divider') break;
+                out.push(i);
+            }
+            return out;
+        },
+        // Moves a member to just above its collection, so it is no longer part of it.
+        moveOutOfCollection(index) {
+            const owner = this.collectionOf(index);
+            const to = owner ? this.blocks.indexOf(owner) : -1;
+            if (to < 0) return;
+            const [moved] = this.blocks.splice(index, 1);
+            this.blocks.splice(to, 0, moved);
+            this.blocks.forEach((b, i) => b.order = i);
+            this._orderDirty = true; this.onModelChanged();
+            this.announce(`${this.getBlockDisplayTitle(moved)} moved out of ${this.getBlockDisplayTitle(owner)}`);
+        },
+        // Puts a divider after the collection's last member, so blocks added later start outside it.
+        closeCollection(index) {
+            const members = this.collectionMembers(index);
+            const at = (members.length ? members[members.length - 1] : index) + 1;
+            if (this.blocks[at]?.type === 'divider' || this.blocks[at]?.type === 'collection') return;
+            const divider = { id: Date.now(), type: 'divider', title: '', url: '', content: '', thumbnail_url: null, is_active: true, order: at, brand: null, is_new: true, settings: null };
+            this.blocks.splice(at, 0, divider);
+            this.blocks.forEach((b, i) => b.order = i);
+            this.markBlockDirty(divider.id);
+            this._orderDirty = true; this.onModelChanged();
+            this.announce(`${this.getBlockDisplayTitle(this.blocks[index])} closed with a divider`);
+        },
         moveBlock(index, step) {
             const to = index + step;
             if (to < 0 || to >= this.blocks.length) return;
@@ -402,8 +472,10 @@ window.bioEditorV2 = function() {
                             }))
                         },
                         design: {
-                            // Avatar
+                            // Avatar and header
                             avatarShape: bioPageData.avatar_shape || 'circle',
+                            headerLayout: bioPageData.header_layout || 'classic',
+                            coverImage: formatAvatarUrl(bioPageData.cover_image),
                             // Background
                             backgroundColor: bioPageData.background_type === 'solid' ? 
                                 (bioPageData.background_value || bioPageData.background_color || '#f8fafc') : 
@@ -486,10 +558,13 @@ window.bioEditorV2 = function() {
                 vcard_email: '',
                 vcard_company: '',
                 faq_items: [],
-                html_content: ''
+                html_content: '',
+                description: '',
+                settings: type === 'product' ? { price: '', currency: 'IDR', sold_out: false } : (type === 'collection' ? { layout: 'stack' } : (type === 'whatsapp' ? { text: '', mode: 'round_robin', numbers: [{ number: '', label: '', weight: 1 }] } : null))
             };
+            if (type === 'whatsapp') newBlock.brand = 'whatsapp';
             this.blocks.push(newBlock);
-            if (['link', 'header', 'text', 'video', 'music', 'vcard', 'html', 'countdown', 'map', 'faq', 'youtube', 'spotify', 'soundcloud', 'code', 'image'].includes(type)) {
+            if (['link', 'header', 'text', 'video', 'music', 'vcard', 'html', 'countdown', 'map', 'faq', 'youtube', 'spotify', 'soundcloud', 'code', 'image', 'product', 'collection', 'whatsapp'].includes(type)) {
                 this.editingBlock = JSON.parse(JSON.stringify(newBlock));
             }
             this.showAddBlockModal = false;
@@ -504,7 +579,10 @@ window.bioEditorV2 = function() {
                 'html': 'Custom HTML',
                 'countdown': 'Countdown Timer',
                 'map': 'Location',
-                'faq': 'FAQ'
+                'faq': 'FAQ',
+                'product': 'Product',
+                'collection': 'Collection',
+                'whatsapp': 'Chat on WhatsApp'
             };
             return titles[type] || '';
         },
@@ -692,7 +770,9 @@ window.bioEditorV2 = function() {
             }
             const index = this.blocks.findIndex(b => b.id === this.editingBlock.id);
             if (index !== -1) {
-                const updatedBlock = { ...this.editingBlock };
+                // A plain deep copy: spreading the proxy kept nested settings (variants, numbers, faq) reactive,
+                // and a proxy cannot be posted to the preview frame (DataCloneError).
+                const updatedBlock = JSON.parse(JSON.stringify(Alpine.raw(this.editingBlock)));
                 delete updatedBlock.is_new; // Remove new flag
                 this.blocks[index] = updatedBlock;
                 // Mark block as dirty so it gets saved
@@ -830,6 +910,63 @@ window.bioEditorV2 = function() {
                     this.saveBioPage();
                 }
             });
+        },
+        // Product settings are replaced as a whole so Alpine sees the change (same pattern as the price field).
+        setProductSetting(key, value) {
+            // Plain copies only: a reactive proxy inside settings cannot be posted to the preview frame.
+            const plain = value && typeof value === 'object' ? JSON.parse(JSON.stringify(value)) : value;
+            this.editingBlock.settings = Object.assign({}, JSON.parse(JSON.stringify(this.editingBlock.settings || {})), { [key]: plain });
+        },
+        addWaNumber() {
+            this.setProductSetting('numbers', [...(this.editingBlock.settings?.numbers || []), { number: '', label: '', weight: 1 }]);
+        },
+        removeWaNumber(i) {
+            this.setProductSetting('numbers', (this.editingBlock.settings?.numbers || []).filter((_, k) => k !== i));
+        },
+        setWaNumber(i, key, value) {
+            this.setProductSetting('numbers', (this.editingBlock.settings?.numbers || []).map((n, k) => k === i ? Object.assign({}, n, { [key]: value }) : n));
+        },
+        // 'scheduled' before publish_at, 'expired' after expire_at, null when live (same rule as the server).
+        scheduleState(block) {
+            const now = Date.now();
+            if (block?.publish_at && new Date(block.publish_at).getTime() > now) return 'scheduled';
+            if (block?.expire_at && new Date(block.expire_at).getTime() <= now) return 'expired';
+            return null;
+        },
+        addVariant() {
+            const variants = [...(this.editingBlock.settings?.variants || []), { name: '', price: '', stock: '', url: '' }];
+            this.setProductSetting('variants', variants);
+        },
+        removeVariant(i) {
+            this.setProductSetting('variants', (this.editingBlock.settings?.variants || []).filter((_, k) => k !== i));
+        },
+        setVariant(i, key, value) {
+            const variants = (this.editingBlock.settings?.variants || []).map((v, k) => k === i ? Object.assign({}, v, { [key]: value }) : v);
+            this.setProductSetting('variants', variants);
+        },
+        // Button colours live in link_* (and the older button_* pair); a custom colour means the Default theme.
+        setButtonColor(which, value) {
+            if (which === 'bg') { this.bioPage.link_bg_color = value; this.bioPage.button_bg_color = value; }
+            else { this.bioPage.link_text_color = value; this.bioPage.button_text_color = value; }
+            if (this.bioPage.theme !== 'default') this.bioPage.theme = 'default';
+        },
+        uploadCoverImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const formData = new FormData();
+            formData.append('image', file);
+            formData.append('_token', csrf());
+            fetch(bioEditorUrl('/upload-image'), { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.path) {
+                    this.bioPage.cover_image = data.path;
+                    this.showNotification('Cover uploaded!', 'success');
+                } else {
+                    throw new Error(data.message || 'Upload failed');
+                }
+            })
+            .catch(error => this.showNotification(error.message || 'Failed to upload', 'error'));
         },
         uploadBackgroundImage(event) {
             const file = event.target.files[0];
@@ -1370,6 +1507,55 @@ window.bioEditorV2 = function() {
                 this.linkInputMode = 'create';
                 this.editingBlock = JSON.parse(JSON.stringify(block));
             }
+        },
+        // ---- select mode, archive, restore ----
+        toggleSelectMode() { this.selectMode = !this.selectMode; this.selectedIds = []; },
+        toggleSelected(id) { this.selectedIds = this.selectedIds.includes(id) ? this.selectedIds.filter(x => x !== id) : [...this.selectedIds, id]; },
+        selectAllBlocks() { this.selectedIds = this.selectedIds.length === this.blocks.length ? [] : this.blocks.map(b => b.id); },
+        bulkSetActive(on) {
+            this.blocks.forEach(b => { if (this.selectedIds.includes(b.id) && b.is_active !== on) { b.is_active = on; this.markBlockDirty(b.id); } });
+            this.selectedIds = [];
+        },
+        bulkDelete() {
+            if (!confirm('Delete ' + this.selectedIds.length + ' block(s)? Archive keeps their clicks; delete does not.')) return;
+            [...this.selectedIds].forEach(id => { const i = this.blocks.findIndex(b => b.id === id); if (i >= 0) this.removeBlock(i); });
+            this.selectedIds = [];
+        },
+        async bulkArchive() {
+            const ids = [...this.selectedIds];
+            for (const id of ids) { const i = this.blocks.findIndex(b => b.id === id); if (i >= 0) await this.archiveBlock(i, true); }
+            this.selectedIds = [];
+            this.showNotification(ids.length + ' archived', 'success');
+        },
+        async archiveBlock(index, quiet = false) {
+            const block = this.blocks[index];
+            if (!block || block.id >= 1000000000) { this.removeBlock(index); return; }
+            try {
+                const res = await fetch(bioEditorUrl('/links/' + block.id + '/archive'), { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf(), 'Accept': 'application/json' } });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.message || 'Archive failed');
+                this.blocks.splice(index, 1);
+                this.blocks.forEach((b, i) => b.order = i);
+                this.archived.unshift(data.link);
+                if (!quiet) this.showNotification('Archived. Restore it any time from the archived list.', 'success');
+                this.refreshPreview && this.refreshPreview();
+            } catch (e) { this.showNotification(e.message || 'Failed to archive', 'error'); }
+        },
+        async restoreBlock(item) {
+            try {
+                const res = await fetch(bioEditorUrl('/links/' + item.id + '/restore'), { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf(), 'Accept': 'application/json' } });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.message || 'Restore failed');
+                this.archived = this.archived.filter(a => a.id !== item.id);
+                this.blocks.push(data.link);
+                this.showNotification('Restored', 'success');
+                this.refreshPreview && this.refreshPreview();
+            } catch (e) { this.showNotification(e.message || 'Failed to restore', 'error'); }
+        },
+        async deleteArchived(item) {
+            if (!confirm('Delete this archived block for good?')) return;
+            await this.deleteBlockFromServer(item.id);
+            this.archived = this.archived.filter(a => a.id !== item.id);
         },
         removeBlock(index) {
             const block = this.blocks[index];

@@ -35,7 +35,7 @@ test('the theme gallery shows the editor presets and the page uses no emoji', fu
     $html = $this->get('/')->assertOk()->getContent();
 
     expect($html)->toContain('Galaxy')->toContain('Cherry Blossom')->toContain('id="themes"')
-        ->toContain('aria-label="Theme gallery"')
+        ->toContain('aria-label="Themes"')
         ->and(preg_match('/[\x{1F300}-\x{1FAFF}]/u', $html))->toBe(0);
 });
 
@@ -48,8 +48,8 @@ test('theme previews offer labelled toggle buttons without forcing the page to s
     $html = $this->get('/')->assertOk()->getContent();
 
     expect($html)->not->toContain('scrollIntoView')
-        ->toContain('role="group" aria-label="Theme gallery"')
-        ->toContain('bio-gallery-preview')
+        ->toContain('role="group" aria-label="Themes"')
+        ->toContain('data-theme-key=')
         ->toContain('aria-pressed=')
         ->toContain('https://hel.ink/b/hel')
         ->toContain('images/brand/rabbit-mark.png');

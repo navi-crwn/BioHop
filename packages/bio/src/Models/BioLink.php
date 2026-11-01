@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class BioLink extends Model
@@ -29,6 +30,9 @@ class BioLink extends Model
         'custom_icon',
         'settings',
         'is_active',
+        'archived_at',
+        'publish_at',
+        'expire_at',
         'order',
         'click_count',
         // Advanced block fields
@@ -49,6 +53,9 @@ class BioLink extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'archived_at' => 'datetime',
+        'publish_at' => 'datetime',
+        'expire_at' => 'datetime',
         'btn_icon_invert' => 'boolean',
         'order' => 'integer',
         'click_count' => 'integer',
@@ -74,9 +81,85 @@ class BioLink extends Model
         return $this->hasMany(BioClick::class);
     }
 
+    /** Shown on the page: switched on and not archived. */
+    /** Shown on the page: switched on, not archived, and inside its schedule window (if any). */
     public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $query->where('is_active', true)->whereNull('archived_at')
+            ->where(fn ($q) => $q->whereNull('publish_at')->orWhere('publish_at', '<=', now()))
+            ->where(fn ($q) => $q->whereNull('expire_at')->orWhere('expire_at', '>', now()));
+    }
+
+    /** Inside the schedule window: not before publish_at and not after expire_at. */
+    public function isLive(): bool
+    {
+        return (! $this->publish_at || $this->publish_at->lte(now())) && (! $this->expire_at || $this->expire_at->gt(now()));
+    }
+
+    /** "scheduled" before publish_at, "expired" after expire_at, null when live. */
+    public function scheduleState(): ?string
+    {
+        if ($this->publish_at && $this->publish_at->gt(now())) {
+            return 'scheduled';
+        }
+
+        return $this->expire_at && $this->expire_at->lte(now()) ? 'expired' : null;
+    }
+
+    public const WHATSAPP_MODES = ['round_robin', 'weighted'];
+
+    /** @return array<int, array{number:string, label:string, weight:int}> the rotator's numbers, digits only */
+    public function whatsappNumbers(): array
+    {
+        $out = [];
+        foreach ((array) ($this->settings['numbers'] ?? []) as $n) {
+            $digits = preg_replace('/\D+/', '', (string) ($n['number'] ?? ''));
+            if (is_array($n) && strlen($digits) >= 6) {
+                $out[] = ['number' => $digits, 'label' => trim((string) ($n['label'] ?? '')), 'weight' => max(1, (int) ($n['weight'] ?? 1))];
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * The wa.me address for this click: round robin (one counter per block in the cache) or weighted random.
+     * Null when the block has no usable number.
+     */
+    public function whatsappTarget(): ?string
+    {
+        $numbers = $this->whatsappNumbers();
+        if ($numbers === []) {
+            return null;
+        }
+        if (($this->settings['mode'] ?? 'round_robin') === 'weighted' && count($numbers) > 1) {
+            $total = array_sum(array_column($numbers, 'weight'));
+            $pick = random_int(1, $total);
+            $chosen = $numbers[0];
+            foreach ($numbers as $n) {
+                $pick -= $n['weight'];
+                if ($pick <= 0) {
+                    $chosen = $n;
+                    break;
+                }
+            }
+        } else {
+            $i = Cache::increment('wa_rotator:'.$this->id) - 1;
+            $chosen = $numbers[$i % count($numbers)];
+        }
+        $text = trim((string) ($this->settings['text'] ?? ''));
+
+        return 'https://wa.me/'.$chosen['number'].($text !== '' ? '?text='.rawurlencode($text) : '');
+    }
+
+    public function scopeNotArchived($query)
+    {
+        return $query->whereNull('archived_at');
+    }
+
+    public function scopeArchived($query)
+    {
+        return $query->whereNotNull('archived_at');
     }
 
     public function scopeOrdered($query)
@@ -109,7 +192,7 @@ class BioLink extends Model
         'link' => 'Link', 'image' => 'Image', 'text' => 'Text', 'header' => 'Header',
         'divider' => 'Divider', 'spacer' => 'Spacer', 'video' => 'Video', 'youtube' => 'YouTube',
         'music' => 'Music', 'spotify' => 'Spotify', 'soundcloud' => 'SoundCloud', 'vcard' => 'Contact card',
-        'html' => 'HTML', 'countdown' => 'Countdown', 'map' => 'Map', 'faq' => 'FAQ',
+        'html' => 'HTML', 'countdown' => 'Countdown', 'map' => 'Map', 'faq' => 'FAQ', 'product' => 'Product', 'collection' => 'Collection', 'whatsapp' => 'WhatsApp',
         'email' => 'Email', 'code' => 'Code',
     ];
 
@@ -144,6 +227,7 @@ class BioLink extends Model
     {
         $detail = match ($this->type) {
             'link', 'email', 'image' => $this->url,
+            'product' => trim($this->priceLabel().' · '.$this->url, ' ·'),
             'video', 'youtube', 'music', 'spotify', 'soundcloud' => $this->embed_url ?: $this->url,
             'text' => filled($this->title) ? $this->excerpt($this->content) : null,
             'vcard' => collect([$this->vcard_phone, $this->vcard_email, $this->vcard_company])->filter()->implode(' · '),
@@ -165,11 +249,102 @@ class BioLink extends Model
     {
         $target = match ($this->type) {
             'video', 'youtube', 'music', 'spotify', 'soundcloud' => $this->embed_url ?: $this->url,
-            'link', 'image' => $this->url,
+            'link', 'image', 'product' => $this->url,
             default => null,
         };
 
         return $target && preg_match('#^https?://#i', $target) ? $target : null;
+    }
+
+    /**
+     * "Rp 120.000" / "$ 20" for a product block, from settings.price and settings.currency; empty when there is no price.
+     * With variants at different prices it is "from <lowest>".
+     */
+    public function priceLabel(): string
+    {
+        $prices = array_values(array_filter(array_map(fn ($v) => $v['price'], $this->variants()), fn ($p) => $p !== null));
+        $base = $this->settings['price'] ?? null;
+        if ($base !== null && $base !== '') {
+            $prices[] = (float) $base;
+        }
+        if ($prices === []) {
+            return '';
+        }
+        $label = $this->formatPrice(min($prices));
+
+        return count(array_unique($prices)) > 1 ? __('from :price', ['price' => $label]) : $label;
+    }
+
+    /** The struck-through "was" price, when settings.compare_price is above the price. */
+    public function comparePriceLabel(): string
+    {
+        $was = $this->settings['compare_price'] ?? null;
+        $price = $this->settings['price'] ?? null;
+        if ($was === null || $was === '' || $price === null || $price === '' || (float) $was <= (float) $price) {
+            return '';
+        }
+
+        return $this->formatPrice((float) $was);
+    }
+
+    /** Sold out when switched off by hand, when the stock count reached zero, or when every variant is out. */
+    public function isSoldOut(): bool
+    {
+        if (! empty($this->settings['sold_out'])) {
+            return true;
+        }
+        $stock = $this->settings['stock'] ?? null;
+        if ($stock !== null && $stock !== '' && (int) $stock <= 0) {
+            return true;
+        }
+        $variants = $this->variants();
+
+        return $variants !== [] && ! array_filter($variants, fn ($v) => ! $v['sold_out']);
+    }
+
+    /** "Only 3 left" worth of stock: the count when it is tracked and between 1 and 5, else null. */
+    public function lowStock(): ?int
+    {
+        $stock = $this->settings['stock'] ?? null;
+
+        return $stock !== null && $stock !== '' && (int) $stock > 0 && (int) $stock <= 5 ? (int) $stock : null;
+    }
+
+    /** @return array<int, array{name:string, price:?float, stock:?int, url:?string, sold_out:bool}> */
+    public function variants(): array
+    {
+        $out = [];
+        foreach ((array) ($this->settings['variants'] ?? []) as $v) {
+            if (! is_array($v) || trim((string) ($v['name'] ?? '')) === '') {
+                continue;
+            }
+            $stock = isset($v['stock']) && $v['stock'] !== '' ? (int) $v['stock'] : null;
+            $out[] = [
+                'name' => trim((string) $v['name']),
+                'price' => isset($v['price']) && $v['price'] !== '' ? (float) $v['price'] : null,
+                'stock' => $stock,
+                'url' => ! empty($v['url']) && preg_match('#^https?://#i', (string) $v['url']) ? (string) $v['url'] : null,
+                'sold_out' => ! empty($v['sold_out']) || ($stock !== null && $stock <= 0),
+            ];
+        }
+
+        return $out;
+    }
+
+    public function formatPrice(float $amount): string
+    {
+        $currency = strtoupper((string) ($this->settings['currency'] ?? 'USD'));
+        $decimals = in_array($currency, ['IDR', 'JPY', 'KRW', 'VND'], true) ? 0 : 2;
+        if (class_exists(\NumberFormatter::class)) {
+            $fmt = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
+            $fmt->setAttribute(\NumberFormatter::FRACTION_DIGITS, $decimals);
+            $out = $fmt->formatCurrency($amount, $currency);
+            if ($out !== false) {
+                return $out;
+            }
+        }
+
+        return $currency.' '.number_format($amount, $decimals);
     }
 
     private function excerpt(?string $html): ?string

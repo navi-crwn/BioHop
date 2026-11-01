@@ -24,6 +24,18 @@ class PublicBioController extends Controller
 
     private const COUNTED_CLICKS_PER_IP = 20;
 
+    /** hel.ink/b/shop/{slug}: the same page with the Shop open; a page that sells nothing goes to its links. */
+    public function shop(Request $request, string $slug)
+    {
+        $page = BioPage::where('slug', $slug)->first();
+        if (! $page || ! $page->links()->active()->where('type', 'product')->exists()) {
+            return redirect()->route('bio.public.show', $slug);
+        }
+        $request->attributes->set('openShop', true);
+
+        return $this->show($request, $slug);
+    }
+
     public function show(Request $request, string $slug)
     {
         $bioPage = BioPage::with(['links' => function ($query) {
@@ -76,7 +88,10 @@ class PublicBioController extends Controller
                 return view('bio::age-verify', compact('bioPage'));
             }
         }
-        $this->trackView($bioPage);
+        // A copy of the page inside another page (the BioHop home) is not a visit.
+        if (! $request->attributes->get('hop.embed')) {
+            $this->trackView($bioPage);
+        }
 
         return view('bio::show', compact('bioPage'));
     }
@@ -85,9 +100,13 @@ class PublicBioController extends Controller
     {
         // Disabled blocks / hidden pages must not keep redirecting.
         $bioPage = $bioLink->bioPage;
-        $target = SafeContent::url($bioLink->url);
-        if (! $bioLink->is_active || ! $this->isVisible($bioPage) || $target === '#') {
+        // A WhatsApp rotator picks one of its numbers per click; other blocks go to their address.
+        $target = $bioLink->type === 'whatsapp' ? ($bioLink->whatsappTarget() ?? '#') : SafeContent::url($bioLink->url);
+        if (! $bioLink->is_active || $bioLink->archived_at || ! $bioLink->isLive() || ! $this->isVisible($bioPage) || $target === '#') {
             abort(404);
+        }
+        if ($bioPage->auto_utm) {
+            $target = self::withUtm($target, $bioPage->slug);
         }
         // Same gates as show(): never reveal a destination behind a password or age check.
         if ($this->needsPassword($bioPage) || $this->needsAgeCheck($bioPage)) {
@@ -145,6 +164,18 @@ class PublicBioController extends Controller
         return response($qrCode)
             ->header('Content-Type', 'image/png')
             ->header('Content-Disposition', "attachment; filename=\"{$bioPage->slug}-qr.png\"");
+    }
+
+    /** Adds utm_source/medium/campaign to an http(s) address that has no UTM parameters of its own. */
+    public static function withUtm(string $url, string $slug): string
+    {
+        if (! preg_match('#^https?://#i', $url) || preg_match('/[?&]utm_[a-z]+=/i', $url)) {
+            return $url;
+        }
+        $query = http_build_query(['utm_source' => 'biohop', 'utm_medium' => 'bio', 'utm_campaign' => $slug]);
+        [$base, $fragment] = array_pad(explode('#', $url, 2), 2, null);
+
+        return $base.(str_contains($base, '?') ? '&' : '?').$query.($fragment !== null ? '#'.$fragment : '');
     }
 
     protected function isVisible(?BioPage $bioPage): bool

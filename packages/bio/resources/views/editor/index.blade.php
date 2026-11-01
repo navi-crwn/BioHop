@@ -10,7 +10,8 @@
 @php
     $editorConfig = [
         'bioPage' => \Illuminate\Support\Arr::except($bioPage->toArray(), ['links']),
-        'blocks' => $bioPage->links->sortBy('order')->values(),
+        'blocks' => $bioPage->links->whereNull('archived_at')->sortBy('order')->values(),
+        'archived' => $bioPage->links->whereNotNull('archived_at')->sortByDesc('archived_at')->values(),
         'platforms' => config('brands.platforms', []),
         'themes' => \Hop\Bio\Support\BioThemes::picker(),
         'defaults' => config('bio-themes.defaults'),
@@ -25,6 +26,9 @@
     <!-- Fake fields to prevent browser password autofill -->
     <input type="text" name="fake_username" style="display:none !important" tabindex="-1" autocomplete="username">
     <input type="password" name="fake_password" style="display:none !important" tabindex="-1" autocomplete="new-password">
+    @if (session('success'))
+        <div class="mb-3"><x-flash /></div>
+    @endif
     <div class="be-grid" autocomplete="off">
         <section class="be-main" aria-label="Page editor">
             <div class="be-head">
@@ -76,7 +80,7 @@
             </button>
             <button type="button" @click="activeTab = 'appearance'" :class="{ 'active': activeTab === 'appearance' }" class="editor-tab" role="tab" id="editor-tab-appearance" aria-controls="editor-panel-appearance" :aria-selected="activeTab === 'appearance'" :tabindex="activeTab === 'appearance' ? 0 : -1">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
-                Appearance
+                Design
             </button>
             <button type="button" @click="activeTab = 'settings'" :class="{ 'active': activeTab === 'settings' }" class="editor-tab" role="tab" id="editor-tab-settings" aria-controls="editor-panel-settings" :aria-selected="activeTab === 'settings'" :tabindex="activeTab === 'settings' ? 0 : -1">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065zM15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -604,6 +608,129 @@
                                 </div>
                             </div>
                         </template>
+                        <template x-if="editingBlock?.type === 'whatsapp'">
+                            <div class="space-y-4">
+                                <div class="form-group">
+                                    <label for="bfindex-w2" class="form-label">Pre-filled message <span class="editor-text-muted font-normal">(optional)</span></label>
+                                    <input maxlength="500" id="bfindex-w2" type="text" :value="editingBlock.settings?.text ?? ''" @input="setProductSetting('text', $event.target.value)" class="form-input" placeholder="Hi, I came from your bio page…">
+                                </div>
+                                <div class="form-group">
+                                    <div class="flex items-center justify-between">
+                                        <label class="form-label mb-0">Numbers <span class="editor-text-muted font-normal">(each click goes to one of them)</span></label>
+                                        <button type="button" class="btn btn-secondary text-xs py-1 px-2" @click="addWaNumber()" x-show="(editingBlock.settings?.numbers || []).length < 10">+ Add number</button>
+                                    </div>
+                                    <div class="mt-2 space-y-2">
+                                        <template x-for="(n, i) in (editingBlock.settings?.numbers || [])" :key="i">
+                                            <div class="be-wa-row">
+                                                <input type="tel" maxlength="24" :value="n.number" @input="setWaNumber(i, 'number', $event.target.value)" class="form-input" placeholder="+62 812 3456 7890" :aria-label="'Number ' + (i + 1)">
+                                                <input type="text" maxlength="40" :value="n.label ?? ''" @input="setWaNumber(i, 'label', $event.target.value)" class="form-input" placeholder="Label, e.g. CS Rina" :aria-label="'Label ' + (i + 1)">
+                                                <input type="number" min="1" max="100" :value="n.weight ?? 1" @input="setWaNumber(i, 'weight', $event.target.value)" class="form-input" placeholder="Weight" :aria-label="'Weight ' + (i + 1)" x-show="editingBlock.settings?.mode === 'weighted'">
+                                                <button type="button" class="icon-btn" @click="removeWaNumber(i)" :aria-label="'Remove number ' + (i + 1)" title="Remove"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                                            </div>
+                                        </template>
+                                    </div>
+                                    <p class="text-xs editor-text-muted mt-1">With country code, digits only are kept. One number works too.</p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">How clicks are shared</label>
+                                    <div class="flex gap-2">
+                                        <button type="button" class="btn btn-secondary text-xs py-1.5 flex-1" :class="{ 'ring-2 ring-blue-500': (editingBlock.settings?.mode || 'round_robin') === 'round_robin' }" @click="setProductSetting('mode', 'round_robin')">In turn (round robin)</button>
+                                        <button type="button" class="btn btn-secondary text-xs py-1.5 flex-1" :class="{ 'ring-2 ring-blue-500': editingBlock.settings?.mode === 'weighted' }" @click="setProductSetting('mode', 'weighted')">By weight</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                        <template x-if="editingBlock?.type === 'product'">
+                            <div class="space-y-4">
+                                <div class="form-group">
+                                    <label for="bfindex-p1" class="form-label">Product name</label>
+                                    <input maxlength="100" id="bfindex-p1" type="text" x-model="editingBlock.title" class="form-input" placeholder="Linen shirt">
+                                </div>
+                                <div class="grid grid-cols-3 gap-3">
+                                    <div class="form-group col-span-2">
+                                        <label for="bfindex-p2" class="form-label">Price</label>
+                                        <input id="bfindex-p2" type="number" min="0" step="0.01" inputmode="decimal" :value="editingBlock.settings?.price ?? ''" @input="editingBlock.settings = Object.assign({}, editingBlock.settings, { price: $event.target.value })" class="form-input" placeholder="120000">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="bfindex-p3" class="form-label">Currency</label>
+                                        <select id="bfindex-p3" :value="editingBlock.settings?.currency ?? 'IDR'" @change="editingBlock.settings = Object.assign({}, editingBlock.settings, { currency: $event.target.value })" class="form-input">
+                                            <template x-for="c in ['IDR','USD','EUR','GBP','JPY','SGD','MYR','AUD','BRL','CNY','KRW','INR']" :key="c"><option :value="c" x-text="c"></option></template>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div class="form-group">
+                                        <label for="bfindex-p6" class="form-label">Was price <span class="editor-text-muted font-normal">(optional)</span></label>
+                                        <input id="bfindex-p6" type="number" min="0" step="0.01" inputmode="decimal" :value="editingBlock.settings?.compare_price ?? ''" @input="setProductSetting('compare_price', $event.target.value)" class="form-input" placeholder="150000">
+                                        <p class="text-xs editor-text-muted mt-1">Shown struck through next to the price.</p>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="bfindex-p7" class="form-label">Stock <span class="editor-text-muted font-normal">(optional)</span></label>
+                                        <input id="bfindex-p7" type="number" min="0" step="1" inputmode="numeric" :value="editingBlock.settings?.stock ?? ''" @input="setProductSetting('stock', $event.target.value)" class="form-input" placeholder="Leave empty if unlimited">
+                                        <p class="text-xs editor-text-muted mt-1">0 shows "Sold out"; 1–5 shows "Only n left".</p>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="flex items-center justify-between">
+                                        <label class="form-label mb-0">Variants <span class="editor-text-muted font-normal">(sizes, colours…)</span></label>
+                                        <button type="button" class="btn btn-secondary text-xs py-1 px-2" @click="addVariant()" x-show="(editingBlock.settings?.variants || []).length < 20">+ Add variant</button>
+                                    </div>
+                                    <p class="text-xs editor-text-muted mt-1" x-show="!(editingBlock.settings?.variants || []).length">Each variant can have its own price, stock and buy address. Without them the product's own are used.</p>
+                                    <div class="mt-2 space-y-2">
+                                        <template x-for="(v, i) in (editingBlock.settings?.variants || [])" :key="i">
+                                            <div class="be-variant">
+                                                <input type="text" maxlength="40" :value="v.name" @input="setVariant(i, 'name', $event.target.value)" class="form-input" placeholder="Size M" :aria-label="'Variant ' + (i + 1) + ' name'">
+                                                <input type="number" min="0" step="0.01" inputmode="decimal" :value="v.price ?? ''" @input="setVariant(i, 'price', $event.target.value)" class="form-input" placeholder="Price" :aria-label="'Variant ' + (i + 1) + ' price'">
+                                                <input type="number" min="0" step="1" inputmode="numeric" :value="v.stock ?? ''" @input="setVariant(i, 'stock', $event.target.value)" class="form-input" placeholder="Stock" :aria-label="'Variant ' + (i + 1) + ' stock'">
+                                                <input type="url" :value="v.url ?? ''" @input="setVariant(i, 'url', $event.target.value)" class="form-input" placeholder="https://… (optional)" :aria-label="'Variant ' + (i + 1) + ' address'">
+                                                <button type="button" class="icon-btn" @click="removeVariant(i)" :aria-label="'Remove variant ' + (i + 1)" title="Remove"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="bfindex-p4" class="form-label">Where to buy (address)</label>
+                                    <input id="bfindex-p4" type="url" x-model="editingBlock.url" class="form-input" placeholder="https://your-shop.com/linen-shirt">
+                                    <p class="text-xs editor-text-muted mt-1">Your own shop, a marketplace listing or an affiliate link. Visitors open it in a new tab.</p>
+                                </div>
+                                <div class="form-group">
+                                    <label for="bfindex-p5" class="form-label">Short description</label>
+                                    <input maxlength="500" id="bfindex-p5" type="text" x-model="editingBlock.description" class="form-input" placeholder="Organic linen, three colours">
+                                </div>
+                                <div class="form-group" x-show="editingBlock?.thumbnail_url">
+                                    <label class="form-label">Picture</label>
+                                    <div class="relative w-full h-40 rounded-lg overflow-hidden" style="background: var(--editor-input-bg);">
+                                        <img :src="editingBlock?.thumbnail_url" class="w-full h-full object-cover">
+                                        <button aria-label="Remove picture" type="button" @click="editingBlock.thumbnail_url = ''; editingBlock.content = ''" class="absolute top-2 right-2 p-1.5 bg-red-600 hover:bg-red-700 rounded-full text-white">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <label class="block p-4 border-2 border-dashed border-(--editor-border) hover:border-indigo-500 rounded-lg cursor-pointer transition-colors text-center">
+                                    <input aria-label="Upload product picture" type="file" class="hidden" accept="image/*" @change="uploadBlockImage($event, editingBlock)">
+                                    <span class="text-sm editor-text-muted">Upload a picture (square looks best)</span>
+                                </label>
+                                <label class="flex items-center gap-2 text-sm">
+                                    <input type="checkbox" :checked="!!editingBlock.settings?.sold_out" @change="editingBlock.settings = Object.assign({}, editingBlock.settings, { sold_out: $event.target.checked })"> Sold out
+                                </label>
+                            </div>
+                        </template>
+                        <template x-if="editingBlock?.type === 'collection'">
+                            <div class="space-y-4">
+                                <div class="form-group">
+                                    <label for="bfindex-c1" class="form-label">Collection name</label>
+                                    <input maxlength="100" id="bfindex-c1" type="text" x-model="editingBlock.title" class="form-input" placeholder="New arrivals">
+                                </div>
+                                <div class="form-group">
+                                    <label for="bfindex-c2" class="form-label">Layout</label>
+                                    <select id="bfindex-c2" :value="editingBlock.settings?.layout ?? 'stack'" @change="editingBlock.settings = Object.assign({}, editingBlock.settings, { layout: $event.target.value })" class="form-input">
+                                        <option value="stack">Stacked (one per row)</option>
+                                        <option value="grid">Grid (two per row)</option>
+                                    </select>
+                                </div>
+                                <p class="text-xs editor-text-muted">Everything placed under this collection belongs to it, until the next collection or a divider. Products under it are grouped on the Shop tab.</p>
+                            </div>
+                        </template>
                         <template x-if="editingBlock?.type === 'header'">
                             <div class="space-y-4">
                                 <div class="form-group">
@@ -646,6 +773,26 @@
                             </div>
                         </template>
                         <!-- Animation Settings - Only for link type blocks -->
+                        <template x-if="editingBlock && !['divider', 'spacer'].includes(editingBlock.type)">
+                            <div class="p-3 rounded-lg space-y-3" style="background: var(--editor-card-bg)">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                    <span class="text-sm font-medium editor-text">Schedule</span>
+                                    <span class="text-xs editor-text-muted" x-text="scheduleState(editingBlock) === 'scheduled' ? '· not live yet' : (scheduleState(editingBlock) === 'expired' ? '· expired' : '')"></span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label for="bfindex-s1" class="form-label text-xs mb-1">Goes live</label>
+                                        <input id="bfindex-s1" type="datetime-local" :value="toLocalInput(editingBlock.publish_at)" @input="editingBlock.publish_at = fromLocalInput($event.target.value)" class="form-input text-xs">
+                                    </div>
+                                    <div>
+                                        <label for="bfindex-s2" class="form-label text-xs mb-1">Ends</label>
+                                        <input id="bfindex-s2" type="datetime-local" :value="toLocalInput(editingBlock.expire_at)" @input="editingBlock.expire_at = fromLocalInput($event.target.value)" class="form-input text-xs">
+                                    </div>
+                                </div>
+                                <p class="text-[10px] editor-text-muted">Leave both empty to show it always. Times are in your time zone; outside the window the block is hidden from the page and its address stops working.</p>
+                            </div>
+                        </template>
                         <template x-if="editingBlock?.type === 'link'">
                             <div class="p-3 rounded-lg space-y-4" style="background: var(--editor-card-bg)">
                                 <div class="flex items-center gap-2 mb-2">

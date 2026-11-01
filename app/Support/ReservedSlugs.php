@@ -10,7 +10,7 @@ namespace App\Support;
 class ReservedSlugs
 {
     /** Always reserved, whatever the config says. */
-    public const PREFIXES = ['l', 'b', 'api'];
+    public const PREFIXES = ['l', 'b', 'api', 'shop', 'click'];
 
     public static function isReserved(?string $slug): bool
     {

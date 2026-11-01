@@ -211,3 +211,64 @@
     .bio-editor .block-drag-handle { padding: 8px 2px; }
     .bio-editor .block-actions .toggle-switch { transform: scale(.85); }
 }
+
+/* Header layout picker (Design tab): four small sketches of the top of a page. */
+.be-heads { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.be-head { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px 4px; border: 1px solid var(--editor-border, #e2e8f0); border-radius: 12px; font-size: 11px; font-weight: 600; background: transparent; color: inherit; cursor: pointer; }
+.be-head:hover { border-color: #94a3b8; }
+.be-head.is-on { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37, 99, 235, .25); }
+.be-head-pic { position: relative; width: 44px; height: 56px; border-radius: 8px; background: var(--editor-input-bg, #f1f5f9); overflow: hidden; display: block; }
+.be-head-pic i, .be-head-pic b, .be-head-pic u { position: absolute; display: block; }
+.be-head-pic i { background: #64748b; }
+.be-head-pic b { background: #94a3b8; height: 4px; border-radius: 2px; }
+.be-head-pic u { background: #cbd5e1; height: 3px; border-radius: 2px; }
+.be-head-pic[data-head=classic] i { width: 16px; height: 16px; border-radius: 50%; top: 10px; left: 14px; }
+.be-head-pic[data-head=classic] b { width: 22px; top: 31px; left: 11px; }
+.be-head-pic[data-head=classic] u { width: 28px; top: 39px; left: 8px; }
+.be-head-pic[data-head=hero] i { inset: 0 0 18px 0; background: linear-gradient(180deg, #64748b 40%, #334155); }
+.be-head-pic[data-head=hero] b { width: 22px; top: 28px; left: 11px; background: #fff; }
+.be-head-pic[data-head=hero] u { width: 28px; top: 44px; left: 8px; }
+.be-head-pic[data-head=banner] i { inset: 0 0 auto 0; height: 18px; background: #94a3b8; }
+.be-head-pic[data-head=banner]::after { content: ""; position: absolute; width: 16px; height: 16px; border-radius: 50%; background: #64748b; top: 10px; left: 14px; border: 2px solid #fff; box-sizing: border-box; }
+.be-head-pic[data-head=banner] b { width: 22px; top: 32px; left: 11px; }
+.be-head-pic[data-head=banner] u { width: 28px; top: 40px; left: 8px; }
+.be-head-pic[data-head=cutout] i { width: 26px; height: 30px; top: 4px; left: 9px; border-radius: 10px 10px 2px 2px; -webkit-mask-image: linear-gradient(#000 50%, transparent); mask-image: linear-gradient(#000 50%, transparent); }
+.be-head-pic[data-head=cutout] b { width: 22px; top: 31px; left: 11px; }
+.be-head-pic[data-head=cutout] u { width: 28px; top: 40px; left: 8px; }
+
+/* Design tab: jump bar and collapsible sections. */
+.be-design { display: flex; flex-direction: column; gap: 10px; }
+.be-design-nav { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 0; background: var(--editor-panel-bg, #fff); }
+.be-design-nav a { font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 99px; border: 1px solid var(--editor-border, #e2e8f0); color: inherit; text-decoration: none; }
+.be-design-nav a:hover { border-color: #2563eb; color: #2563eb; }
+.be-design-nav .be-design-visit { margin-left: auto; border-style: dashed; }
+.be-sec { scroll-margin-top: 120px; border: 1px solid var(--editor-border, #e2e8f0); border-radius: 14px; background: var(--editor-panel-bg, #fff); }
+.be-sec-head { display: flex; align-items: center; gap: 8px; width: 100%; padding: 12px 14px; background: none; border: 0; color: inherit; font: inherit; cursor: pointer; text-align: left; }
+.be-sec-title { font-size: 14px; font-weight: 600; }
+.be-sec-hint { margin-left: auto; font-size: 12px; opacity: .65; }
+.be-sec-chev { transition: transform .2s; opacity: .6; }
+.be-sec.is-open .be-sec-chev { transform: rotate(180deg); }
+.be-sec-body { padding: 0 14px 14px; }
+@media (prefers-reduced-motion: reduce) { .be-sec-chev { transition: none; } }
+
+/* Product variants in the block form: name · price · stock · address · remove. */
+.be-variant { display: grid; grid-template-columns: 1.3fr .8fr .6fr 1.4fr auto; gap: 6px; align-items: center; }
+.be-variant .form-input { padding-top: 6px; padding-bottom: 6px; font-size: 13px; }
+@media (max-width: 640px) { .be-variant { grid-template-columns: 1fr 1fr; } .be-variant input[type=url] { grid-column: span 2; } }
+
+/* Collection members are indented under their collection; the rail shows where the group ends. */
+.bio-editor .block-item.is-collection { border-color: #6366f1; background: color-mix(in srgb, #6366f1 7%, var(--editor-input-bg)); margin-bottom: 4px; }
+.bio-editor .block-item.in-collection { margin-left: 22px; margin-bottom: 4px; border-left: 3px solid #6366f1; border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+.bio-editor .block-item.in-collection.is-last-member { margin-bottom: 10px; }
+.bio-editor .block-item.block-ghost.in-collection { margin-left: 0; }
+.bio-editor .be-in-collection b { font-weight: 600; color: #6366f1; }
+@media (max-width: 640px) { .bio-editor .block-item.in-collection { margin-left: 12px; } }
+
+/* Schedule chips in the block list and the WhatsApp number rows. */
+.be-chip { display: inline-block; vertical-align: middle; margin-left: 4px; padding: 1px 7px; border-radius: 999px; font-size: 10px; font-weight: 600; line-height: 1.5; background: #e0f2fe; color: #0369a1; }
+.be-chip.expired { background: #fee2e2; color: #b91c1c; }
+.dark .be-chip { background: rgb(14 165 233 / .2); color: #7dd3fc; }
+.dark .be-chip.expired { background: rgb(239 68 68 / .2); color: #fca5a5; }
+.be-wa-row { display: grid; grid-template-columns: 1.3fr 1fr auto auto; gap: 6px; align-items: center; }
+.be-wa-row input[type=number] { width: 72px; }
+@media (max-width: 640px) { .be-wa-row { grid-template-columns: 1fr 1fr; } }

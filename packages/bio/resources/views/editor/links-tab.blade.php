@@ -15,8 +15,26 @@
                 </button>
                 <!-- Blocks List (Sortable) -->
                 <div id="blocks-list" class="space-y-2 mb-4" x-show="blocks.length > 0">
+                    <!-- Select mode: tick blocks, then archive, hide, show or delete them together -->
+                    <style>.be-select-bar button { padding: 6px 12px; border: 1px solid var(--editor-border); border-radius: 999px; font-size: 12px; font-weight: 600; line-height: 1.2; } .be-select-bar button:disabled { opacity: .4; } .be-select-bar button.delete { color: #e11d48; }</style>
+                    <div class="be-select-bar flex flex-wrap items-center gap-2 mb-3 text-sm">
+                        <button type="button" @click="toggleSelectMode()" class="block-action-btn px-3" x-text="selectMode ? 'Done' : 'Select'"></button>
+                        <template x-if="selectMode">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <button type="button" @click="selectAllBlocks()" class="block-action-btn px-3">All</button>
+                                <span class="editor-text-muted" x-text="selectedIds.length + ' selected'"></span>
+                                <button type="button" :disabled="!selectedIds.length" @click="bulkSetActive(true)" class="block-action-btn px-3">Show</button>
+                                <button type="button" :disabled="!selectedIds.length" @click="bulkSetActive(false)" class="block-action-btn px-3">Hide</button>
+                                <button type="button" :disabled="!selectedIds.length" @click="bulkArchive()" class="block-action-btn px-3">Archive</button>
+                                <button type="button" :disabled="!selectedIds.length" @click="bulkDelete()" class="block-action-btn delete px-3">Delete</button>
+                            </div>
+                        </template>
+                    </div>
                     <template x-for="(item, idx) in blocks" :key="item.id">
-                        <div class="block-item" :data-id="item.id" :class="{ 'opacity-50': item && !item.is_active }">
+                        <div class="block-item" :data-id="item.id" :class="{ 'opacity-50': item && !item.is_active, 'is-collection': item.type === 'collection', 'in-collection': !!collectionOf(idx), 'is-last-member': !!collectionOf(idx) && (idx + 1 >= blocks.length || ['collection', 'divider'].includes(blocks[idx + 1]?.type)) }">
+                            <template x-if="selectMode">
+                                <input type="checkbox" class="mr-2" :checked="selectedIds.includes(item.id)" @change="toggleSelected(item.id)" :aria-label="'Select ' + getBlockDisplayTitle(item)">
+                            </template>
                             <!-- Drag Handle -->
                             <div class="block-drag-handle" role="button" tabindex="0"
                                  :aria-label="'Move ' + getBlockDisplayTitle(item) + '. Use the up and down arrow keys.'"
@@ -39,8 +57,18 @@
                             </div>
                             <!-- Block Content -->
                             <div class="block-content">
-                                <div class="text-sm font-medium editor-text truncate" x-text="getBlockDisplayTitle(item)"></div>
-                                <div class="text-xs editor-text-muted truncate" x-text="item.url || item.type"></div>
+                                <div class="text-sm font-medium editor-text flex items-center gap-1 min-w-0"><span class="truncate" x-text="getBlockDisplayTitle(item)"></span><span x-show="scheduleState(item)" class="be-chip shrink-0" :class="scheduleState(item)" x-text="scheduleState(item) === 'scheduled' ? 'Scheduled' : 'Expired'"></span></div>
+                                <template x-if="item.type === 'collection'">
+                                    <div class="text-xs editor-text-muted truncate">
+                                        <span x-text="collectionMembers(idx).length + (collectionMembers(idx).length === 1 ? ' block' : ' blocks') + ' · ' + (item.settings?.layout === 'grid' ? 'grid' : 'stack')"></span>
+                                        <span> · drop blocks right below to add them</span>
+                                    </div>
+                                </template>
+                                <template x-if="item.type !== 'collection'">
+                                    <div class="text-xs editor-text-muted truncate">
+                                        <span x-show="collectionOf(idx)" class="be-in-collection">in <b x-text="collectionOf(idx) ? getBlockDisplayTitle(collectionOf(idx)) : ''"></b> · </span><span x-text="item.url || item.type"></span>
+                                    </div>
+                                </template>
                             </div>
                             <!-- Block Actions -->
                             <div class="block-actions">
@@ -49,10 +77,23 @@
                                     <input type="checkbox" :checked="item.is_active" @change="toggleBlock(idx)" :aria-label="'Show ' + getBlockDisplayTitle(item) + ' on page'">
                                     <span class="toggle-slider"></span>
                                 </label>
+                                <!-- Out of the collection (members) / close the group with a divider (collections) -->
+                                <button type="button" x-show="collectionOf(idx)" @click="moveOutOfCollection(idx)" class="block-action-btn" :aria-label="'Move ' + getBlockDisplayTitle(item) + ' out of its collection'" title="Move out of collection">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l-4-4m0 0l4-4m-4 4h11a4 4 0 010 8h-1"/></svg>
+                                </button>
+                                <button type="button" x-show="item.type === 'collection' && collectionMembers(idx).length && !['collection', 'divider'].includes(blocks[collectionMembers(idx).slice(-1)[0] + 1]?.type)" @click="closeCollection(idx)" class="block-action-btn" :aria-label="'Close ' + getBlockDisplayTitle(item) + ' with a divider'" title="Close group with a divider">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12h16M12 4v4m0 8v4"/></svg>
+                                </button>
                                 <!-- Edit Button -->
                                 <button type="button" @click="openBlockEditor(item)" class="block-action-btn" :aria-label="'Edit ' + getBlockDisplayTitle(item)">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                </button>
+                                <!-- Archive Button: off the page, clicks kept, can be restored -->
+                                <button type="button" x-show="item.id < 1000000000" @click="archiveBlock(idx)" class="block-action-btn" :aria-label="'Archive ' + getBlockDisplayTitle(item)" title="Archive">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 01-2-2V5a1 1 0 011-1h16a1 1 0 011 1v1a2 2 0 01-2 2M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
                                     </svg>
                                 </button>
                                 <!-- Delete Button -->
@@ -72,6 +113,26 @@
                     </svg>
                     <p class="editor-text-muted">No blocks yet</p>
                     <p class="text-sm editor-text-muted">Add your first block →</p>
+                </div>
+                <!-- Archived blocks: off the page, restorable -->
+                <div x-show="archived.length" class="mt-4 pt-3" style="border-top: 1px solid var(--editor-border);">
+                    <button type="button" @click="showArchived = !showArchived" class="text-sm editor-text-muted" x-text="(showArchived ? 'Hide' : 'Show') + ' archived (' + archived.length + ')'"></button>
+                    <div x-show="showArchived" class="mt-2 space-y-2">
+                        <template x-for="item in archived" :key="'a' + item.id">
+                            <div class="block-item opacity-70" :data-id="item.id">
+                                <div class="block-content">
+                                    <div class="text-sm font-medium editor-text truncate" x-text="getBlockDisplayTitle(item)"></div>
+                                    <div class="text-xs editor-text-muted truncate" x-text="'Archived · ' + (item.click_count || 0) + ' clicks kept'"></div>
+                                </div>
+                                <div class="block-actions">
+                                    <button type="button" @click="restoreBlock(item)" class="block-action-btn px-3 text-sm">Restore</button>
+                                    <button type="button" @click="deleteArchived(item)" class="block-action-btn delete" :aria-label="'Delete ' + getBlockDisplayTitle(item)">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
                 </div>
                 <!-- Add Block Button -->
                 <button @click="showAddBlockModal = true" class="w-full py-3 border-2 border-dashed border-(--editor-border) rounded-xl editor-text-muted hover:editor-text hover:border-blue-500 transition-colors flex items-center justify-center gap-2">

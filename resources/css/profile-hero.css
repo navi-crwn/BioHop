@@ -181,3 +181,24 @@
 .bio-home .h-final :is(.h-sub, .h-cta) { margin-inline: auto; justify-content: center; }
 .bio-home .bio-final { border-top: 0; }
 @media (max-width: 800px) { .bio-home .hop-home .bio-universe { min-height: 0; margin-top: 24px; } }
+
+/* ---- the hero stage: pixels become BIO, then the phone with the live page, then back, again and again ---- */
+.bio-stage { position: relative; isolation: isolate; width: 100%; max-width: 540px; margin-inline: auto; margin-bottom: 30px; aspect-ratio: 1; }
+.bio-stage::before { content: ''; position: absolute; inset: 4% -8%; z-index: -1; background: radial-gradient(ellipse, #a78bfa30, transparent 65%); }
+.bio-home .hop-home .bio-stage .bio-logo-art, .bio-home .hop-home .h-hero.h-tool .bio-stage .bio-logo-art { position: absolute; inset: 0; width: 100%; max-width: none; margin: 0; z-index: 2; }
+.bio-stage canvas[data-reveal=true] { pointer-events: none; }
+.bio-phone { position: absolute; z-index: 1; left: 50%; top: 50%; height: 90%; width: auto; aspect-ratio: 9 / 16; transform: translate(-50%, -50%); overflow: hidden; border-radius: 12% / 6.5%; background: #0b1020; border: 5px solid #0b1020; box-shadow: 0 30px 70px -36px #7c3aed; transition: opacity .5s ease, transform .8s cubic-bezier(.2, .8, .2, 1), box-shadow .8s; }
+/* with the 3D scene running the phone waits behind it, as wide as the pixel phone */
+.bio-stage:has(canvas.on) .bio-phone { height: 63.4%; opacity: 0; pointer-events: none; }
+.bio-stage:has(canvas.on)[data-revealed=true] .bio-phone { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1.42); box-shadow: 0 50px 100px -40px #7c3aedcc; }
+.bio-screen { position: absolute; left: 0; top: 0; width: 360px; height: 640px; transform-origin: 0 0; transform: scale(var(--fit, .5)); }
+.bio-screen iframe, .bio-static { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.bio-screen iframe { background: #fff; z-index: 1; }
+.bio-static .official-profile { height: 640px; border: 0; border-radius: 0; box-shadow: none; }
+.bio-static .official-profile-scroll { height: 590px; }
+.bio-live-note { position: absolute; z-index: 3; inset-inline: 0; bottom: -28px; margin: 0; text-align: center; font: 11px/1.6 var(--font-mono); color: var(--showcase-muted); }
+.bio-live-note a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.bio-live-note i { display: inline-block; width: 7px; height: 7px; margin-inline-end: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 0 #22c55e80; animation: bio-live 2s infinite; }
+@keyframes bio-live { 70% { box-shadow: 0 0 0 8px #22c55e00; } }
+@media (max-width: 800px) { .bio-stage { max-width: 420px; } .bio-stage:has(canvas.on)[data-revealed=true] .bio-phone { transform: translate(-50%, -50%) scale(1.42); } }
+@media (prefers-reduced-motion: reduce) { .bio-live-note i { animation: none; } .bio-phone { transition: none; } }

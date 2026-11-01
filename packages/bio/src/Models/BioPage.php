@@ -18,6 +18,14 @@ class BioPage extends Model
 
     use HasFactory;
 
+    /** The four ways the top of a page can look; classic is the small centred avatar. */
+    public const HEADER_LAYOUTS = ['classic', 'hero', 'banner', 'cutout'];
+
+    public function headerLayout(): string
+    {
+        return in_array($this->header_layout, self::HEADER_LAYOUTS, true) ? $this->header_layout : 'classic';
+    }
+
     protected $fillable = [
         'user_id',
         'slug',
@@ -29,6 +37,8 @@ class BioPage extends Model
         'badge_color',
         'theme',
         'layout',
+        'header_layout',
+        'cover_image',
         'background_type',
         'background_value',
         'background_color',
@@ -66,6 +76,7 @@ class BioPage extends Model
         'is_public',
         'show_in_directory',
         'hide_branding',
+        'auto_utm',
         'google_analytics_id',
         'facebook_pixel_id',
         'tiktok_pixel_id',
@@ -90,6 +101,7 @@ class BioPage extends Model
         'is_public' => 'boolean',
         'show_in_directory' => 'boolean',
         'hide_branding' => 'boolean',
+        'auto_utm' => 'boolean',
         'seo_noindex' => 'boolean',
         'allow_indexing' => 'boolean',
         'view_count' => 'integer',

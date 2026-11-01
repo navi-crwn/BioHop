@@ -54,7 +54,19 @@
         .profile-section {
             text-align: center;
             margin-bottom: 16px;
+            position: relative;
         }
+        /* Header layouts, same rules as the public page at phone scale. */
+        .profile-section.head-hero { margin: -8px -8px 14px; border-radius: 18px 18px 14px 14px; overflow: hidden; aspect-ratio: 4 / 5; max-height: 340px; background: #0f172a; }
+        .profile-section.head-hero .hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+        .profile-section.head-hero .hero-text { position: absolute; inset: auto 0 0 0; padding: 48px 14px 14px; background: linear-gradient(180deg, rgba(15,23,42,0) 0%, rgba(15,23,42,.55) 45%, rgba(15,23,42,.85) 100%); }
+        .profile-section.head-hero .display-name, .profile-section.head-hero .bio-text { color: #fff !important; text-shadow: 0 1px 2px rgba(0,0,0,.35); }
+        .profile-section.head-hero .display-name { font-size: 20px; }
+        .profile-section.head-banner { margin-top: -8px; }
+        .profile-section.head-banner .cover { height: 104px; margin: 0 -8px 0; border-radius: 18px 18px 0 0; background: var(--cover, linear-gradient(135deg, var(--button-bg, #6366f1), var(--title-color, #1e293b))); background-size: cover; background-position: center; }
+        .profile-section.head-banner .avatar-wrapper { margin-top: -36px; position: relative; border: 4px solid rgba(255,255,255,.85); }
+        .profile-section.head-cutout .avatar-wrapper { width: 180px; height: 180px; max-width: 78%; border: 0; box-shadow: none; border-radius: 0 !important; margin-bottom: -26px; -webkit-mask-image: radial-gradient(ellipse 72% 86% at 50% 36%, #000 42%, transparent 94%); mask-image: radial-gradient(ellipse 72% 86% at 50% 36%, #000 42%, transparent 94%); }
+        .profile-section.head-cutout .display-name { position: relative; font-size: 20px; }
         .avatar-wrapper {
             width: 72px;
             height: 72px;
@@ -406,6 +418,22 @@
             line-height: 1.6;
         }
         /* Countdown Block */
+        .collection-title { margin: 10px 0 2px; text-align: center; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; opacity: .8; }
+        .collection-title small { margin-left: 6px; font-weight: 500; opacity: .7; }
+        .product-block { display: flex; gap: 12px; align-items: center; padding: 10px; border-radius: var(--button-radius, 12px); }
+        .product-pic { flex: none; width: 64px; height: 64px; border-radius: 10px; overflow: hidden; background: rgba(0,0,0,.08); }
+        .product-pic img { width: 100%; height: 100%; object-fit: cover; }
+        .product-body { display: grid; gap: 2px; min-width: 0; font-size: 13px; }
+        .product-body small { opacity: .8; font-size: 11px; }
+        .product-row { display: flex; gap: 8px; align-items: center; font-weight: 700; font-size: 13px; }
+        .product-row em { font-style: normal; }
+        .product-row span { font-size: 10px; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: rgba(0,0,0,.35); color: #fff; }
+        .product-row span.product-amount { font-size: inherit; font-weight: inherit; padding: 0; border-radius: 0; background: none; color: inherit; }
+        .product-row s { font-weight: 500; opacity: .6; }
+        .product-variants { display: flex; flex-wrap: wrap; gap: 3px; }
+        .product-variants i { font-style: normal; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 999px; border: 1px solid currentColor; opacity: .85; }
+        .product-variants i.is-out { opacity: .45; text-decoration: line-through; }
+        .product-low { font-size: 10px; font-weight: 600; color: #d97706; }
         .countdown-block {
             /* Background is set via inline style from getCountdownBg() */
             border-radius: 16px;
@@ -887,8 +915,14 @@
     </div>
     <div x-show="isLoaded" class="bio-container">
         <!-- Profile Section -->
-        <div class="profile-section">
-            <div class="avatar-wrapper" :class="'shape-' + (design.avatarShape || 'circle')">
+        <div class="profile-section" :class="'head-' + headerLayout()" :style="design.coverImage ? { '--cover': 'url(' + design.coverImage + ')' } : {}">
+            <template x-if="headerLayout() === 'hero'">
+                <img :src="profile.avatar" :alt="profile.displayName" class="hero-img">
+            </template>
+            <template x-if="headerLayout() === 'banner'">
+                <div class="cover"></div>
+            </template>
+            <div class="avatar-wrapper" x-show="headerLayout() !== 'hero'" :class="'shape-' + (design.avatarShape || 'circle')">
                 <template x-if="profile.avatar">
                     <img :src="profile.avatar" :alt="profile.displayName">
                 </template>
@@ -896,6 +930,7 @@
                     <div class="avatar-placeholder" x-text="getInitials(profile.displayName)"></div>
                 </template>
             </div>
+            <div :class="headerLayout() === 'hero' ? 'hero-text' : ''">
             <div class="display-name-row" style="text-align: center;">
                 <h1 class="display-name" style="margin-bottom: 0; justify-content: center;">
                     <span x-text="profile.displayName || 'Your Name'"></span>
@@ -928,6 +963,7 @@
                 </h1>
             </div>
             <p class="bio-text" x-text="decodeHtmlEntities(profile.bio) || 'Your bio goes here'"></p>
+            </div>
         </div>
         <!-- Social Icons (Top) -->
         <template x-if="socials.position === 'top' && socials.items && socials.items.length > 0">
@@ -943,10 +979,10 @@
         </template>
         <!-- Link Blocks -->
         <div class="blocks-container" :class="'shape-' + (design.buttonShape || 'rounded-sm') + ' shadow-' + (design.buttonShadow || 'md')" x-ref="blocksContainer">
-            <template x-for="(block, blockIndex) in blocks.filter(b => b.is_active)" :key="block.id">
+            <template x-for="(block, blockIndex) in blocks.filter(b => b.is_active && isLive(b))" :key="block.id">
                 <div>
-                    <!-- Link Block -->
-                    <template x-if="block.type === 'link'">
+                    <!-- Link Block (a WhatsApp rotator looks the same; the number is picked on click) -->
+                    <template x-if="block.type === 'link' || block.type === 'whatsapp'">
                         <a :href="block.url || '#'" class="link-block" :class="[
                             blockThumb(block) ? 'has-thumbnail' : '',
                             (block.brand || block.custom_icon) && !blockThumb(block) ? 'has-icon' : '',
@@ -1084,6 +1120,23 @@
                             <div class="html-content" x-html="sanitizeHtml(block.html_content)"></div>
                         </div>
                     </template>
+                    <!-- Collection: a titled group; the public page wraps what follows it -->
+                    <template x-if="block.type === 'collection'">
+                        <div class="collection-title" :style="{ color: getEffectiveTitleColor() }"><span x-text="block.title || 'Collection'"></span><small x-text="(block.settings && block.settings.layout) === 'grid' ? 'grid' : ''"></small></div>
+                    </template>
+                    <!-- Product Block (the public page shows these on a Shop tab) -->
+                    <template x-if="block.type === 'product'">
+                        <div class="product-block" :style="{ background: block.btn_bg_color || getEffectiveButtonBg(), color: block.btn_text_color || getEffectiveButtonText() }">
+                            <div class="product-pic"><template x-if="blockThumb(block)"><img :src="blockThumb(block)" alt=""></template></div>
+                            <div class="product-body">
+                                <b x-text="block.title || 'Product'"></b>
+                                <small x-show="block.description" x-text="block.description"></small>
+                                <div class="product-variants" x-show="productVariants(block).length"><template x-for="(v, i) in productVariants(block)" :key="i"><i :class="{ 'is-out': v.sold_out }" x-text="v.name"></i></template></div>
+                                <small class="product-low" x-show="lowStock(block)" x-text="'Only ' + lowStock(block) + ' left'"></small>
+                                <div class="product-row"><em><s x-show="comparePriceLabel(block)" x-text="comparePriceLabel(block)"></s> <span class="product-amount" x-text="priceLabel(block)"></span></em><span x-show="isSoldOut(block)">Sold out</span></div>
+                            </div>
+                        </div>
+                    </template>
                     <!-- Countdown Block -->
                     <template x-if="block.type === 'countdown'">
                         <div class="countdown-block" :style="{
@@ -1205,6 +1258,8 @@
                     fontFamily: 'inter',
                     backgroundType: 'solid',
                     backgroundGradient: null,
+                    headerLayout: 'classic',
+                    coverImage: null,
                     theme: 'none'
                 },
                 themes: @json(config('bio-themes.presets')),
@@ -1251,6 +1306,11 @@
                     const theme = this.design.theme || 'default';
                     document.documentElement.style.setProperty('--hover-glow-color', themeGlowColors[theme] || 'rgba(99, 102, 241, 0.4)');
                     document.documentElement.style.setProperty('--hover-hue-shift', themeHueShifts[theme] || '30deg');
+                },
+                // hero and cutout need a picture; without one the page shows the classic header
+                headerLayout() {
+                    const l = this.design.headerLayout || 'classic';
+                    return (l === 'hero' || l === 'cutout') && !this.profile.avatar ? 'classic' : l;
                 },
                 updatePreview(data) {
                     // Only values that really changed are written: replacing a whole object made every binding that reads
@@ -1363,6 +1423,51 @@
                         return '1px solid ' + this.activeTheme.link_border;
                     }
                     return 'none';
+                },
+                // Price of a product block, as the public page prints it
+                isLive(block) {
+                    const now = Date.now();
+                    if (block.publish_at && new Date(block.publish_at).getTime() > now) return false;
+                    if (block.expire_at && new Date(block.expire_at).getTime() <= now) return false;
+                    return true;
+                },
+                formatPrice(block, amount) {
+                    const cur = ((block.settings && block.settings.currency) || 'USD').toUpperCase();
+                    try { return new Intl.NumberFormat(document.documentElement.lang || 'en', { style: 'currency', currency: cur, maximumFractionDigits: ['IDR','JPY','KRW','VND'].includes(cur) ? 0 : 2 }).format(Number(amount)); }
+                    catch (e) { return cur + ' ' + amount; }
+                },
+                // Same rules as BioLink::variants() / priceLabel() / isSoldOut() / lowStock() on the server.
+                productVariants(block) {
+                    return ((block.settings && block.settings.variants) || []).filter(v => v && String(v.name || '').trim() !== '').map(v => {
+                        const stock = v.stock === '' || v.stock === null || v.stock === undefined ? null : parseInt(v.stock, 10);
+                        return { name: String(v.name).trim(), price: v.price === '' || v.price == null ? null : Number(v.price), stock, sold_out: !!v.sold_out || (stock !== null && stock <= 0) };
+                    });
+                },
+                priceLabel(block) {
+                    const prices = this.productVariants(block).map(v => v.price).filter(p => p !== null);
+                    const p = block.settings && block.settings.price;
+                    if (!(p === undefined || p === null || p === '')) prices.push(Number(p));
+                    if (!prices.length) return '';
+                    const label = this.formatPrice(block, Math.min(...prices));
+                    return new Set(prices).size > 1 ? 'from ' + label : label;
+                },
+                comparePriceLabel(block) {
+                    const was = block.settings && block.settings.compare_price, p = block.settings && block.settings.price;
+                    if (was === undefined || was === null || was === '' || p === undefined || p === null || p === '' || Number(was) <= Number(p)) return '';
+                    return this.formatPrice(block, was);
+                },
+                isSoldOut(block) {
+                    if (block.settings && block.settings.sold_out) return true;
+                    const stock = block.settings && block.settings.stock;
+                    if (stock !== undefined && stock !== null && stock !== '' && parseInt(stock, 10) <= 0) return true;
+                    const variants = this.productVariants(block);
+                    return variants.length > 0 && variants.every(v => v.sold_out);
+                },
+                lowStock(block) {
+                    const stock = block.settings && block.settings.stock;
+                    if (stock === undefined || stock === null || stock === '') return null;
+                    const n = parseInt(stock, 10);
+                    return n > 0 && n <= 5 ? n : null;
                 },
                 // Get effective background
                 getEffectiveBackground() {

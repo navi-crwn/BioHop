@@ -6,6 +6,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @if(request()->attributes->get('hop.embed'))
+        {{-- Shown inside the BioHop home: links open in a new tab and the copy stays out of search. --}}
+        <base target="_blank">
+        <meta name="robots" content="noindex">
+    @endif
     <title>{{ $bioPage->seo_title ?? $bioPage->title }} | By LinkHop</title>
     <meta name="description" content="{{ $bioPage->seo_description ?? $bioPage->bio ?? 'Check out my links' }}">
     @if(!($bioPage->allow_indexing ?? true))
@@ -131,6 +136,14 @@
             default => 'max-w-md'
         };
         $headerBgColor = $bioPage->header_bg_color ?? '';
+        $headerLayout = $bioPage->headerLayout();
+        $avatarSrc = $bioPage->avatar_url ? Storage::disk('public')->url($bioPage->avatar_url) : null;
+        // hero and cutout are built around the picture: without one they fall back to classic
+        if (! $avatarSrc && in_array($headerLayout, ['hero', 'cutout'], true)) {
+            $headerLayout = 'classic';
+        }
+        $coverSrc = $bioPage->cover_image ? (str_starts_with($bioPage->cover_image, 'http') || str_starts_with($bioPage->cover_image, '/') ? $bioPage->cover_image : Storage::disk('public')->url($bioPage->cover_image)) : null;
+        $avatarRadius = $bioPage->avatar_shape === 'rounded-sm' ? '16px' : ($bioPage->avatar_shape === 'square' ? '0' : '50%');
         $showHeaderBg = !$hasTheme && $layout === 'wide' && $headerBgColor;
         $isLightColor = function($color) {
             if (!$color) return false;
@@ -248,6 +261,21 @@
         .powered-link:hover {
             color: {{ $isDarkTheme ? '#cbd5e1' : '#475569' }};
         }
+        /* Header layouts: classic (small avatar), hero (picture fills the top), banner (cover strip), cutout (big fading picture). */
+        .bio-head { position: relative; }
+        .bio-head-hero { margin: -2rem -2rem 1.25rem; border-radius: 1.5rem 1.5rem 1.25rem 1.25rem; overflow: hidden; aspect-ratio: 4 / 5; max-height: 460px; background: #0f172a; }
+        .bio-head-hero .bio-hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+        .bio-head-hero .bio-hero-text { position: absolute; inset: auto 0 0 0; padding: 4rem 1.5rem 1.5rem; background: linear-gradient(180deg, rgba(15, 23, 42, 0) 0%, rgba(15, 23, 42, .55) 45%, rgba(15, 23, 42, .85) 100%); }
+        .bio-head-hero .bio-title, .bio-head-hero .bio-bio { color: #fff !important; text-shadow: 0 1px 2px rgba(0, 0, 0, .35); }
+        .bio-head-hero .bio-title { font-size: 1.75rem; }
+        .bio-head-hero .bio-bio { opacity: .92; }
+        .bio-head-banner { margin-top: -2rem; }
+        .bio-head-banner .bio-cover { height: 150px; margin: 0 -2rem 0; border-radius: 1.5rem 1.5rem 0 0; background: {{ $coverSrc ? 'url('.e($coverSrc).') center / cover no-repeat' : ($headerBgColor ?: 'linear-gradient(135deg, '.$linkBgColor.', '.$titleColor.')') }}; }
+        .bio-head-banner .bio-avatar { margin-top: -48px; position: relative; border-color: {{ $cardBg !== 'transparent' ? $cardBg : 'rgba(255,255,255,.85)' }}; border-width: 4px; }
+        .bio-head-cutout { padding-top: .25rem; }
+        .bio-head-cutout .bio-avatar { width: 250px; height: 250px; max-width: 78%; border: 0; box-shadow: none; border-radius: 0 !important; margin-bottom: -2.25rem; object-fit: cover; -webkit-mask-image: radial-gradient(ellipse 72% 86% at 50% 36%, #000 42%, transparent 94%); mask-image: radial-gradient(ellipse 72% 86% at 50% 36%, #000 42%, transparent 94%); }
+        .bio-head-cutout .bio-title { position: relative; font-size: 1.75rem; text-shadow: 0 1px 12px rgba(0, 0, 0, .18); }
+        @media (max-width: 480px) { .bio-head-hero, .bio-head-banner .bio-cover { margin-left: -1rem; margin-right: -1rem; } .bio-head-hero { margin-top: -1rem; } .bio-head-banner { margin-top: -1rem; } }
         @if($showHeaderBg)
         .bio-header-bg {
             background: {{ $headerBgColor }};
@@ -273,6 +301,41 @@
         .blocks-container > * {
             margin: 0;
         }
+        /* Links · Shop tabs and the product grid */
+        .bio-tabs { display: flex; gap: 8px; padding: 4px; border-radius: 999px; background: color-mix(in srgb, var(--tab-text, #111) 10%, transparent); }
+        .bio-tab { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 14px; border-radius: 999px; font-weight: 600; font-size: 14px; text-decoration: none; color: inherit; opacity: .75; transition: background .2s, opacity .2s; }
+        .bio-tab[aria-selected="true"] { background: var(--tab-bg); color: var(--tab-text); opacity: 1; }
+        .bio-tab-count { font-size: 11px; padding: 1px 7px; border-radius: 999px; background: color-mix(in srgb, currentColor 14%, transparent); }
+        .bio-shop { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+        .bio-product { display: flex; flex-direction: column; border-radius: var(--button-radius, 16px); overflow: hidden; background: var(--pbg); color: var(--ptext); text-decoration: none; transition: transform .2s, box-shadow .2s; }
+        .bio-product.can-buy:hover { transform: translateY(-2px); box-shadow: 0 12px 30px -16px rgba(0,0,0,.45); }
+        .bio-product a { color: inherit; text-decoration: none; }
+        .bio-product-name a:hover, .bio-product-cta:hover { text-decoration: underline; }
+        .bio-product-pic { position: relative; display: grid; color: inherit; place-items: center; aspect-ratio: 1; background: color-mix(in srgb, var(--ptext) 8%, transparent); }
+        .bio-product-pic img { width: 100%; height: 100%; object-fit: cover; }
+        .bio-product-pic svg { width: 36px; height: 36px; opacity: .5; }
+        .bio-product-flag { position: absolute; left: 8px; top: 8px; padding: 3px 9px; border-radius: 999px; background: #0b1020; color: #fff; font-size: 11px; font-weight: 600; }
+        .is-sold-out .bio-product-pic img { filter: grayscale(1); opacity: .7; }
+        .bio-product-body { display: grid; gap: 4px; padding: 10px 12px 12px; }
+        .bio-product-name { font-size: 14px; font-weight: 600; line-height: 1.3; }
+        .bio-product-desc { font-size: 12px; opacity: .8; }
+        .bio-product-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 4px; }
+        .bio-product-price { font-style: normal; font-weight: 700; font-size: 14px; }
+        .bio-product-cta { font-style: normal; font-size: 12px; opacity: .85; }
+        .bio-product-was { font-weight: 500; opacity: .6; margin-right: 4px; }
+        .bio-product-low { font-size: 11px; font-weight: 600; color: #d97706; }
+        .bio-variants { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+        .bio-variant { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--ptext) 35%, transparent); color: inherit; text-decoration: none; }
+        a.bio-variant:hover { background: color-mix(in srgb, var(--ptext) 12%, transparent); }
+        .bio-variant.is-out { opacity: .5; text-decoration: line-through; }
+        @media (max-width: 360px) { .bio-shop { grid-template-columns: minmax(0, 1fr); } }
+        /* a collection: a titled group of blocks, stacked or as a grid */
+        .bio-collection { display: block; margin-block: 6px; }
+        .bio-collection-title { margin: 14px 0 8px; font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; opacity: .8; text-align: center; }
+        .bio-shop .bio-collection-title { grid-column: 1 / -1; margin-top: 8px; }
+        .bio-collection-body { display: grid; gap: 12px; }
+        .layout-grid .bio-collection-body { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .layout-grid .bio-collection-body .link-block { padding: 12px 10px; font-size: 13px; }
         .link-block {
             display: flex;
             align-items: center;
@@ -661,20 +724,30 @@
             </div>
         </div>
     </div>
-    <div class="min-h-screen flex flex-col {{ $containerAlign }} justify-center p-4">
+    <div class="min-h-screen flex flex-col {{ $containerAlign }} justify-center p-4" x-data="{ tab: '{{ (request()->attributes->get('openShop') || request()->query('tab') === 'shop') ? 'shop' : 'links' }}' }">
         <div class="w-full {{ $maxWidth }}">
             <div class="rounded-3xl p-8">
-                <div class="text-center {{ $showHeaderBg ? 'bio-header-bg' : '' }}">
-                    @if($bioPage->avatar_url)
-                        <img src="{{ Storage::disk('public')->url($bioPage->avatar_url) }}" 
+                <div class="text-center bio-head bio-head-{{ $headerLayout }} {{ $showHeaderBg ? 'bio-header-bg' : '' }}">
+                    @if($headerLayout === 'hero')
+                        <img src="{{ $avatarSrc }}" alt="{{ $bioPage->title }}" class="bio-hero-img" fetchpriority="high">
+                        <div class="bio-hero-text">
+                    @elseif($headerLayout === 'banner')
+                        <div class="bio-cover" role="presentation"></div>
+                    @endif
+                    @if($headerLayout === 'cutout')
+                        <img src="{{ $avatarSrc }}" alt="{{ $bioPage->title }}" class="bio-avatar mx-auto" fetchpriority="high">
+                    @elseif($headerLayout !== 'hero')
+                        @if($avatarSrc)
+                        <img src="{{ $avatarSrc }}" 
                              alt="{{ $bioPage->title }}" 
                              class="bio-avatar mx-auto mb-4 h-24 w-24 object-cover" width="96" height="96" fetchpriority="high"
-                             style="border-radius: {{ $bioPage->avatar_shape === 'rounded-sm' ? '16px' : ($bioPage->avatar_shape === 'square' ? '0' : '50%') }};">
-                    @else
+                             style="border-radius: {{ $avatarRadius }};">
+                        @else
                         <div class="bio-avatar mx-auto mb-4 flex h-24 w-24 items-center justify-center bg-linear-to-br from-blue-500 to-indigo-600 text-3xl font-bold text-white"
-                             style="border-radius: {{ $bioPage->avatar_shape === 'rounded-sm' ? '16px' : ($bioPage->avatar_shape === 'square' ? '0' : '50%') }};">
+                             style="border-radius: {{ $avatarRadius }};">
                             {{ substr($bioPage->title, 0, 1) }}
                         </div>
+                        @endif
                     @endif
                     <div class="text-center relative flex justify-center">
                         <h1 class="bio-title text-2xl font-bold relative inline-block">
@@ -696,6 +769,9 @@
                     </div>
                     @if($bioPage->bio)
                         <p class="bio-bio mt-2 text-sm">{{ html_entity_decode($bioPage->bio) }}</p>
+                    @endif
+                    @if($headerLayout === 'hero')
+                        </div>
                     @endif
                 </div>
                 @if($bioPage->social_links && count($bioPage->social_links) > 0 && (!$bioPage->social_icons_position || $bioPage->social_icons_position === 'below_bio'))
@@ -726,9 +802,82 @@
                         @endforeach
                     </div>
                 @endif
-                <div class="mt-8 grow blocks-container shape-{{ $bioPage->block_shape ?? 'rounded-sm' }} shadow-{{ $bioPage->block_shadow ?? 'md' }}">
-                    @forelse($bioPage->links->where('is_active', true)->sortBy('order') as $link)
-                        @if($link->type === 'link')
+                @php
+                    $activeBlocks = $bioPage->links->where('is_active', true)->sortBy('order');
+                    $products = $activeBlocks->where('type', 'product');
+                    $hasShop = $products->isNotEmpty();
+                    $openShop = $hasShop && (request()->attributes->get('openShop') || request()->query('tab') === 'shop');
+                    // collections: a marker block that groups what follows it, until the next collection or divider
+                    $collectionOf = []; $current = null;
+                    foreach ($activeBlocks as $b) {
+                        if ($b->type === 'collection') { $current = $b; continue; }
+                        if ($b->type === 'divider') { $current = null; }
+                        $collectionOf[$b->id] = $current;
+                    }
+                    $shopGroups = $products->groupBy(fn ($b) => $collectionOf[$b->id]?->id ?? 0);
+                    $linkBlocks = $activeBlocks->whereNotIn('type', ['product', 'collection']);
+                    $linkCollections = $linkBlocks->map(fn ($b) => $collectionOf[$b->id]?->id)->filter()->unique()->all();
+                @endphp
+                @if($hasShop)
+                    {{-- Links · Shop: a tab bar once the page sells something; without script the address ?tab=shop opens the shop --}}
+                    <div class="bio-tabs mt-8" role="tablist" aria-label="Page sections">
+                        <a href="{{ route('bio.public.show', $bioPage->slug) }}" role="tab" id="tab-links" aria-controls="panel-links" aria-selected="{{ $openShop ? 'false' : 'true' }}" :aria-selected="String(tab === 'links')" @click.prevent="tab = 'links'" class="bio-tab" style="--tab-bg: {{ $linkBgColor ?? $blockBg ?? 'rgba(255,255,255,.2)' }}; --tab-text: {{ $linkTextColor }}">{{ __('Links') }}</a>
+                        <a href="{{ route('bio.public.shop', $bioPage->slug) }}" role="tab" id="tab-shop" aria-controls="panel-shop" aria-selected="{{ $openShop ? 'true' : 'false' }}" :aria-selected="String(tab === 'shop')" @click.prevent="tab = 'shop'" class="bio-tab" style="--tab-bg: {{ $linkBgColor ?? $blockBg ?? 'rgba(255,255,255,.2)' }}; --tab-text: {{ $linkTextColor }}">{{ __('Shop') }} <span class="bio-tab-count">{{ $products->count() }}</span></a>
+                    </div>
+                    <div id="panel-shop" role="tabpanel" aria-labelledby="tab-shop" class="bio-shop mt-6" x-show="tab === 'shop'" @if(!$openShop) hidden @endif x-bind:hidden="false">
+                        @foreach($shopGroups as $groupId => $groupProducts)
+                        @if($groupId)<h3 class="bio-collection-title">{{ $activeBlocks->firstWhere('id', $groupId)?->title }}</h3>@endif
+                        @foreach($groupProducts as $product)
+                            @php
+                                $pHref = $product->url ? route('bio.public.click', $product->public_id) : null;
+                                $pImg = $product->thumbnail_url ?: $product->content;
+                                if ($pImg && !str_starts_with($pImg, 'http') && !str_starts_with($pImg, '/storage/')) { $pImg = Storage::disk('public')->url($pImg); }
+                                $soldOut = $product->isSoldOut();
+                                $variants = $product->variants();
+                                $lowStock = $product->lowStock();
+                                $wasPrice = $product->comparePriceLabel();
+                            @endphp
+                            @php $buy = $pHref && !$soldOut; @endphp
+                            <article class="bio-product {{ $soldOut ? 'is-sold-out' : '' }} {{ $buy ? 'can-buy' : '' }}" style="--pbg: {{ $linkBgColor ?? $blockBg ?? 'rgba(255,255,255,.2)' }}; --ptext: {{ $linkTextColor }}">
+                                @if($buy)<a href="{{ $pHref }}" target="_blank" rel="nofollow noopener" class="bio-product-pic" aria-label="{{ $product->title }}">@else<span class="bio-product-pic">@endif
+                                    @if($pImg)<img src="{{ $pImg }}" alt="" loading="lazy" decoding="async">@else<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>@endif
+                                    @if($soldOut)<b class="bio-product-flag">{{ __('Sold out') }}</b>@endif
+                                @if($buy)</a>@else</span>@endif
+                                <span class="bio-product-body"><b class="bio-product-name">@if($buy)<a href="{{ $pHref }}" target="_blank" rel="nofollow noopener">{{ $product->title }}</a>@else{{ $product->title }}@endif</b>@if($product->description)<small class="bio-product-desc">{{ $product->description }}</small>@endif
+                                    @if($variants !== [])
+                                    <span class="bio-variants" role="list" aria-label="{{ __('Variants') }}">
+                                        @foreach($variants as $v)
+                                            @if($v['url'] && !$v['sold_out'])
+                                                <a role="listitem" href="{{ $v['url'] }}" target="_blank" rel="nofollow noopener" class="bio-variant" title="{{ $v['price'] !== null ? $product->formatPrice($v['price']) : '' }}">{{ $v['name'] }}</a>
+                                            @else
+                                                <span role="listitem" class="bio-variant {{ $v['sold_out'] ? 'is-out' : '' }}" title="{{ $v['sold_out'] ? __('Sold out') : ($v['price'] !== null ? $product->formatPrice($v['price']) : '') }}">{{ $v['name'] }}</span>
+                                            @endif
+                                        @endforeach
+                                    </span>
+                                    @endif
+                                    @if($lowStock && !$soldOut)<small class="bio-product-low">{{ __('Only :count left', ['count' => $lowStock]) }}</small>@endif
+                                    <span class="bio-product-row"><em class="bio-product-price">@if($wasPrice)<s class="bio-product-was">{{ $wasPrice }}</s> @endif{{ $product->priceLabel() }}</em>@if($buy)<a href="{{ $pHref }}" target="_blank" rel="nofollow noopener" class="bio-product-cta">{{ __('View') }} ↗</a>@endif</span></span>
+                            </article>
+                        @endforeach
+                        @endforeach
+                    </div>
+                @endif
+                <div id="panel-links" @if($hasShop) role="tabpanel" aria-labelledby="tab-links" x-show="tab === 'links'" @if($openShop) hidden @endif x-bind:hidden="false" @endif class="mt-8 grow blocks-container shape-{{ $bioPage->block_shape ?? 'rounded-sm' }} shadow-{{ $bioPage->block_shadow ?? 'md' }}">
+                    @php $openCollection = null; @endphp
+                    @forelse($activeBlocks->whereNotIn('type', ['product']) as $link)
+                        @php $owner = $link->type === 'collection' ? null : ($collectionOf[$link->id] ?? null); @endphp
+                        @if($openCollection && $owner?->id !== $openCollection->id)
+                            </div></section>
+                            @php $openCollection = null; @endphp
+                        @endif
+                        @if($link->type === 'collection')
+                            @if(in_array($link->id, $linkCollections, true))
+                                @php $openCollection = $link; @endphp
+                                <section class="bio-collection layout-{{ $link->settings['layout'] ?? 'stack' }}"><h3 class="bio-collection-title">{{ $link->title }}</h3><div class="bio-collection-body">
+                            @endif
+                            @continue
+                        @endif
+                        @if($link->type === 'link' || $link->type === 'whatsapp')
                             @php
                                 $hasThumbnail = $link->thumbnail_url || $link->thumbnail;
                                 $hasBrand = $link->brand;
@@ -759,7 +908,7 @@
                                 $borderStyle = $link->btn_border_color ? 'border: 1px solid '.$link->btn_border_color.';' : ($themeLinkBorder ? 'border: 1px solid '.$themeLinkBorder.';' : '');
                                 $linkRel = $getLinkRel($link->url);
                                 // http(s) links go through the click tracker; mailto/tel/sms stay direct
-                                $linkHref = preg_match('#^https?://#i', trim((string) $link->url))
+                                $linkHref = $link->type === 'whatsapp' || preg_match('#^https?://#i', trim((string) $link->url))
                                     ? route('bio.public.click', $link->public_id)
                                     : \Hop\Safety\SafeContent::url($link->url);
                                 $entranceAnim = $link->entrance_animation ?? 'none';
@@ -955,6 +1104,7 @@
                     @empty
                         <p class="py-8 text-center text-sm opacity-60">No links yet</p>
                     @endforelse
+                    @if($openCollection)</div></section>@endif
                 </div>
                 @if($bioPage->social_links && count($bioPage->social_links) > 0 && $bioPage->social_icons_position === 'bottom_page')
                     <div class="mt-8 flex justify-center gap-3 flex-wrap">
@@ -984,6 +1134,7 @@
                         @endforeach
                     </div>
                 @endif
+                @unless($bioPage->hide_branding)
                 <div class="mt-8 text-center">
                     <a href="{{ url('/') }}" class="powered-link inline-flex items-center gap-2 text-sm transition-colors">
                         <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
@@ -992,6 +1143,7 @@
                         Powered by LinkHop
                     </a>
                 </div>
+                @endunless
             </div>
         </div>
     </div>
