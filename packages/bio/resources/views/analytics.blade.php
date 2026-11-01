@@ -22,11 +22,11 @@
     </div>
 
     <div class="grid gap-3 lg:grid-cols-3">
-        <section class="glass-card lg:col-span-2">
+        <section class="glass-card min-w-0 lg:col-span-2">
             <h2 class="section-title">Clicks over time</h2>
             <div class="mt-3 h-56"><canvas id="viewsChart"></canvas></div>
         </section>
-        <section class="glass-card">
+        <section class="glass-card min-w-0">
             <h2 class="section-title">Devices</h2>
             <div class="mt-3 h-56"><canvas id="deviceChart"></canvas></div>
         </section>
@@ -43,12 +43,12 @@
             <x-analytics.rank-list class="mt-3" color="bg-emerald-500/70" :items="$stats['topCountries']->map(fn ($c) => ['label' => country_name($c->country), 'value' => (int) $c->clicks, 'flag' => $c->country])" empty="No clicks in this period." />
         </section>
         <div class="grid min-w-0 content-start gap-3">
-            <section class="glass-card">
+            <section class="glass-card min-w-0">
                 <h2 class="section-title">How visitors arrived</h2>
                 <x-analytics.rank-list class="mt-3" color="bg-violet-500/70" :items="$stats['sources']" empty="No clicks in this period." />
                 <p class="mt-2 text-xs text-muted">QR codes made here and the story image count as "QR code". Put <code>?src=nfc</code> after the address on an NFC card to see taps on their own.</p>
             </section>
-            <section class="glass-card">
+            <section class="glass-card min-w-0">
                 <h2 class="section-title">Where they came from</h2>
                 <x-analytics.rank-list class="mt-3" color="bg-sky-500/70" :items="$stats['referrers']" empty="No clicks in this period." />
             </section>
