@@ -1,5 +1,7 @@
 # Making the public page light and the clicks instant
 
+**Status 2026-11-01 night: points 1, 3, 5, 6, 7, 8, 14 and the click fix are built on `feat/page-settings`; 2 is capped instead of converted; 10 and 11 are not built; 4 and 9 are rejected. Results are in the last section.**
+
 Written 2026-11-01 night from the owner's performance list (15 points and a benchmark table). Every claim below was measured or read in code on that day, not assumed. Local numbers come from `php artisan serve` on the Mac with a SQLite database, no gzip, no opcache, the sample page `/b/helena` at 390 px in Chromium. They show where the weight is; they are not production numbers. Re-measure on the VPS after each step (the VPS has 4 cores, 8 GB, PHP with GD + WebP + Imagick, and ffmpeg).
 
 ## What we measured
@@ -59,3 +61,47 @@ Written 2026-11-01 night from the owner's performance list (15 points and a benc
 
 ## Not doing
 Presigned uploads (4), `sendBeacon` (9), ClickHouse and table partitioning, a separate "control plane / data plane" service, BlurHash with a JavaScript decoder.
+
+
+## What was built, and what it measured (same page, same method, after the work)
+
+| Metric | Before | After |
+|---|---|---|
+| Link click → redirect | 330 ms | 8 ms (a user agent seen for the first time still pays 330 ms once) |
+| Requests to other sites when the page opens | Google Fonts (CSS + font files) | **0** |
+| Profile picture of the sample page | 67 KB PNG, 600 px | 6.6 KB WebP, with `width`/`height` and a placeholder colour |
+| Sample cover picture | 193 KB PNG | 10 KB WebP |
+| Layout shift (CLS) | 0.0004 | 0.0000 |
+| Videos, music, maps on open | real iframes (YouTube alone pulls tens of requests and ad scripts) | a placeholder card; **0 external requests** until tapped |
+| First view on the wire, compressed | about 160 KB: HTML 16, CSS 30, JS 39, Alpine 20, font 48 (woff2), picture 7 | target < 150 KB: within about 10 KB |
+
+Local numbers (Mac, `php artisan serve`, SQLite); the shape is what matters. Measure again on the VPS.
+
+### 1 · Pictures (done): `ImageOptimizer`, `ImageMeta`, `bio:optimize-images`
+Every upload of an avatar, thumbnail, icon, picture or background is scaled (longest edge 640 / 240 / 160 / 1600 px, never enlarged), rotated by its camera orientation, and stored as WebP (PNG for favicons, at most 128 px). Upload limits were raised (avatar 8 MB, picture 10 MB, thumbnail/icon 4 MB) because the file is shrunk anyway; a picture that would not fit the PHP memory limit is refused with a clear message. The public page reads each stored picture's size and average colour once (cached) and prints `width`, `height` and a background colour while it loads. **After merging, run once on the VPS:** `php artisan bio:optimize-images` (a report) and then `php artisan bio:optimize-images --apply`; it converts the old PNG/JPEG files, updates every page and block that points to them (including carousel pictures) and deletes the old files. Favicons are skipped. Note: `bio:official-page --apply` still writes the official avatar as a PNG; run the optimizer after it.
+
+### 2 · GIF (capped, not converted)
+An animated GIF cannot be resized with GD. Instead: animated GIFs over 1 MB are refused with an explanation, lighter ones are kept as they are, and the page speed pill in the editor warns about GIFs. Converting to MP4/WebM with ffmpeg (present on the VPS) means a queued job and `<video>` markup in every place a picture can appear (avatar, thumbnail, icon, background); not worth it until members actually upload GIFs.
+
+### 5 · Player facades (done)
+Video (YouTube, Vimeo), TikTok, Spotify, SoundCloud, Apple Music and map blocks render a card with a play button and the line "Loads from YouTube when you tap". One small script swaps in the real iframe on tap; a modified click or no JavaScript keeps a plain link to the original. The facade adds nothing from other sites on load and no thumbnail request.
+
+### 6 · `content-visibility` (done)
+Shop cards, players, feeds, polls and forms are not painted until they come close to the screen.
+
+### 7 · Lite mode (done)
+A visitor who sends `Save-Data`, has `prefers-reduced-data`, reports 2 GB of memory or fewer or 2 cores or fewer, or opens `?lite=1`, gets no background animation, no entrance effects and no blur (`?lite=0` turns it off). The server also adds the class when the `Save-Data` header is present.
+
+### 8 · Fonts (done): `scripts/build-bio-fonts.py`, `public/fonts/bio/`
+The 20 fonts the editor offers are committed as Latin-subset woff2 (26 files, 834 KB in total; a page loads one font, about 15–50 KB). The page inlines the small `@font-face` block and preloads the regular weight. The editor preview uses one combined stylesheet. Limit: pages written in other scripts (Cyrillic, Chinese, Arabic) fall back to the system font for those letters.
+
+### 14 · Page speed pill (done)
+A pill beside the live preview (⚡ 94/100) opens a short list of plain-language tips: many players, many pictures, long pages, a background animation, tracking scripts, GIFs, older pictures not yet shrunk. It is an estimate from what is on the page, not a measurement, and says so.
+
+### Still open, in this order
+1. **A slim public bundle.** The public page loads the whole app's stylesheet (183 KB raw, 30 KB gzip) and script (108 KB + Alpine 55 KB raw, about 58 KB gzip together) because it shares the `app` entry. A separate Vite entry for public pages (Alpine plus the few components it uses; Tailwind scanned from the public views only) would roughly halve both. Medium work, safe, measurable.
+2. **No session for anonymous readers, then a page cache** (points 10 and 11). Needs the XSRF token loaded lazily only where a form or poll exists. Measure on the VPS first; the server time is already 9–170 ms.
+3. **GIF conversion**, only if needed.
+
+### After merging (owner)
+`php artisan migrate`, then `php artisan bio:optimize-images --apply`; nginx should serve `/fonts/bio/` and `/storage/` with long cache headers (the file names change when a font or picture changes); gzip or brotli for text if not already on. No new environment variables.
