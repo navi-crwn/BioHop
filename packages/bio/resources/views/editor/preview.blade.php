@@ -405,6 +405,14 @@
             line-height: 1.6;
         }
         /* Countdown Block */
+        .product-block { display: flex; gap: 12px; align-items: center; padding: 10px; border-radius: var(--button-radius, 12px); }
+        .product-pic { flex: none; width: 64px; height: 64px; border-radius: 10px; overflow: hidden; background: rgba(0,0,0,.08); }
+        .product-pic img { width: 100%; height: 100%; object-fit: cover; }
+        .product-body { display: grid; gap: 2px; min-width: 0; font-size: 13px; }
+        .product-body small { opacity: .8; font-size: 11px; }
+        .product-row { display: flex; gap: 8px; align-items: center; font-weight: 700; font-size: 13px; }
+        .product-row em { font-style: normal; }
+        .product-row span { font-size: 10px; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: rgba(0,0,0,.35); color: #fff; }
         .countdown-block {
             /* Background is set via inline style from getCountdownBg() */
             border-radius: 16px;
@@ -1083,6 +1091,17 @@
                             <div class="html-content" x-html="sanitizeHtml(block.html_content)"></div>
                         </div>
                     </template>
+                    <!-- Product Block (the public page shows these on a Shop tab) -->
+                    <template x-if="block.type === 'product'">
+                        <div class="product-block" :style="{ background: block.btn_bg_color || getEffectiveButtonBg(), color: block.btn_text_color || getEffectiveButtonText() }">
+                            <div class="product-pic"><template x-if="blockThumb(block)"><img :src="blockThumb(block)" alt=""></template></div>
+                            <div class="product-body">
+                                <b x-text="block.title || 'Product'"></b>
+                                <small x-show="block.description" x-text="block.description"></small>
+                                <div class="product-row"><em x-text="priceLabel(block)"></em><span x-show="block.settings && block.settings.sold_out">Sold out</span></div>
+                            </div>
+                        </div>
+                    </template>
                     <!-- Countdown Block -->
                     <template x-if="block.type === 'countdown'">
                         <div class="countdown-block" :style="{
@@ -1344,6 +1363,14 @@
                         return '1px solid ' + this.activeTheme.link_border;
                     }
                     return 'none';
+                },
+                // Price of a product block, as the public page prints it
+                priceLabel(block) {
+                    const p = block.settings && block.settings.price;
+                    if (p === undefined || p === null || p === '') return '';
+                    const cur = ((block.settings && block.settings.currency) || 'USD').toUpperCase();
+                    try { return new Intl.NumberFormat(document.documentElement.lang || 'en', { style: 'currency', currency: cur, maximumFractionDigits: ['IDR','JPY','KRW','VND'].includes(cur) ? 0 : 2 }).format(Number(p)); }
+                    catch (e) { return cur + ' ' + p; }
                 },
                 // Get effective background
                 getEffectiveBackground() {

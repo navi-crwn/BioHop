@@ -472,10 +472,12 @@ window.bioEditorV2 = function() {
                 vcard_email: '',
                 vcard_company: '',
                 faq_items: [],
-                html_content: ''
+                html_content: '',
+                description: '',
+                settings: type === 'product' ? { price: '', currency: 'IDR', sold_out: false } : null
             };
             this.blocks.push(newBlock);
-            if (['link', 'header', 'text', 'video', 'music', 'vcard', 'html', 'countdown', 'map', 'faq', 'youtube', 'spotify', 'soundcloud', 'code', 'image'].includes(type)) {
+            if (['link', 'header', 'text', 'video', 'music', 'vcard', 'html', 'countdown', 'map', 'faq', 'youtube', 'spotify', 'soundcloud', 'code', 'image', 'product'].includes(type)) {
                 this.editingBlock = JSON.parse(JSON.stringify(newBlock));
             }
             this.showAddBlockModal = false;
@@ -490,7 +492,8 @@ window.bioEditorV2 = function() {
                 'html': 'Custom HTML',
                 'countdown': 'Countdown Timer',
                 'map': 'Location',
-                'faq': 'FAQ'
+                'faq': 'FAQ',
+                'product': 'Product'
             };
             return titles[type] || '';
         },

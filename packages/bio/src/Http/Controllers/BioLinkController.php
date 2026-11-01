@@ -84,7 +84,7 @@ class BioLinkController extends Controller
     {
         $this->authorize('update', $bioPage);
         $validated = $request->validate([
-            'type' => 'required|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code',
+            'type' => 'required|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code,product',
             'title' => 'nullable|string|max:100',
             'url' => 'nullable|string|max:500',
             'content' => 'nullable|string|max:5000',
@@ -98,6 +98,9 @@ class BioLinkController extends Controller
             'btn_border_color' => CssValue::color(30),
             'btn_icon_invert' => 'nullable|boolean',
             'settings' => 'nullable|array',
+            'settings.price' => 'nullable|numeric|min:0|max:999999999',
+            'settings.currency' => 'nullable|string|size:3|alpha',
+            'settings.sold_out' => 'nullable|boolean',
             'is_active' => 'nullable|boolean',
             'order' => 'nullable|integer',
             // Advanced block fields
@@ -174,7 +177,7 @@ class BioLinkController extends Controller
     {
         $this->authorize('update', $bioPage);
         $validated = $request->validate([
-            'type' => 'nullable|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code',
+            'type' => 'nullable|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code,product',
             'title' => 'nullable|string|max:100',
             'url' => 'nullable|string|max:500',
             'content' => 'nullable|string|max:5000',
@@ -188,6 +191,9 @@ class BioLinkController extends Controller
             'btn_border_color' => CssValue::color(30),
             'btn_icon_invert' => 'nullable|boolean',
             'settings' => 'nullable|array',
+            'settings.price' => 'nullable|numeric|min:0|max:999999999',
+            'settings.currency' => 'nullable|string|size:3|alpha',
+            'settings.sold_out' => 'nullable|boolean',
             'is_active' => 'nullable|boolean',
             'order' => 'nullable|integer',
             // Advanced block fields

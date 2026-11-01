@@ -278,6 +278,26 @@
         .blocks-container > * {
             margin: 0;
         }
+        /* Links · Shop tabs and the product grid */
+        .bio-tabs { display: flex; gap: 8px; padding: 4px; border-radius: 999px; background: color-mix(in srgb, var(--tab-text, #111) 10%, transparent); }
+        .bio-tab { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 14px; border-radius: 999px; font-weight: 600; font-size: 14px; text-decoration: none; color: inherit; opacity: .75; transition: background .2s, opacity .2s; }
+        .bio-tab[aria-selected="true"] { background: var(--tab-bg); color: var(--tab-text); opacity: 1; }
+        .bio-tab-count { font-size: 11px; padding: 1px 7px; border-radius: 999px; background: color-mix(in srgb, currentColor 14%, transparent); }
+        .bio-shop { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+        .bio-product { display: flex; flex-direction: column; border-radius: var(--button-radius, 16px); overflow: hidden; background: var(--pbg); color: var(--ptext); text-decoration: none; transition: transform .2s, box-shadow .2s; }
+        a.bio-product[href]:hover { transform: translateY(-2px); box-shadow: 0 12px 30px -16px rgba(0,0,0,.45); }
+        .bio-product-pic { position: relative; display: grid; place-items: center; aspect-ratio: 1; background: color-mix(in srgb, var(--ptext) 8%, transparent); }
+        .bio-product-pic img { width: 100%; height: 100%; object-fit: cover; }
+        .bio-product-pic svg { width: 36px; height: 36px; opacity: .5; }
+        .bio-product-flag { position: absolute; left: 8px; top: 8px; padding: 3px 9px; border-radius: 999px; background: #0b1020; color: #fff; font-size: 11px; font-weight: 600; }
+        .is-sold-out .bio-product-pic img { filter: grayscale(1); opacity: .7; }
+        .bio-product-body { display: grid; gap: 4px; padding: 10px 12px 12px; }
+        .bio-product-name { font-size: 14px; font-weight: 600; line-height: 1.3; }
+        .bio-product-desc { font-size: 12px; opacity: .8; }
+        .bio-product-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 4px; }
+        .bio-product-price { font-style: normal; font-weight: 700; font-size: 14px; }
+        .bio-product-cta { font-style: normal; font-size: 12px; opacity: .85; }
+        @media (max-width: 360px) { .bio-shop { grid-template-columns: minmax(0, 1fr); } }
         .link-block {
             display: flex;
             align-items: center;
@@ -666,7 +686,7 @@
             </div>
         </div>
     </div>
-    <div class="min-h-screen flex flex-col {{ $containerAlign }} justify-center p-4">
+    <div class="min-h-screen flex flex-col {{ $containerAlign }} justify-center p-4" x-data="{ tab: '{{ ($hasShopTab ?? (request()->query('tab') === 'shop')) ? 'shop' : 'links' }}' }">
         <div class="w-full {{ $maxWidth }}">
             <div class="rounded-3xl p-8">
                 <div class="text-center {{ $showHeaderBg ? 'bio-header-bg' : '' }}">
@@ -731,8 +751,37 @@
                         @endforeach
                     </div>
                 @endif
-                <div class="mt-8 grow blocks-container shape-{{ $bioPage->block_shape ?? 'rounded-sm' }} shadow-{{ $bioPage->block_shadow ?? 'md' }}">
-                    @forelse($bioPage->links->where('is_active', true)->sortBy('order') as $link)
+                @php
+                    $activeBlocks = $bioPage->links->where('is_active', true)->sortBy('order');
+                    $products = $activeBlocks->where('type', 'product');
+                    $hasShop = $products->isNotEmpty();
+                    $openShop = $hasShop && request()->query('tab') === 'shop';
+                @endphp
+                @if($hasShop)
+                    {{-- Links · Shop: a tab bar once the page sells something; without script the address ?tab=shop opens the shop --}}
+                    <div class="bio-tabs mt-8" role="tablist" aria-label="Page sections">
+                        <a href="?tab=links" role="tab" id="tab-links" aria-controls="panel-links" aria-selected="{{ $openShop ? 'false' : 'true' }}" :aria-selected="String(tab === 'links')" @click.prevent="tab = 'links'" class="bio-tab" style="--tab-bg: {{ $linkBgColor ?? $blockBg ?? 'rgba(255,255,255,.2)' }}; --tab-text: {{ $linkTextColor }}">{{ __('Links') }}</a>
+                        <a href="?tab=shop" role="tab" id="tab-shop" aria-controls="panel-shop" aria-selected="{{ $openShop ? 'true' : 'false' }}" :aria-selected="String(tab === 'shop')" @click.prevent="tab = 'shop'" class="bio-tab" style="--tab-bg: {{ $linkBgColor ?? $blockBg ?? 'rgba(255,255,255,.2)' }}; --tab-text: {{ $linkTextColor }}">{{ __('Shop') }} <span class="bio-tab-count">{{ $products->count() }}</span></a>
+                    </div>
+                    <div id="panel-shop" role="tabpanel" aria-labelledby="tab-shop" class="bio-shop mt-6" x-show="tab === 'shop'" @if(!$openShop) hidden @endif x-bind:hidden="false">
+                        @foreach($products as $product)
+                            @php
+                                $pHref = $product->url ? route('bio.public.click', $product->public_id) : null;
+                                $pImg = $product->thumbnail_url ?: $product->content;
+                                if ($pImg && !str_starts_with($pImg, 'http') && !str_starts_with($pImg, '/storage/')) { $pImg = Storage::disk('public')->url($pImg); }
+                                $soldOut = !empty($product->settings['sold_out']);
+                            @endphp
+                            <a @if($pHref && !$soldOut) href="{{ $pHref }}" target="_blank" rel="nofollow noopener" @endif class="bio-product {{ $soldOut ? 'is-sold-out' : '' }}" style="--pbg: {{ $linkBgColor ?? $blockBg ?? 'rgba(255,255,255,.2)' }}; --ptext: {{ $linkTextColor }}">
+                                <span class="bio-product-pic">@if($pImg)<img src="{{ $pImg }}" alt="" loading="lazy" decoding="async">@else<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>@endif
+                                    @if($soldOut)<b class="bio-product-flag">{{ __('Sold out') }}</b>@endif</span>
+                                <span class="bio-product-body"><b class="bio-product-name">{{ $product->title }}</b>@if($product->description)<small class="bio-product-desc">{{ $product->description }}</small>@endif
+                                    <span class="bio-product-row"><em class="bio-product-price">{{ $product->priceLabel() }}</em>@if($pHref && !$soldOut)<i class="bio-product-cta">{{ __('View') }} ↗</i>@endif</span></span>
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
+                <div id="panel-links" @if($hasShop) role="tabpanel" aria-labelledby="tab-links" x-show="tab === 'links'" @if($openShop) hidden @endif x-bind:hidden="false" @endif class="mt-8 grow blocks-container shape-{{ $bioPage->block_shape ?? 'rounded-sm' }} shadow-{{ $bioPage->block_shadow ?? 'md' }}">
+                    @forelse($activeBlocks->where('type', '!=', 'product') as $link)
                         @if($link->type === 'link')
                             @php
                                 $hasThumbnail = $link->thumbnail_url || $link->thumbnail;
