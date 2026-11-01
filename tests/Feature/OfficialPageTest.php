@@ -26,7 +26,7 @@ class OfficialPageTest extends TestCase
     public function test_only_the_official_page_asked_as_an_embed_may_be_framed(): void
     {
         $this->page('hel');
-        $this->page('mira');
+        $this->page('helena');
 
         $embed = $this->get('/b/hel?embed=1')->assertOk();
         $this->assertStringContainsString("frame-ancestors 'self'", $embed->headers->get('Content-Security-Policy'));
@@ -34,7 +34,7 @@ class OfficialPageTest extends TestCase
         $this->assertNull($embed->headers->get('X-Frame-Options'));
         $embed->assertSee('<base target="_blank">', false)->assertSee('noindex', false);
 
-        foreach (['/b/hel', '/b/mira?embed=1', '/b/mira'] as $url) {
+        foreach (['/b/hel', '/b/helena?embed=1', '/b/helena'] as $url) {
             $response = $this->get($url)->assertOk();
             $this->assertStringContainsString("frame-ancestors 'none'", $response->headers->get('Content-Security-Policy'), $url);
             $this->assertSame('DENY', $response->headers->get('X-Frame-Options'), $url);
