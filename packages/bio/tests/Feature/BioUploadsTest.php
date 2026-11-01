@@ -97,8 +97,8 @@ test('the public page loads only the chosen font', function () {
 
     $html = $this->get('/b/fontpage')->assertOk()->getContent();
     // Served from our own domain (public/fonts/bio): only the chosen font's files, nothing from Google.
-    expect($html)->toContain('url(/fonts/bio/merriweather-')
-        ->not->toContain('url(/fonts/bio/inter-')
+    expect($html)->toContain('url('.bio_asset_origin().'/fonts/bio/merriweather-')
+        ->not->toContain('/fonts/bio/inter-')
         ->not->toContain('fonts.googleapis.com')
         // The HOP family fonts are for BioHop's own pages; a bio keeps the owner's font.
         ->not->toContain('hop-assets/v1/fonts-amnesia.css');

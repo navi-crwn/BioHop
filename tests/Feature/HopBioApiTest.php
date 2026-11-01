@@ -133,6 +133,24 @@ class HopBioApiTest extends TestCase
             ->assertJsonPath('data.totals.clicks_total', 4);
     }
 
+    public function test_block_detail_gives_full_addresses_for_uploaded_files(): void
+    {
+        config(['app.asset_url' => 'https://bio.hel.test']);
+        $u = User::factory()->create();
+        $page = BioPage::create(['user_id' => $u->id, 'slug' => 'files', 'title' => 'Files', 'is_published' => true]);
+        $link = BioLink::create(['bio_page_id' => $page->id, 'type' => 'link', 'title' => 'Own icon', 'url' => 'https://example.com', 'thumbnail_url' => '/storage/bio-thumbnails/t.webp', 'custom_icon' => '/storage/bio-icons/i.png', 'order' => 1, 'is_active' => true]);
+        $audio = BioLink::create(['bio_page_id' => $page->id, 'type' => 'audio', 'title' => 'Clip', 'content' => '/storage/bio-audio/a.mp3', 'order' => 2, 'is_active' => true]);
+
+        $this->signed('GET', "/api/hop/content/block/{$link->id}")
+            ->assertOk()
+            ->assertJsonPath('data.thumbnail_url', 'https://bio.hel.test/storage/bio-thumbnails/t.webp')
+            ->assertJsonPath('data.custom_icon', 'https://bio.hel.test/storage/bio-icons/i.png')
+            ->assertJsonPath('data.media_url', null);
+        $this->signed('GET', "/api/hop/content/block/{$audio->id}")
+            ->assertOk()
+            ->assertJsonPath('data.media_url', 'https://bio.hel.test/storage/bio-audio/a.mp3');
+    }
+
     public function test_content_listing_detail_and_actions_for_pages_and_blocks(): void
     {
         $u = User::factory()->create(['username' => 'budi']);
