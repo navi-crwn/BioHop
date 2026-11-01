@@ -28,7 +28,7 @@ function start() {
         lenis.scrollTo(target, { offset: -72 });
     }));
 
-    heads(); marquee(); blocks(); story(); themes(); analytics(); share(); gates(); style(); install(); faq(); family();
+    heads(); marquee(); particles(); blocks(); story(); themes(); analytics(); share(); gates(); style(); install(); faq(); family();
     addEventListener('load', () => ScrollTrigger.refresh());
     document.fonts?.ready.then(() => ScrollTrigger.refresh());
 }
@@ -50,15 +50,20 @@ function marquee() {
     gsap.from('[data-bx-nums] > div', { y: 24, opacity: 0, duration: .7, stagger: .08, ease: 'power3.out', scrollTrigger: once('[data-bx-nums]', 'top 88%') });
 }
 
-/** 01: cards rise, then the little picture in each one starts to move */
+/** 01: each card rises as it comes in; when it passes the middle of the screen its block flies into the phone */
 function blocks() {
-    const cells = $$('[data-bx-bento] .bx-cell');
+    const cells = $$('[data-bx-bento] .bx-cell'), flies = $$('[data-bx-blocks] .bx-fly');
     cells.forEach((cell, i) => {
         cell.addEventListener('pointermove', (e) => { const r = cell.getBoundingClientRect(); cell.style.setProperty('--mx', (e.clientX - r.left) + 'px'); cell.style.setProperty('--my', (e.clientY - r.top) + 'px'); });
-        const tl = gsap.timeline({ scrollTrigger: once(cell, 'top 90%') });
-        tl.from(cell, { y: 44, opacity: 0, duration: .7, ease: 'power3.out', delay: (i % 4) * .07 })
+        gsap.timeline({ scrollTrigger: once(cell, 'top 90%') })
+            .from(cell, { y: 44, opacity: 0, duration: .7, ease: 'power3.out', delay: (i % 2) * .07 })
             .from($$('.bx-vis > *', cell), { y: 14, opacity: 0, duration: .5, stagger: .06, ease: 'power2.out' }, '-=.35');
         ScrollTrigger.create({ trigger: cell, start: 'top 95%', end: 'bottom 5%', onToggle: (self) => cell.classList.toggle('is-on', self.isActive) });
+        const fly = flies[i];
+        if (!fly || !fly.offsetParent) return;
+        gsap.fromTo(fly, { x: -420 - (i % 3) * 60, y: 120 - (i % 4) * 50, rotate: (i % 2 ? 1 : -1) * 18, scale: .45, autoAlpha: 0 },
+            { x: 0, y: 0, rotate: 0, scale: 1, autoAlpha: 1, ease: 'power2.out', immediateRender: true,
+              scrollTrigger: { trigger: cell, start: 'top 72%', end: 'top 30%', scrub: .6 } });
     });
 }
 
@@ -131,10 +136,23 @@ function themes() {
         buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.themeKey === key)));
         gsap.fromTo(phone, { scale: .985 }, { scale: 1, duration: .5, ease: 'back.out(2)' });
     };
-    buttons.forEach((b) => b.addEventListener('click', () => { manual = true; apply(b.dataset.themeKey); }));
+    const ring = $('.bx-ring', sec), n = keys.length, turn = { deg: 0 };
+    const spin = (index, smooth) => { // the chosen theme comes to the front of the ring
+        if (!ring) return;
+        const target = -index * 360 / n;
+        if (smooth) gsap.to(turn, { deg: target, duration: .7, ease: 'power2.out', onUpdate: () => ring.style.setProperty('--rot', turn.deg + 'deg') });
+        else { turn.deg = target; ring.style.setProperty('--rot', target + 'deg'); }
+    };
+    buttons.forEach((b) => b.addEventListener('click', () => { manual = true; apply(b.dataset.themeKey); spin(keys.indexOf(b.dataset.themeKey), true); }));
     apply(keys[0]);
-    ScrollTrigger.create({ trigger: sec, start: 'top 60%', end: 'bottom 55%', onUpdate: (self) => { if (!manual) apply(keys[Math.min(keys.length - 1, Math.floor(self.progress * keys.length))]); } });
-    gsap.from(buttons, { y: 14, opacity: 0, duration: .5, stagger: .04, ease: 'power2.out', scrollTrigger: once('.bx-swatches', 'top 88%') });
+    ScrollTrigger.create({ trigger: sec, start: 'top 60%', end: 'bottom 40%', onUpdate: (self) => {
+        if (manual) return;
+        const i = Math.min(n - 1, Math.floor(self.progress * n));
+        apply(keys[i]);
+        if (ring) { turn.deg = -self.progress * 360 * (n - 1) / n; ring.style.setProperty('--rot', turn.deg + 'deg'); }
+    } });
+    ScrollTrigger.create({ trigger: sec, start: 'top 60%', onLeaveBack: () => { manual = false; } });
+    gsap.from(buttons, { opacity: 0, duration: .5, stagger: .03, ease: 'power2.out', scrollTrigger: once('.bx-swatches', 'top 88%') });
 }
 
 /** 04: the line draws as you scroll; the figures count up; the bars grow */
@@ -152,6 +170,12 @@ function analytics() {
         el.textContent = '0' + suffix;
         gsap.to(o, { v: end, duration: 1.4, ease: 'power2.out', onUpdate: () => { el.textContent = Math.round(o.v).toLocaleString() + suffix; }, scrollTrigger: once(card, 'top 80%') });
     });
+    const iso = $('[data-bx-iso]', sec);
+    if (iso) {
+        iso.style.setProperty('--p', 0);
+        gsap.to(iso, { '--p': 1, ease: 'none', scrollTrigger: { trigger: iso, start: 'top 85%', end: 'top 35%', scrub: .5 } });
+        gsap.from($$('.bx-iso-grid i', sec), { opacity: 0, duration: .4, stagger: { each: .02, from: 'start' }, scrollTrigger: once(iso, 'top 90%') });
+    }
     gsap.from($$('.bx-top li', sec), { x: -18, opacity: 0, duration: .55, stagger: .1, ease: 'power2.out', scrollTrigger: once('.bx-top', 'top 88%') });
     gsap.from($$('.bx-top i', sec), { scaleX: 0, transformOrigin: 'left center', duration: .9, stagger: .1, ease: 'power3.out', scrollTrigger: once('.bx-top', 'top 88%') });
 }
@@ -233,6 +257,50 @@ function install() {
     gsap.timeline({ scrollTrigger: once(term, 'top 80%') })
         .to(o, { n: full.length, duration: full.length * .03, ease: 'none', onUpdate: () => { code.textContent = full.slice(0, Math.round(o.n)); } })
         .to(out, { opacity: 1, duration: .05, stagger: .5, ease: 'none' }, '+=.3');
+}
+
+/** hero: the accent words break into particles that drift away as you scroll past the hero */
+function particles() {
+    const hero = $('.bio-hero'), word = $('.bio-hero h1 em');
+    if (!hero || !word) return;
+    const canvas = document.createElement('canvas');
+    canvas.id = 'bx-particles'; canvas.setAttribute('aria-hidden', 'true');
+    hero.appendChild(canvas);
+    const ctx = canvas.getContext('2d'), dpr = Math.min(devicePixelRatio || 1, 2), pad = 140, max = innerWidth > 900 ? 1400 : 500;
+    let pts = [], box = null, last = -1;
+    const mix = (a, b, t) => 'rgb(' + a.map((v, i) => Math.round(v + (b[i] - v) * t)).join(',') + ')';
+    function build() {
+        const r = word.getBoundingClientRect(), hr = hero.getBoundingClientRect();
+        box = { x: r.left - hr.left - pad, y: r.top - hr.top - pad, w: r.width + pad * 2, h: r.height + pad * 2 };
+        Object.assign(canvas.style, { left: box.x + 'px', top: box.y + 'px', width: box.w + 'px', height: box.h + 'px' });
+        canvas.width = Math.round(box.w * dpr); canvas.height = Math.round(box.h * dpr);
+        const cs = getComputedStyle(word), off = document.createElement('canvas');
+        off.width = Math.ceil(r.width + 24); off.height = Math.ceil(r.height);
+        const o = off.getContext('2d');
+        o.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`; o.textBaseline = 'middle'; o.fillStyle = '#fff';
+        o.fillText(word.textContent, 0, r.height / 2);
+        const data = o.getImageData(0, 0, off.width, off.height).data, step = Math.max(2, Math.ceil(Math.sqrt(off.width * off.height / (max * 3.5))));
+        pts = [];
+        for (let y = 0; y < off.height; y += step) for (let x = 0; x < off.width; x += step) if (data[(y * off.width + x) * 4 + 3] > 128) {
+            const t = x / off.width;
+            pts.push({ x: x + pad, y: y + pad, dx: (Math.random() - .3) * 260, dy: -Math.random() * 220 - 40, s: Math.random() * 1.2 + .8,
+                c: t < .5 ? mix([34, 211, 238], [99, 102, 241], t * 2) : mix([99, 102, 241], [236, 72, 153], (t - .5) * 2) });
+        }
+        last = -1;
+    }
+    function draw(p) {
+        if (!box || p === last) return;
+        last = p;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, box.w, box.h);
+        word.style.opacity = p > .02 ? 0 : 1;
+        if (p <= .02) return;
+        const e = p * p * (3 - 2 * p);
+        ctx.globalAlpha = Math.max(0, 1 - p * 1.15);
+        for (const q of pts) { ctx.fillStyle = q.c; ctx.fillRect(q.x + q.dx * e, q.y + q.dy * e, q.s, q.s); }
+    }
+    build();
+    const st = ScrollTrigger.create({ trigger: hero, start: 'top top', end: '70% top', scrub: true, onUpdate: (self) => draw(+self.progress.toFixed(3)), onRefresh: (self) => { build(); draw(self.progress); } });
+    document.fonts?.ready.then(() => { build(); draw(st.progress); });
 }
 
 function faq() {
