@@ -35,12 +35,26 @@
 
 /* the sample phone every scene restyles through --ph-* */
 .bx-phone { width: min(100%, 270px); margin-inline: auto; padding: 9px; border-radius: 38px; background: #0b1020; box-shadow: 0 34px 80px -44px #7c3aed; }
-.bx-phone-in { display: grid; align-content: start; gap: 9px; min-height: 440px; padding: 26px 16px 22px; border-radius: 30px; background: var(--ph-bg, linear-gradient(160deg, var(--ph-a, #1e1b4b), var(--ph-b, #7c3aed))); color: var(--ph-t, #fff); text-align: center; font-family: var(--ph-font, inherit); transition: background .5s, color .5s; }
+.bx-phone-in { display: grid; align-content: start; gap: 9px; height: 560px; overflow: auto; scrollbar-width: none; padding: 26px 16px 22px; border-radius: 30px; background: var(--ph-bg, linear-gradient(160deg, var(--ph-a, #1e1b4b), var(--ph-b, #7c3aed))); color: var(--ph-t, #fff); text-align: center; font-family: var(--ph-font, inherit); transition: background .5s, color .5s; }
 .bx-av { display: grid; place-items: center; width: 62px; height: 62px; margin: 0 auto 2px; border-radius: 50%; background: var(--ph-l, #ffffff29); font: 700 24px var(--h-sans); }
 .bx-name { font-size: 18px; letter-spacing: -.01em; }
 .bx-bio { margin: 0 0 6px; font-size: 12px; line-height: 1.55; color: var(--ph-m, currentColor); opacity: .85; }
 .bx-link { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 12px 14px; border-radius: var(--ph-r, 12px); background: var(--ph-l, #ffffff29); color: var(--ph-lt, inherit); border: 1px solid var(--ph-lb, transparent); font-size: 13px; text-decoration: none; transition: border-radius .4s, background .4s; }
 .bx-link i { font-style: normal; opacity: .7; }
+/* the blocks a page can hold: a picture, a video, a player */
+.bx-blk { position: relative; display: grid; place-items: center; height: 74px; border-radius: var(--ph-r, 12px); overflow: hidden; background: var(--ph-l, #ffffff29); color: var(--ph-lt, inherit); }
+.bx-blk small { position: absolute; left: 10px; bottom: 7px; font: 600 10px var(--h-sans); opacity: .9; }
+.bx-blk-img { background: linear-gradient(135deg, #22d3ee, #a78bfa 55%, #f472b6); color: #fff; }
+.bx-blk-img .sun { position: absolute; top: 12px; right: 14px; width: 16px; height: 16px; border-radius: 50%; background: #fff9; }
+.bx-blk-img .hill { position: absolute; inset: auto -10% -45% -10%; height: 70%; border-radius: 50%; background: #ffffff40; }
+.bx-blk-vid { background: #0b1020; color: #fff; }
+.bx-blk-vid .play { width: 30px; height: 30px; border-radius: 50%; background: #ffffff2e; position: relative; }
+.bx-blk-vid .play::after { content: ""; position: absolute; inset: 9px 8px 9px 12px; background: #fff; clip-path: polygon(0 0, 100% 50%, 0 100%); }
+.bx-blk-mus b { display: flex; align-items: end; gap: 4px; height: 30px; }
+.bx-blk-mus i { width: 5px; height: 100%; border-radius: 3px; background: currentColor; opacity: .85; transform-origin: bottom; transform: scaleY(.45); }
+.bx-blk-mus i:nth-child(2) { transform: scaleY(.8); } .bx-blk-mus i:nth-child(3) { transform: scaleY(.6); } .bx-blk-mus i:nth-child(4) { transform: scaleY(1); } .bx-blk-mus i:nth-child(5) { transform: scaleY(.5); }
+.bx-motion .bx-blk-mus i { animation: bx-eq 1.1s ease-in-out infinite alternate; }
+.bx-motion .bx-blk-mus i:nth-child(2) { animation-delay: .15s; } .bx-motion .bx-blk-mus i:nth-child(3) { animation-delay: .3s; } .bx-motion .bx-blk-mus i:nth-child(4) { animation-delay: .1s; } .bx-motion .bx-blk-mus i:nth-child(5) { animation-delay: .4s; }
 
 /* 01 blocks */
 .bx-bento { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
@@ -181,8 +195,8 @@
 /* 07 style */
 .bx-style-vis { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 18px; align-items: center; }
 .bx-code pre { margin: 0; padding: 18px; font: 12px/1.9 var(--h-mono); white-space: pre-wrap; overflow-wrap: anywhere; min-height: 190px; direction: ltr; text-align: start; color: var(--home-text); }
-.bx-style-vis .bx-phone { width: min(100%, 230px); }
-.bx-style-vis .bx-phone-in { min-height: 380px; }
+.bx-style-vis .bx-phone { width: min(100%, 250px); }
+.bx-style-vis .bx-phone-in { height: 520px; }
 
 /* 08 install: .h-shell, .h-term come from hop-home.css */
 .bx-term pre span { display: block; }

@@ -9,6 +9,9 @@
         <a class="bx-link" href="#"><span>{{ __('New short film') }}</span><i aria-hidden="true">▶</i></a>
         <a class="bx-link" href="#"><span>{{ __('Studio playlist') }}</span><i aria-hidden="true">♪</i></a>
         <a class="bx-link" href="#"><span>{{ __('Book a call') }}</span><i aria-hidden="true">↗</i></a>
+        <span class="bx-blk bx-blk-img" aria-hidden="true"><i class="sun"></i><i class="hill"></i><small>{{ __('Latest work') }}</small></span>
+        <span class="bx-blk bx-blk-vid" aria-hidden="true"><i class="play"></i><small>{{ __('New short film') }}</small></span>
+        <span class="bx-blk bx-blk-mus" aria-hidden="true"><b><i></i><i></i><i></i><i></i><i></i></b><small>{{ __('Studio playlist') }}</small></span>
         {{ $slot }}
     </div>
 </div>

@@ -92,6 +92,18 @@ class OfficialPage extends Command
         foreach (Assets::family() as $app) {
             $blocks[] = ['type' => 'link', 'title' => $app['name'], 'url' => $app['url'], 'thumbnail_url' => $app['icons']['mark']['url'] ?? null];
         }
+        $blocks[] = ['type' => 'divider', 'title' => ''];
+        $blocks[] = ['type' => 'header', 'title' => 'What a page can hold'];
+        $blocks[] = ['type' => 'text', 'title' => 'About', 'content' => "This page is made with BioHop and shows what one page can carry: links with icons, a picture, a video, a player, a map, a contact card and a FAQ.\nEverything here is free, open source and signed in with one HOP ID."];
+        $blocks[] = ['type' => 'image', 'title' => 'The HOP rabbit', 'content' => public_url('images/brand/rabbit-mark.png')];
+        if ($video = self::youtubeEmbed((string) config('hop.official_video'))) {
+            $blocks[] = ['type' => 'youtube', 'title' => 'Watch', 'url' => (string) config('hop.official_video'), 'embed_url' => $video];
+        }
+        if ($music = self::spotifyEmbed((string) config('hop.official_music'))) {
+            $blocks[] = ['type' => 'spotify', 'title' => 'Listen', 'url' => (string) config('hop.official_music'), 'embed_url' => $music];
+        }
+        $blocks[] = ['type' => 'map', 'title' => 'Made in Indonesia', 'map_address' => 'Jakarta, Indonesia', 'map_zoom' => 10];
+        $blocks[] = ['type' => 'vcard', 'title' => 'Save our contact', 'vcard_name' => 'HEL.ink', 'vcard_company' => 'HOP, by navi-crwn', 'vcard_email' => (string) config('hop.official_contact') ?: null];
         $blocks[] = ['type' => 'header', 'title' => 'Start here'];
         $blocks[] = ['type' => 'link', 'title' => 'Create your free HOP ID', 'url' => rtrim((string) config('hop.hub_url'), '/').'/register', 'description' => 'One account signs you in to every app.'];
         $blocks[] = ['type' => 'link', 'title' => 'Source code on GitHub', 'url' => 'https://github.com/navi-crwn', 'description' => 'MIT licensed. Read it, report an issue, or self-host.'];
@@ -103,5 +115,17 @@ class OfficialPage extends Command
         ]];
 
         return $blocks;
+    }
+
+    /** A YouTube watch, short or embed address as an embed address; null when it is none of those. */
+    public static function youtubeEmbed(string $url): ?string
+    {
+        return preg_match('~(?:youtu\.be/|youtube\.com/(?:watch\?v=|embed/|shorts/))([\w-]{11})~', $url, $m) ? 'https://www.youtube.com/embed/'.$m[1].'?rel=0' : null;
+    }
+
+    /** A Spotify track, album, playlist or episode address as an embed address; null otherwise. */
+    public static function spotifyEmbed(string $url): ?string
+    {
+        return preg_match('~open\.spotify\.com/(track|album|playlist|episode|show)/([A-Za-z0-9]+)~', $url, $m) ? 'https://open.spotify.com/embed/'.$m[1].'/'.$m[2] : null;
     }
 }
