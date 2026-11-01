@@ -4,6 +4,9 @@ All notable changes to BioHop are listed here. The format follows [Keep a Change
 
 ## [Unreleased]
 
+### Changed
+- **No CDN, font or icon host.** The content security policy no longer names jsdelivr, unpkg, Google Fonts, Bunny Fonts or flagcdn. Countries without a flag file show their code instead of a picture from flagcdn.com; the unused Simple Icons helper and the editor's Simple Icons requests are gone (the local brand icons are used); the error page no longer loads the Tailwind CDN. The only other hosts the policy names are those of a page owner's own optional, consent-gated Google, Meta and TikTok pixels.
+
 ### Added
 - **New page wizard.** "New bio page" is now six short steps with a live phone: address, what the page is for, the platforms you are on (with your handles), your first links (name and icon filled in from the address), profile (picture, name, bio, content warning) and colours (wallpaper and buttons). One request builds the finished page and opens the editor. The plain form stays at `?classic=1`.
 - **Collections.** A collection block groups everything placed under it, until the next collection or a divider, stacked or as a two-column grid; products under a collection are grouped on the Shop tab.
