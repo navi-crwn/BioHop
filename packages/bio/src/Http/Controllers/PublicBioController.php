@@ -3,7 +3,9 @@
 namespace Hop\Bio\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Services\TurnstileService;
 use App\Support\QrPng;
+use App\Support\VisitorHash;
 use Hop\Bio\Contracts\GeoLookup;
 use Hop\Bio\Contracts\UserAgentParser;
 use Hop\Bio\Models\BioLink;
@@ -13,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Cookie;
 
@@ -231,6 +234,56 @@ class PublicBioController extends Controller
         }
 
         return true;
+    }
+
+    public const MAX_LEADS_PER_FORM = 5000;
+
+    /** POST /b/form/{public_id}: stores one entry of a form block, then goes back to the page with a thank-you. */
+    public function submitForm(Request $request, BioLink $bioLink, TurnstileService $turnstile)
+    {
+        $bioPage = $bioLink->bioPage;
+        if ($bioLink->type !== 'form' || ! $bioLink->is_active || $bioLink->archived_at || ! $bioLink->isLive() || ! $this->isVisible($bioPage)) {
+            abort(404);
+        }
+        if ($this->needsPassword($bioPage) || $this->needsAgeCheck($bioPage)) {
+            return redirect()->route('bio.public.show', $bioPage->slug);
+        }
+        $back = redirect()->to(route('bio.public.show', $bioPage->slug).'#form-'.$bioLink->public_id, 303);
+        // a hidden field only bots fill in: act as if it worked
+        if ($request->filled('website')) {
+            return $back->with('form_sent', $bioLink->public_id);
+        }
+        $key = 'bio-form:'.$bioLink->id.':'.$request->ip();
+        if (RateLimiter::tooManyAttempts($key, 5)) {
+            return $back->withErrors(['form' => __('Too many attempts. Try again later.')], 'form_'.$bioLink->public_id);
+        }
+        RateLimiter::hit($key, 600);
+        if (! $turnstile->verify($request->input('cf-turnstile-response'), $request->ip())) {
+            return $back->withErrors(['form' => __('The security check failed. Please try again.')], 'form_'.$bioLink->public_id);
+        }
+        $fields = $bioLink->formFields();
+        $rules = [
+            'name' => ($fields['name'] ?? false) ? 'required|string|max:100' : 'nullable|string|max:100',
+            'email' => ($fields['email'] ?? false) ? 'required|email|max:150' : 'nullable|email|max:150',
+            'phone' => ($fields['phone'] ?? false) ? ['required', 'string', 'max:30', 'regex:/^\+?[0-9 ().-]{6,30}$/'] : ['nullable', 'string', 'max:30', 'regex:/^\+?[0-9 ().-]{6,30}$/'],
+            'consent' => 'accepted',
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return $back->withErrors($validator, 'form_'.$bioLink->public_id)->withInput();
+        }
+        if ($bioLink->leads()->count() >= self::MAX_LEADS_PER_FORM) {
+            return $back->withErrors(['form' => __('This form is not taking more entries right now.')], 'form_'.$bioLink->public_id);
+        }
+        $data = $validator->validated();
+        $bioLink->leads()->create([
+            'name' => isset($fields['name']) ? ($data['name'] ?? null) : null,
+            'email' => isset($fields['email']) ? ($data['email'] ?? null) : null,
+            'phone' => isset($fields['phone']) ? ($data['phone'] ?? null) : null,
+            'ip_hash' => VisitorHash::make($request->ip()),
+        ]);
+
+        return $back->with('form_sent', $bioLink->public_id);
     }
 
     protected function needsPin(BioLink $bioLink): bool

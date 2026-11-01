@@ -12,6 +12,7 @@ use Hop\Bio\Support\BioUploads;
 use Hop\Safety\SafeContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class BioLinkController extends Controller
@@ -121,7 +122,7 @@ class BioLinkController extends Controller
     {
         $this->authorize('update', $bioPage);
         $validated = $request->validate([
-            'type' => 'required|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code,product,collection,whatsapp,app,goal,audio,carousel,pdf',
+            'type' => 'required|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code,product,collection,whatsapp,app,goal,audio,carousel,pdf,form,rss,poll',
             'title' => 'nullable|string|max:100',
             'url' => 'nullable|string|max:500',
             'content' => 'nullable|string|max:5000',
@@ -149,6 +150,13 @@ class BioLinkController extends Controller
             'settings.layout' => 'nullable|in:stack,grid',
             'settings.text' => 'nullable|string|max:500',
             'settings.pin' => ['nullable', 'regex:/^[0-9]{4,8}$/'],
+            'settings.ask_name' => 'nullable|boolean',
+            'settings.ask_email' => 'nullable|boolean',
+            'settings.ask_phone' => 'nullable|boolean',
+            'settings.button' => 'nullable|string|max:40',
+            'settings.thanks' => 'nullable|string|max:200',
+            'settings.consent' => 'nullable|string|max:200',
+            'settings.retention_days' => 'nullable|integer|min:1|max:365',
             'settings.rules' => 'nullable|array|max:10',
             'settings.rules.*.url' => ['required_with:settings.rules', 'string', 'max:500', 'regex:#^https?://#i'],
             'settings.rules.*.country' => ['nullable', 'string', 'max:60', 'regex:/^\s*[A-Za-z]{2}(\s*,\s*[A-Za-z]{2})*\s*$/'],
@@ -255,7 +263,7 @@ class BioLinkController extends Controller
     {
         $this->authorize('update', $bioPage);
         $validated = $request->validate([
-            'type' => 'nullable|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code,product,collection,whatsapp,app,goal,audio,carousel,pdf',
+            'type' => 'nullable|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code,product,collection,whatsapp,app,goal,audio,carousel,pdf,form,rss,poll',
             'title' => 'nullable|string|max:100',
             'url' => 'nullable|string|max:500',
             'content' => 'nullable|string|max:5000',
@@ -283,6 +291,13 @@ class BioLinkController extends Controller
             'settings.layout' => 'nullable|in:stack,grid',
             'settings.text' => 'nullable|string|max:500',
             'settings.pin' => ['nullable', 'regex:/^[0-9]{4,8}$/'],
+            'settings.ask_name' => 'nullable|boolean',
+            'settings.ask_email' => 'nullable|boolean',
+            'settings.ask_phone' => 'nullable|boolean',
+            'settings.button' => 'nullable|string|max:40',
+            'settings.thanks' => 'nullable|string|max:200',
+            'settings.consent' => 'nullable|string|max:200',
+            'settings.retention_days' => 'nullable|integer|min:1|max:365',
             'settings.rules' => 'nullable|array|max:10',
             'settings.rules.*.url' => ['required_with:settings.rules', 'string', 'max:500', 'regex:#^https?://#i'],
             'settings.rules.*.country' => ['nullable', 'string', 'max:60', 'regex:/^\s*[A-Za-z]{2}(\s*,\s*[A-Za-z]{2})*\s*$/'],
@@ -349,6 +364,35 @@ class BioLinkController extends Controller
             'block' => $bioLink,
             'page_updated_at' => $this->touchPage($bioPage),
         ]);
+    }
+
+    /** The entries of a form block as a CSV file (Excel-safe: cells that start like a formula are neutralised). */
+    public function leadsCsv(BioPage $bioPage, BioLink $bioLink)
+    {
+        $this->authorize('update', $bioPage);
+        abort_unless($bioLink->type === 'form', 404);
+        $clean = fn ($v) => is_string($v) && preg_match('/^[=+\-@\t\r]/', $v) ? "'".$v : $v;
+
+        return response()->streamDownload(function () use ($bioLink, $clean) {
+            $out = fopen('php://output', 'w');
+            fwrite($out, "\xEF\xBB\xBF");
+            fputcsv($out, ['Name', 'Email', 'Phone', 'Sent at (UTC)']);
+            $bioLink->leads()->orderBy('id')->chunk(500, function ($rows) use ($out, $clean) {
+                foreach ($rows as $lead) {
+                    fputcsv($out, [$clean($lead->name), $clean($lead->email), $clean($lead->phone), $lead->created_at?->utc()->format('Y-m-d H:i:s')]);
+                }
+            });
+            fclose($out);
+        }, 'entries-'.Str::slug($bioPage->slug.'-'.$bioLink->id).'.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    public function leadsDestroy(BioPage $bioPage, BioLink $bioLink)
+    {
+        $this->authorize('update', $bioPage);
+        abort_unless($bioLink->type === 'form', 404);
+        $n = $bioLink->leads()->delete();
+
+        return response()->json(['success' => true, 'deleted' => $n]);
     }
 
     public function destroy(BioPage $bioPage, BioLink $bioLink)

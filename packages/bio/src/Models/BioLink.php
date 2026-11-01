@@ -77,6 +77,29 @@ class BioLink extends Model
         return $this->belongsTo(BioPage::class);
     }
 
+    public function leads(): HasMany
+    {
+        return $this->hasMany(BioLead::class);
+    }
+
+    /** What a form block asks for: name, e-mail and phone, each on or off (name and e-mail by default). */
+    public function formFields(): array
+    {
+        $s = $this->settings ?? [];
+        $fields = [
+            'name' => (bool) ($s['ask_name'] ?? true),
+            'email' => (bool) ($s['ask_email'] ?? true),
+            'phone' => (bool) ($s['ask_phone'] ?? false),
+        ];
+
+        return array_filter($fields) ?: ['email' => true];
+    }
+
+    public function leadRetentionDays(): int
+    {
+        return max(1, min(365, (int) ($this->settings['retention_days'] ?? 90)));
+    }
+
     public function clicks(): HasMany
     {
         return $this->hasMany(BioClick::class);
@@ -296,7 +319,7 @@ class BioLink extends Model
         'link' => 'Link', 'image' => 'Image', 'text' => 'Text', 'header' => 'Header',
         'divider' => 'Divider', 'spacer' => 'Spacer', 'video' => 'Video', 'youtube' => 'YouTube',
         'music' => 'Music', 'spotify' => 'Spotify', 'soundcloud' => 'SoundCloud', 'vcard' => 'Contact card',
-        'html' => 'HTML', 'countdown' => 'Countdown', 'map' => 'Map', 'faq' => 'FAQ', 'product' => 'Product', 'collection' => 'Collection', 'whatsapp' => 'WhatsApp', 'app' => 'App', 'goal' => 'Goal', 'audio' => 'Audio', 'carousel' => 'Carousel', 'pdf' => 'PDF',
+        'html' => 'HTML', 'countdown' => 'Countdown', 'map' => 'Map', 'faq' => 'FAQ', 'product' => 'Product', 'collection' => 'Collection', 'whatsapp' => 'WhatsApp', 'app' => 'App', 'form' => 'Form', 'rss' => 'Feed', 'poll' => 'Poll', 'goal' => 'Goal', 'audio' => 'Audio', 'carousel' => 'Carousel', 'pdf' => 'PDF',
         'email' => 'Email', 'code' => 'Code',
     ];
 

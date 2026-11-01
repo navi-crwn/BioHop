@@ -114,6 +114,24 @@
                 </div>
                 <p class="text-[10px] font-medium" style="color: var(--editor-text);">PDF document</p>
             </button>
+            <button @click="addBlock('form')" class="block-modal-btn p-2 rounded-lg hover:border-indigo-500 hover:bg-indigo-900/20 transition-all text-center group">
+                <div class="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center mx-auto mb-1">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.9 5.3a2 2 0 002.2 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                </div>
+                <p class="text-[10px] font-medium" style="color: var(--editor-text);">Sign-up form</p>
+            </button>
+            <button @click="addBlock('rss')" class="block-modal-btn p-2 rounded-lg hover:border-amber-500 hover:bg-amber-900/20 transition-all text-center group">
+                <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center mx-auto mb-1">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 5c7.7 0 14 6.3 14 14M6 11a8 8 0 018 8M7 18a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
+                </div>
+                <p class="text-[10px] font-medium" style="color: var(--editor-text);">Blog / podcast feed</p>
+            </button>
+            <button @click="addBlock('poll')" class="block-modal-btn p-2 rounded-lg hover:border-lime-500 hover:bg-lime-900/20 transition-all text-center group">
+                <div class="w-8 h-8 bg-lime-500 rounded-lg flex items-center justify-center mx-auto mb-1">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                </div>
+                <p class="text-[10px] font-medium" style="color: var(--editor-text);">Poll</p>
+            </button>
             <button @click="addBlock('whatsapp')" class="block-modal-btn p-2 rounded-lg hover:border-green-500 hover:bg-green-900/20 transition-all text-center group">
                 <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mx-auto mb-1">
                     <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-4 4v-4z"/></svg>

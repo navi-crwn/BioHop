@@ -607,6 +607,27 @@
                                 </div>
                             </div>
                         </template>
+                        <template x-if="editingBlock?.type === 'form'">
+                            <div class="space-y-4">
+                                <p class="text-xs editor-text-muted">Visitors leave their details on your page. You see them here and can download them as a CSV file. Only what you switch on is asked for.</p>
+                                <div class="flex flex-wrap gap-x-5 gap-y-2 text-sm">
+                                    <label class="flex items-center gap-2"><input type="checkbox" :checked="editingBlock.settings?.ask_name ?? true" @change="setProductSetting('ask_name', $event.target.checked)"> Name</label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" :checked="editingBlock.settings?.ask_email ?? true" @change="setProductSetting('ask_email', $event.target.checked)"> E-mail</label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" :checked="editingBlock.settings?.ask_phone ?? false" @change="setProductSetting('ask_phone', $event.target.checked)"> WhatsApp number</label>
+                                </div>
+                                <div class="form-group"><label for="bfindex-f1" class="form-label">Button text</label><input id="bfindex-f1" type="text" maxlength="40" :value="editingBlock.settings?.button ?? ''" @input="setProductSetting('button', $event.target.value)" class="form-input" placeholder="Send"></div>
+                                <div class="form-group"><label for="bfindex-f2" class="form-label">Thank-you message</label><input id="bfindex-f2" type="text" maxlength="200" :value="editingBlock.settings?.thanks ?? ''" @input="setProductSetting('thanks', $event.target.value)" class="form-input" placeholder="Thank you! I will write back soon."></div>
+                                <div class="form-group"><label for="bfindex-f3" class="form-label">Consent line <span class="editor-text-muted font-normal">(the visitor ticks it)</span></label><input id="bfindex-f3" type="text" maxlength="200" :value="editingBlock.settings?.consent ?? ''" @input="setProductSetting('consent', $event.target.value)" class="form-input" placeholder="I agree that you keep these details to get back to me."></div>
+                                <div class="form-group"><label for="bfindex-f4" class="form-label">Keep entries for (days)</label><input id="bfindex-f4" type="number" min="1" max="365" :value="editingBlock.settings?.retention_days ?? 90" @input="setProductSetting('retention_days', $event.target.value)" class="form-input"><p class="text-xs editor-text-muted mt-1">After this many days entries are deleted automatically. You are responsible for what you do with the details; tell visitors in your footer line.</p></div>
+                                <div class="flex items-center justify-between gap-2 p-2 rounded-lg" style="background: var(--editor-input-bg)" x-show="editingBlock.id < 1000000000">
+                                    <span class="text-sm"><b x-text="editingBlock.leads_count ?? 0"></b> entries</span>
+                                    <span class="flex gap-2">
+                                        <a :href="bioEditorUrl('/links/' + editingBlock.id + '/leads.csv')" class="btn btn-secondary text-xs py-1 px-2" x-show="(editingBlock.leads_count ?? 0) > 0">Download CSV</a>
+                                        <button type="button" class="btn btn-secondary text-xs py-1 px-2" x-show="(editingBlock.leads_count ?? 0) > 0" @click="deleteLeads()">Delete all</button>
+                                    </span>
+                                </div>
+                            </div>
+                        </template>
                         <template x-if="editingBlock?.type === 'app'">
                             <div class="space-y-4">
                                 <p class="text-xs editor-text-muted">One button, three addresses: iPhone and iPad visitors go to the App Store, Android visitors to Google Play, everyone else (computers) to the website.</p>

@@ -433,6 +433,8 @@
         .product-variants i { font-style: normal; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 999px; border: 1px solid currentColor; opacity: .85; }
         .product-variants i.is-out { opacity: .45; text-decoration: line-through; }
         .goal-block { padding: 10px 12px; border-radius: var(--button-radius, 12px); font-size: 12px; display: grid; gap: 6px; }
+        .pv-field { display: block; padding: 6px 10px; border-radius: 8px; background: rgba(255,255,255,.75); color: #475569; font-size: 11px; }
+        .pv-btn { display: block; text-align: center; padding: 6px; border-radius: 8px; background: rgba(15,23,42,.9); color: #fff; font-size: 11px; font-weight: 700; }
         .goal-top { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; }
         .goal-bar { height: 8px; border-radius: 99px; background: rgba(127,127,127,.25); overflow: hidden; }
         .goal-bar i { display: block; height: 100%; background: currentColor; opacity: .85; border-radius: 99px; }
@@ -1042,6 +1044,24 @@
                                 <span class="text-block-expand" :style="{ color: getEffectiveBioColor() }" x-text="expanded ? '−' : '+'"></span>
                             </div>
                             <div class="text-block-content" :class="{ 'truncated': !expanded }" x-html="sanitizeHtml((block.content || 'Text content').replace(/\n/g, '<br>'))"></div>
+                        </div>
+                    </template>
+                    <template x-if="block.type === 'form'">
+                        <div class="goal-block" :style="{ background: block.btn_bg_color || getEffectiveButtonBg(), color: block.btn_text_color || getEffectiveButtonText() }">
+                            <b x-text="block.title || 'Stay in touch'"></b>
+                            <template x-if="(block.settings?.ask_name ?? true)"><span class="pv-field">Your name</span></template>
+                            <template x-if="(block.settings?.ask_email ?? true)"><span class="pv-field">Your e-mail</span></template>
+                            <template x-if="block.settings?.ask_phone"><span class="pv-field">Your WhatsApp number</span></template>
+                            <span class="pv-btn" x-text="block.settings?.button || 'Send'"></span>
+                        </div>
+                    </template>
+                    <template x-if="block.type === 'rss'">
+                        <div class="goal-block" :style="{ background: block.btn_bg_color || getEffectiveButtonBg(), color: block.btn_text_color || getEffectiveButtonText() }"><b x-text="block.title || 'Latest posts'"></b><small x-text="block.url || 'Add the feed address'"></small></div>
+                    </template>
+                    <template x-if="block.type === 'poll'">
+                        <div class="goal-block" :style="{ background: block.btn_bg_color || getEffectiveButtonBg(), color: block.btn_text_color || getEffectiveButtonText() }">
+                            <b x-text="block.title || 'Poll'"></b>
+                            <template x-for="(o, i) in ((block.settings && block.settings.options) || [])" :key="i"><span class="pv-field" x-text="o.text || ('Option ' + (i + 1))"></span></template>
                         </div>
                     </template>
                     <template x-if="block.type === 'goal'">

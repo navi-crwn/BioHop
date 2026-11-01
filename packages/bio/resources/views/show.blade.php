@@ -327,6 +327,9 @@
         .bio-product-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 4px; }
         .bio-product-price { font-style: normal; font-weight: 700; font-size: 14px; }
         .bio-product-cta { font-style: normal; font-size: 12px; opacity: .85; }
+        .bio-form-input { width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(127,127,127,.4); background: rgba(255,255,255,.85); color: #0f172a; font-size: 14px; }
+        .bio-form-btn { padding: 10px 14px; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; background: rgba(15,23,42,.92); color: #fff; border: 1px solid rgba(255,255,255,.35); }
+        .bio-form-btn:focus-visible, .bio-form-input:focus-visible { outline: 3px solid #818cf8; outline-offset: 2px; }
         .bio-carousel { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: thin; padding-bottom: 4px; border-radius: 16px; }
         .bio-slide { flex: 0 0 86%; scroll-snap-align: center; position: relative; border-radius: 16px; overflow: hidden; aspect-ratio: 4 / 3; background: rgba(127,127,127,.2); }
         .bio-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -1093,6 +1096,29 @@
                                     </iframe>
                                 </div>
                                 <div class="text-xs text-center opacity-80" style="color: inherit;">{{ $link->map_address }}</div>
+                            </div>
+                        @elseif($link->type === 'form')
+                            @php
+                                $ff = $link->formFields(); $fid = $link->public_id; $sent = session('form_sent') === $fid; $errs = $errors->getBag('form_'.$fid);
+                                $consentText = trim((string) ($link->settings['consent'] ?? '')) ?: __('I agree that :name keeps these details to get back to me.', ['name' => $bioPage->title]);
+                            @endphp
+                            <div id="form-{{ $fid }}" class="bio-form w-full rounded-2xl p-4" style="background: {{ $blockBg }}; color: {{ $linkTextColor }};">
+                                @if($link->title)<div class="mb-2 text-sm font-semibold">{{ $link->title }}</div>@endif
+                                @if($sent)
+                                    <p class="text-sm" role="status">✓ {{ trim((string) ($link->settings['thanks'] ?? '')) ?: __('Thank you! Your details were sent.') }}</p>
+                                @else
+                                    <form method="POST" action="{{ route('bio.public.form', $fid) }}" class="grid gap-2" x-data="turnstileForm(@js(config('services.turnstile.site_key')))" x-on:submit="handleSubmit($event)">
+                                        @csrf
+                                        <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+                                        @if(isset($ff['name']))<input type="text" name="name" value="{{ old('name') }}" required maxlength="100" autocomplete="name" placeholder="{{ __('Your name') }}" aria-label="{{ __('Your name') }}" class="bio-form-input">@endif
+                                        @if(isset($ff['email']))<input type="email" name="email" value="{{ old('email') }}" required maxlength="150" autocomplete="email" placeholder="{{ __('Your e-mail') }}" aria-label="{{ __('Your e-mail') }}" class="bio-form-input">@endif
+                                        @if(isset($ff['phone']))<input type="tel" name="phone" value="{{ old('phone') }}" required maxlength="30" autocomplete="tel" placeholder="{{ __('Your WhatsApp number') }}" aria-label="{{ __('Your WhatsApp number') }}" class="bio-form-input">@endif
+                                        <label class="flex items-start gap-2 text-xs opacity-90"><input type="checkbox" name="consent" value="1" required class="mt-0.5"><span>{{ $consentText }}</span></label>
+                                        <x-turnstile />
+                                        @foreach($errs->all() as $e)<p class="text-xs" style="color:#fecaca" role="alert">{{ $e }}</p>@endforeach
+                                        <button type="submit" class="bio-form-btn"><span x-show="!waiting">{{ trim((string) ($link->settings['button'] ?? '')) ?: __('Send') }}</span><span x-cloak x-show="waiting">{{ __('Checking…') }}</span></button>
+                                    </form>
+                                @endif
                             </div>
                         @elseif($link->type === 'goal')
                             @php $pct = $link->goalPercent(); $unit = trim((string) ($link->settings['unit'] ?? '')); $fmt = fn ($n) => number_format((float) $n, 0, '.', ',').($unit !== '' ? ' '.$unit : ''); @endphp

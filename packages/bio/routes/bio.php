@@ -14,6 +14,7 @@ Route::middleware(['web', 'ip.ban'])->prefix('b')->name('bio.public.')->group(fu
     Route::match(['get', 'post'], '/{slug}', [PublicBioController::class, 'show'])->name('show');
     Route::get('/{slug}/qr', [PublicBioController::class, 'qr'])->name('qr');
     Route::get('/click/{bioLink:public_id}', [PublicBioController::class, 'click'])->middleware('throttle:bio-click')->name('click');
+    Route::post('/form/{bioLink:public_id}', [PublicBioController::class, 'submitForm'])->middleware('throttle:20,10')->name('form');
     Route::post('/click/{bioLink:public_id}/pin', [PublicBioController::class, 'pin'])->middleware('throttle:bio-click')->name('click.pin');
 });
 
@@ -54,6 +55,8 @@ Route::middleware(['web', 'ip.ban', 'hop.auth', UploadStorageGate::class])->pref
         Route::post('/{bioLink}/toggle', [BioLinkController::class, 'toggle'])->middleware('verified')->name('toggle');
         Route::post('/{bioLink}/archive', [BioLinkController::class, 'archive'])->middleware('verified')->name('archive');
         Route::post('/{bioLink}/restore', [BioLinkController::class, 'restore'])->middleware('verified')->name('restore');
+        Route::get('/{bioLink}/leads.csv', [BioLinkController::class, 'leadsCsv'])->name('leads.csv');
+        Route::delete('/{bioLink}/leads', [BioLinkController::class, 'leadsDestroy'])->middleware('verified')->name('leads.destroy');
     });
 });
 
