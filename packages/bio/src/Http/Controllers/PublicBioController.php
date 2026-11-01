@@ -24,6 +24,18 @@ class PublicBioController extends Controller
 
     private const COUNTED_CLICKS_PER_IP = 20;
 
+    /** hel.ink/b/shop/{slug}: the same page with the Shop open; a page that sells nothing goes to its links. */
+    public function shop(Request $request, string $slug)
+    {
+        $page = BioPage::where('slug', $slug)->first();
+        if (! $page || ! $page->links()->active()->where('type', 'product')->exists()) {
+            return redirect()->route('bio.public.show', $slug);
+        }
+        $request->attributes->set('openShop', true);
+
+        return $this->show($request, $slug);
+    }
+
     public function show(Request $request, string $slug)
     {
         $bioPage = BioPage::with(['links' => function ($query) {

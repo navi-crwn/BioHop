@@ -67,6 +67,10 @@ window.bioEditorV2 = function() {
         platforms: PLATFORMS,
         bioPage: CONFIG.bioPage,
         blocks: CONFIG.blocks,
+        archived: CONFIG.archived || [],
+        selectMode: false,
+        selectedIds: [],
+        showArchived: false,
         brands: PLATFORMS,
         // Themes - using hex colors only for input compatibility
         themes: THEMES,
@@ -474,10 +478,10 @@ window.bioEditorV2 = function() {
                 faq_items: [],
                 html_content: '',
                 description: '',
-                settings: type === 'product' ? { price: '', currency: 'IDR', sold_out: false } : null
+                settings: type === 'product' ? { price: '', currency: 'IDR', sold_out: false } : (type === 'collection' ? { layout: 'stack' } : null)
             };
             this.blocks.push(newBlock);
-            if (['link', 'header', 'text', 'video', 'music', 'vcard', 'html', 'countdown', 'map', 'faq', 'youtube', 'spotify', 'soundcloud', 'code', 'image', 'product'].includes(type)) {
+            if (['link', 'header', 'text', 'video', 'music', 'vcard', 'html', 'countdown', 'map', 'faq', 'youtube', 'spotify', 'soundcloud', 'code', 'image', 'product', 'collection'].includes(type)) {
                 this.editingBlock = JSON.parse(JSON.stringify(newBlock));
             }
             this.showAddBlockModal = false;
@@ -493,7 +497,8 @@ window.bioEditorV2 = function() {
                 'countdown': 'Countdown Timer',
                 'map': 'Location',
                 'faq': 'FAQ',
-                'product': 'Product'
+                'product': 'Product',
+                'collection': 'Collection'
             };
             return titles[type] || '';
         },
@@ -1359,6 +1364,55 @@ window.bioEditorV2 = function() {
                 this.linkInputMode = 'create';
                 this.editingBlock = JSON.parse(JSON.stringify(block));
             }
+        },
+        // ---- select mode, archive, restore ----
+        toggleSelectMode() { this.selectMode = !this.selectMode; this.selectedIds = []; },
+        toggleSelected(id) { this.selectedIds = this.selectedIds.includes(id) ? this.selectedIds.filter(x => x !== id) : [...this.selectedIds, id]; },
+        selectAllBlocks() { this.selectedIds = this.selectedIds.length === this.blocks.length ? [] : this.blocks.map(b => b.id); },
+        bulkSetActive(on) {
+            this.blocks.forEach(b => { if (this.selectedIds.includes(b.id) && b.is_active !== on) { b.is_active = on; this.markBlockDirty(b.id); } });
+            this.selectedIds = [];
+        },
+        bulkDelete() {
+            if (!confirm('Delete ' + this.selectedIds.length + ' block(s)? Archive keeps their clicks; delete does not.')) return;
+            [...this.selectedIds].forEach(id => { const i = this.blocks.findIndex(b => b.id === id); if (i >= 0) this.removeBlock(i); });
+            this.selectedIds = [];
+        },
+        async bulkArchive() {
+            const ids = [...this.selectedIds];
+            for (const id of ids) { const i = this.blocks.findIndex(b => b.id === id); if (i >= 0) await this.archiveBlock(i, true); }
+            this.selectedIds = [];
+            this.showNotification(ids.length + ' archived', 'success');
+        },
+        async archiveBlock(index, quiet = false) {
+            const block = this.blocks[index];
+            if (!block || block.id >= 1000000000) { this.removeBlock(index); return; }
+            try {
+                const res = await fetch(bioEditorUrl('/links/' + block.id + '/archive'), { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf(), 'Accept': 'application/json' } });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.message || 'Archive failed');
+                this.blocks.splice(index, 1);
+                this.blocks.forEach((b, i) => b.order = i);
+                this.archived.unshift(data.link);
+                if (!quiet) this.showNotification('Archived. Restore it any time from the archived list.', 'success');
+                this.refreshPreview && this.refreshPreview();
+            } catch (e) { this.showNotification(e.message || 'Failed to archive', 'error'); }
+        },
+        async restoreBlock(item) {
+            try {
+                const res = await fetch(bioEditorUrl('/links/' + item.id + '/restore'), { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf(), 'Accept': 'application/json' } });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.message || 'Restore failed');
+                this.archived = this.archived.filter(a => a.id !== item.id);
+                this.blocks.push(data.link);
+                this.showNotification('Restored', 'success');
+                this.refreshPreview && this.refreshPreview();
+            } catch (e) { this.showNotification(e.message || 'Failed to restore', 'error'); }
+        },
+        async deleteArchived(item) {
+            if (!confirm('Delete this archived block for good?')) return;
+            await this.deleteBlockFromServer(item.id);
+            this.archived = this.archived.filter(a => a.id !== item.id);
         },
         removeBlock(index) {
             const block = this.blocks[index];
