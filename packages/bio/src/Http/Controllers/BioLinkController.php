@@ -10,6 +10,7 @@ use Hop\Bio\Models\BioLink;
 use Hop\Bio\Models\BioPage;
 use Hop\Bio\Support\BioRevisions;
 use Hop\Bio\Support\BioUploads;
+use Hop\Bio\Support\ProductMeta;
 use Hop\Safety\SafeContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -411,6 +412,34 @@ class BioLinkController extends Controller
             });
             fclose($out);
         }, 'entries-'.Str::slug($bioPage->slug.'-'.$bioLink->id).'.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    /** Reads a product page's public tags (title, picture, price) so the editor can fill the product form. */
+    public function fetchMeta(Request $request, BioPage $bioPage)
+    {
+        $this->authorize('update', $bioPage);
+        $data = $request->validate(['url' => ['required', 'string', 'max:500', 'regex:#^https?://#i']]);
+        if ($reason = app(UrlSafety::class)->rejectionReason($data['url'])) {
+            return response()->json(['success' => false, 'message' => $reason], 422);
+        }
+        try {
+            $meta = ProductMeta::fetch($data['url']);
+        } catch (\RuntimeException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage().' Type the details yourself.'], 422);
+        }
+        $thumb = $meta['image'] ? ProductMeta::storeImage($meta['image']) : null;
+        $found = array_keys(array_filter(['title' => $meta['title'], 'description' => $meta['description'], 'picture' => $thumb, 'price' => $meta['price']]));
+
+        return response()->json([
+            'success' => (bool) $found,
+            'message' => $found ? null : 'The shop shows no details to read. Type them yourself.',
+            'title' => $meta['title'],
+            'description' => $meta['description'],
+            'price' => $meta['price'],
+            'currency' => $meta['currency'],
+            'thumbnail_url' => $thumb ? '/storage/'.$thumb : null,
+            'found' => $found,
+        ]);
     }
 
     /** The poll's counts for the owner: the editor shows them in the block form. */

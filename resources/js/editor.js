@@ -1083,6 +1083,26 @@ window.bioEditorV2 = function() {
             const plain = value && typeof value === 'object' ? JSON.parse(JSON.stringify(value)) : value;
             this.editingBlock.settings = Object.assign({}, JSON.parse(JSON.stringify(this.editingBlock.settings || {})), { [key]: plain });
         },
+        productFetch: { busy: false, ok: false, message: '' },
+        // Reads the shop page's public tags and fills only what is still empty; the shop may refuse, and then you type it.
+        async fillProductFromAddress() {
+            const b = this.editingBlock;
+            if (!b || !b.url) return;
+            this.productFetch = { busy: true, ok: false, message: '' };
+            try {
+                const res = await fetch(bioEditorUrl('/links/fetch-meta'), { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf(), 'Accept': 'application/json' }, body: JSON.stringify({ url: b.url }) });
+                const d = await res.json().catch(() => ({}));
+                if (!res.ok || !d.success) throw new Error(d.message || 'The shop did not answer. Type the details yourself.');
+                const filled = [];
+                if (d.title && !String(b.title || '').trim()) { b.title = d.title; filled.push('name'); }
+                if (d.description && !String(b.description || '').trim()) { b.description = d.description; filled.push('description'); }
+                if (d.thumbnail_url && !b.thumbnail_url) { b.thumbnail_url = d.thumbnail_url; b.content = d.thumbnail_url; filled.push('picture'); }
+                if (d.price != null && !String(b.settings?.price ?? '').trim()) { this.setProductSetting('price', String(d.price)); if (d.currency) this.setProductSetting('currency', d.currency); filled.push('price'); }
+                this.productFetch = { busy: false, ok: true, message: filled.length ? 'Filled: ' + filled.join(', ') + '. Check them before you save.' : 'Nothing new to fill: the fields already have values.' };
+            } catch (e) {
+                this.productFetch = { busy: false, ok: false, message: e.message };
+            }
+        },
         pollResults: null,
         async loadPollResults() {
             this.pollResults = null;
