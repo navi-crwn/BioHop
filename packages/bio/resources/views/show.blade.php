@@ -733,29 +733,29 @@
             </div>
             <div class="flex items-center gap-2 p-2 rounded-lg mb-3" style="background: {{ $isDarkTheme ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }};">
                 <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: {{ $isDarkTheme ? '#94a3b8' : '#64748b' }};"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
-                <input type="text" value="{{ url()->current() }}" readonly class="flex-1 bg-transparent border-none text-xs focus:outline-hidden min-w-0" style="color: {{ $isDarkTheme ? '#e2e8f0' : '#334155' }};" id="share-url">
+                <input type="text" value="{{ public_url('b/'.$bioPage->slug) }}" readonly class="flex-1 bg-transparent border-none text-xs focus:outline-hidden min-w-0" style="color: {{ $isDarkTheme ? '#e2e8f0' : '#334155' }};" id="share-url">
                 <button data-copy-from="#share-url" class="px-2 py-1 text-xs font-medium rounded-md transition-colors shrink-0" style="background: #3b82f6; color: #ffffff;">Copy</button>
             </div>
             <div class="grid grid-cols-4 gap-2 mb-3">
-                <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}" target="_blank" class="flex flex-col items-center gap-1 p-2 rounded-lg transition-colors hover:bg-black/5" title="Facebook">
+                <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(public_url('b/'.$bioPage->slug)) }}" target="_blank" class="flex flex-col items-center gap-1 p-2 rounded-lg transition-colors hover:bg-black/5" title="Facebook">
                     <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background-color: #1877f2;">
                         <svg class="w-5 h-5" style="color: #ffffff;" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
                     </div>
                     <span class="text-[10px]" style="color: {{ $isDarkTheme ? '#94a3b8' : '#64748b' }};">Facebook</span>
                 </a>
-                <a href="https://twitter.com/intent/tweet?url={{ urlencode(url()->current()) }}&text={{ urlencode($bioPage->title) }}" target="_blank" class="flex flex-col items-center gap-1 p-2 rounded-lg transition-colors hover:bg-black/5" title="X">
+                <a href="https://twitter.com/intent/tweet?url={{ urlencode(public_url('b/'.$bioPage->slug)) }}&text={{ urlencode($bioPage->title) }}" target="_blank" class="flex flex-col items-center gap-1 p-2 rounded-lg transition-colors hover:bg-black/5" title="X">
                     <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background-color: #000000;">
                         <svg class="w-5 h-5" style="color: #ffffff;" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                     </div>
                     <span class="text-[10px]" style="color: {{ $isDarkTheme ? '#94a3b8' : '#64748b' }};">X</span>
                 </a>
-                <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ urlencode(url()->current()) }}" target="_blank" class="flex flex-col items-center gap-1 p-2 rounded-lg transition-colors hover:bg-black/5" title="LinkedIn">
+                <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ urlencode(public_url('b/'.$bioPage->slug)) }}" target="_blank" class="flex flex-col items-center gap-1 p-2 rounded-lg transition-colors hover:bg-black/5" title="LinkedIn">
                     <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background-color: #0a66c2;">
                         <svg class="w-5 h-5" style="color: #ffffff;" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
                     </div>
                     <span class="text-[10px]" style="color: {{ $isDarkTheme ? '#94a3b8' : '#64748b' }};">LinkedIn</span>
                 </a>
-                <a href="mailto:?subject={{ urlencode($bioPage->title) }}&body={{ urlencode(url()->current()) }}" class="flex flex-col items-center gap-1 p-2 rounded-lg transition-colors hover:bg-black/5" title="Email">
+                <a href="mailto:?subject={{ urlencode($bioPage->title) }}&body={{ urlencode(public_url('b/'.$bioPage->slug)) }}" class="flex flex-col items-center gap-1 p-2 rounded-lg transition-colors hover:bg-black/5" title="Email">
                     <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background-color: #64748b;">
                         <svg class="w-5 h-5" style="color: #ffffff;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                     </div>
@@ -886,8 +886,8 @@
                 @if($hasShop)
                     {{-- Links · Shop: a tab bar once the page sells something; without script the address ?tab=shop opens the shop --}}
                     <div class="bio-tabs mt-8" role="tablist" aria-label="Page sections">
-                        <a href="{{ route('bio.public.show', $bioPage->slug) }}" role="tab" id="tab-links" aria-controls="panel-links" aria-selected="{{ $openShop ? 'false' : 'true' }}" :aria-selected="String(tab === 'links')" @click.prevent="tab = 'links'" class="bio-tab" style="--tab-bg: {{ $linkBgColor ?? $blockBg ?? 'rgba(255,255,255,.2)' }}; --tab-text: {{ $linkTextColor }}">{{ __('Links') }}</a>
-                        <a href="{{ route('bio.public.shop', $bioPage->slug) }}" role="tab" id="tab-shop" aria-controls="panel-shop" aria-selected="{{ $openShop ? 'true' : 'false' }}" :aria-selected="String(tab === 'shop')" @click.prevent="tab = 'shop'" class="bio-tab" style="--tab-bg: {{ $linkBgColor ?? $blockBg ?? 'rgba(255,255,255,.2)' }}; --tab-text: {{ $linkTextColor }}">{{ __('Shop') }} <span class="bio-tab-count">{{ $products->count() }}</span></a>
+                        <a href="{{ public_url('b/'.$bioPage->slug) }}" role="tab" id="tab-links" aria-controls="panel-links" aria-selected="{{ $openShop ? 'false' : 'true' }}" :aria-selected="String(tab === 'links')" @click.prevent="tab = 'links'" class="bio-tab" style="--tab-bg: {{ $linkBgColor ?? $blockBg ?? 'rgba(255,255,255,.2)' }}; --tab-text: {{ $linkTextColor }}">{{ __('Links') }}</a>
+                        <a href="{{ public_url('b/shop/'.$bioPage->slug) }}" role="tab" id="tab-shop" aria-controls="panel-shop" aria-selected="{{ $openShop ? 'true' : 'false' }}" :aria-selected="String(tab === 'shop')" @click.prevent="tab = 'shop'" class="bio-tab" style="--tab-bg: {{ $linkBgColor ?? $blockBg ?? 'rgba(255,255,255,.2)' }}; --tab-text: {{ $linkTextColor }}">{{ __('Shop') }} <span class="bio-tab-count">{{ $products->count() }}</span></a>
                     </div>
                     <div id="panel-shop" role="tabpanel" aria-labelledby="tab-shop" class="bio-shop mt-6" x-show="tab === 'shop'" @if(!$openShop) hidden @endif x-bind:hidden="false">
                         @foreach($shopGroups as $groupId => $groupProducts)
@@ -1142,7 +1142,7 @@
                                 @if($sent)
                                     <p class="text-sm" role="status">✓ {{ trim((string) ($link->settings['thanks'] ?? '')) ?: __('Thank you! Your details were sent.') }}</p>
                                 @else
-                                    <form method="POST" action="{{ route('bio.public.form', $fid) }}" class="grid gap-2" x-data="turnstileForm(@js(config('services.turnstile.site_key')))" x-on:submit="handleSubmit($event)">
+                                    <form method="POST" action="{{ route('bio.public.form', $fid, false) }}" class="grid gap-2" x-data="turnstileForm(@js(config('services.turnstile.site_key')))" x-on:submit="handleSubmit($event)">
                                         @csrf
                                         <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
                                         @if(isset($ff['name']))<input type="text" name="name" value="{{ old('name') }}" required maxlength="100" autocomplete="name" placeholder="{{ __('Your name') }}" aria-label="{{ __('Your name') }}" class="bio-form-input">@endif
@@ -1163,7 +1163,7 @@
                             <div id="poll-{{ $link->public_id }}" class="bio-poll w-full rounded-2xl p-4" style="background: {{ $blockBg }}; color: {{ $linkTextColor }};">
                                 <div class="mb-2 text-sm font-semibold">{{ $link->title }}</div>
                                 @if($pRes['voted'] === null)
-                                    <form method="POST" action="{{ route('bio.public.poll', $link->public_id) }}" class="grid gap-2">
+                                    <form method="POST" action="{{ route('bio.public.poll', $link->public_id, false) }}" class="grid gap-2">
                                         @csrf
                                         @foreach($pOpts as $i => $opt)
                                             <button type="submit" name="option" value="{{ $i }}" class="bio-poll-opt">{{ $opt }}</button>
