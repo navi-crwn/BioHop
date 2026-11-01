@@ -910,6 +910,15 @@ window.bioEditorV2 = function() {
             const plain = value && typeof value === 'object' ? JSON.parse(JSON.stringify(value)) : value;
             this.editingBlock.settings = Object.assign({}, JSON.parse(JSON.stringify(this.editingBlock.settings || {})), { [key]: plain });
         },
+        addRule() {
+            this.setProductSetting('rules', [...(this.editingBlock.settings?.rules || []), { country: '', device: 'any', os: 'any', from: '', to: '', url: '' }]);
+        },
+        removeRule(i) {
+            this.setProductSetting('rules', (this.editingBlock.settings?.rules || []).filter((_, k) => k !== i));
+        },
+        setRule(i, key, value) {
+            this.setProductSetting('rules', (this.editingBlock.settings?.rules || []).map((r, k) => k === i ? Object.assign({}, r, { [key]: value }) : r));
+        },
         addWaNumber() {
             this.setProductSetting('numbers', [...(this.editingBlock.settings?.numbers || []), { number: '', label: '', weight: 1 }]);
         },
