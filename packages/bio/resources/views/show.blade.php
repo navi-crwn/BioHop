@@ -877,7 +877,7 @@
                             @endif
                             @continue
                         @endif
-                        @if($link->type === 'link')
+                        @if($link->type === 'link' || $link->type === 'whatsapp')
                             @php
                                 $hasThumbnail = $link->thumbnail_url || $link->thumbnail;
                                 $hasBrand = $link->brand;
@@ -908,7 +908,7 @@
                                 $borderStyle = $link->btn_border_color ? 'border: 1px solid '.$link->btn_border_color.';' : ($themeLinkBorder ? 'border: 1px solid '.$themeLinkBorder.';' : '');
                                 $linkRel = $getLinkRel($link->url);
                                 // http(s) links go through the click tracker; mailto/tel/sms stay direct
-                                $linkHref = preg_match('#^https?://#i', trim((string) $link->url))
+                                $linkHref = $link->type === 'whatsapp' || preg_match('#^https?://#i', trim((string) $link->url))
                                     ? route('bio.public.click', $link->public_id)
                                     : \Hop\Safety\SafeContent::url($link->url);
                                 $entranceAnim = $link->entrance_animation ?? 'none';

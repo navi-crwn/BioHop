@@ -57,7 +57,7 @@
                             </div>
                             <!-- Block Content -->
                             <div class="block-content">
-                                <div class="text-sm font-medium editor-text truncate" x-text="getBlockDisplayTitle(item)"></div>
+                                <div class="text-sm font-medium editor-text truncate"><span x-text="getBlockDisplayTitle(item)"></span> <span x-show="scheduleState(item)" class="be-chip" :class="scheduleState(item)" x-text="scheduleState(item) === 'scheduled' ? 'Scheduled' : 'Expired'"></span></div>
                                 <template x-if="item.type === 'collection'">
                                     <div class="text-xs editor-text-muted truncate">
                                         <span x-text="collectionMembers(idx).length + (collectionMembers(idx).length === 1 ? ' block' : ' blocks') + ' · ' + (item.settings?.layout === 'grid' ? 'grid' : 'stack')"></span>

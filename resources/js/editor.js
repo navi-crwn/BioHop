@@ -546,10 +546,11 @@ window.bioEditorV2 = function() {
                 faq_items: [],
                 html_content: '',
                 description: '',
-                settings: type === 'product' ? { price: '', currency: 'IDR', sold_out: false } : (type === 'collection' ? { layout: 'stack' } : null)
+                settings: type === 'product' ? { price: '', currency: 'IDR', sold_out: false } : (type === 'collection' ? { layout: 'stack' } : (type === 'whatsapp' ? { text: '', mode: 'round_robin', numbers: [{ number: '', label: '', weight: 1 }] } : null))
             };
+            if (type === 'whatsapp') newBlock.brand = 'whatsapp';
             this.blocks.push(newBlock);
-            if (['link', 'header', 'text', 'video', 'music', 'vcard', 'html', 'countdown', 'map', 'faq', 'youtube', 'spotify', 'soundcloud', 'code', 'image', 'product', 'collection'].includes(type)) {
+            if (['link', 'header', 'text', 'video', 'music', 'vcard', 'html', 'countdown', 'map', 'faq', 'youtube', 'spotify', 'soundcloud', 'code', 'image', 'product', 'collection', 'whatsapp'].includes(type)) {
                 this.editingBlock = JSON.parse(JSON.stringify(newBlock));
             }
             this.showAddBlockModal = false;
@@ -566,7 +567,8 @@ window.bioEditorV2 = function() {
                 'map': 'Location',
                 'faq': 'FAQ',
                 'product': 'Product',
-                'collection': 'Collection'
+                'collection': 'Collection',
+                'whatsapp': 'Chat on WhatsApp'
             };
             return titles[type] || '';
         },
@@ -754,7 +756,9 @@ window.bioEditorV2 = function() {
             }
             const index = this.blocks.findIndex(b => b.id === this.editingBlock.id);
             if (index !== -1) {
-                const updatedBlock = { ...this.editingBlock };
+                // A plain deep copy: spreading the proxy kept nested settings (variants, numbers, faq) reactive,
+                // and a proxy cannot be posted to the preview frame (DataCloneError).
+                const updatedBlock = JSON.parse(JSON.stringify(Alpine.raw(this.editingBlock)));
                 delete updatedBlock.is_new; // Remove new flag
                 this.blocks[index] = updatedBlock;
                 // Mark block as dirty so it gets saved
@@ -895,7 +899,25 @@ window.bioEditorV2 = function() {
         },
         // Product settings are replaced as a whole so Alpine sees the change (same pattern as the price field).
         setProductSetting(key, value) {
-            this.editingBlock.settings = Object.assign({}, this.editingBlock.settings, { [key]: value });
+            // Plain copies only: a reactive proxy inside settings cannot be posted to the preview frame.
+            const plain = value && typeof value === 'object' ? JSON.parse(JSON.stringify(value)) : value;
+            this.editingBlock.settings = Object.assign({}, JSON.parse(JSON.stringify(this.editingBlock.settings || {})), { [key]: plain });
+        },
+        addWaNumber() {
+            this.setProductSetting('numbers', [...(this.editingBlock.settings?.numbers || []), { number: '', label: '', weight: 1 }]);
+        },
+        removeWaNumber(i) {
+            this.setProductSetting('numbers', (this.editingBlock.settings?.numbers || []).filter((_, k) => k !== i));
+        },
+        setWaNumber(i, key, value) {
+            this.setProductSetting('numbers', (this.editingBlock.settings?.numbers || []).map((n, k) => k === i ? Object.assign({}, n, { [key]: value }) : n));
+        },
+        // 'scheduled' before publish_at, 'expired' after expire_at, null when live (same rule as the server).
+        scheduleState(block) {
+            const now = Date.now();
+            if (block?.publish_at && new Date(block.publish_at).getTime() > now) return 'scheduled';
+            if (block?.expire_at && new Date(block.expire_at).getTime() <= now) return 'expired';
+            return null;
         },
         addVariant() {
             const variants = [...(this.editingBlock.settings?.variants || []), { name: '', price: '', stock: '', url: '' }];

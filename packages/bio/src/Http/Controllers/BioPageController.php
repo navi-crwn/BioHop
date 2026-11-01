@@ -529,6 +529,7 @@ class BioPageController extends Controller
             'is_public' => 'nullable|boolean',
             'show_in_directory' => 'nullable|boolean',
             'hide_branding' => 'nullable|boolean',
+            'auto_utm' => 'nullable|boolean',
             'google_analytics_id' => 'nullable|string|max:50',
             'facebook_pixel_id' => 'nullable|string|max:50',
             'tiktok_pixel_id' => ['nullable', 'regex:/^[A-Z0-9]{20,30}$/'],

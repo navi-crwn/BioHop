@@ -80,8 +80,12 @@ class BioLinkController extends Controller
      */
     private function normalizeCountdown(array $data): array
     {
-        if (! empty($data['countdown_date'])) {
-            $data['countdown_date'] = Carbon::parse($data['countdown_date'])->setTimezone(config('app.timezone'));
+        foreach (['countdown_date', 'publish_at', 'expire_at'] as $field) {
+            if (! empty($data[$field])) {
+                $data[$field] = Carbon::parse($data[$field])->setTimezone(config('app.timezone'));
+            } elseif (array_key_exists($field, $data)) {
+                $data[$field] = null;
+            }
         }
 
         return $data;
@@ -91,7 +95,7 @@ class BioLinkController extends Controller
     {
         $this->authorize('update', $bioPage);
         $validated = $request->validate([
-            'type' => 'required|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code,product,collection',
+            'type' => 'required|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code,product,collection,whatsapp',
             'title' => 'nullable|string|max:100',
             'url' => 'nullable|string|max:500',
             'content' => 'nullable|string|max:5000',
@@ -117,6 +121,18 @@ class BioLinkController extends Controller
             'settings.variants.*.sold_out' => 'nullable|boolean',
             'settings.variants.*.url' => ['nullable', 'string', 'max:500', 'regex:#^https?://#i'],
             'settings.layout' => 'nullable|in:stack,grid',
+            'settings.text' => 'nullable|string|max:500',
+            'settings.mode' => 'nullable|in:'.implode(',', BioLink::WHATSAPP_MODES),
+            'settings.numbers' => 'nullable|array|max:10',
+            'settings.numbers.*.number' => ['required_with:settings.numbers', 'string', 'max:24', 'regex:/^\+?[0-9 .()-]{6,24}$/'],
+            'settings.numbers.*.label' => 'nullable|string|max:40',
+            'settings.numbers.*.weight' => 'nullable|integer|min:1|max:100',
+            'publish_at' => 'nullable|date',
+            'expire_at' => ['nullable', 'date', function ($attribute, $value, $fail) use ($request) {
+                if ($value && $request->input('publish_at') && strtotime((string) $value) <= strtotime((string) $request->input('publish_at'))) {
+                    $fail('The end must be after the start.');
+                }
+            }],
             'is_active' => 'nullable|boolean',
             'order' => 'nullable|integer',
             // Advanced block fields
@@ -171,6 +187,8 @@ class BioLinkController extends Controller
             // Advanced block fields
             'embed_url' => $validated['embed_url'] ?? null,
             'countdown_date' => $validated['countdown_date'] ?? null,
+            'publish_at' => $validated['publish_at'] ?? null,
+            'expire_at' => $validated['expire_at'] ?? null,
             'countdown_label' => $validated['countdown_label'] ?? null,
             'map_address' => $validated['map_address'] ?? null,
             'map_zoom' => $validated['map_zoom'] ?? 15,
@@ -193,7 +211,7 @@ class BioLinkController extends Controller
     {
         $this->authorize('update', $bioPage);
         $validated = $request->validate([
-            'type' => 'nullable|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code,product,collection',
+            'type' => 'nullable|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code,product,collection,whatsapp',
             'title' => 'nullable|string|max:100',
             'url' => 'nullable|string|max:500',
             'content' => 'nullable|string|max:5000',
@@ -219,6 +237,18 @@ class BioLinkController extends Controller
             'settings.variants.*.sold_out' => 'nullable|boolean',
             'settings.variants.*.url' => ['nullable', 'string', 'max:500', 'regex:#^https?://#i'],
             'settings.layout' => 'nullable|in:stack,grid',
+            'settings.text' => 'nullable|string|max:500',
+            'settings.mode' => 'nullable|in:'.implode(',', BioLink::WHATSAPP_MODES),
+            'settings.numbers' => 'nullable|array|max:10',
+            'settings.numbers.*.number' => ['required_with:settings.numbers', 'string', 'max:24', 'regex:/^\+?[0-9 .()-]{6,24}$/'],
+            'settings.numbers.*.label' => 'nullable|string|max:40',
+            'settings.numbers.*.weight' => 'nullable|integer|min:1|max:100',
+            'publish_at' => 'nullable|date',
+            'expire_at' => ['nullable', 'date', function ($attribute, $value, $fail) use ($request) {
+                if ($value && $request->input('publish_at') && strtotime((string) $value) <= strtotime((string) $request->input('publish_at'))) {
+                    $fail('The end must be after the start.');
+                }
+            }],
             'is_active' => 'nullable|boolean',
             'order' => 'nullable|integer',
             // Advanced block fields

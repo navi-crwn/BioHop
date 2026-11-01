@@ -607,6 +607,38 @@
                                 </div>
                             </div>
                         </template>
+                        <template x-if="editingBlock?.type === 'whatsapp'">
+                            <div class="space-y-4">
+                                <div class="form-group">
+                                    <label for="bfindex-w2" class="form-label">Pre-filled message <span class="editor-text-muted font-normal">(optional)</span></label>
+                                    <input maxlength="500" id="bfindex-w2" type="text" :value="editingBlock.settings?.text ?? ''" @input="setProductSetting('text', $event.target.value)" class="form-input" placeholder="Hi, I came from your bio page…">
+                                </div>
+                                <div class="form-group">
+                                    <div class="flex items-center justify-between">
+                                        <label class="form-label mb-0">Numbers <span class="editor-text-muted font-normal">(each click goes to one of them)</span></label>
+                                        <button type="button" class="btn btn-secondary text-xs py-1 px-2" @click="addWaNumber()" x-show="(editingBlock.settings?.numbers || []).length < 10">+ Add number</button>
+                                    </div>
+                                    <div class="mt-2 space-y-2">
+                                        <template x-for="(n, i) in (editingBlock.settings?.numbers || [])" :key="i">
+                                            <div class="be-wa-row">
+                                                <input type="tel" maxlength="24" :value="n.number" @input="setWaNumber(i, 'number', $event.target.value)" class="form-input" placeholder="+62 812 3456 7890" :aria-label="'Number ' + (i + 1)">
+                                                <input type="text" maxlength="40" :value="n.label ?? ''" @input="setWaNumber(i, 'label', $event.target.value)" class="form-input" placeholder="Label, e.g. CS Rina" :aria-label="'Label ' + (i + 1)">
+                                                <input type="number" min="1" max="100" :value="n.weight ?? 1" @input="setWaNumber(i, 'weight', $event.target.value)" class="form-input" placeholder="Weight" :aria-label="'Weight ' + (i + 1)" x-show="editingBlock.settings?.mode === 'weighted'">
+                                                <button type="button" class="icon-btn" @click="removeWaNumber(i)" :aria-label="'Remove number ' + (i + 1)" title="Remove"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                                            </div>
+                                        </template>
+                                    </div>
+                                    <p class="text-xs editor-text-muted mt-1">With country code, digits only are kept. One number works too.</p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">How clicks are shared</label>
+                                    <div class="flex gap-2">
+                                        <button type="button" class="btn btn-secondary text-xs py-1.5 flex-1" :class="{ 'ring-2 ring-blue-500': (editingBlock.settings?.mode || 'round_robin') === 'round_robin' }" @click="setProductSetting('mode', 'round_robin')">In turn (round robin)</button>
+                                        <button type="button" class="btn btn-secondary text-xs py-1.5 flex-1" :class="{ 'ring-2 ring-blue-500': editingBlock.settings?.mode === 'weighted' }" @click="setProductSetting('mode', 'weighted')">By weight</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
                         <template x-if="editingBlock?.type === 'product'">
                             <div class="space-y-4">
                                 <div class="form-group">
@@ -740,6 +772,26 @@
                             </div>
                         </template>
                         <!-- Animation Settings - Only for link type blocks -->
+                        <template x-if="editingBlock && !['divider', 'spacer'].includes(editingBlock.type)">
+                            <div class="p-3 rounded-lg space-y-3" style="background: var(--editor-card-bg)">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                    <span class="text-sm font-medium editor-text">Schedule</span>
+                                    <span class="text-xs editor-text-muted" x-text="scheduleState(editingBlock) === 'scheduled' ? '· not live yet' : (scheduleState(editingBlock) === 'expired' ? '· expired' : '')"></span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label for="bfindex-s1" class="form-label text-xs mb-1">Goes live</label>
+                                        <input id="bfindex-s1" type="datetime-local" :value="toLocalInput(editingBlock.publish_at)" @input="editingBlock.publish_at = fromLocalInput($event.target.value)" class="form-input text-xs">
+                                    </div>
+                                    <div>
+                                        <label for="bfindex-s2" class="form-label text-xs mb-1">Ends</label>
+                                        <input id="bfindex-s2" type="datetime-local" :value="toLocalInput(editingBlock.expire_at)" @input="editingBlock.expire_at = fromLocalInput($event.target.value)" class="form-input text-xs">
+                                    </div>
+                                </div>
+                                <p class="text-[10px] editor-text-muted">Leave both empty to show it always. Times are in your time zone; outside the window the block is hidden from the page and its address stops working.</p>
+                            </div>
+                        </template>
                         <template x-if="editingBlock?.type === 'link'">
                             <div class="p-3 rounded-lg space-y-4" style="background: var(--editor-card-bg)">
                                 <div class="flex items-center gap-2 mb-2">

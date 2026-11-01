@@ -978,10 +978,10 @@
         </template>
         <!-- Link Blocks -->
         <div class="blocks-container" :class="'shape-' + (design.buttonShape || 'rounded-sm') + ' shadow-' + (design.buttonShadow || 'md')" x-ref="blocksContainer">
-            <template x-for="(block, blockIndex) in blocks.filter(b => b.is_active)" :key="block.id">
+            <template x-for="(block, blockIndex) in blocks.filter(b => b.is_active && isLive(b))" :key="block.id">
                 <div>
-                    <!-- Link Block -->
-                    <template x-if="block.type === 'link'">
+                    <!-- Link Block (a WhatsApp rotator looks the same; the number is picked on click) -->
+                    <template x-if="block.type === 'link' || block.type === 'whatsapp'">
                         <a :href="block.url || '#'" class="link-block" :class="[
                             blockThumb(block) ? 'has-thumbnail' : '',
                             (block.brand || block.custom_icon) && !blockThumb(block) ? 'has-icon' : '',
@@ -1406,6 +1406,12 @@
                     return 'none';
                 },
                 // Price of a product block, as the public page prints it
+                isLive(block) {
+                    const now = Date.now();
+                    if (block.publish_at && new Date(block.publish_at).getTime() > now) return false;
+                    if (block.expire_at && new Date(block.expire_at).getTime() <= now) return false;
+                    return true;
+                },
                 formatPrice(block, amount) {
                     const cur = ((block.settings && block.settings.currency) || 'USD').toUpperCase();
                     try { return new Intl.NumberFormat(document.documentElement.lang || 'en', { style: 'currency', currency: cur, maximumFractionDigits: ['IDR','JPY','KRW','VND'].includes(cur) ? 0 : 2 }).format(Number(amount)); }
