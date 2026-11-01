@@ -7,6 +7,7 @@ All notable changes to BioHop are listed here. The format follows [Keep a Change
 ### Added
 - The home page has a scroll scene for every feature, in the manner of the Amnesia and NoteHop sites: blocks that come to life, a pinned story from claiming a name to reading the numbers, themes that change as you scroll, analytics that draw themselves, a share map, the password and 18+ gates, CSS that types itself while the phone restyles, and a self-host terminal. GSAP and Lenis are bundled with the app (no CDN). With "reduce motion" on, every scene shows its finished state.
 - The hero: pixels assemble into the BioHop logo, then the word BIO, then a phone, and the phone shows the real hel.ink/b/hel page live (an iframe of `?embed=1`), so whatever changes on that page shows there. Then the blocks scatter and start again. The loop waits while you hover or focus the phone.
+- The HOP family section shows every other app as its own 3D mark (HOP ID, LinkHop, PixelHop, NoteHop), each one assembling from blocks and turning with a drag or the arrow keys; the flat mark stays without WebGL or with "reduce motion".
 - Only the official page (`HOP_OFFICIAL_BIO`, default `hel`), and only as `?embed=1`, may be framed by the HOP sites. An embedded view does not count as a visit, its links open in a new tab and it stays out of search. Every other page keeps `frame-ancestors 'none'`.
 
 ### Changed
@@ -18,6 +19,8 @@ All notable changes to BioHop are listed here. The format follows [Keep a Change
 - Fewer blurred layers (the app chrome only) and a fixed background that is composited rather than repainted, so scrolling is smooth.
 
 ### Fixed
+- The phone in the hero is sized by the stage's height, so it no longer spills over the buttons above it and the running line below it on phones, before the 3D scene starts, or without WebGL; the "Live" note sits under the stage instead of on the phone. On phones the 3D scene fills the stage instead of a 240 px box.
+- Counters never show a negative number for a frame (shared `hop-motion.js`).
 - SVG icons, QR logos and thumbnails now upload. Laravel's `image` rule refuses SVG, so every SVG failed. An SVG is rebuilt from an allowlist (no script, handlers, external files or entities) before it is stored, and an SVG that cannot be made safe is refused with the reason.
 - A block's custom icon was never saved for an existing block; edits are now detected by content, so no edit depends on a "mark as changed" call.
 - Saving the SEO section failed (and could fail any save) when an older, longer SEO title was stored: the whole page was sent and validated every time. Only changed fields are sent now; the SEO title accepts 60 characters and the description 160.

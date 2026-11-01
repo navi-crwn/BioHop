@@ -191,6 +191,15 @@
 .bx-faq { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .bx-q h3 { font-size: 17px; margin-bottom: 8px; }
 
+/* 10 family: every app as its own 3D mark */
+.bx-family { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.bx-fam { display: grid; justify-items: center; gap: 4px; padding: 22px 18px 20px; border: 1px solid var(--home-line); border-radius: 22px; background: var(--home-panel); text-align: center; }
+.bx-fam .h-art { max-width: 160px; margin: 0 0 10px; }
+.bx-fam .h-art img { padding: 24%; }
+.bx-fam b { font-size: 17px; letter-spacing: -.01em; }
+.bx-fam a { font: 12px var(--h-mono); color: var(--home-muted); text-decoration: none; }
+.bx-fam a:hover { color: var(--home-text); text-decoration: underline; text-underline-offset: 3px; }
+
 /* 11 */
 .bx-final { text-align: center; }
 .bx-final .h-label { justify-content: center; }
@@ -203,7 +212,7 @@
     .bx-two, .bx-story-grid, .bx-style-vis { grid-template-columns: minmax(0, 1fr); }
     .bx-two.rev > :first-child { order: 0; }
     .bx-story { min-height: 0; }
-    .bx-bento { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .bx-bento, .bx-family { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .bx-nums { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .bx-nums > div:nth-child(2) { border-inline-end: 0; }
     .bx-nums > div:nth-child(-n + 2) { border-bottom: 1px solid var(--home-line); }

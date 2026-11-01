@@ -240,7 +240,7 @@ function faq() {
 }
 
 function family() {
-    gsap.from($$('[data-bx-family] a'), { y: 20, opacity: 0, scale: .96, duration: .55, stagger: .08, ease: 'back.out(1.5)', scrollTrigger: once('[data-bx-family]', 'top 90%') });
+    gsap.from($$('[data-bx-family] .bx-fam'), { y: 20, opacity: 0, scale: .96, duration: .55, stagger: .08, ease: 'back.out(1.5)', scrollTrigger: once('[data-bx-family]', 'top 90%') });
 }
 
 if (!reduced && document.querySelector('.bio-home')) start();
