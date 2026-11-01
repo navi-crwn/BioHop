@@ -127,6 +127,9 @@ window.bioEditorV2 = function() {
         init() {
             // Expose bioPage to window for child components (like qrGenerator)
             window.bioEditorData = { bioPage: this.bioPage };
+            // ?tab=profile|links|socials|appearance|settings opens that tab (the dashboard checklist links here)
+            const wanted = new URLSearchParams(location.search).get('tab');
+            if (['profile', 'links', 'socials', 'appearance', 'settings'].includes(wanted)) this.activeTab = wanted;
             this.$nextTick(() => {
                 this.initSortable();
             });
