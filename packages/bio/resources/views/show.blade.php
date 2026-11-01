@@ -248,7 +248,7 @@
         .bio-title {
             color: {{ $titleColor }};
             max-width: 100%;
-            overflow-wrap: anywhere;
+            overflow-wrap: break-word;
         }
         .bio-bio {
             color: {{ $bioColor }};

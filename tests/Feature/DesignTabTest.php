@@ -3,14 +3,15 @@
 use App\Models\User;
 use Hop\Bio\Models\BioPage;
 
-test('the Design tab is six sections with a jump bar and a visitor preview link', function () {
+test('the Design tab is six sub-tabs, one section at a time, with a visitor preview link', function () {
     $user = User::factory()->create();
     $page = BioPage::create(['user_id' => $user->id, 'slug' => 'design-tab', 'title' => 'Design', 'is_published' => true]);
     $html = $this->actingAs($user)->get('/bio/design-tab/edit')->assertOk()->getContent();
     foreach (['header', 'theme', 'wallpaper', 'text', 'buttons', 'footer'] as $section) {
         expect($html)->toContain('id="design-'.$section.'"');
     }
-    expect($html)->toContain('Preview as visitor')->toContain('Button fill');
+    expect($html)->toContain('Preview as visitor')->toContain('Button fill')->toContain('role="tablist"')->toContain('role="tabpanel"')->not->toContain("toggle('header')");
+    expect(substr_count($html, 'x-show="current ==='))->toBe(6);
 });
 
 test('switching off "Powered by" in the Footer section removes it from the public page', function () {
