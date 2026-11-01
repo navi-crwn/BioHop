@@ -107,6 +107,40 @@ class BioLink extends Model
         return FeedReader::items($url, (int) ($this->settings['count'] ?? 5), $refresh);
     }
 
+    /** @return array<int, string> the poll's options (2–6), empty when the poll is not ready */
+    public function pollOptions(): array
+    {
+        $out = [];
+        foreach ((array) ($this->settings['options'] ?? []) as $o) {
+            $text = is_array($o) ? trim((string) ($o['text'] ?? '')) : '';
+            if ($text !== '') {
+                $out[] = mb_substr($text, 0, 80);
+            }
+        }
+
+        return count($out) >= 2 ? array_slice($out, 0, 6) : [];
+    }
+
+    public function pollVotes(): HasMany
+    {
+        return $this->hasMany(BioPollVote::class);
+    }
+
+    /** @return array{counts:array<int,int>, total:int, voted:?int} votes per option and what this visitor chose (null: not voted) */
+    public function pollResults(?string $voterHash = null): array
+    {
+        $options = $this->pollOptions();
+        $counts = array_fill(0, count($options), 0);
+        foreach ($this->pollVotes()->selectRaw('option_index, count(*) as n')->groupBy('option_index')->pluck('n', 'option_index') as $i => $n) {
+            if (isset($counts[$i])) {
+                $counts[$i] = (int) $n;
+            }
+        }
+        $voted = $voterHash ? $this->pollVotes()->where('voter_hash', $voterHash)->value('option_index') : null;
+
+        return ['counts' => $counts, 'total' => array_sum($counts), 'voted' => $voted === null ? null : (int) $voted];
+    }
+
     public function leadRetentionDays(): int
     {
         return max(1, min(365, (int) ($this->settings['retention_days'] ?? 90)));

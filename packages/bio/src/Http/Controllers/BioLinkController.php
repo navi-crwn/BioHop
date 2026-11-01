@@ -163,6 +163,8 @@ class BioLinkController extends Controller
             'settings.text' => 'nullable|string|max:500',
             'settings.pin' => ['nullable', 'regex:/^[0-9]{4,8}$/'],
             'settings.count' => 'nullable|integer|min:1|max:10',
+            'settings.options' => 'nullable|array|max:6',
+            'settings.options.*.text' => 'required_with:settings.options|string|max:80',
             'settings.ask_name' => 'nullable|boolean',
             'settings.ask_email' => 'nullable|boolean',
             'settings.ask_phone' => 'nullable|boolean',
@@ -307,6 +309,8 @@ class BioLinkController extends Controller
             'settings.text' => 'nullable|string|max:500',
             'settings.pin' => ['nullable', 'regex:/^[0-9]{4,8}$/'],
             'settings.count' => 'nullable|integer|min:1|max:10',
+            'settings.options' => 'nullable|array|max:6',
+            'settings.options.*.text' => 'required_with:settings.options|string|max:80',
             'settings.ask_name' => 'nullable|boolean',
             'settings.ask_email' => 'nullable|boolean',
             'settings.ask_phone' => 'nullable|boolean',
@@ -401,6 +405,23 @@ class BioLinkController extends Controller
             });
             fclose($out);
         }, 'entries-'.Str::slug($bioPage->slug.'-'.$bioLink->id).'.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    /** The poll's counts for the owner: the editor shows them in the block form. */
+    public function pollResults(BioPage $bioPage, BioLink $bioLink)
+    {
+        $this->authorize('update', $bioPage);
+        abort_unless($bioLink->type === 'poll', 404);
+
+        return response()->json($bioLink->pollResults() + ['options' => $bioLink->pollOptions()]);
+    }
+
+    public function pollReset(BioPage $bioPage, BioLink $bioLink)
+    {
+        $this->authorize('update', $bioPage);
+        abort_unless($bioLink->type === 'poll', 404);
+
+        return response()->json(['success' => true, 'deleted' => $bioLink->pollVotes()->delete()]);
     }
 
     public function leadsDestroy(BioPage $bioPage, BioLink $bioLink)

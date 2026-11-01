@@ -548,7 +548,7 @@ window.bioEditorV2 = function() {
                 faq_items: [],
                 html_content: '',
                 description: '',
-                settings: type === 'product' ? { price: '', currency: 'IDR', sold_out: false } : (type === 'collection' ? { layout: 'stack' } : (type === 'whatsapp' ? { text: '', mode: 'round_robin', numbers: [{ number: '', label: '', weight: 1 }] } : (type === 'goal' ? { target: '', current: '', unit: '' } : (type === 'form' ? { ask_name: true, ask_email: true, ask_phone: false, button: '', thanks: '', consent: '', retention_days: 90 } : type === 'app' ? { ios: '', android: '', web: '' } : (type === 'carousel' ? { images: [] } : null)))))
+                settings: type === 'product' ? { price: '', currency: 'IDR', sold_out: false } : (type === 'collection' ? { layout: 'stack' } : (type === 'whatsapp' ? { text: '', mode: 'round_robin', numbers: [{ number: '', label: '', weight: 1 }] } : (type === 'goal' ? { target: '', current: '', unit: '' } : (type === 'poll' ? { options: [{ text: '' }, { text: '' }] } : type === 'rss' ? { count: 5 } : type === 'form' ? { ask_name: true, ask_email: true, ask_phone: false, button: '', thanks: '', consent: '', retention_days: 90 } : type === 'app' ? { ios: '', android: '', web: '' } : (type === 'carousel' ? { images: [] } : null)))))
             };
             if (type === 'whatsapp') newBlock.brand = 'whatsapp';
             this.blocks.push(newBlock);
@@ -912,6 +912,29 @@ window.bioEditorV2 = function() {
             // Plain copies only: a reactive proxy inside settings cannot be posted to the preview frame.
             const plain = value && typeof value === 'object' ? JSON.parse(JSON.stringify(value)) : value;
             this.editingBlock.settings = Object.assign({}, JSON.parse(JSON.stringify(this.editingBlock.settings || {})), { [key]: plain });
+        },
+        pollResults: null,
+        async loadPollResults() {
+            this.pollResults = null;
+            if (!this.editingBlock || this.editingBlock.id >= 1000000000) return;
+            try {
+                const res = await fetch(bioEditorUrl('/links/' + this.editingBlock.id + '/poll'), { headers: { 'Accept': 'application/json' } });
+                if (res.ok) this.pollResults = await res.json();
+            } catch (e) { /* the form still works without counts */ }
+        },
+        async resetPoll() {
+            if (!confirm('Delete every vote of this poll? This cannot be undone.')) return;
+            const res = await fetch(bioEditorUrl('/links/' + this.editingBlock.id + '/poll'), { method: 'DELETE', headers: { 'X-CSRF-TOKEN': csrf(), 'Accept': 'application/json' } });
+            if (res.ok) { await this.loadPollResults(); this.showNotification('Votes deleted', 'success'); } else { this.showNotification('Could not delete the votes', 'error'); }
+        },
+        addPollOption() {
+            this.setProductSetting('options', [...(this.editingBlock.settings?.options || []), { text: '' }]);
+        },
+        removePollOption(i) {
+            this.setProductSetting('options', (this.editingBlock.settings?.options || []).filter((_, k) => k !== i));
+        },
+        setPollOption(i, value) {
+            this.setProductSetting('options', (this.editingBlock.settings?.options || []).map((o, k) => k === i ? { text: value } : o));
         },
         async deleteLeads() {
             if (!confirm('Delete every entry of this form? This cannot be undone.')) return;
