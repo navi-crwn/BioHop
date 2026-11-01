@@ -10,6 +10,7 @@ use App\Models\HopAudit;
 use App\Models\User;
 use App\Support\HopSignature;
 use Carbon\CarbonImmutable;
+use Hop\Bio\Models\BioClick;
 use Hop\Bio\Models\BioLink;
 use Hop\Bio\Models\BioPage;
 use Hop\Bio\Support\BioUploads;
@@ -263,8 +264,10 @@ class HopBioController extends Controller
                 'content' => $b->content,
                 'embed_type' => $b->embed_type,
                 'embed_url' => $b->embed_url,
-                'thumbnail_url' => $b->thumbnail_url,
-                'custom_icon' => $b->custom_icon,
+                // Stored as site paths (/storage/...); the control center is on another host, so give full addresses.
+                'thumbnail_url' => bio_media_url($b->thumbnail_url),
+                'custom_icon' => bio_media_url($b->custom_icon),
+                'media_url' => in_array($b->type, ['image', 'audio', 'pdf'], true) ? bio_media_url($b->content ?: $b->thumbnail_url) : null,
                 'findings' => $this->flagsFor('bio_link', $b->id),
             ];
 
@@ -563,6 +566,19 @@ class HopBioController extends Controller
         }
 
         return response()->json(['ok' => true]);
+    }
+
+    /** GET /internal/accounts/{user}/summary: a few counts for the hub dashboard card (numbers only, no content). */
+    public function summary(int $user): JsonResponse
+    {
+        $pages = BioPage::where('user_id', $user);
+
+        return response()->json(['ok' => true, 'app' => 'biohop', 'data' => [
+            'pages' => (clone $pages)->count(),
+            'published' => (clone $pages)->where('is_published', true)->count(),
+            'clicks_7d' => BioClick::whereIn('bio_link_id', BioLink::whereIn('bio_page_id', (clone $pages)->select('id'))->select('id'))
+                ->where('clicked_at', '>=', now()->subDays(7))->count(),
+        ]]);
     }
 
     /** DELETE /internal/accounts/{user}: called by the hub on account deletion. */

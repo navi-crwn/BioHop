@@ -9,6 +9,7 @@ use App\Models\HopApp;
 use App\Models\User;
 use App\Support\HopSignature;
 use Carbon\CarbonImmutable;
+use Hop\Bio\Models\BioClick;
 use Hop\Bio\Models\BioLink;
 use Hop\Bio\Models\BioPage;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
@@ -63,6 +64,25 @@ class HopBioApiTest extends TestCase
             'HTTP_X_HOP_TIMESTAMP' => (string) $ts,
             'HTTP_X_HOP_SIGNATURE' => $sig,
         ], $json);
+    }
+
+    public function test_summary_gives_counts_only_for_the_account(): void
+    {
+        $mine = User::factory()->create();
+        $other = User::factory()->create();
+        $page = BioPage::create(['user_id' => $mine->id, 'slug' => 'sumpage', 'title' => 'S', 'is_published' => true]);
+        BioPage::create(['user_id' => $mine->id, 'slug' => 'sumdraft', 'title' => 'D', 'is_published' => false]);
+        BioPage::create(['user_id' => $other->id, 'slug' => 'sumother', 'title' => 'O', 'is_published' => true]);
+        $link = BioLink::create(['bio_page_id' => $page->id, 'title' => 'L', 'url' => 'https://example.com']);
+        BioClick::create(['bio_link_id' => $link->id, 'clicked_at' => now()->subDay()]);
+        BioClick::create(['bio_link_id' => $link->id, 'clicked_at' => now()->subDays(30)]);
+
+        $this->hubSigned('GET', "/internal/accounts/{$mine->id}/summary")->assertOk()
+            ->assertJsonPath('app', 'biohop')
+            ->assertJsonPath('data.pages', 2)
+            ->assertJsonPath('data.published', 1)
+            ->assertJsonPath('data.clicks_7d', 1);
+        $this->getJson("/internal/accounts/{$mine->id}/summary")->assertUnauthorized();
     }
 
     public function test_refuses_unsigned_or_non_admin_client_requests(): void
@@ -131,6 +151,24 @@ class HopBioApiTest extends TestCase
             ->assertJsonPath('data.totals.blocks', 1)
             ->assertJsonPath('data.totals.views_total', 12)
             ->assertJsonPath('data.totals.clicks_total', 4);
+    }
+
+    public function test_block_detail_gives_full_addresses_for_uploaded_files(): void
+    {
+        config(['app.asset_url' => 'https://bio.hel.test']);
+        $u = User::factory()->create();
+        $page = BioPage::create(['user_id' => $u->id, 'slug' => 'files', 'title' => 'Files', 'is_published' => true]);
+        $link = BioLink::create(['bio_page_id' => $page->id, 'type' => 'link', 'title' => 'Own icon', 'url' => 'https://example.com', 'thumbnail_url' => '/storage/bio-thumbnails/t.webp', 'custom_icon' => '/storage/bio-icons/i.png', 'order' => 1, 'is_active' => true]);
+        $audio = BioLink::create(['bio_page_id' => $page->id, 'type' => 'audio', 'title' => 'Clip', 'content' => '/storage/bio-audio/a.mp3', 'order' => 2, 'is_active' => true]);
+
+        $this->signed('GET', "/api/hop/content/block/{$link->id}")
+            ->assertOk()
+            ->assertJsonPath('data.thumbnail_url', 'https://bio.hel.test/storage/bio-thumbnails/t.webp')
+            ->assertJsonPath('data.custom_icon', 'https://bio.hel.test/storage/bio-icons/i.png')
+            ->assertJsonPath('data.media_url', null);
+        $this->signed('GET', "/api/hop/content/block/{$audio->id}")
+            ->assertOk()
+            ->assertJsonPath('data.media_url', 'https://bio.hel.test/storage/bio-audio/a.mp3');
     }
 
     public function test_content_listing_detail_and_actions_for_pages_and_blocks(): void

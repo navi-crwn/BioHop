@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 if (! function_exists('public_url')) {
     /**
@@ -23,11 +22,24 @@ if (! function_exists('public_host')) {
         return preg_replace('/^www\./', '', (string) parse_url(public_url(), PHP_URL_HOST));
     }
 }
+if (! function_exists('bio_asset_origin')) {
+    /**
+     * Where uploads (/storage) and built or bundled files (/build, /images, /fonts) are served: ASSET_URL, else APP_URL
+     * (bio.hel.ink). Public bio pages are served from the public host (hel.ink/b/...), so any file they use must be
+     * addressed on this host in full; a bare path would be looked up on the wrong host and come back missing.
+     */
+    function bio_asset_origin(): string
+    {
+        $origin = trim((string) config('app.asset_url'));
+
+        return rtrim($origin !== '' ? $origin : (string) config('app.url'), '/');
+    }
+}
 if (! function_exists('bio_media_url')) {
     /**
-     * A stored picture, icon or brand image as a full address on the asset host (ASSET_URL). Public bio pages are
-     * served from the public host (hel.ink/b/...) while the files live at the app host (bio.hel.ink), so a bare
-     * /storage/... or /images/... path would be looked up on the wrong host and come back missing.
+     * A stored picture, icon, audio or PDF file, or a built-in brand image, as a full address on the asset host.
+     * Takes what the database holds: a full address (kept as it is), a site path (/storage/x, storage/x, /images/x)
+     * or a path on the public disk (avatars/x.webp).
      */
     function bio_media_url(?string $path): ?string
     {
@@ -38,13 +50,11 @@ if (! function_exists('bio_media_url')) {
         if (preg_match('#^(https?:)?//#i', $path) || str_starts_with($path, 'data:')) {
             return $path;
         }
-        if (str_starts_with($path, '/')) {
-            $host = rtrim((string) config('app.asset_url'), '/');
-
-            return $host !== '' ? $host.$path : asset(ltrim($path, '/'));
+        if (str_starts_with($path, '/') || str_starts_with($path, 'storage/')) {
+            return bio_asset_origin().'/'.ltrim($path, '/');
         }
 
-        return Storage::disk('public')->url($path);
+        return bio_asset_origin().'/storage/'.$path;
     }
 }
 if (! function_exists('bio_enabled')) {
@@ -52,169 +62,6 @@ if (! function_exists('bio_enabled')) {
     function bio_enabled(): bool
     {
         return (bool) config('bio.enabled', false);
-    }
-}
-if (! function_exists('simple_icon_url')) {
-    /** Get Simple Icons CDN URL for a platform/brand */
-    function simple_icon_url(string $platform, ?string $color = null): ?string
-    {
-        // Platform to Simple Icons slug mapping
-        $mapping = [
-            'amazon' => 'amazon',
-            'amazon-music' => 'amazonmusic',
-            'apple' => 'apple',
-            'apple-music' => 'applemusic',
-            'apple-music-alt' => 'applemusic',
-            'apple-podcasts' => 'applepodcasts',
-            'apple-podcasts-alt' => 'applepodcasts',
-            'artstation' => 'artstation',
-            'audiomack' => 'audiomack',
-            'bandcamp' => 'bandcamp',
-            'behance' => 'behance',
-            'bereal' => 'bereal',
-            'bluesky' => 'bluesky',
-            'bluesky-alt' => 'bluesky',
-            'buy-me-a-coffee' => 'buymeacoffee',
-            'cal' => 'caldotcom',
-            'calendly' => 'calendly',
-            'cameo' => 'cameo',
-            'cash-app' => 'cashapp',
-            'cash-app-btc' => 'cashapp',
-            'cash-app-dollar' => 'cashapp',
-            'cash-app-pound' => 'cashapp',
-            'clubhouse' => 'clubhouse',
-            'codeberg' => 'codeberg',
-            'codepen' => 'codepen',
-            'deezer' => 'deezer',
-            'dev-to' => 'devdotto',
-            'discord' => 'discord',
-            'discogs' => 'discogs',
-            'discogs-alt' => 'discogs',
-            'dribbble' => 'dribbble',
-            'email' => 'gmail',
-            'email-alt' => 'maildotru',
-            'etsy' => 'etsy',
-            'facebook' => 'facebook',
-            'figma' => 'figma',
-            'fiverr' => 'fiverr',
-            'flickr' => 'flickr',
-            'github' => 'github',
-            'gitlab' => 'gitlab',
-            'gofundme' => 'gofundme',
-            'gog' => 'gogdotcom',
-            'goodreads' => 'goodreads',
-            'google-drive' => 'googledrive',
-            'google-play' => 'googleplay',
-            'google-podcasts' => 'googlepodcasts',
-            'google-scholar' => 'googlescholar',
-            'guilded' => 'guilded',
-            'gumroad' => 'gumroad',
-            'hackerrank' => 'hackerrank',
-            'hashnode' => 'hashnode',
-            'instagram' => 'instagram',
-            'itch-io' => 'itchdotio',
-            'keybase' => 'keybase',
-            'kick' => 'kick',
-            'kick-alt' => 'kick',
-            'kickstarter' => 'kickstarter',
-            'kit' => 'convertkit',
-            'ko-fi' => 'kofi',
-            'last-fm' => 'lastdotfm',
-            'leetcode' => 'leetcode',
-            'lemmy' => 'lemmy',
-            'letterboxd' => 'letterboxd',
-            'line' => 'line',
-            'linkedin' => 'linkedin',
-            'mailchimp' => 'mailchimp',
-            'mastodon' => 'mastodon',
-            'matrix' => 'matrix',
-            'medium' => 'medium',
-            'meetup' => 'meetup',
-            'meetup-alt' => 'meetup',
-            'messenger' => 'messenger',
-            'microsoft' => 'microsoft',
-            'mixcloud' => 'mixcloud',
-            'myanimelist' => 'myanimelist',
-            'nostr' => 'nostr',
-            'notion' => 'notion',
-            'obsidian' => 'obsidian',
-            'onlyfans' => 'onlyfans',
-            'opensea' => 'opensea',
-            'orcid' => 'orcid',
-            'osu' => 'osu',
-            'patreon' => 'patreon',
-            'paypal' => 'paypal',
-            'pinterest' => 'pinterest',
-            'pixelfed' => 'pixelfed',
-            'playstation' => 'playstation',
-            'product-hunt' => 'producthunt',
-            'qobuz' => 'qobuz',
-            'redbubble' => 'redbubble',
-            'reddit' => 'reddit',
-            'researchgate' => 'researchgate',
-            'revolut' => 'revolut',
-            'signal' => 'signal',
-            'signal-alt' => 'signal',
-            'simplex' => 'simplex',
-            'slack' => 'slack',
-            'snapchat' => 'snapchat',
-            'soundcloud' => 'soundcloud',
-            'spotify' => 'spotify',
-            'spotify-alt' => 'spotify',
-            'stack-overflow' => 'stackoverflow',
-            'steam' => 'steam',
-            'strava' => 'strava',
-            'substack' => 'substack',
-            'telegram' => 'telegram',
-            'threads' => 'threads',
-            'threema' => 'threema',
-            'tidal' => 'tidal',
-            'tiktok' => 'tiktok',
-            'trakt' => 'trakt',
-            'trello' => 'trello',
-            'tumblr' => 'tumblr',
-            'twitch' => 'twitch',
-            'twitter' => 'twitter',
-            'unsplash' => 'unsplash',
-            'upwork' => 'upwork',
-            'venmo' => 'venmo',
-            'vimeo' => 'vimeo',
-            'vrchat' => 'vrchat',
-            'vsco' => 'vsco',
-            'whatsapp' => 'whatsapp',
-            'wordpress' => 'wordpress',
-            'x' => 'x',
-            'xbox' => 'xbox',
-            'xing' => 'xing',
-            'youtube' => 'youtube',
-            'youtube-alt' => 'youtube',
-            'youtube-music' => 'youtubemusic',
-            'zoom' => 'zoom',
-            // Generic icons that may not have Simple Icons equivalents
-            'link' => null,
-            'blog' => null,
-            'website' => null,
-            'generic-website' => null,
-            'generic-email' => 'gmail',
-            'generic-email-alt' => 'maildotru',
-            'generic-calendar' => null,
-            'generic-phone' => null,
-            'generic-sms' => null,
-            'generic-shopping-bag' => null,
-            'generic-shopping-tag' => null,
-        ];
-        $iconName = $mapping[$platform] ?? null;
-        if (! $iconName) {
-            return null;
-        }
-        $url = "https://cdn.simpleicons.org/{$iconName}";
-        if ($color) {
-            // Remove # if present
-            $color = ltrim($color, '#');
-            $url .= "/{$color}";
-        }
-
-        return $url;
     }
 }
 if (! function_exists('country_flag')) {
@@ -238,12 +85,8 @@ if (! function_exists('country_flag')) {
                          style="border-radius: 2px;">';
         }
 
-        return '<img src="https://flagcdn.com/w20/'.$code.'.png" 
-                     srcset="https://flagcdn.com/w40/'.$code.'.png 2x" 
-                     width="20" 
-                     alt="'.$countryName.'" 
-                     title="'.$countryName.'"
-                     class="inline-block rounded-sm">';
+        // No flag file for this country: the code itself, never a picture from another host.
+        return '<span class="inline-block rounded-sm bg-slate-200 px-1 text-[10px] font-semibold leading-4 text-slate-600 dark:bg-slate-700 dark:text-slate-200" title="'.e($countryName).'">'.e(strtoupper($code)).'</span>';
     }
 }
 if (! function_exists('country_name')) {
