@@ -561,5 +561,14 @@
     "Pictures": "Gambar",
     "Chat": "Chat",
     "Open": "Buka",
-    "Chat on WhatsApp": "Chat lewat WhatsApp"
+    "Chat on WhatsApp": "Chat lewat WhatsApp",
+    "I agree that :name keeps these details to get back to me.": "Saya setuju :name menyimpan data ini untuk menghubungi saya kembali.",
+    "Thank you! Your details were sent.": "Terima kasih! Datamu sudah terkirim.",
+    "Your e-mail": "E-mail kamu",
+    "Your WhatsApp number": "Nomor WhatsApp kamu",
+    "Send": "Kirim",
+    "The security check failed. Please try again.": "Pemeriksaan keamanan gagal. Coba lagi.",
+    "This form is not taking more entries right now.": "Formulir ini sedang tidak menerima isian lagi.",
+    "Results": "Hasil",
+    ":count vote|:count votes": ":count suara|:count suara"
 }

@@ -561,5 +561,14 @@
     "Pictures": "画像",
     "Chat": "チャット",
     "Open": "開く",
-    "Chat on WhatsApp": "WhatsApp でチャット"
+    "Chat on WhatsApp": "WhatsApp でチャット",
+    "I agree that :name keeps these details to get back to me.": ":name が連絡のためにこの情報を保管することに同意します。",
+    "Thank you! Your details were sent.": "ありがとうございます！送信されました。",
+    "Your e-mail": "メールアドレス",
+    "Your WhatsApp number": "WhatsApp 番号",
+    "Send": "送信",
+    "The security check failed. Please try again.": "セキュリティチェックに失敗しました。もう一度お試しください。",
+    "This form is not taking more entries right now.": "このフォームは現在、これ以上の入力を受け付けていません。",
+    "Results": "結果",
+    ":count vote|:count votes": ":count 票|:count 票"
 }

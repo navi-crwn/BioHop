@@ -561,5 +561,14 @@
     "Pictures": "Imágenes",
     "Chat": "Chat",
     "Open": "Abrir",
-    "Chat on WhatsApp": "Chatea por WhatsApp"
+    "Chat on WhatsApp": "Chatea por WhatsApp",
+    "I agree that :name keeps these details to get back to me.": "Acepto que :name guarde estos datos para responderme.",
+    "Thank you! Your details were sent.": "¡Gracias! Tus datos se enviaron.",
+    "Your e-mail": "Tu correo",
+    "Your WhatsApp number": "Tu número de WhatsApp",
+    "Send": "Enviar",
+    "The security check failed. Please try again.": "La comprobación de seguridad falló. Inténtalo de nuevo.",
+    "This form is not taking more entries right now.": "Este formulario no acepta más envíos por ahora.",
+    "Results": "Resultados",
+    ":count vote|:count votes": ":count voto|:count votos"
 }

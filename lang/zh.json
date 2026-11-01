@@ -561,5 +561,14 @@
     "Pictures": "图片",
     "Chat": "聊天",
     "Open": "打开",
-    "Chat on WhatsApp": "通过 WhatsApp 聊天"
+    "Chat on WhatsApp": "通过 WhatsApp 聊天",
+    "I agree that :name keeps these details to get back to me.": "我同意 :name 保存这些信息以便与我联系。",
+    "Thank you! Your details were sent.": "谢谢！您的信息已发送。",
+    "Your e-mail": "您的邮箱",
+    "Your WhatsApp number": "您的 WhatsApp 号码",
+    "Send": "发送",
+    "The security check failed. Please try again.": "安全检查失败，请重试。",
+    "This form is not taking more entries right now.": "此表单目前不再接受提交。",
+    "Results": "结果",
+    ":count vote|:count votes": ":count 票|:count 票"
 }
