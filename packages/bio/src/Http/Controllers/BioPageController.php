@@ -12,6 +12,7 @@ use Hop\Bio\Contracts\UrlSafety;
 use Hop\Bio\Models\BioClick;
 use Hop\Bio\Models\BioPage;
 use Hop\Bio\Support\BioUploads;
+use Hop\Bio\Support\LinktreeImport;
 use Hop\Bio\Support\SvgSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -201,6 +202,86 @@ class BioPageController extends Controller
         }
 
         return response()->json(['success' => true, 'redirect' => route('bio.edit', $bioPage), 'url' => public_url('b/'.$bioPage->slug)]);
+    }
+
+    public function importForm()
+    {
+        return view('bio::import', ['slugMin' => auth()->user()?->isAdmin() ? 3 : (int) config('bio.slug_min_length', 5)]);
+    }
+
+    /** Reads a public Linktree page into a new draft page: title, bio, picture, links, groups, headers and social icons. */
+    public function import(Request $request)
+    {
+        if (auth()->user()->bioPages()->count() >= self::MAX_PAGES) {
+            return back()->withInput()->withErrors(['linktree' => 'You have reached the maximum limit of '.self::MAX_PAGES.' bio pages.']);
+        }
+        $request->merge(['slug' => strtolower((string) $request->slug)]);
+        $validated = $request->validate([
+            'linktree' => 'required|string|max:200',
+            'slug' => $this->slugRules(),
+        ]);
+        $username = LinktreeImport::username($validated['linktree']);
+        if (! $username) {
+            return back()->withInput()->withErrors(['linktree' => __('Enter your Linktree address, like linktr.ee/yourname.')]);
+        }
+        try {
+            $page = LinktreeImport::fetch($username);
+        } catch (\RuntimeException $e) {
+            return back()->withInput()->withErrors(['linktree' => $e->getMessage()]);
+        }
+        $safety = app(UrlSafety::class);
+        $brands = config('brands.platforms', []);
+        $socials = [];
+        foreach ($page['socials'] as $social) {
+            $url = SocialUrlHelper::buildUrl($social['platform'], $social['value']);
+            if ($safety->scheme($url) === null || ! $safety->rejectionReason($url, '', UrlSafety::BIO_SCHEMES)) {
+                $socials[] = ['platform' => $social['platform'], 'value' => $social['value'], 'enabled' => true];
+            }
+        }
+        $bioPage = auth()->user()->bioPages()->create([
+            'slug' => $validated['slug'],
+            'title' => $page['title'],
+            'bio' => $page['bio'],
+            'theme' => 'default',
+            'social_links' => $socials,
+            'is_published' => false,
+            'content_warning' => 'none',
+        ]);
+        if ($picture = LinktreeImport::storePicture($page['picture'])) {
+            $bioPage->update(['avatar_url' => $picture]);
+        }
+        $order = 0;
+        $skipped = 0;
+        $make = function (array $link, string $type) use ($bioPage, $safety, $brands, &$order, &$skipped) {
+            if ($link['url'] && $safety->rejectionReason($link['url'])) {
+                $skipped++;
+
+                return;
+            }
+            $bioPage->links()->create([
+                'type' => $type,
+                'title' => Str::limit($link['title'] ?: ($link['url'] ? self::hostTitle($link['url']) : ''), 100, ''),
+                'url' => $link['url'],
+                'brand' => $link['url'] ? self::brandForUrl($link['url'], $brands) : null,
+                'thumbnail_url' => $link['thumbnail'] ?? null,
+                'order' => $order++,
+                'is_active' => true,
+                'settings' => $type === 'collection' ? ['layout' => 'stack'] : null,
+            ]);
+        };
+        foreach ($page['links'] as $link) {
+            $make($link, $link['type']);
+            foreach ($link['children'] as $child) {
+                $make($child + ['children' => []], 'link');
+            }
+        }
+        $count = $bioPage->links()->count();
+        $message = __('Imported :links blocks and :socials social icons from linktr.ee/:name. The page stays a draft until you publish it.', ['links' => $count, 'socials' => count($socials), 'name' => $page['username']]);
+        if ($skipped) {
+            $message .= ' '.__(':count links were left out because their addresses are blocked here.', ['count' => $skipped]);
+        }
+
+        return redirect()->route('bio.edit', $bioPage)->with('success', $message);
     }
 
     /** The brand whose placeholder host matches the address, so "youtube.com/@x" becomes a YouTube button. */

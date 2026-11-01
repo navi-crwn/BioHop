@@ -527,5 +527,22 @@
     "Draft": "مسودة",
     "No bio pages yet": "لا توجد صفحات بايو بعد",
     "Share all your important links from one page.": "شارك كل روابطك المهمة من صفحة واحدة.",
-    "Create your first bio page": "أنشئ صفحة البايو الأولى"
+    "Create your first bio page": "أنشئ صفحة البايو الأولى",
+    "Import from Linktree": "استيراد من Linktree",
+    "Paste your Linktree address. Your title, picture, bio, links, groups and social icons come over as a draft page you can finish here.": "الصق عنوان Linktree الخاص بك. يُنقل العنوان والصورة والنبذة والروابط والمجموعات وأيقونات التواصل كصفحة مسودة تكملها هنا.",
+    "Your Linktree address": "عنوان Linktree الخاص بك",
+    "New address here": "العنوان الجديد هنا",
+    "Only the public page is read; nothing is signed in to and nothing is changed on Linktree.": "تُقرأ الصفحة العامة فقط؛ لا تسجيل دخول ولا تغيير لأي شيء في Linktree.",
+    "Groups become collections, headers stay headers, link pictures are kept as thumbnails.": "تتحول المجموعات إلى تشكيلات، وتبقى العناوين عناوين، وتُحفظ صور الروابط كصور مصغرة.",
+    "Colours and fonts are not copied: pick a theme in the editor afterwards.": "لا تُنسخ الألوان والخطوط: اختر سمة في المحرر بعد ذلك.",
+    "Import my page": "استيراد صفحتي",
+    "Start from scratch instead": "البدء من الصفر بدلاً من ذلك",
+    "Coming from Linktree? Import your page.": "قادم من Linktree؟ استورد صفحتك.",
+    "Enter your Linktree address, like linktr.ee/yourname.": "أدخل عنوان Linktree الخاص بك، مثل linktr.ee/yourname.",
+    "Linktree did not answer. Try again in a moment.": "لم يستجب Linktree. حاول مرة أخرى بعد قليل.",
+    "There is no Linktree page with that name.": "لا توجد صفحة Linktree بهذا الاسم.",
+    "That page could not be read. Linktree may have changed its layout, or the page is private.": "تعذر قراءة تلك الصفحة. ربما غيّر Linktree تصميمه، أو الصفحة خاصة.",
+    "That Linktree page is locked, so nothing can be read from it.": "صفحة Linktree تلك مقفلة، لذا لا يمكن قراءة أي شيء منها.",
+    "Imported :links blocks and :socials social icons from linktr.ee/:name. The page stays a draft until you publish it.": "تم استيراد :links كتلة و :socials أيقونة تواصل من linktr.ee/:name. تبقى الصفحة مسودة حتى تنشرها.",
+    ":count links were left out because their addresses are blocked here.": "تم استبعاد :count روابط لأن عناوينها محظورة هنا."
 }

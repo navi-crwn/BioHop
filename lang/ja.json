@@ -527,5 +527,22 @@
     "Draft": "下書き",
     "No bio pages yet": "まだバイオページがありません",
     "Share all your important links from one page.": "大事なリンクをすべて1つのページで共有。",
-    "Create your first bio page": "最初のバイオページを作る"
+    "Create your first bio page": "最初のバイオページを作る",
+    "Import from Linktree": "Linktree からインポート",
+    "Paste your Linktree address. Your title, picture, bio, links, groups and social icons come over as a draft page you can finish here.": "Linktree のアドレスを貼り付けてください。タイトル、写真、自己紹介、リンク、グループ、SNS アイコンが下書きページとして取り込まれ、ここで仕上げられます。",
+    "Your Linktree address": "あなたの Linktree アドレス",
+    "New address here": "こちらでの新しいアドレス",
+    "Only the public page is read; nothing is signed in to and nothing is changed on Linktree.": "公開ページのみを読み取ります。ログインはせず、Linktree 側は何も変更されません。",
+    "Groups become collections, headers stay headers, link pictures are kept as thumbnails.": "グループはコレクションに、見出しは見出しのまま、リンク画像はサムネイルとして保持されます。",
+    "Colours and fonts are not copied: pick a theme in the editor afterwards.": "色とフォントはコピーされません。あとでエディターでテーマを選んでください。",
+    "Import my page": "ページをインポート",
+    "Start from scratch instead": "代わりに最初から作る",
+    "Coming from Linktree? Import your page.": "Linktree から移行しますか？ページをインポートしましょう。",
+    "Enter your Linktree address, like linktr.ee/yourname.": "linktr.ee/yourname のように Linktree アドレスを入力してください。",
+    "Linktree did not answer. Try again in a moment.": "Linktree が応答しませんでした。しばらくしてからもう一度お試しください。",
+    "There is no Linktree page with that name.": "その名前の Linktree ページはありません。",
+    "That page could not be read. Linktree may have changed its layout, or the page is private.": "そのページを読み取れませんでした。Linktree のレイアウトが変わったか、ページが非公開です。",
+    "That Linktree page is locked, so nothing can be read from it.": "その Linktree ページはロックされているため、何も読み取れません。",
+    "Imported :links blocks and :socials social icons from linktr.ee/:name. The page stays a draft until you publish it.": "linktr.ee/:name から :links 個のブロックと :socials 個の SNS アイコンを取り込みました。公開するまで下書きのままです。",
+    ":count links were left out because their addresses are blocked here.": ":count 件のリンクは、アドレスがここでブロックされているため除外されました。"
 }

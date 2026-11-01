@@ -527,5 +527,22 @@
     "Draft": "Brouillon",
     "No bio pages yet": "Pas encore de page bio",
     "Share all your important links from one page.": "Partagez tous vos liens importants depuis une seule page.",
-    "Create your first bio page": "Créez votre première page bio"
+    "Create your first bio page": "Créez votre première page bio",
+    "Import from Linktree": "Importer depuis Linktree",
+    "Paste your Linktree address. Your title, picture, bio, links, groups and social icons come over as a draft page you can finish here.": "Collez votre adresse Linktree. Titre, photo, bio, liens, groupes et icônes sociales arrivent comme un brouillon à terminer ici.",
+    "Your Linktree address": "Votre adresse Linktree",
+    "New address here": "Nouvelle adresse ici",
+    "Only the public page is read; nothing is signed in to and nothing is changed on Linktree.": "Seule la page publique est lue ; aucune connexion, rien n'est modifié sur Linktree.",
+    "Groups become collections, headers stay headers, link pictures are kept as thumbnails.": "Les groupes deviennent des collections, les en-têtes restent des en-têtes, les images de lien deviennent des vignettes.",
+    "Colours and fonts are not copied: pick a theme in the editor afterwards.": "Couleurs et polices ne sont pas copiées : choisissez un thème dans l'éditeur ensuite.",
+    "Import my page": "Importer ma page",
+    "Start from scratch instead": "Partir de zéro",
+    "Coming from Linktree? Import your page.": "Vous venez de Linktree ? Importez votre page.",
+    "Enter your Linktree address, like linktr.ee/yourname.": "Saisissez votre adresse Linktree, par exemple linktr.ee/votrenom.",
+    "Linktree did not answer. Try again in a moment.": "Linktree n'a pas répondu. Réessayez dans un instant.",
+    "There is no Linktree page with that name.": "Il n'y a pas de page Linktree à ce nom.",
+    "That page could not be read. Linktree may have changed its layout, or the page is private.": "Cette page n'a pas pu être lue. Linktree a peut-être changé sa mise en page, ou la page est privée.",
+    "That Linktree page is locked, so nothing can be read from it.": "Cette page Linktree est verrouillée, rien ne peut en être lu.",
+    "Imported :links blocks and :socials social icons from linktr.ee/:name. The page stays a draft until you publish it.": "Importé :links blocs et :socials icônes sociales depuis linktr.ee/:name. La page reste un brouillon jusqu'à sa publication.",
+    ":count links were left out because their addresses are blocked here.": ":count liens ont été laissés de côté car leurs adresses sont bloquées ici."
 }

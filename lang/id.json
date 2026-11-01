@@ -527,5 +527,22 @@
     "Draft": "Draf",
     "No bio pages yet": "Belum ada halaman bio",
     "Share all your important links from one page.": "Bagikan semua tautan pentingmu dari satu halaman.",
-    "Create your first bio page": "Buat halaman bio pertama"
+    "Create your first bio page": "Buat halaman bio pertama",
+    "Import from Linktree": "Impor dari Linktree",
+    "Paste your Linktree address. Your title, picture, bio, links, groups and social icons come over as a draft page you can finish here.": "Tempel alamat Linktree kamu. Judul, foto, bio, tautan, grup, dan ikon sosial dipindahkan sebagai halaman draf yang bisa kamu rampungkan di sini.",
+    "Your Linktree address": "Alamat Linktree kamu",
+    "New address here": "Alamat baru di sini",
+    "Only the public page is read; nothing is signed in to and nothing is changed on Linktree.": "Hanya halaman publik yang dibaca; tidak ada login dan tidak ada yang diubah di Linktree.",
+    "Groups become collections, headers stay headers, link pictures are kept as thumbnails.": "Grup jadi koleksi, header tetap header, gambar tautan disimpan sebagai thumbnail.",
+    "Colours and fonts are not copied: pick a theme in the editor afterwards.": "Warna dan font tidak disalin: pilih tema di editor setelahnya.",
+    "Import my page": "Impor halaman saya",
+    "Start from scratch instead": "Mulai dari awal saja",
+    "Coming from Linktree? Import your page.": "Pindah dari Linktree? Impor halamanmu.",
+    "Enter your Linktree address, like linktr.ee/yourname.": "Masukkan alamat Linktree kamu, misalnya linktr.ee/namakamu.",
+    "Linktree did not answer. Try again in a moment.": "Linktree tidak menjawab. Coba lagi sebentar lagi.",
+    "There is no Linktree page with that name.": "Tidak ada halaman Linktree dengan nama itu.",
+    "That page could not be read. Linktree may have changed its layout, or the page is private.": "Halaman itu tidak bisa dibaca. Linktree mungkin mengubah tata letaknya, atau halamannya privat.",
+    "That Linktree page is locked, so nothing can be read from it.": "Halaman Linktree itu terkunci, jadi tidak ada yang bisa dibaca.",
+    "Imported :links blocks and :socials social icons from linktr.ee/:name. The page stays a draft until you publish it.": "Mengimpor :links blok dan :socials ikon sosial dari linktr.ee/:name. Halaman tetap draf sampai kamu terbitkan.",
+    ":count links were left out because their addresses are blocked here.": ":count tautan dilewati karena alamatnya diblokir di sini."
 }

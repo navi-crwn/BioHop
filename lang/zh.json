@@ -527,5 +527,22 @@
     "Draft": "草稿",
     "No bio pages yet": "还没有简介页面",
     "Share all your important links from one page.": "在一个页面分享您所有重要链接。",
-    "Create your first bio page": "创建第一个简介页面"
+    "Create your first bio page": "创建第一个简介页面",
+    "Import from Linktree": "从 Linktree 导入",
+    "Paste your Linktree address. Your title, picture, bio, links, groups and social icons come over as a draft page you can finish here.": "粘贴您的 Linktree 地址。标题、头像、简介、链接、分组和社交图标会作为草稿页面导入，您可以在此完成。",
+    "Your Linktree address": "您的 Linktree 地址",
+    "New address here": "这里的新地址",
+    "Only the public page is read; nothing is signed in to and nothing is changed on Linktree.": "只读取公开页面；不会登录，也不会更改 Linktree 上的任何内容。",
+    "Groups become collections, headers stay headers, link pictures are kept as thumbnails.": "分组变为合集，标题保持标题，链接图片保留为缩略图。",
+    "Colours and fonts are not copied: pick a theme in the editor afterwards.": "不会复制颜色和字体：之后请在编辑器中选择主题。",
+    "Import my page": "导入我的页面",
+    "Start from scratch instead": "改为从头开始",
+    "Coming from Linktree? Import your page.": "来自 Linktree？导入您的页面。",
+    "Enter your Linktree address, like linktr.ee/yourname.": "请输入您的 Linktree 地址，例如 linktr.ee/yourname。",
+    "Linktree did not answer. Try again in a moment.": "Linktree 没有响应。请稍后再试。",
+    "There is no Linktree page with that name.": "没有该名称的 Linktree 页面。",
+    "That page could not be read. Linktree may have changed its layout, or the page is private.": "无法读取该页面。Linktree 可能更改了布局，或者该页面是私密的。",
+    "That Linktree page is locked, so nothing can be read from it.": "该 Linktree 页面已锁定，无法读取任何内容。",
+    "Imported :links blocks and :socials social icons from linktr.ee/:name. The page stays a draft until you publish it.": "已从 linktr.ee/:name 导入 :links 个区块和 :socials 个社交图标。页面在发布前保持草稿状态。",
+    ":count links were left out because their addresses are blocked here.": "有 :count 个链接因地址在此被屏蔽而未导入。"
 }
