@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AbuseFlag;
 use App\Support\CssValue;
 use App\Support\ReservedSlugs;
+use Carbon\Carbon;
 use Hop\Bio\Contracts\UrlSafety;
 use Hop\Bio\Models\BioClick;
 use Hop\Bio\Models\BioPage;
@@ -27,9 +28,73 @@ class BioPageController extends Controller
 
     public function index()
     {
-        $bioPages = auth()->user()->bioPages()->withCount('links')->latest()->get();
+        $bioPages = auth()->user()->bioPages()->withCount('links')->with('links:id,bio_page_id')->latest()->get();
+        $home = self::dashboardHome($bioPages);
 
-        return view('bio::index', compact('bioPages'));
+        return view('bio::index', compact('bioPages') + $home);
+    }
+
+    /**
+     * Numbers for the dashboard home: clicks per day for the last 14 days (this week against last week,
+     * and a 7-day line per page) and the setup checklist of the newest page. Views are a plain counter,
+     * so the week figures are clicks: the logs we keep (30 days).
+     *
+     * @return array{weekClicks:int, weekDelta:int|null, week:array<int,int>, perPage:array<int,array<int,int>>, checklist:?array{page:BioPage, items:array<int,array{key:string,label:string,done:bool,tab:string}>, done:int}}
+     */
+    public static function dashboardHome($bioPages): array
+    {
+        $linkToPage = [];
+        foreach ($bioPages as $page) {
+            foreach ($page->links as $link) {
+                $linkToPage[$link->id] = $page->id;
+            }
+        }
+        $perDay = [];  // page id => day offset (0 = today) => clicks
+        $since = now()->startOfDay()->subDays(13);
+        if ($linkToPage !== []) {
+            $rows = BioClick::query()->whereIn('bio_link_id', array_keys($linkToPage))->where('clicked_at', '>=', $since)
+                ->selectRaw('bio_link_id, DATE(clicked_at) as day, COUNT(*) as n')->groupBy('bio_link_id', 'day')->get();
+            foreach ($rows as $row) {
+                $offset = (int) now()->startOfDay()->diffInDays(Carbon::parse($row->day)->startOfDay(), true);
+                $perDay[$linkToPage[$row->bio_link_id]][$offset] = ($perDay[$linkToPage[$row->bio_link_id]][$offset] ?? 0) + (int) $row->n;
+            }
+        }
+        $week = array_fill(0, 7, 0);
+        $thisWeek = $lastWeek = 0;
+        $perPage = [];
+        foreach ($bioPages as $page) {
+            $line = [];
+            for ($i = 6; $i >= 0; $i--) {
+                $n = $perDay[$page->id][$i] ?? 0;
+                $line[] = $n;
+                $week[6 - $i] += $n;
+                $thisWeek += $n;
+            }
+            for ($i = 7; $i <= 13; $i++) {
+                $lastWeek += $perDay[$page->id][$i] ?? 0;
+            }
+            $perPage[$page->id] = $line;
+        }
+        $checklist = null;
+        if ($first = $bioPages->first()) {
+            $items = [
+                ['key' => 'avatar', 'label' => __('Add a profile picture'), 'done' => (bool) $first->avatar_url, 'tab' => 'profile'],
+                ['key' => 'bio', 'label' => __('Write a short bio'), 'done' => trim((string) $first->bio) !== '', 'tab' => 'profile'],
+                ['key' => 'link', 'label' => __('Add your first link'), 'done' => $first->links_count > 0, 'tab' => 'links'],
+                ['key' => 'socials', 'label' => __('Add your social icons'), 'done' => collect($first->social_links ?? [])->contains(fn ($s) => trim((string) (($s['value'] ?? '') ?: ($s['url'] ?? ''))) !== ''), 'tab' => 'socials'],
+                ['key' => 'design', 'label' => __('Pick a theme or your own colours'), 'done' => ($first->theme && $first->theme !== 'default') || $first->headerLayout() !== 'classic' || (string) $first->background_value !== '' || ! in_array($first->font_family, [null, '', 'default', 'inter'], true), 'tab' => 'appearance'],
+                ['key' => 'publish', 'label' => __('Publish the page'), 'done' => (bool) $first->is_published, 'tab' => 'settings'],
+            ];
+            $checklist = ['page' => $first, 'items' => $items, 'done' => count(array_filter($items, fn ($i) => $i['done']))];
+        }
+
+        return [
+            'weekClicks' => $thisWeek,
+            'weekDelta' => $lastWeek > 0 ? (int) round(($thisWeek - $lastWeek) / $lastWeek * 100) : null,
+            'week' => $week,
+            'perPage' => $perPage,
+            'checklist' => $checklist,
+        ];
     }
 
     public function create(Request $request)
