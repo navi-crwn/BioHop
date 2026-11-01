@@ -752,19 +752,19 @@
             <div class="rounded-3xl p-8">
                 <div class="text-center bio-head bio-head-{{ $headerLayout }} {{ $showHeaderBg ? 'bio-header-bg' : '' }}">
                     @if($headerLayout === 'hero')
-                        <img src="{{ $avatarSrc }}" alt="{{ $bioPage->title }}" class="bio-hero-img" fetchpriority="high">
+                        <img src="{{ $avatarSrc }}" alt="{{ $bioPage->title }}" class="bio-hero-img" fetchpriority="high" {!! \Hop\Bio\Support\ImageMeta::attrs($bioPage->avatar_url) !!}>
                         <div class="bio-hero-text">
                     @elseif($headerLayout === 'banner')
                         <div class="bio-cover" role="presentation"></div>
                     @endif
                     @if($headerLayout === 'cutout')
-                        <img src="{{ $avatarSrc }}" alt="{{ $bioPage->title }}" class="bio-avatar mx-auto" fetchpriority="high">
+                        <img src="{{ $avatarSrc }}" alt="{{ $bioPage->title }}" class="bio-avatar mx-auto" fetchpriority="high" {!! \Hop\Bio\Support\ImageMeta::attrs($bioPage->avatar_url) !!}>
                     @elseif($headerLayout !== 'hero')
                         @if($avatarSrc)
                         <img src="{{ $avatarSrc }}" 
                              alt="{{ $bioPage->title }}" 
                              class="bio-avatar mx-auto mb-4 h-24 w-24 object-cover" width="96" height="96" fetchpriority="high"
-                             style="border-radius: {{ $avatarRadius }};">
+                             style="border-radius: {{ $avatarRadius }};@if($avatarMeta = \Hop\Bio\Support\ImageMeta::for($bioPage->avatar_url)) background-color: {{ $avatarMeta['color'] }};@endif">
                         @else
                         <div class="bio-avatar mx-auto mb-4 flex h-24 w-24 items-center justify-center bg-linear-to-br from-blue-500 to-indigo-600 text-3xl font-bold text-white"
                              style="border-radius: {{ $avatarRadius }};">
@@ -864,7 +864,7 @@
                             @php $buy = $pHref && !$soldOut; @endphp
                             <article class="bio-product {{ $soldOut ? 'is-sold-out' : '' }} {{ $buy ? 'can-buy' : '' }}" style="--pbg: {{ $linkBgColor ?? $blockBg ?? 'rgba(255,255,255,.2)' }}; --ptext: {{ $linkTextColor }}">
                                 @if($buy)<a href="{{ $pHref }}" target="_blank" rel="nofollow noopener" class="bio-product-pic" aria-label="{{ $product->title }}">@else<span class="bio-product-pic">@endif
-                                    @if($pImg)<img src="{{ $pImg }}" alt="" loading="lazy" decoding="async">@else<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>@endif
+                                    @if($pImg)<img src="{{ $pImg }}" alt="" loading="lazy" decoding="async" {!! \Hop\Bio\Support\ImageMeta::attrs($pImg) !!}>@else<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>@endif
                                     @if($soldOut)<b class="bio-product-flag">{{ __('Sold out') }}</b>@endif
                                 @if($buy)</a>@else</span>@endif
                                 <span class="bio-product-body"><b class="bio-product-name">@if($buy)<a href="{{ $pHref }}" target="_blank" rel="nofollow noopener">{{ $product->title }}</a>@else{{ $product->title }}@endif</b>@if($product->description)<small class="bio-product-desc">{{ $product->description }}</small>@endif
@@ -1181,7 +1181,7 @@
                         @elseif($link->type === 'carousel' && $link->carouselImages())
                             <div class="bio-carousel w-full" role="region" aria-roledescription="carousel" aria-label="{{ $link->title ?: __('Pictures') }}" tabindex="0">
                                 @foreach($link->carouselImages() as $img)
-                                    <figure class="bio-slide"><img src="{{ $img['url'] }}" alt="{{ $img['caption'] }}" loading="lazy" decoding="async">@if($img['caption'])<figcaption>{{ $img['caption'] }}</figcaption>@endif</figure>
+                                    <figure class="bio-slide"><img src="{{ $img['url'] }}" alt="{{ $img['caption'] }}" loading="lazy" decoding="async" {!! \Hop\Bio\Support\ImageMeta::attrs($img['url']) !!}>@if($img['caption'])<figcaption>{{ $img['caption'] }}</figcaption>@endif</figure>
                                 @endforeach
                             </div>
                         @elseif($link->type === 'faq' && $link->faq_items)
