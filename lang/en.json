@@ -561,5 +561,14 @@
     "Pictures": "Pictures",
     "Chat": "Chat",
     "Open": "Open",
-    "Chat on WhatsApp": "Chat on WhatsApp"
+    "Chat on WhatsApp": "Chat on WhatsApp",
+    "I agree that :name keeps these details to get back to me.": "I agree that :name keeps these details to get back to me.",
+    "Thank you! Your details were sent.": "Thank you! Your details were sent.",
+    "Your e-mail": "Your e-mail",
+    "Your WhatsApp number": "Your WhatsApp number",
+    "Send": "Send",
+    "The security check failed. Please try again.": "The security check failed. Please try again.",
+    "This form is not taking more entries right now.": "This form is not taking more entries right now.",
+    "Results": "Results",
+    ":count vote|:count votes": ":count vote|:count votes"
 }

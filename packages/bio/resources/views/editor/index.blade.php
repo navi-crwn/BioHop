@@ -641,12 +641,12 @@
                                 <template x-for="(o, i) in (editingBlock.settings?.options || [])" :key="i">
                                     <div class="flex items-center gap-2">
                                         <input type="text" maxlength="80" :value="o.text ?? ''" @input="setPollOption(i, $event.target.value)" class="form-input text-sm" :placeholder="'Option ' + (i + 1)" :aria-label="'Option ' + (i + 1)">
-                                        <span class="text-xs editor-text-muted w-14 text-right shrink-0" x-show="pollResults" x-text="(pollResults?.counts?.[i] ?? 0) + ' votes'"></span>
+                                        <span class="text-xs editor-text-muted w-16 text-right shrink-0" x-show="pollResults" x-text="(pollResults?.counts?.[i] ?? 0) + ((pollResults?.counts?.[i] ?? 0) === 1 ? ' vote' : ' votes')"></span>
                                         <button type="button" class="icon-btn" @click="removePollOption(i)" :aria-label="'Remove option ' + (i + 1)"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
                                     </div>
                                 </template>
                                 <div class="flex items-center justify-between gap-2 p-2 rounded-lg" style="background: var(--editor-input-bg)" x-show="pollResults">
-                                    <span class="text-sm"><b x-text="pollResults?.total ?? 0"></b> votes so far</span>
+                                    <span class="text-sm">Votes so far: <b x-text="pollResults?.total ?? 0"></b></span>
                                     <button type="button" class="btn btn-secondary text-xs py-1 px-2" x-show="(pollResults?.total ?? 0) > 0" @click="resetPoll()">Reset votes</button>
                                 </div>
                                 <p class="text-xs editor-text-muted">Changing the number or order of options after people voted mixes up the old votes: reset them first.</p>
