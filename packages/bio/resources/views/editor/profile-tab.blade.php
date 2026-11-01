@@ -340,21 +340,12 @@ window.qrGenerator = function() {
             return {};
         },
         init() {
-            // Load QR styling library first
-            if (typeof QRCodeStyling === 'undefined') {
-                const script = document.createElement('script');
-                script.src = 'https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js';
-                script.onload = () => {
-                    this.qrLoaded = true;
-                    this.loadSettings();
-                    this.createQR();
-                };
-                document.head.appendChild(script);
-            } else {
+            // The QR library is our own lazy file, loaded when this tab first needs it
+            window.loadQr().then(() => {
                 this.qrLoaded = true;
                 this.loadSettings();
                 this.createQR();
-            }
+            });
         },
         loadSettings() {
             const bioPage = this.getBioPage();

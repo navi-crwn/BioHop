@@ -61,6 +61,7 @@
 
     @push('scripts')
         <script nonce="{{ Vite::cspNonce() }}">
+document.addEventListener('DOMContentLoaded', () => window.loadChart().then(() => {
             const viewsChartCtx = document.getElementById('viewsChart').getContext('2d');
             new Chart(viewsChartCtx, {
                 type: 'line',
@@ -115,6 +116,7 @@
                     }
                 }
             });
+}));
         </script>
     @endpush
 </x-app-layout>

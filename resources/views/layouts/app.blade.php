@@ -19,9 +19,6 @@
             })();
         </script>
         <x-hop::fonts />
-        <script nonce="{{ Vite::cspNonce() }}" src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-        {{-- Only used from Alpine components, which start after deferred scripts. --}}
-        <script nonce="{{ Vite::cspNonce() }}" defer src="https://unpkg.com/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
         @stack('scripts-head')
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @stack('styles')

@@ -9,7 +9,7 @@
         <div class="bg-white border border-slate-200 rounded-lg p-4 dark:bg-slate-900 dark:border-(--editor-border)">
             <p class="text-xs editor-text-muted mb-3 uppercase tracking-wide font-medium">Google Search Preview</p>
             <div class="space-y-1">
-                <p class="text-sm text-blue-700 dark:text-blue-400 truncate" x-text="'{{ url("/") }}/' + bioPage.slug"></p>
+                <p class="text-sm text-blue-700 dark:text-blue-400 truncate" x-text="'{{ public_url('b') }}/' + bioPage.slug"></p>
                 <h4 class="text-lg text-blue-800 dark:text-blue-300 font-medium truncate hover:underline cursor-pointer" 
                     x-text="(bioPage.seo_title || bioPage.title || 'Your Page Title') + ' | By LinkHop'"></h4>
                 <p class="text-sm text-slate-600 dark:text-slate-400 line-clamp-2" 
@@ -18,11 +18,12 @@
         </div>
         <div class="form-group">
             <label for="bfsettin-1" class="form-label">Page Title</label>
-            <input id="bfsettin-1" type="text" x-model="bioPage.seo_title" class="form-input" placeholder="Leave empty to use display name" maxlength="47" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-form-type="other">
+            <input id="bfsettin-1" type="text" x-model="bioPage.seo_title" class="form-input" placeholder="Leave empty to use display name" maxlength="60" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-form-type="other">
             <div class="flex justify-between mt-1">
                 <p class="text-xs editor-text-muted">Appears in browser tab and search results (+ " | By LinkHop")</p>
-                <p class="text-xs" :class="(bioPage.seo_title || '').length > 40 ? 'text-orange-500' : 'editor-text-muted'" x-text="(bioPage.seo_title || '').length + '/47'"></p>
+                <p class="text-xs" :class="(bioPage.seo_title || '').length > 52 ? 'text-orange-500' : 'editor-text-muted'" x-text="(bioPage.seo_title || '').length + '/60'"></p>
             </div>
+            <p class="be-field-error" x-show="fieldErrors.seo_title" x-cloak x-text="fieldErrors.seo_title"></p>
         </div>
         <div class="form-group">
             <label for="bfsettin-2" class="form-label">Meta Description</label>
@@ -31,6 +32,7 @@
                 <p class="text-xs editor-text-muted">Recommended: 120-160 characters</p>
                 <p class="text-xs" :class="(bioPage.seo_description || '').length > 150 ? 'text-orange-500' : 'editor-text-muted'" x-text="(bioPage.seo_description || '').length + '/160'"></p>
             </div>
+            <p class="be-field-error" x-show="fieldErrors.seo_description" x-cloak x-text="fieldErrors.seo_description"></p>
         </div>
     </div>
 </div>

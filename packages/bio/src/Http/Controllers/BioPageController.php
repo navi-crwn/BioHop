@@ -11,9 +11,11 @@ use Hop\Bio\Contracts\UrlSafety;
 use Hop\Bio\Models\BioClick;
 use Hop\Bio\Models\BioPage;
 use Hop\Bio\Support\BioUploads;
+use Hop\Bio\Support\SvgSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -226,7 +228,7 @@ class BioPageController extends Controller
             'avatar_shape' => 'nullable|in:circle,rounded,square',
             'badge' => 'nullable|in:verified,star,crown,fire',
             'badge_color' => CssValue::color(20),
-            'seo_title' => 'nullable|string|max:47',
+            'seo_title' => 'nullable|string|max:60',
             'seo_description' => 'nullable|string|max:160',
             'seo_noindex' => 'nullable|boolean',
             'custom_css' => 'nullable|string',
@@ -493,16 +495,15 @@ class BioPageController extends Controller
     public function uploadThumbnail(Request $request, BioPage $bioPage)
     {
         $this->authorize('update', $bioPage);
-        $request->validate([
-            'thumbnail' => 'required|image|max:1024', // 1MB max
-        ]);
         try {
-            $path = $request->file('thumbnail')->store('bio-thumbnails', 'public');
+            $path = $this->storeImageOrSvg($request, 'thumbnail', 'bio-thumbnails');
 
             return response()->json([
                 'success' => true,
                 'thumbnail_url' => '/storage/'.$path,
             ]);
+        } catch (ValidationException $e) {
+            throw $e;
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -512,21 +513,43 @@ class BioPageController extends Controller
     }
 
     /**
+     * Stores an uploaded icon, logo or thumbnail. PNG, JPG, GIF and WebP as before, and now SVG too: Laravel's `image`
+     * rule refuses SVG (it can carry script), which is why SVG icons always failed. An SVG is rebuilt by SvgSanitizer
+     * and stored as plain markup; anything it cannot make safe is refused with a message the editor shows.
+     */
+    private function storeImageOrSvg(Request $request, string $field, string $directory): string
+    {
+        $file = $request->file($field);
+        if ($file && $file->isValid() && (strtolower($file->getClientOriginalExtension()) === 'svg' || $file->getClientMimeType() === 'image/svg+xml')) {
+            $svg = $file->getSize() <= SvgSanitizer::MAX_BYTES ? SvgSanitizer::clean((string) file_get_contents($file->getRealPath())) : null;
+            if ($svg === null) {
+                throw ValidationException::withMessages([$field => 'This SVG cannot be used. Use a plain SVG without scripts or external files, up to 1 MB.']);
+            }
+            $path = $directory.'/'.Str::random(40).'.svg';
+            Storage::disk('public')->put($path, $svg);
+
+            return $path;
+        }
+        $request->validate([$field => 'required|image|max:1024']);
+
+        return $request->file($field)->store($directory, 'public');
+    }
+
+    /**
      * Upload custom icon for bio link block
      */
     public function uploadIcon(Request $request, BioPage $bioPage)
     {
         $this->authorize('update', $bioPage);
-        $request->validate([
-            'icon' => 'required|image|max:1024', // 1MB max
-        ]);
         try {
-            $path = $request->file('icon')->store('bio-icons', 'public');
+            $path = $this->storeImageOrSvg($request, 'icon', 'bio-icons');
 
             return response()->json([
                 'success' => true,
                 'icon_url' => '/storage/'.$path,
             ]);
+        } catch (ValidationException $e) {
+            throw $e;
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -541,12 +564,9 @@ class BioPageController extends Controller
     public function uploadQrLogo(Request $request, BioPage $bioPage)
     {
         $this->authorize('update', $bioPage);
-        $request->validate([
-            'logo' => 'required|image|max:1024', // 1MB max
-        ]);
         try {
             $oldLogo = $bioPage->qr_settings['logo_url'] ?? null;
-            $path = $request->file('logo')->store('qr-logos', 'public');
+            $path = $this->storeImageOrSvg($request, 'logo', 'qr-logos');
             $qrSettings = $bioPage->qr_settings ?? [];
             $qrSettings['logo_url'] = '/storage/'.$path;
             $bioPage->update(['qr_settings' => $qrSettings]);
@@ -556,6 +576,8 @@ class BioPageController extends Controller
                 'success' => true,
                 'logo_url' => '/storage/'.$path,
             ]);
+        } catch (ValidationException $e) {
+            throw $e;
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
