@@ -11,6 +11,26 @@ const NOT_SAVED = new Set(['id', 'user_id', 'links', 'user', 'created_at', 'upda
 window.bioEditorSlug = CONFIG.bioPage.slug;
 window.bioEditorUrl = (path = '') => '/bio/' + encodeURIComponent(window.bioEditorSlug) + path;
 
+// The Design tab: six collapsible sections; which ones are open is remembered per browser.
+window.designTab = function() {
+    const KEY = 'bio-design-open';
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+    return {
+        sections: [['header', 'Header'], ['theme', 'Theme'], ['wallpaper', 'Wallpaper'], ['text', 'Text'], ['buttons', 'Buttons'], ['footer', 'Footer']],
+        open: { header: true, theme: true, wallpaper: true, text: true, buttons: true, footer: true, ...saved },
+        publicUrl: CONFIG.publicBase + '/' + encodeURIComponent(CONFIG.bioPage.slug),
+        toggle(key) {
+            this.open[key] = !this.open[key];
+            try { localStorage.setItem(KEY, JSON.stringify(this.open)); } catch (e) {}
+        },
+        jump(key) {
+            this.open[key] = true;
+            this.$nextTick(() => document.getElementById('design-' + key)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+        },
+    };
+};
+
 window.bioEditorV2 = function() {
     return {
         // State
@@ -826,6 +846,12 @@ window.bioEditorV2 = function() {
                     this.saveBioPage();
                 }
             });
+        },
+        // Button colours live in link_* (and the older button_* pair); a custom colour means the Default theme.
+        setButtonColor(which, value) {
+            if (which === 'bg') { this.bioPage.link_bg_color = value; this.bioPage.button_bg_color = value; }
+            else { this.bioPage.link_text_color = value; this.bioPage.button_text_color = value; }
+            if (this.bioPage.theme !== 'default') this.bioPage.theme = 'default';
         },
         uploadCoverImage(event) {
             const file = event.target.files[0];

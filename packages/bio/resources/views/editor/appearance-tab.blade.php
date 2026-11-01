@@ -1,11 +1,62 @@
-<!-- Appearance Tab Content - Enhanced Layout -->
-<div class="grid grid-cols-1 gap-4">
-    <!-- Left Column: Theme Selection -->
-    <div class="editor-card">
-        <div class="editor-card-header pb-3" style="display:block">
-            <h3 class="editor-card-title text-base font-semibold">Theme</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Applying a theme will reset all button custom colors</p>
+<!-- Design tab: Header · Theme · Wallpaper · Text · Buttons · Footer, each a collapsible section, with a jump bar on top. -->
+<div class="be-design" x-data="designTab()">
+    <nav class="be-design-nav" aria-label="Design sections">
+        <template x-for="s in sections" :key="s[0]">
+            <a :href="'#design-' + s[0]" @click.prevent="jump(s[0])" x-text="s[1]"></a>
+        </template>
+        <a :href="publicUrl" target="_blank" rel="noopener" class="be-design-visit">Preview as visitor ↗</a>
+    </nav>
+    <section class="be-sec" id="design-header" :class="{ 'is-open': open.header }">
+        <button type="button" class="be-sec-head" @click="toggle('header')" :aria-expanded="open.header" aria-controls="design-header-body">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5h16v6H4zM4 15h16M4 19h10"/></svg>
+            <span class="be-sec-title">Header</span>
+            <span class="be-sec-hint" x-text="({classic:'Classic',hero:'Hero',banner:'Banner',cutout:'Cutout'})[bioPage.header_layout || 'classic']"></span>
+            <svg class="be-sec-chev w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="be-sec-body" id="design-header-body" x-show="open.header" x-collapse>
+            <label class="form-label text-xs mb-2">Layout</label>
+                <div class="be-heads" role="radiogroup" aria-label="Header layout">
+                    <template x-for="h in [['classic','Classic'],['hero','Hero'],['banner','Banner'],['cutout','Cutout']]" :key="h[0]">
+                        <button type="button" role="radio" :aria-checked="(bioPage.header_layout || 'classic') === h[0]" @click="bioPage.header_layout = h[0]"
+                                class="be-head" :class="{ 'is-on': (bioPage.header_layout || 'classic') === h[0] }">
+                            <span class="be-head-pic" :data-head="h[0]"><i></i><b></b><u></u></span>
+                            <span x-text="h[1]"></span>
+                        </button>
+                    </template>
+                </div>
+                <p class="text-xs editor-text-muted mt-2" x-show="!bioPage.avatar_url && ['hero','cutout'].includes(bioPage.header_layout)">Hero and Cutout need a profile picture; until one is uploaded the page shows the classic header.</p>
+                <div x-show="bioPage.header_layout === 'banner'" class="mt-3">
+                    <label class="form-label text-xs mb-1">Cover picture</label>
+                    <input aria-label="Upload cover picture" type="file" accept="image/*" class="hidden" x-ref="coverInput" @change="uploadCoverImage($event)">
+                    <div class="flex items-center gap-2">
+                        <button type="button" @click="$refs.coverInput.click()" class="btn btn-secondary text-sm py-2 flex-1">Upload cover</button>
+                        <button type="button" x-show="bioPage.cover_image" @click="bioPage.cover_image = ''" class="btn btn-secondary text-sm py-2">Remove</button>
+                    </div>
+                    <template x-if="bioPage.cover_image">
+                        <img :src="bioPage.cover_image.startsWith('/') || bioPage.cover_image.startsWith('http') ? bioPage.cover_image : '/storage/' + bioPage.cover_image" alt="Cover" class="mt-2 w-full h-16 object-cover rounded-lg">
+                    </template>
+                    <p class="text-xs editor-text-muted mt-1" x-show="!bioPage.cover_image">Without a picture the banner uses the header colour, or the button and title colours.</p>
+                </div>
+            <div class="mt-4">
+                <label class="form-label text-xs mb-2">Profile picture shape</label>
+                <div class="flex items-center gap-2">
+                    <button type="button" aria-label="Circle avatar" @click="bioPage.avatar_shape = 'circle'" :class="bioPage.avatar_shape === 'circle' || !bioPage.avatar_shape ? 'ring-2 ring-blue-500 active' : ''" class="option-btn w-9 h-9 rounded-lg flex items-center justify-center" title="Circle"><svg class="w-4 h-4 editor-icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg></button>
+                    <button type="button" aria-label="Rounded avatar" @click="bioPage.avatar_shape = 'rounded-sm'" :class="bioPage.avatar_shape === 'rounded-sm' ? 'ring-2 ring-blue-500 active' : ''" class="option-btn w-9 h-9 rounded-lg flex items-center justify-center" title="Rounded"><svg class="w-4 h-4 editor-icon" viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="2" width="20" height="20" rx="6"/></svg></button>
+                    <button type="button" aria-label="Square avatar" @click="bioPage.avatar_shape = 'square'" :class="bioPage.avatar_shape === 'square' ? 'ring-2 ring-blue-500 active' : ''" class="option-btn w-9 h-9 rounded-lg flex items-center justify-center" title="Square"><svg class="w-4 h-4 editor-icon" viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="2" width="20" height="20"/></svg></button>
+                    <span class="text-xs editor-text-muted ml-1">Not used by Hero and Cutout.</span>
+                </div>
+            </div>
         </div>
+    </section>
+    <section class="be-sec" id="design-theme" :class="{ 'is-open': open.theme }">
+        <button type="button" class="be-sec-head" @click="toggle('theme')" :aria-expanded="open.theme" aria-controls="design-theme-body">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
+            <span class="be-sec-title">Theme</span>
+            <span class="be-sec-hint" x-text="themes[bioPage.theme]?.name || 'Default'"></span>
+            <svg class="be-sec-chev w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="be-sec-body" id="design-theme-body" x-show="open.theme" x-collapse>
+            <p class="text-xs editor-text-muted mb-3">A theme sets the wallpaper, text and button colours at once. Pick Default to set everything yourself, or use the copy icon on a theme to start from it.</p>
         <div class="grid gap-2" style="grid-template-columns:repeat(auto-fit,minmax(70px,1fr))">
             <template x-for="(theme, id) in themes" :key="id">
                 <div class="relative group">
@@ -66,48 +117,144 @@
                 </div>
             </template>
         </div>
-    </div>
-    <!-- Right Column: Design & Background - Stacked Layout -->
-    <div class="editor-card">
-        <div class="editor-card-header pb-3">
-            <h3 class="editor-card-title text-base font-semibold">Design & Background</h3>
         </div>
-        <div class="space-y-5">
-            <!-- Header layout -->
-            <div class="pb-4 border-b border-slate-200 dark:border-(--editor-border)">
-                <div class="flex items-center gap-2 mb-3">
-                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5h16v6H4zM4 15h16M4 19h10"/></svg>
-                    <h4 class="text-sm font-semibold">Header</h4>
-                </div>
-                <div class="be-heads" role="radiogroup" aria-label="Header layout">
-                    <template x-for="h in [['classic','Classic'],['hero','Hero'],['banner','Banner'],['cutout','Cutout']]" :key="h[0]">
-                        <button type="button" role="radio" :aria-checked="(bioPage.header_layout || 'classic') === h[0]" @click="bioPage.header_layout = h[0]"
-                                class="be-head" :class="{ 'is-on': (bioPage.header_layout || 'classic') === h[0] }">
-                            <span class="be-head-pic" :data-head="h[0]"><i></i><b></b><u></u></span>
-                            <span x-text="h[1]"></span>
-                        </button>
-                    </template>
-                </div>
-                <p class="text-xs editor-text-muted mt-2" x-show="!bioPage.avatar_url && ['hero','cutout'].includes(bioPage.header_layout)">Hero and Cutout need a profile picture; until one is uploaded the page shows the classic header.</p>
-                <div x-show="bioPage.header_layout === 'banner'" class="mt-3">
-                    <label class="form-label text-xs mb-1">Cover picture</label>
-                    <input aria-label="Upload cover picture" type="file" accept="image/*" class="hidden" x-ref="coverInput" @change="uploadCoverImage($event)">
-                    <div class="flex items-center gap-2">
-                        <button type="button" @click="$refs.coverInput.click()" class="btn btn-secondary text-sm py-2 flex-1">Upload cover</button>
-                        <button type="button" x-show="bioPage.cover_image" @click="bioPage.cover_image = ''" class="btn btn-secondary text-sm py-2">Remove</button>
+    </section>
+    <section class="be-sec" id="design-wallpaper" :class="{ 'is-open': open.wallpaper }">
+        <button type="button" class="be-sec-head" @click="toggle('wallpaper')" :aria-expanded="open.wallpaper" aria-controls="design-wallpaper-body">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span class="be-sec-title">Wallpaper</span>
+            <span class="be-sec-hint" x-text="bioPage.theme !== 'default' ? 'From theme' : ({solid:'Colour',gradient:'Gradient',image:'Picture'})[bioPage.background_type] || 'Colour'"></span>
+            <svg class="be-sec-chev w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="be-sec-body" id="design-wallpaper-body" x-show="open.wallpaper" x-collapse>
+            <div x-show="bioPage.theme === 'default'">
+                <div class="space-y-3">
+                    <!-- Background Type Tabs -->
+                    <div class="flex gap-1 bg-slate-100 dark:bg-slate-700 rounded-lg p-1">
+                        <button @click="bioPage.background_type = 'solid'; if(!bioPage.background_value || bioPage.background_value.includes('gradient') || bioPage.background_value.includes('/')) bioPage.background_value = '#ffffff';" 
+                                :class="bioPage.background_type === 'solid' ? 'bg-white dark:bg-slate-600 shadow-xs' : ''"
+                                class="flex-1 py-1.5 px-3 rounded-md text-xs font-medium transition-all">Color</button>
+                        <button @click="bioPage.background_type = 'gradient'; if(!bioPage.background_value || !bioPage.background_value.includes('gradient')) bioPage.background_value = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';" 
+                                :class="bioPage.background_type === 'gradient' ? 'bg-white dark:bg-slate-600 shadow-xs' : ''"
+                                class="flex-1 py-1.5 px-3 rounded-md text-xs font-medium transition-all">Gradient</button>
+                        <button @click="bioPage.background_type = 'image'" 
+                                :class="bioPage.background_type === 'image' ? 'bg-white dark:bg-slate-600 shadow-xs' : ''"
+                                class="flex-1 py-1.5 px-3 rounded-md text-xs font-medium transition-all">Image</button>
                     </div>
-                    <template x-if="bioPage.cover_image">
-                        <img :src="bioPage.cover_image.startsWith('/') || bioPage.cover_image.startsWith('http') ? bioPage.cover_image : '/storage/' + bioPage.cover_image" alt="Cover" class="mt-2 w-full h-16 object-cover rounded-lg">
-                    </template>
-                    <p class="text-xs editor-text-muted mt-1" x-show="!bioPage.cover_image">Without a picture the banner uses the header colour, or the button and title colours.</p>
+                    <!-- Solid Color -->
+                    <div x-show="bioPage.background_type === 'solid'" class="flex items-center gap-2">
+                        <input aria-label="Background color" type="color" x-model="bioPage.background_value" class="color-picker-input w-10 h-10">
+                        <input aria-label="Background color hex value" type="text" x-model="bioPage.background_value" class="form-input flex-1 text-sm py-2" placeholder="#ffffff" autocomplete="off" data-lpignore="true" data-1p-ignore="true">
+                    </div>
+                    <!-- Gradient -->
+                    <div x-show="bioPage.background_type === 'gradient'" class="grid grid-cols-4 gap-2">
+                        <button aria-label="Purple gradient" @click="bioPage.background_value = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'" class="h-10 rounded-lg" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)"></button>
+                        <button aria-label="Pink gradient" @click="bioPage.background_value = 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'" class="h-10 rounded-lg" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"></button>
+                        <button aria-label="Blue gradient" @click="bioPage.background_value = 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'" class="h-10 rounded-lg" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"></button>
+                        <button aria-label="Dark navy gradient" @click="bioPage.background_value = 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'" class="h-10 rounded-lg" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%)"></button>
+                        <button aria-label="Rose gradient" @click="bioPage.background_value = 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)'" class="h-10 rounded-lg" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)"></button>
+                        <button aria-label="Mint gradient" @click="bioPage.background_value = 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)'" class="h-10 rounded-lg" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)"></button>
+                        <button aria-label="Peach gradient" @click="bioPage.background_value = 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)'" class="h-10 rounded-lg" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)"></button>
+                        <button aria-label="Black gradient" @click="bioPage.background_value = 'linear-gradient(135deg, #000000 0%, #434343 100%)'" class="h-10 rounded-lg" style="background: linear-gradient(135deg, #000000 0%, #434343 100%)"></button>
+                    </div>
+                    <!-- Image -->
+                    <div x-show="bioPage.background_type === 'image'">
+                        <input aria-label="Upload background image" type="file" accept="image/*" class="hidden" x-ref="bgImageInput" @change="uploadBackgroundImage($event)">
+                        <button @click="$refs.bgImageInput.click()" class="btn btn-secondary w-full text-sm py-2">Upload Image</button>
+                        <template x-if="bioPage.background_value && bioPage.background_type === 'image' && bioPage.background_value.length > 0">
+                            <div class="mt-2 relative rounded-lg overflow-hidden">
+                                <img :src="bioPage.background_value" 
+                                     class="w-full h-16 object-cover" 
+                                     alt="Background"
+                                     x-on:error="$el.style.display='none'; $el.parentElement.querySelector('.bg-error')?.classList.remove('hidden')"
+                                     x-on:load="$el.style.display='block'; $el.parentElement.querySelector('.bg-error')?.classList.add('hidden')">
+                                <div class="bg-error hidden absolute inset-0 flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-xs text-slate-500">
+                                    <span>Image not found</span>
+                                </div>
+                                <button aria-label="Remove background image" @click="bioPage.background_value = ''; bioPage.background_image = ''" class="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
+                            </div>
+                        </template>
+                    </div>
                 </div>
             </div>
-            <!-- Font Section -->
-            <div class="pb-4 border-b border-slate-200 dark:border-(--editor-border)">
-                <div class="flex items-center gap-2 mb-3">
-                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16"/></svg>
-                    <h4 class="text-sm font-semibold">Font</h4>
+            <div x-show="bioPage.theme !== 'default'" class="flex items-start gap-2 text-xs text-slate-500 dark:text-slate-400 p-2 rounded-lg bg-slate-100 dark:bg-slate-800">
+                <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>The wallpaper comes from the <strong x-text="themes[bioPage.theme]?.name || bioPage.theme"></strong> theme. <button type="button" class="underline" @click="copyThemeStyle(bioPage.theme, 'all')">Copy it to Default</button> to change it.</span>
+            </div>
+            <div class="mt-4">
+                <label class="form-label text-xs mb-2">Animation</label>
+                <div class="grid grid-cols-4 gap-2">
+                    <button @click="bioPage.background_animation = 'none'" 
+                            :class="(bioPage.background_animation === 'none' || !bioPage.background_animation) ? 'ring-2 ring-blue-500 border-blue-500' : 'border-slate-200 dark:border-(--editor-border)'" 
+                            class="p-3 rounded-lg border flex flex-col items-center gap-1.5 transition-all">
+                        <div class="w-8 h-8 flex items-center justify-center text-slate-400">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                        </div>
+                        <span class="text-xs font-medium">None</span>
+                    </button>
+                    <button @click="bioPage.background_animation = 'snow'" 
+                            :class="bioPage.background_animation === 'snow' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-slate-200 dark:border-(--editor-border)'" 
+                            class="p-3 rounded-lg border flex flex-col items-center gap-1.5 transition-all">
+                        <div class="w-8 h-8 flex items-center justify-center text-xl">❄️</div>
+                        <span class="text-xs font-medium">Snow</span>
+                    </button>
+                    <button @click="bioPage.background_animation = 'leaves'" 
+                            :class="bioPage.background_animation === 'leaves' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-slate-200 dark:border-(--editor-border)'" 
+                            class="p-3 rounded-lg border flex flex-col items-center gap-1.5 transition-all">
+                        <div class="w-8 h-8 flex items-center justify-center text-xl">🍂</div>
+                        <span class="text-xs font-medium">Leaves</span>
+                    </button>
+                    <button @click="bioPage.background_animation = 'rain'" 
+                            :class="bioPage.background_animation === 'rain' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-slate-200 dark:border-(--editor-border)'" 
+                            class="p-3 rounded-lg border flex flex-col items-center gap-1.5 transition-all">
+                        <div class="w-8 h-8 flex items-center justify-center text-xl">🌧️</div>
+                        <span class="text-xs font-medium">Rain</span>
+                    </button>
+                    <button @click="bioPage.background_animation = 'stars'" 
+                            :class="bioPage.background_animation === 'stars' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-slate-200 dark:border-(--editor-border)'" 
+                            class="p-3 rounded-lg border flex flex-col items-center gap-1.5 transition-all">
+                        <div class="w-8 h-8 flex items-center justify-center text-xl">✨</div>
+                        <span class="text-xs font-medium">Stars</span>
+                    </button>
+                    <button @click="bioPage.background_animation = 'hearts'" 
+                            :class="bioPage.background_animation === 'hearts' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-slate-200 dark:border-(--editor-border)'" 
+                            class="p-3 rounded-lg border flex flex-col items-center gap-1.5 transition-all">
+                        <div class="w-8 h-8 flex items-center justify-center text-xl">💕</div>
+                        <span class="text-xs font-medium">Hearts</span>
+                    </button>
+                    <button @click="bioPage.background_animation = 'confetti'" 
+                            :class="bioPage.background_animation === 'confetti' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-slate-200 dark:border-(--editor-border)'" 
+                            class="p-3 rounded-lg border flex flex-col items-center gap-1.5 transition-all">
+                        <div class="w-8 h-8 flex items-center justify-center text-xl">🎊</div>
+                        <span class="text-xs font-medium">Confetti</span>
+                    </button>
+                    <button @click="bioPage.background_animation = 'particles'" 
+                            :class="bioPage.background_animation === 'particles' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-slate-200 dark:border-(--editor-border)'" 
+                            class="p-3 rounded-lg border flex flex-col items-center gap-1.5 transition-all">
+                        <div class="w-8 h-8 flex items-center justify-center text-xl">🔮</div>
+                        <span class="text-xs font-medium">Particles</span>
+                    </button>
+                    <button @click="bioPage.background_animation = 'matrix'" 
+                            :class="bioPage.background_animation === 'matrix' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-slate-200 dark:border-(--editor-border)'" 
+                            class="p-3 rounded-lg border flex flex-col items-center gap-1.5 transition-all"
+                            x-show="bioPage.theme === 'neon' || bioPage.theme === 'matrix'">
+                        <div class="w-8 h-8 flex items-center justify-center text-green-500 font-mono font-bold text-lg">01</div>
+                        <span class="text-xs font-medium">Matrix</span>
+                    </button>
                 </div>
+            </div>
+        </div>
+    </section>
+    <section class="be-sec" id="design-text" :class="{ 'is-open': open.text }">
+        <button type="button" class="be-sec-head" @click="toggle('text')" :aria-expanded="open.text" aria-controls="design-text-body">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16"/></svg>
+            <span class="be-sec-title">Text</span>
+            <span class="be-sec-hint" x-text="getFontDisplayName(bioPage.font_family || 'inter')"></span>
+            <svg class="be-sec-chev w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="be-sec-body" id="design-text-body" x-show="open.text" x-collapse>
                 <div class="space-y-3">
                     <div class="relative" x-data="{ showFontPicker: false }">
                         <label class="form-label text-xs mb-1">Font Family</label>
@@ -140,19 +287,22 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <!-- Buttons Section -->
-            <div class="pb-4 border-b border-slate-200 dark:border-(--editor-border)">
-                <div class="flex items-center gap-2 mb-3">
-                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/></svg>
-                    <h4 class="text-sm font-semibold">Buttons</h4>
-                </div>
+        </div>
+    </section>
+    <section class="be-sec" id="design-buttons" :class="{ 'is-open': open.buttons }">
+        <button type="button" class="be-sec-head" @click="toggle('buttons')" :aria-expanded="open.buttons" aria-controls="design-buttons-body">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/></svg>
+            <span class="be-sec-title">Buttons</span>
+            <span class="be-sec-hint" x-text="({'rounded-sm':'Rounded',rounded:'Rounded',pill:'Pill',square:'Square'})[bioPage.block_shape] || 'Rounded'"></span>
+            <svg class="be-sec-chev w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="be-sec-body" id="design-buttons-body" x-show="open.buttons" x-collapse>
                 <div class="space-y-3">
                     <!-- Shape -->
                     <div>
                         <label class="form-label text-xs mb-2">Button Shape</label>
                         <div class="grid grid-cols-3 gap-2">
-                            <button @click="bioPage.block_shape = 'rounded-sm'" :class="bioPage.block_shape === 'rounded-sm' || !bioPage.block_shape ? 'ring-2 ring-blue-500 border-blue-500' : 'border-slate-200 dark:border-(--editor-border)'" class="p-2 rounded-lg border flex flex-col items-center gap-1">
+                            <button @click="bioPage.block_shape = 'rounded-sm'" :class="['rounded-sm', 'rounded'].includes(bioPage.block_shape) || !bioPage.block_shape ? 'ring-2 ring-blue-500 border-blue-500' : 'border-slate-200 dark:border-(--editor-border)'" class="p-2 rounded-lg border flex flex-col items-center gap-1">
                                 <div class="w-full h-4 bg-slate-300 dark:bg-slate-600 rounded-lg"></div>
                                 <span class="text-[10px] font-medium">Rounded</span>
                             </button>
@@ -192,6 +342,24 @@
                             </button>
                         </div>
                     </div>
+                    <!-- Colours -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label for="bfappear-3" class="form-label text-xs mb-1">Button fill</label>
+                            <div class="flex items-center gap-2">
+                                <input id="bfappear-3" type="color" :value="bioPage.link_bg_color || '#f1f5f9'" @input="setButtonColor('bg', $event.target.value)" class="color-picker-input w-8 h-8">
+                                <input aria-label="Button fill hex value" type="text" :value="bioPage.link_bg_color" @input="setButtonColor('bg', $event.target.value)" class="form-input flex-1 text-xs py-1.5" placeholder="#f1f5f9" autocomplete="off" data-lpignore="true" data-1p-ignore="true">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="bfappear-4" class="form-label text-xs mb-1">Button text</label>
+                            <div class="flex items-center gap-2">
+                                <input id="bfappear-4" type="color" :value="bioPage.link_text_color || '#1e293b'" @input="setButtonColor('text', $event.target.value)" class="color-picker-input w-8 h-8">
+                                <input aria-label="Button text hex value" type="text" :value="bioPage.link_text_color" @input="setButtonColor('text', $event.target.value)" class="form-input flex-1 text-xs py-1.5" placeholder="#1e293b" autocomplete="off" data-lpignore="true" data-1p-ignore="true">
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-xs editor-text-muted -mt-1" x-show="bioPage.theme !== 'default'">A theme sets these; changing them switches the page to the Default theme with your colours.</p>
                     <!-- Hover Effect -->
                     <div>
                         <label class="form-label text-xs mb-2">Hover Effect</label>
@@ -255,141 +423,20 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <!-- Background Section - Only show for Default theme -->
-            <div x-show="bioPage.theme === 'default'" x-transition>
-                <div class="flex items-center gap-2 mb-3">
-                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    <h4 class="text-sm font-semibold">Background</h4>
-                </div>
-                <div class="space-y-3">
-                    <!-- Background Type Tabs -->
-                    <div class="flex gap-1 bg-slate-100 dark:bg-slate-700 rounded-lg p-1">
-                        <button @click="bioPage.background_type = 'solid'; if(!bioPage.background_value || bioPage.background_value.includes('gradient') || bioPage.background_value.includes('/')) bioPage.background_value = '#ffffff';" 
-                                :class="bioPage.background_type === 'solid' ? 'bg-white dark:bg-slate-600 shadow-xs' : ''"
-                                class="flex-1 py-1.5 px-3 rounded-md text-xs font-medium transition-all">Color</button>
-                        <button @click="bioPage.background_type = 'gradient'; if(!bioPage.background_value || !bioPage.background_value.includes('gradient')) bioPage.background_value = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';" 
-                                :class="bioPage.background_type === 'gradient' ? 'bg-white dark:bg-slate-600 shadow-xs' : ''"
-                                class="flex-1 py-1.5 px-3 rounded-md text-xs font-medium transition-all">Gradient</button>
-                        <button @click="bioPage.background_type = 'image'" 
-                                :class="bioPage.background_type === 'image' ? 'bg-white dark:bg-slate-600 shadow-xs' : ''"
-                                class="flex-1 py-1.5 px-3 rounded-md text-xs font-medium transition-all">Image</button>
-                    </div>
-                    <!-- Solid Color -->
-                    <div x-show="bioPage.background_type === 'solid'" class="flex items-center gap-2">
-                        <input aria-label="Background color" type="color" x-model="bioPage.background_value" class="color-picker-input w-10 h-10">
-                        <input aria-label="Background color hex value" type="text" x-model="bioPage.background_value" class="form-input flex-1 text-sm py-2" placeholder="#ffffff" autocomplete="off" data-lpignore="true" data-1p-ignore="true">
-                    </div>
-                    <!-- Gradient -->
-                    <div x-show="bioPage.background_type === 'gradient'" class="grid grid-cols-4 gap-2">
-                        <button aria-label="Purple gradient" @click="bioPage.background_value = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'" class="h-10 rounded-lg" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)"></button>
-                        <button aria-label="Pink gradient" @click="bioPage.background_value = 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'" class="h-10 rounded-lg" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"></button>
-                        <button aria-label="Blue gradient" @click="bioPage.background_value = 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'" class="h-10 rounded-lg" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"></button>
-                        <button aria-label="Dark navy gradient" @click="bioPage.background_value = 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'" class="h-10 rounded-lg" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%)"></button>
-                        <button aria-label="Rose gradient" @click="bioPage.background_value = 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)'" class="h-10 rounded-lg" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)"></button>
-                        <button aria-label="Mint gradient" @click="bioPage.background_value = 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)'" class="h-10 rounded-lg" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)"></button>
-                        <button aria-label="Peach gradient" @click="bioPage.background_value = 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)'" class="h-10 rounded-lg" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)"></button>
-                        <button aria-label="Black gradient" @click="bioPage.background_value = 'linear-gradient(135deg, #000000 0%, #434343 100%)'" class="h-10 rounded-lg" style="background: linear-gradient(135deg, #000000 0%, #434343 100%)"></button>
-                    </div>
-                    <!-- Image -->
-                    <div x-show="bioPage.background_type === 'image'">
-                        <input aria-label="Upload background image" type="file" accept="image/*" class="hidden" x-ref="bgImageInput" @change="uploadBackgroundImage($event)">
-                        <button @click="$refs.bgImageInput.click()" class="btn btn-secondary w-full text-sm py-2">Upload Image</button>
-                        <template x-if="bioPage.background_value && bioPage.background_type === 'image' && bioPage.background_value.length > 0">
-                            <div class="mt-2 relative rounded-lg overflow-hidden">
-                                <img :src="bioPage.background_value" 
-                                     class="w-full h-16 object-cover" 
-                                     alt="Background"
-                                     x-on:error="$el.style.display='none'; $el.parentElement.querySelector('.bg-error')?.classList.remove('hidden')"
-                                     x-on:load="$el.style.display='block'; $el.parentElement.querySelector('.bg-error')?.classList.add('hidden')">
-                                <div class="bg-error hidden absolute inset-0 flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-xs text-slate-500">
-                                    <span>Image not found</span>
-                                </div>
-                                <button aria-label="Remove background image" @click="bioPage.background_value = ''; bioPage.background_image = ''" class="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                                </button>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-            </div>
-            <!-- Background Animation Section - Available for all themes -->
-            <div x-transition>
-                <div class="flex items-center gap-2 mb-3">
-                    <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
-                    </svg>
-                    <h4 class="text-sm font-semibold">Background Animation</h4>
-                </div>
-                <div class="grid grid-cols-4 gap-2">
-                    <button @click="bioPage.background_animation = 'none'" 
-                            :class="(bioPage.background_animation === 'none' || !bioPage.background_animation) ? 'ring-2 ring-blue-500 border-blue-500' : 'border-slate-200 dark:border-(--editor-border)'" 
-                            class="p-3 rounded-lg border flex flex-col items-center gap-1.5 transition-all">
-                        <div class="w-8 h-8 flex items-center justify-center text-slate-400">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
-                        </div>
-                        <span class="text-xs font-medium">None</span>
-                    </button>
-                    <button @click="bioPage.background_animation = 'snow'" 
-                            :class="bioPage.background_animation === 'snow' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-slate-200 dark:border-(--editor-border)'" 
-                            class="p-3 rounded-lg border flex flex-col items-center gap-1.5 transition-all">
-                        <div class="w-8 h-8 flex items-center justify-center text-xl">❄️</div>
-                        <span class="text-xs font-medium">Snow</span>
-                    </button>
-                    <button @click="bioPage.background_animation = 'leaves'" 
-                            :class="bioPage.background_animation === 'leaves' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-slate-200 dark:border-(--editor-border)'" 
-                            class="p-3 rounded-lg border flex flex-col items-center gap-1.5 transition-all">
-                        <div class="w-8 h-8 flex items-center justify-center text-xl">🍂</div>
-                        <span class="text-xs font-medium">Leaves</span>
-                    </button>
-                    <button @click="bioPage.background_animation = 'rain'" 
-                            :class="bioPage.background_animation === 'rain' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-slate-200 dark:border-(--editor-border)'" 
-                            class="p-3 rounded-lg border flex flex-col items-center gap-1.5 transition-all">
-                        <div class="w-8 h-8 flex items-center justify-center text-xl">🌧️</div>
-                        <span class="text-xs font-medium">Rain</span>
-                    </button>
-                    <button @click="bioPage.background_animation = 'stars'" 
-                            :class="bioPage.background_animation === 'stars' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-slate-200 dark:border-(--editor-border)'" 
-                            class="p-3 rounded-lg border flex flex-col items-center gap-1.5 transition-all">
-                        <div class="w-8 h-8 flex items-center justify-center text-xl">✨</div>
-                        <span class="text-xs font-medium">Stars</span>
-                    </button>
-                    <button @click="bioPage.background_animation = 'hearts'" 
-                            :class="bioPage.background_animation === 'hearts' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-slate-200 dark:border-(--editor-border)'" 
-                            class="p-3 rounded-lg border flex flex-col items-center gap-1.5 transition-all">
-                        <div class="w-8 h-8 flex items-center justify-center text-xl">💕</div>
-                        <span class="text-xs font-medium">Hearts</span>
-                    </button>
-                    <button @click="bioPage.background_animation = 'confetti'" 
-                            :class="bioPage.background_animation === 'confetti' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-slate-200 dark:border-(--editor-border)'" 
-                            class="p-3 rounded-lg border flex flex-col items-center gap-1.5 transition-all">
-                        <div class="w-8 h-8 flex items-center justify-center text-xl">🎊</div>
-                        <span class="text-xs font-medium">Confetti</span>
-                    </button>
-                    <button @click="bioPage.background_animation = 'particles'" 
-                            :class="bioPage.background_animation === 'particles' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-slate-200 dark:border-(--editor-border)'" 
-                            class="p-3 rounded-lg border flex flex-col items-center gap-1.5 transition-all">
-                        <div class="w-8 h-8 flex items-center justify-center text-xl">🔮</div>
-                        <span class="text-xs font-medium">Particles</span>
-                    </button>
-                    <button @click="bioPage.background_animation = 'matrix'" 
-                            :class="bioPage.background_animation === 'matrix' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-slate-200 dark:border-(--editor-border)'" 
-                            class="p-3 rounded-lg border flex flex-col items-center gap-1.5 transition-all"
-                            x-show="bioPage.theme === 'neon' || bioPage.theme === 'matrix'">
-                        <div class="w-8 h-8 flex items-center justify-center text-green-500 font-mono font-bold text-lg">01</div>
-                        <span class="text-xs font-medium">Matrix</span>
-                    </button>
-                </div>
-            </div>
-            <!-- Theme Background Info (for non-default themes) -->
-            <div x-show="bioPage.theme !== 'default'" x-transition class="pt-2">
-                <div class="flex items-start gap-2 text-xs text-slate-500 dark:text-slate-400 p-2 rounded-lg bg-slate-100 dark:bg-slate-800">
-                    <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <span>Background is locked for this theme. Click the <strong>copy icon</strong> on any theme to copy its style to Default for full customization.</span>
-                </div>
-            </div>
         </div>
-    </div>
+    </section>
+    <section class="be-sec" id="design-footer" :class="{ 'is-open': open.footer }">
+        <button type="button" class="be-sec-head" @click="toggle('footer')" :aria-expanded="open.footer" aria-controls="design-footer-body">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5h16v10H4zM8 19h8"/></svg>
+            <span class="be-sec-title">Footer</span>
+            <span class="be-sec-hint" x-text="bioPage.hide_branding ? 'Hidden' : 'Powered by'"></span>
+            <svg class="be-sec-chev w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="be-sec-body" id="design-footer-body" x-show="open.footer" x-collapse>
+            <label class="flex items-start gap-3 cursor-pointer">
+                <input type="checkbox" class="mt-0.5" :checked="!bioPage.hide_branding" @change="bioPage.hide_branding = !$event.target.checked">
+                <span><span class="text-sm font-medium block">Show "Powered by" at the bottom</span><span class="text-xs editor-text-muted">A small line that links to BioHop. You can switch it off; the page stays free either way.</span></span>
+            </label>
+        </div>
+    </section>
 </div>
