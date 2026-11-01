@@ -108,6 +108,39 @@ class BioLink extends Model
 
     public const WHATSAPP_MODES = ['round_robin', 'weighted'];
 
+    /** The app block's address for a visitor's operating system: iOS → App Store, Android → Play, else the web address. */
+    public function appTarget(string $os): ?string
+    {
+        $s = $this->settings ?? [];
+        $pick = preg_match('/ios|ipados/i', $os) ? ($s['ios'] ?? null) : (preg_match('/android/i', $os) ? ($s['android'] ?? null) : null);
+        $url = trim((string) ($pick ?: ($s['web'] ?? $this->url ?: ($s['ios'] ?? $s['android'] ?? ''))));
+
+        return preg_match('#^https?://#i', $url) ? $url : null;
+    }
+
+    /** 0–100 for a goal block. */
+    public function goalPercent(): int
+    {
+        $target = (float) ($this->settings['target'] ?? 0);
+        $current = (float) ($this->settings['current'] ?? 0);
+
+        return $target > 0 ? (int) max(0, min(100, round($current / $target * 100))) : 0;
+    }
+
+    /** @return array<int, array{url:string, caption:string}> */
+    public function carouselImages(): array
+    {
+        $out = [];
+        foreach ((array) ($this->settings['images'] ?? []) as $i) {
+            $url = is_array($i) ? trim((string) ($i['url'] ?? '')) : '';
+            if ($url !== '' && (preg_match('#^/?storage/bio-images/#', $url) || preg_match('#^https://#', $url))) {
+                $out[] = ['url' => $url, 'caption' => trim((string) ($i['caption'] ?? ''))];
+            }
+        }
+
+        return $out;
+    }
+
     /** @return array<int, array{number:string, label:string, weight:int}> the rotator's numbers, digits only */
     public function whatsappNumbers(): array
     {
@@ -192,7 +225,7 @@ class BioLink extends Model
         'link' => 'Link', 'image' => 'Image', 'text' => 'Text', 'header' => 'Header',
         'divider' => 'Divider', 'spacer' => 'Spacer', 'video' => 'Video', 'youtube' => 'YouTube',
         'music' => 'Music', 'spotify' => 'Spotify', 'soundcloud' => 'SoundCloud', 'vcard' => 'Contact card',
-        'html' => 'HTML', 'countdown' => 'Countdown', 'map' => 'Map', 'faq' => 'FAQ', 'product' => 'Product', 'collection' => 'Collection', 'whatsapp' => 'WhatsApp',
+        'html' => 'HTML', 'countdown' => 'Countdown', 'map' => 'Map', 'faq' => 'FAQ', 'product' => 'Product', 'collection' => 'Collection', 'whatsapp' => 'WhatsApp', 'app' => 'App', 'goal' => 'Goal', 'audio' => 'Audio', 'carousel' => 'Carousel', 'pdf' => 'PDF',
         'email' => 'Email', 'code' => 'Code',
     ];
 

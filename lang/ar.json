@@ -554,5 +554,12 @@
     "Open link": "فتح الرابط",
     "Back to the page": "العودة إلى الصفحة",
     "Wrong PIN.": "رمز PIN خاطئ.",
-    "Too many attempts. Try again later.": "محاولات كثيرة جدًا. حاول لاحقًا."
+    "Too many attempts. Try again later.": "محاولات كثيرة جدًا. حاول لاحقًا.",
+    "Goal": "الهدف",
+    "Your browser cannot play this clip.": "لا يمكن لمتصفحك تشغيل هذا المقطع.",
+    "Document": "مستند",
+    "Pictures": "صور",
+    "Chat": "دردشة",
+    "Open": "فتح",
+    "Chat on WhatsApp": "تحدث عبر واتساب"
 }

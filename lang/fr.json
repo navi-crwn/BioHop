@@ -554,5 +554,12 @@
     "Open link": "Ouvrir le lien",
     "Back to the page": "Retour à la page",
     "Wrong PIN.": "PIN incorrect.",
-    "Too many attempts. Try again later.": "Trop de tentatives. Réessayez plus tard."
+    "Too many attempts. Try again later.": "Trop de tentatives. Réessayez plus tard.",
+    "Goal": "Objectif",
+    "Your browser cannot play this clip.": "Votre navigateur ne peut pas lire cet extrait.",
+    "Document": "Document",
+    "Pictures": "Images",
+    "Chat": "Discuter",
+    "Open": "Ouvrir",
+    "Chat on WhatsApp": "Discuter sur WhatsApp"
 }

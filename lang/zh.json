@@ -554,5 +554,12 @@
     "Open link": "打开链接",
     "Back to the page": "返回页面",
     "Wrong PIN.": "PIN 错误。",
-    "Too many attempts. Try again later.": "尝试次数过多，请稍后再试。"
+    "Too many attempts. Try again later.": "尝试次数过多，请稍后再试。",
+    "Goal": "目标",
+    "Your browser cannot play this clip.": "您的浏览器无法播放此音频。",
+    "Document": "文档",
+    "Pictures": "图片",
+    "Chat": "聊天",
+    "Open": "打开",
+    "Chat on WhatsApp": "通过 WhatsApp 聊天"
 }

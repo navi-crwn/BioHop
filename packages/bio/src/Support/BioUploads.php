@@ -17,7 +17,7 @@ class BioUploads
     public static function ofPage(BioPage $bioPage): array
     {
         $files = [$bioPage->avatar_url, $bioPage->background_image, $bioPage->qr_settings['image'] ?? null, $bioPage->qr_settings['logo_url'] ?? null];
-        foreach ($bioPage->links()->get(['thumbnail_url', 'custom_icon', 'content']) as $link) {
+        foreach ($bioPage->links()->get(['thumbnail_url', 'custom_icon', 'content', 'settings']) as $link) {
             array_push($files, ...self::ofLink($link));
         }
 
@@ -27,7 +27,9 @@ class BioUploads
     /** @return array<int, string|null> */
     public static function ofLink(BioLink $link): array
     {
-        return [$link->thumbnail_url, $link->custom_icon, $link->content];
+        $images = array_map(fn ($i) => is_array($i) ? ($i['url'] ?? null) : null, (array) ($link->settings['images'] ?? []));
+
+        return [$link->thumbnail_url, $link->custom_icon, $link->content, ...$images];
     }
 
     /** @return array<int, string|null> */
@@ -47,7 +49,7 @@ class BioUploads
     public static function deleteIfUnused(?string $path): void
     {
         $path = preg_replace('#^/?storage/#', '', trim((string) $path));
-        if (! preg_match('#^(avatars|bio-images|bio-thumbnails|bio-icons|qr-logos)/[A-Za-z0-9._-]+$#', $path)) {
+        if (! preg_match('#^(avatars|bio-images|bio-thumbnails|bio-icons|qr-logos|bio-audio|bio-files)/[A-Za-z0-9._-]+$#', $path)) {
             return;
         }
         $like = '%'.$path.'%';
@@ -60,6 +62,7 @@ class BioUploads
             ->orWhere('favicon', 'like', $like))->exists()
             || BioLink::where(fn ($q) => $q->where('thumbnail_url', 'like', $like)
                 ->orWhere('custom_icon', 'like', $like)
+                ->orWhere('settings', 'like', $like)
                 ->orWhere('content', 'like', $like))->exists();
         if (! $inUse) {
             Storage::disk('public')->delete($path);

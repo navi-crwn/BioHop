@@ -607,6 +607,50 @@
                                 </div>
                             </div>
                         </template>
+                        <template x-if="editingBlock?.type === 'app'">
+                            <div class="space-y-4">
+                                <p class="text-xs editor-text-muted">One button, three addresses: iPhone and iPad visitors go to the App Store, Android visitors to Google Play, everyone else (computers) to the website.</p>
+                                <div class="form-group"><label for="bfindex-a1" class="form-label">App Store address</label><input id="bfindex-a1" type="url" :value="editingBlock.settings?.ios ?? ''" @input="setProductSetting('ios', $event.target.value)" class="form-input" placeholder="https://apps.apple.com/app/…"></div>
+                                <div class="form-group"><label for="bfindex-a2" class="form-label">Google Play address</label><input id="bfindex-a2" type="url" :value="editingBlock.settings?.android ?? ''" @input="setProductSetting('android', $event.target.value)" class="form-input" placeholder="https://play.google.com/store/apps/details?id=…"></div>
+                                <div class="form-group"><label for="bfindex-a3" class="form-label">Website (computers and others)</label><input id="bfindex-a3" type="url" :value="editingBlock.settings?.web ?? ''" @input="setProductSetting('web', $event.target.value)" class="form-input" placeholder="https://your-app.example"></div>
+                            </div>
+                        </template>
+                        <template x-if="editingBlock?.type === 'goal'">
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-3 gap-3">
+                                    <div class="form-group"><label for="bfindex-g1" class="form-label">So far</label><input id="bfindex-g1" type="number" min="0" step="any" :value="editingBlock.settings?.current ?? ''" @input="setProductSetting('current', $event.target.value)" class="form-input" placeholder="7500000"></div>
+                                    <div class="form-group"><label for="bfindex-g2" class="form-label">Goal</label><input id="bfindex-g2" type="number" min="0" step="any" :value="editingBlock.settings?.target ?? ''" @input="setProductSetting('target', $event.target.value)" class="form-input" placeholder="10000000"></div>
+                                    <div class="form-group"><label for="bfindex-g3" class="form-label">Unit</label><input id="bfindex-g3" type="text" maxlength="20" :value="editingBlock.settings?.unit ?? ''" @input="setProductSetting('unit', $event.target.value)" class="form-input" placeholder="IDR"></div>
+                                </div>
+                                <p class="text-xs editor-text-muted">You update "So far" yourself; nothing here takes payments.</p>
+                                <div class="form-group"><label for="bfindex-g4" class="form-label">Link <span class="editor-text-muted font-normal">(optional)</span></label><input id="bfindex-g4" type="url" x-model="editingBlock.url" class="form-input" placeholder="https://… where people can help"></div>
+                                <div class="form-group"><label for="bfindex-g5" class="form-label">Link text <span class="editor-text-muted font-normal">(optional)</span></label><input id="bfindex-g5" type="text" maxlength="100" x-model="editingBlock.description" class="form-input" placeholder="Support the film"></div>
+                            </div>
+                        </template>
+                        <template x-if="editingBlock?.type === 'audio' || editingBlock?.type === 'pdf'">
+                            <div class="space-y-3">
+                                <input aria-label="Upload file" type="file" class="hidden" x-ref="mediaInput" :accept="editingBlock.type === 'audio' ? 'audio/mpeg,audio/mp4,audio/ogg,audio/wav,.mp3,.m4a,.ogg,.wav' : 'application/pdf,.pdf'" @change="uploadBlockMedia($event)">
+                                <button type="button" class="btn btn-secondary text-sm py-2 w-full" @click="$refs.mediaInput.click()" x-text="editingBlock.content ? 'Replace file' : (editingBlock.type === 'audio' ? 'Upload audio clip' : 'Upload PDF')"></button>
+                                <p class="text-xs editor-text-muted" x-text="editingBlock.type === 'audio' ? 'MP3, M4A, OGG or WAV, up to 12 MB. It never plays by itself.' : 'A PDF up to 15 MB (menu, price list, catalogue). It opens in a new tab.'"></p>
+                                <audio controls preload="none" class="w-full" :src="editingBlock.content" x-show="editingBlock.type === 'audio' && editingBlock.content"></audio>
+                                <p class="text-xs" x-show="editingBlock.type === 'pdf' && editingBlock.content"><a :href="editingBlock.content" target="_blank" rel="noopener" class="underline">Open the uploaded PDF</a></p>
+                            </div>
+                        </template>
+                        <template x-if="editingBlock?.type === 'carousel'">
+                            <div class="space-y-3">
+                                <input aria-label="Upload pictures" type="file" accept="image/*" multiple class="hidden" x-ref="carouselInput" @change="uploadCarouselImage($event)">
+                                <button type="button" class="btn btn-secondary text-sm py-2 w-full" @click="$refs.carouselInput.click()" x-show="(editingBlock.settings?.images || []).length < 10">+ Add pictures (up to 10)</button>
+                                <div class="space-y-2">
+                                    <template x-for="(img, i) in (editingBlock.settings?.images || [])" :key="i">
+                                        <div class="flex items-center gap-2">
+                                            <img :src="pageImageUrl(img.url)" alt="" class="w-14 h-14 rounded-lg object-cover shrink-0">
+                                            <input type="text" maxlength="100" :value="img.caption ?? ''" @input="setCarouselCaption(i, $event.target.value)" class="form-input text-sm" placeholder="Caption (also the picture's description)" :aria-label="'Caption ' + (i + 1)">
+                                            <button type="button" class="icon-btn" @click="removeCarouselImage(i)" :aria-label="'Remove picture ' + (i + 1)"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
                         <template x-if="editingBlock?.type === 'whatsapp'">
                             <div class="space-y-4">
                                 <div class="form-group">
@@ -790,7 +834,7 @@
                                     </div>
                                 </div>
                                 <p class="text-[10px] editor-text-muted">Leave both empty to show it always. Times are in your time zone; outside the window the block is hidden from the page and its address stops working.</p>
-                                <div x-show="['link', 'product', 'whatsapp'].includes(editingBlock.type)">
+                                <div x-show="['link', 'product', 'whatsapp', 'app'].includes(editingBlock.type)">
                                     <label for="bfindex-s3" class="form-label text-xs mb-1">PIN <span class="editor-text-muted font-normal">(optional, 4–8 digits)</span></label>
                                     <input id="bfindex-s3" type="text" inputmode="numeric" pattern="[0-9]{4,8}" maxlength="8" :value="editingBlock.settings?.pin ?? ''" @input="setProductSetting('pin', $event.target.value.replace(/\D/g, ''))" class="form-input text-xs" placeholder="e.g. 2468" autocomplete="off">
                                     <p class="text-[10px] editor-text-muted mt-1">Visitors enter it once before the address opens. Share the PIN yourself (a story, a newsletter).</p>

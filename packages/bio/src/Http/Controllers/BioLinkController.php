@@ -46,6 +46,12 @@ class BioLinkController extends Controller
                 $errors[$field] = $reason;
             }
         }
+        foreach (['ios', 'android', 'web'] as $k) {
+            $value = trim((string) ($data['settings'][$k] ?? ''));
+            if ($value !== '' && ($reason = $safety->rejectionReason($value, '', UrlSafety::WEB_SCHEMES))) {
+                $errors["settings.{$k}"] = $reason;
+            }
+        }
         // a variant's own "where to buy" address follows the same rules as the block's
         foreach ((array) ($data['settings']['variants'] ?? []) as $i => $variant) {
             $value = trim((string) ($variant['url'] ?? ''));
@@ -78,6 +84,20 @@ class BioLinkController extends Controller
      * The editor sends the countdown target as an exact moment; store it in the app's time zone
      * so every visitor counts down to the same instant (M13).
      */
+    /** Audio and PDF blocks play only files uploaded here (bio-audio/, bio-files/), never an outside address. */
+    private function assertOwnMedia(array $data, ?BioLink $link = null): void
+    {
+        $type = $data['type'] ?? $link?->type;
+        if (! in_array($type, ['audio', 'pdf'], true) || ! array_key_exists('content', $data)) {
+            return;
+        }
+        $content = trim((string) $data['content']);
+        $prefix = $type === 'audio' ? 'bio-audio' : 'bio-files';
+        if ($content !== '' && ! preg_match('#^/?storage/'.$prefix.'/[A-Za-z0-9._-]+$#', $content)) {
+            throw ValidationException::withMessages(['content' => 'Upload the file here; outside addresses are not played.']);
+        }
+    }
+
     private function normalizeCountdown(array $data): array
     {
         foreach (['countdown_date', 'publish_at', 'expire_at'] as $field) {
@@ -95,7 +115,7 @@ class BioLinkController extends Controller
     {
         $this->authorize('update', $bioPage);
         $validated = $request->validate([
-            'type' => 'required|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code,product,collection,whatsapp',
+            'type' => 'required|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code,product,collection,whatsapp,app,goal,audio,carousel,pdf',
             'title' => 'nullable|string|max:100',
             'url' => 'nullable|string|max:500',
             'content' => 'nullable|string|max:5000',
@@ -123,6 +143,15 @@ class BioLinkController extends Controller
             'settings.layout' => 'nullable|in:stack,grid',
             'settings.text' => 'nullable|string|max:500',
             'settings.pin' => ['nullable', 'regex:/^[0-9]{4,8}$/'],
+            'settings.ios' => ['nullable', 'string', 'max:500', 'regex:#^https://#i'],
+            'settings.android' => ['nullable', 'string', 'max:500', 'regex:#^https://#i'],
+            'settings.web' => ['nullable', 'string', 'max:500', 'regex:#^https?://#i'],
+            'settings.target' => 'nullable|numeric|min:0|max:999999999999',
+            'settings.current' => 'nullable|numeric|min:0|max:999999999999',
+            'settings.unit' => 'nullable|string|max:20',
+            'settings.images' => 'nullable|array|max:10',
+            'settings.images.*.url' => ['required_with:settings.images', 'string', 'max:500', 'regex:#^(/?storage/bio-images/[A-Za-z0-9._-]+|https://[^\s\'"()<>]+)$#'],
+            'settings.images.*.caption' => 'nullable|string|max:100',
             'settings.mode' => 'nullable|in:'.implode(',', BioLink::WHATSAPP_MODES),
             'settings.numbers' => 'nullable|array|max:10',
             'settings.numbers.*.number' => ['required_with:settings.numbers', 'string', 'max:24', 'regex:/^\+?[0-9 .()-]{6,24}$/'],
@@ -157,6 +186,7 @@ class BioLinkController extends Controller
             throw ValidationException::withMessages(['type' => 'A bio page can have at most '.self::MAX_BLOCKS.' blocks.']);
         }
         $this->assertSafe($validated);
+        $this->assertOwnMedia($validated);
         $validated = $this->normalizeCountdown($validated);
         $maxOrder = $bioPage->links()->max('order') ?? 0;
         // Provide default titles for block types that don't require user-entered titles
@@ -212,7 +242,7 @@ class BioLinkController extends Controller
     {
         $this->authorize('update', $bioPage);
         $validated = $request->validate([
-            'type' => 'nullable|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code,product,collection,whatsapp',
+            'type' => 'nullable|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code,product,collection,whatsapp,app,goal,audio,carousel,pdf',
             'title' => 'nullable|string|max:100',
             'url' => 'nullable|string|max:500',
             'content' => 'nullable|string|max:5000',
@@ -240,6 +270,15 @@ class BioLinkController extends Controller
             'settings.layout' => 'nullable|in:stack,grid',
             'settings.text' => 'nullable|string|max:500',
             'settings.pin' => ['nullable', 'regex:/^[0-9]{4,8}$/'],
+            'settings.ios' => ['nullable', 'string', 'max:500', 'regex:#^https://#i'],
+            'settings.android' => ['nullable', 'string', 'max:500', 'regex:#^https://#i'],
+            'settings.web' => ['nullable', 'string', 'max:500', 'regex:#^https?://#i'],
+            'settings.target' => 'nullable|numeric|min:0|max:999999999999',
+            'settings.current' => 'nullable|numeric|min:0|max:999999999999',
+            'settings.unit' => 'nullable|string|max:20',
+            'settings.images' => 'nullable|array|max:10',
+            'settings.images.*.url' => ['required_with:settings.images', 'string', 'max:500', 'regex:#^(/?storage/bio-images/[A-Za-z0-9._-]+|https://[^\s\'"()<>]+)$#'],
+            'settings.images.*.caption' => 'nullable|string|max:100',
             'settings.mode' => 'nullable|in:'.implode(',', BioLink::WHATSAPP_MODES),
             'settings.numbers' => 'nullable|array|max:10',
             'settings.numbers.*.number' => ['required_with:settings.numbers', 'string', 'max:24', 'regex:/^\+?[0-9 .()-]{6,24}$/'],
@@ -271,6 +310,7 @@ class BioLinkController extends Controller
             'attention_animation' => 'nullable|in:none,pulse,bounce,shake,wiggle,glow,heartbeat,rainbow',
         ]);
         $this->assertSafe($validated);
+        $this->assertOwnMedia($validated, $bioLink);
         $validated = $this->normalizeCountdown($validated);
         if (! empty($validated['is_active']) && ! $bioLink->is_active && AbuseFlag::locks('bio_link', $bioLink->id)) {
             throw ValidationException::withMessages(['is_active' => 'This block was disabled by moderation.']);

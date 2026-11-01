@@ -327,6 +327,16 @@
         .bio-product-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 4px; }
         .bio-product-price { font-style: normal; font-weight: 700; font-size: 14px; }
         .bio-product-cta { font-style: normal; font-size: 12px; opacity: .85; }
+        .bio-carousel { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: thin; padding-bottom: 4px; border-radius: 16px; }
+        .bio-slide { flex: 0 0 86%; scroll-snap-align: center; position: relative; border-radius: 16px; overflow: hidden; aspect-ratio: 4 / 3; background: rgba(127,127,127,.2); }
+        .bio-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .bio-slide figcaption { position: absolute; inset: auto 0 0 0; padding: 18px 12px 8px; font-size: 12px; color: #fff; background: linear-gradient(transparent, rgba(0,0,0,.6)); }
+        .bio-status { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; padding: 3px 11px; border-radius: 999px; font-size: 12px; font-weight: 600; background: rgba(34,197,94,.16); color: inherit; border: 1px solid rgba(34,197,94,.45); }
+        .bio-status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,.25); }
+        .bio-fab { position: fixed; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); z-index: 60; display: inline-flex; align-items: center; gap: 8px; padding: 12px 16px; border-radius: 999px; font-size: 14px; font-weight: 700; color: #fff; background: #16a34a; box-shadow: 0 10px 30px -10px rgba(0,0,0,.5); text-decoration: none; }
+        .bio-fab.custom { background: #4f46e5; }
+        .bio-fab:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+        @media (prefers-reduced-motion: no-preference) { .bio-fab { transition: transform .2s; } .bio-fab:hover { transform: translateY(-2px); } }
         .bio-product-was { font-weight: 500; opacity: .6; margin-right: 4px; }
         .bio-product-low { font-size: 11px; font-weight: 600; color: #d97706; }
         .bio-variants { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
@@ -775,6 +785,7 @@
                     @if($bioPage->bio)
                         <p class="bio-bio mt-2 text-sm">{{ html_entity_decode($bioPage->bio) }}</p>
                     @endif
+                    @if($bioPage->statusLabel())<div><span class="bio-status">{{ $bioPage->statusLabel() }}</span></div>@endif
                     @if($headerLayout === 'hero')
                         </div>
                     @endif
@@ -882,7 +893,7 @@
                             @endif
                             @continue
                         @endif
-                        @if($link->type === 'link' || $link->type === 'whatsapp')
+                        @if(in_array($link->type, ['link', 'whatsapp', 'app'], true))
                             @php
                                 $hasThumbnail = $link->thumbnail_url || $link->thumbnail;
                                 $hasBrand = $link->brand;
@@ -913,7 +924,7 @@
                                 $borderStyle = $link->btn_border_color ? 'border: 1px solid '.$link->btn_border_color.';' : ($themeLinkBorder ? 'border: 1px solid '.$themeLinkBorder.';' : '');
                                 $linkRel = $getLinkRel($link->url);
                                 // http(s) links go through the click tracker; mailto/tel/sms stay direct
-                                $linkHref = $link->type === 'whatsapp' || preg_match('#^https?://#i', trim((string) $link->url))
+                                $linkHref = in_array($link->type, ['whatsapp', 'app'], true) || preg_match('#^https?://#i', trim((string) $link->url))
                                     ? route('bio.public.click', $link->public_id)
                                     : \Hop\Safety\SafeContent::url($link->url);
                                 $entranceAnim = $link->entrance_animation ?? 'none';
@@ -1082,6 +1093,29 @@
                                     </iframe>
                                 </div>
                                 <div class="text-xs text-center opacity-80" style="color: inherit;">{{ $link->map_address }}</div>
+                            </div>
+                        @elseif($link->type === 'goal')
+                            @php $pct = $link->goalPercent(); $unit = trim((string) ($link->settings['unit'] ?? '')); $fmt = fn ($n) => number_format((float) $n, 0, '.', ',').($unit !== '' ? ' '.$unit : ''); @endphp
+                            <div class="bio-goal w-full rounded-2xl p-4" style="background: {{ $blockBg }}; color: {{ $linkTextColor }};">
+                                <div class="flex items-baseline justify-between gap-2 text-sm font-semibold"><span>{{ $link->title }}</span><span class="tabular-nums">{{ $pct }}%</span></div>
+                                <div class="mt-2 h-2.5 w-full overflow-hidden rounded-full" style="background: rgba(127,127,127,.25)" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ $pct }}" aria-label="{{ $link->title }}"><div class="h-full rounded-full" style="width: {{ $pct }}%; background: currentColor; opacity: .85"></div></div>
+                                <div class="mt-1.5 flex justify-between text-xs opacity-80"><span>{{ $fmt($link->settings['current'] ?? 0) }}</span><span>{{ __('Goal') }}: {{ $fmt($link->settings['target'] ?? 0) }}</span></div>
+                                @if($link->url && preg_match('#^https?://#i', $link->url))<a href="{{ route('bio.public.click', $link->public_id) }}" target="_blank" rel="nofollow noopener" class="mt-2 inline-block text-xs font-semibold underline">{{ $link->description ?: __('Support') }} ↗</a>@endif
+                            </div>
+                        @elseif($link->type === 'audio' && $link->content)
+                            <div class="bio-audio w-full rounded-2xl p-3" style="background: {{ $blockBg }}; color: {{ $linkTextColor }};">
+                                @if($link->title)<div class="mb-2 text-sm font-semibold">{{ $link->title }}</div>@endif
+                                <audio controls preload="none" class="w-full" src="{{ $link->content }}">{{ __('Your browser cannot play this clip.') }}</audio>
+                            </div>
+                        @elseif($link->type === 'pdf' && $link->content)
+                            <a href="{{ $link->content }}" target="_blank" rel="noopener" class="bio-pdf link-block" style="background: {{ $blockBg }}; color: {{ $linkTextColor }};">
+                                <span class="block-title">📄 {{ $link->title ?: __('Document') }} <small class="opacity-70">PDF</small></span>
+                            </a>
+                        @elseif($link->type === 'carousel' && $link->carouselImages())
+                            <div class="bio-carousel w-full" role="region" aria-roledescription="carousel" aria-label="{{ $link->title ?: __('Pictures') }}" tabindex="0">
+                                @foreach($link->carouselImages() as $img)
+                                    <figure class="bio-slide"><img src="{{ $img['url'] }}" alt="{{ $img['caption'] }}" loading="lazy" decoding="async">@if($img['caption'])<figcaption>{{ $img['caption'] }}</figcaption>@endif</figure>
+                                @endforeach
                             </div>
                         @elseif($link->type === 'faq' && $link->faq_items)
                             <div class="w-full rounded-xl p-4" style="background: rgba(0,0,0,0.05);">
@@ -1684,6 +1718,13 @@ END:VCARD`;
             }
         })();
     </script>
+    @if($fab = $bioPage->fabHref())
+        <div aria-hidden="true" style="height: 72px"></div>
+        <a href="{{ $fab }}" target="_blank" rel="nofollow noopener" class="bio-fab {{ $bioPage->fab_type }}" aria-label="{{ $bioPage->fab_label ?: ($bioPage->fab_type === 'whatsapp' ? __('Chat on WhatsApp') : __('Open')) }}">
+            @if($bioPage->fab_type === 'whatsapp')<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 01-12.4 7.4L3 21l2.1-5.4A8.4 8.4 0 1121 11.5z"/></svg>@endif
+            <span>{{ $bioPage->fab_label ?: ($bioPage->fab_type === 'whatsapp' ? __('Chat') : __('Open')) }}</span>
+        </a>
+    @endif
     @include('bio::partials.trackers')
 </body>
 </html>

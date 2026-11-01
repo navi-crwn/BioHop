@@ -432,6 +432,14 @@
         .product-variants { display: flex; flex-wrap: wrap; gap: 3px; }
         .product-variants i { font-style: normal; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 999px; border: 1px solid currentColor; opacity: .85; }
         .product-variants i.is-out { opacity: .45; text-decoration: line-through; }
+        .goal-block { padding: 10px 12px; border-radius: var(--button-radius, 12px); font-size: 12px; display: grid; gap: 6px; }
+        .goal-top { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; }
+        .goal-bar { height: 8px; border-radius: 99px; background: rgba(127,127,127,.25); overflow: hidden; }
+        .goal-bar i { display: block; height: 100%; background: currentColor; opacity: .85; border-radius: 99px; }
+        .preview-carousel { display: flex; gap: 6px; overflow-x: auto; scroll-snap-type: x mandatory; border-radius: 12px; }
+        .preview-carousel img { flex: 0 0 82%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 12px; scroll-snap-align: center; }
+        .profile-status { display: inline-block; margin-top: 6px; padding: 2px 9px; border-radius: 99px; font-size: 10px; font-weight: 600; background: rgba(34,197,94,.16); border: 1px solid rgba(34,197,94,.45); }
+        .preview-fab { position: sticky; bottom: 8px; margin-left: auto; width: max-content; display: block; padding: 8px 12px; border-radius: 99px; font-size: 11px; font-weight: 700; color: #fff; background: #16a34a; box-shadow: 0 6px 16px -6px rgba(0,0,0,.5); }
         .product-low { font-size: 10px; font-weight: 600; color: #d97706; }
         .countdown-block {
             /* Background is set via inline style from getCountdownBg() */
@@ -962,6 +970,7 @@
                 </h1>
             </div>
             <p class="bio-text" x-text="decodeHtmlEntities(profile.bio) || 'Your bio goes here'"></p>
+            <span class="profile-status" x-show="profile.status" x-text="profile.status"></span>
             </div>
         </div>
         <!-- Social Icons (Top) -->
@@ -981,7 +990,7 @@
             <template x-for="(block, blockIndex) in blocks.filter(b => b.is_active && isLive(b))" :key="block.id">
                 <div>
                     <!-- Link Block (a WhatsApp rotator looks the same; the number is picked on click) -->
-                    <template x-if="block.type === 'link' || block.type === 'whatsapp'">
+                    <template x-if="['link', 'whatsapp', 'app'].includes(block.type)">
                         <a :href="block.url || '#'" class="link-block" :class="[
                             blockThumb(block) ? 'has-thumbnail' : '',
                             (block.brand || block.custom_icon) && !blockThumb(block) ? 'has-icon' : '',
@@ -1034,6 +1043,26 @@
                             </div>
                             <div class="text-block-content" :class="{ 'truncated': !expanded }" x-html="sanitizeHtml((block.content || 'Text content').replace(/\n/g, '<br>'))"></div>
                         </div>
+                    </template>
+                    <template x-if="block.type === 'goal'">
+                        <div class="goal-block" :style="{ background: block.btn_bg_color || getEffectiveButtonBg(), color: block.btn_text_color || getEffectiveButtonText() }">
+                            <div class="goal-top"><b x-text="block.title || 'Goal'"></b><span x-text="goalPercent(block) + '%'"></span></div>
+                            <div class="goal-bar"><i :style="{ width: goalPercent(block) + '%' }"></i></div>
+                            <small x-text="(block.settings?.current || 0) + ' / ' + (block.settings?.target || 0) + (block.settings?.unit ? ' ' + block.settings.unit : '')"></small>
+                        </div>
+                    </template>
+                    <template x-if="block.type === 'audio'">
+                        <div class="goal-block" :style="{ background: block.btn_bg_color || getEffectiveButtonBg(), color: block.btn_text_color || getEffectiveButtonText() }">
+                            <div class="goal-top"><b x-text="block.title || 'Audio'"></b></div>
+                            <audio controls preload="none" style="width:100%" :src="block.content" x-show="block.content"></audio>
+                            <small x-show="!block.content">Upload a clip in the block form.</small>
+                        </div>
+                    </template>
+                    <template x-if="block.type === 'pdf'">
+                        <div class="link-block" :style="{ background: block.btn_bg_color || getEffectiveButtonBg(), color: block.btn_text_color || getEffectiveButtonText() }"><span class="block-title" x-text="'📄 ' + (block.title || 'Document')"></span></div>
+                    </template>
+                    <template x-if="block.type === 'carousel'">
+                        <div class="preview-carousel"><template x-for="(img, i) in ((block.settings && block.settings.images) || [])" :key="i"><img :src="pageImageUrl(img.url)" :alt="img.caption || ''"></template></div>
                     </template>
                     <!-- Header Block -->
                     <template x-if="block.type === 'header'">
@@ -1215,6 +1244,7 @@
                 </template>
             </div>
         </template>
+        <span class="preview-fab" x-show="settings.fab && settings.fab.type !== 'none'" x-text="(settings.fab && settings.fab.label) || (settings.fab && settings.fab.type === 'whatsapp' ? 'Chat' : 'Open')"></span>
         <!-- Footer -->
         <template x-if="!settings.hideBranding">
             <div class="footer">
@@ -1406,6 +1436,11 @@
                     return 'none';
                 },
                 // Price of a product block, as the public page prints it
+                goalPercent(block) {
+                    const t = Number(block.settings && block.settings.target), c = Number(block.settings && block.settings.current);
+                    return t > 0 ? Math.max(0, Math.min(100, Math.round(c / t * 100))) : 0;
+                },
+                pageImageUrl(path) { return !path ? '' : (path.startsWith('/') || path.startsWith('http') ? path : '/storage/' + path); },
                 isLive(block) {
                     const now = Date.now();
                     if (block.publish_at && new Date(block.publish_at).getTime() > now) return false;

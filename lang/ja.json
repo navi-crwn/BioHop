@@ -554,5 +554,12 @@
     "Open link": "リンクを開く",
     "Back to the page": "ページに戻る",
     "Wrong PIN.": "PIN が違います。",
-    "Too many attempts. Try again later.": "試行回数が多すぎます。後でもう一度お試しください。"
+    "Too many attempts. Try again later.": "試行回数が多すぎます。後でもう一度お試しください。",
+    "Goal": "目標",
+    "Your browser cannot play this clip.": "お使いのブラウザではこのクリップを再生できません。",
+    "Document": "ドキュメント",
+    "Pictures": "画像",
+    "Chat": "チャット",
+    "Open": "開く",
+    "Chat on WhatsApp": "WhatsApp でチャット"
 }
