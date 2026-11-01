@@ -134,7 +134,8 @@
 <section id="family" class="bx" aria-labelledby="family-title">
     <div class="bx-wrap">
         <div class="bx-head"><p class="h-label"><span class="n">10</span> · <span>HOP</span></p><h2 id="family-title"><span><em>{{ __('Part of the HOP family') }}</em></span></h2><p class="h-sub"><span>{{ __('One free HOP ID signs you in to every app.') }}</span></p></div>
-        <div class="h-family" data-bx-family>@foreach (collect(\Hop\Ui\Assets::family('biohop'))->reject(fn ($app) => $app['current']) as $app)<a href="{{ $app['url'] }}"><img src="{{ $app['icons']['mark']['url'] }}" alt="" width="32" height="32" loading="lazy">{{ $app['name'] }}</a>@endforeach</div>
+        {{-- every app as its own 3D mark: drag to turn it; the flat mark stays without WebGL --}}
+        <div class="bx-family" data-bx-family>@foreach (collect(\Hop\Ui\Assets::family('biohop'))->reject(fn ($app) => $app['current']) as $app)<article class="bx-fam"><figure class="h-art"><img src="{{ $app['icons']['mark']['url'] }}" alt="" width="120" height="120" loading="lazy"><canvas data-hop-hero="{{ $app['slug'] }}" tabindex="0" aria-label="{{ __('Drag or use arrow keys to rotate') }}"></canvas></figure><b>{{ $app['name'] }}</b><a href="{{ $app['url'] }}">{{ parse_url($app['url'], PHP_URL_HOST) }} ↗</a></article>@endforeach</div>
     </div>
 </section>
 
