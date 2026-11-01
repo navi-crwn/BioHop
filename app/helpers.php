@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 if (! function_exists('public_url')) {
     /**
@@ -43,7 +44,7 @@ if (! function_exists('bio_media_url')) {
             return $host !== '' ? $host.$path : asset(ltrim($path, '/'));
         }
 
-        return \Illuminate\Support\Facades\Storage::disk('public')->url($path);
+        return Storage::disk('public')->url($path);
     }
 }
 if (! function_exists('bio_enabled')) {
