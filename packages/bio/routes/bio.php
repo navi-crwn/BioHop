@@ -4,6 +4,7 @@ use Hop\Bio\Http\Controllers\BioLinkController;
 use Hop\Bio\Http\Controllers\BioPageController;
 use Hop\Bio\Http\Controllers\BioRevisionController;
 use Hop\Bio\Http\Controllers\BioShortlinkController;
+use Hop\Bio\Http\Controllers\BioWebhookController;
 use Hop\Bio\Http\Controllers\PublicBioController;
 use Hop\Bio\Http\Middleware\UploadStorageGate;
 use Hop\Bio\Support\UploadStorage;
@@ -49,6 +50,13 @@ Route::middleware(['web', 'ip.ban', 'hop.auth', UploadStorageGate::class])->pref
         Route::get('/', [BioRevisionController::class, 'index'])->name('index');
         Route::post('/', [BioRevisionController::class, 'store'])->middleware('verified')->name('store');
         Route::post('/{revision}/restore', [BioRevisionController::class, 'restore'])->middleware('verified')->name('restore');
+    });
+    // Webhook for form entries: deliveries must belong to {bioPage}
+    Route::prefix('{bioPage}/webhook')->name('webhook.')->scopeBindings()->group(function () {
+        Route::get('/', [BioWebhookController::class, 'index'])->name('index');
+        Route::post('/test', [BioWebhookController::class, 'test'])->middleware(['verified', 'throttle:10,1'])->name('test');
+        Route::post('/secret', [BioWebhookController::class, 'rotate'])->middleware('verified')->name('rotate');
+        Route::post('/{delivery}/resend', [BioWebhookController::class, 'resend'])->middleware(['verified', 'throttle:20,1'])->name('resend');
     });
     // Short links for blocks, through the ShortlinkCreator contract (BioHop: LinkHop's API with the member's token).
     Route::get('/links/search', [BioShortlinkController::class, 'search'])->name('links.search');
