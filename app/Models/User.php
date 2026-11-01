@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * A HOP ID, read from the shared `users` table. The hub (hub.hel.ink) is the
@@ -109,14 +108,27 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->status === self::STATUS_SUSPENDED;
     }
 
-    /** The picture to show: uploaded at the hub first, else the Google/external one. */
+    /**
+     * The picture to show. The hub sends an absolute address (hub.hel.ink/storage/avatars/...), which is used as it is;
+     * a bare stored path (avatar_path, or an old relative value) is put on the hub host, where the file lives.
+     */
     public function avatarUrl(): ?string
     {
-        if ($this->avatar_path) {
-            return rtrim((string) config('hop.hub_url'), '/').Storage::disk('public')->url($this->avatar_path);
+        return self::hubFileUrl($this->avatar) ?? self::hubFileUrl($this->avatar_path);
+    }
+
+    /** A file the hub stores: a full address stays as it is, a path (avatars/x.webp, storage/x, /storage/x) goes on the hub host. */
+    public static function hubFileUrl(?string $value): ?string
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return null;
+        }
+        if (preg_match('#^(https?:)?//#i', $value) || str_starts_with($value, 'data:')) {
+            return $value;
         }
 
-        return $this->avatar ?: null;
+        return rtrim((string) config('hop.hub_url'), '/').'/storage/'.preg_replace('#^/?(storage/)?#', '', $value);
     }
 
     /** Where this person manages their account: the hub. */

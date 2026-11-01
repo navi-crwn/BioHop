@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 if (! function_exists('public_url')) {
     /**
@@ -23,11 +22,24 @@ if (! function_exists('public_host')) {
         return preg_replace('/^www\./', '', (string) parse_url(public_url(), PHP_URL_HOST));
     }
 }
+if (! function_exists('bio_asset_origin')) {
+    /**
+     * Where uploads (/storage) and built or bundled files (/build, /images, /fonts) are served: ASSET_URL, else APP_URL
+     * (bio.hel.ink). Public bio pages are served from the public host (hel.ink/b/...), so any file they use must be
+     * addressed on this host in full; a bare path would be looked up on the wrong host and come back missing.
+     */
+    function bio_asset_origin(): string
+    {
+        $origin = trim((string) config('app.asset_url'));
+
+        return rtrim($origin !== '' ? $origin : (string) config('app.url'), '/');
+    }
+}
 if (! function_exists('bio_media_url')) {
     /**
-     * A stored picture, icon or brand image as a full address on the asset host (ASSET_URL). Public bio pages are
-     * served from the public host (hel.ink/b/...) while the files live at the app host (bio.hel.ink), so a bare
-     * /storage/... or /images/... path would be looked up on the wrong host and come back missing.
+     * A stored picture, icon, audio or PDF file, or a built-in brand image, as a full address on the asset host.
+     * Takes what the database holds: a full address (kept as it is), a site path (/storage/x, storage/x, /images/x)
+     * or a path on the public disk (avatars/x.webp).
      */
     function bio_media_url(?string $path): ?string
     {
@@ -38,13 +50,11 @@ if (! function_exists('bio_media_url')) {
         if (preg_match('#^(https?:)?//#i', $path) || str_starts_with($path, 'data:')) {
             return $path;
         }
-        if (str_starts_with($path, '/')) {
-            $host = rtrim((string) config('app.asset_url'), '/');
-
-            return $host !== '' ? $host.$path : asset(ltrim($path, '/'));
+        if (str_starts_with($path, '/') || str_starts_with($path, 'storage/')) {
+            return bio_asset_origin().'/'.ltrim($path, '/');
         }
 
-        return Storage::disk('public')->url($path);
+        return bio_asset_origin().'/storage/'.$path;
     }
 }
 if (! function_exists('bio_enabled')) {

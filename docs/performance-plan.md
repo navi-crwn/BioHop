@@ -104,7 +104,7 @@ A pill beside the live preview (⚡ 94/100) opens a short list of plain-language
 3. **GIF conversion**, only if needed.
 
 ### After merging (owner)
-`php artisan migrate`, then `php artisan bio:optimize-images --apply`; nginx should serve `/fonts/bio/` and `/storage/` with long cache headers (the file names change when a font or picture changes); gzip or brotli for text if not already on. No new environment variables.
+`php artisan migrate`, then `php artisan bio:optimize-images --apply`; nginx should serve `/fonts/bio/` and `/storage/` with long cache headers (the file names change when a font or picture changes) and, on the asset host, `Access-Control-Allow-Origin` for the public host on `/fonts/` (public pages at hel.ink load their font from there; browsers refuse a cross-origin font without it); gzip or brotli for text if not already on. No new environment variables.
 
 
 ## Second round: the slim bundle and session-free reading

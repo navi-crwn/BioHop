@@ -95,7 +95,7 @@ class OfficialPage extends Command
         $blocks[] = ['type' => 'divider', 'title' => ''];
         $blocks[] = ['type' => 'header', 'title' => 'What a page can hold'];
         $blocks[] = ['type' => 'text', 'title' => 'About', 'content' => "This page is made with BioHop and shows what one page can carry: links with icons, a picture, a video, a player, a map, a contact card and a FAQ.\nEverything here is free, open source and signed in with one HOP ID."];
-        $blocks[] = ['type' => 'image', 'title' => 'The HOP rabbit', 'content' => public_url('images/brand/rabbit-mark.png')];
+        $blocks[] = ['type' => 'image', 'title' => 'The HOP rabbit', 'content' => bio_media_url('/images/brand/rabbit-mark.png')];
         if ($video = self::youtubeEmbed((string) config('hop.official_video'))) {
             $blocks[] = ['type' => 'youtube', 'title' => 'Watch', 'url' => (string) config('hop.official_video'), 'embed_url' => $video];
         }

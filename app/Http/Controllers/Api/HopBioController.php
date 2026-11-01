@@ -263,8 +263,10 @@ class HopBioController extends Controller
                 'content' => $b->content,
                 'embed_type' => $b->embed_type,
                 'embed_url' => $b->embed_url,
-                'thumbnail_url' => $b->thumbnail_url,
-                'custom_icon' => $b->custom_icon,
+                // Stored as site paths (/storage/...); the control center is on another host, so give full addresses.
+                'thumbnail_url' => bio_media_url($b->thumbnail_url),
+                'custom_icon' => bio_media_url($b->custom_icon),
+                'media_url' => in_array($b->type, ['image', 'audio', 'pdf'], true) ? bio_media_url($b->content ?: $b->thumbnail_url) : null,
                 'findings' => $this->flagsFor('bio_link', $b->id),
             ];
 
