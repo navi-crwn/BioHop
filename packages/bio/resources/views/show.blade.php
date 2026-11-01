@@ -39,7 +39,7 @@
     @endif
     <meta property="og:url" content="{{ public_url('b/'.$bioPage->slug) }}">
     <meta property="og:type" content="profile">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/public.css', 'resources/js/public.js'])
     @php
         $themes = config('bio-themes.presets');
         $currentTheme = $bioPage->theme ?? 'none';

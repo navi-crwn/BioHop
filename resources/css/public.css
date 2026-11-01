@@ -1,0 +1,18 @@
+/* The stylesheet for public bio pages: Tailwind utilities for the public views only, not the whole app. */
+@import 'tailwindcss' source(none);
+
+@plugin '@tailwindcss/forms';
+
+@source '../../packages/bio/resources/views/show.blade.php';
+@source '../../packages/bio/resources/views/partials';
+@source '../../resources/views/components/turnstile.blade.php';
+
+@custom-variant dark (&:is(.dark *));
+
+/* The same two v3 defaults the app puts back: gray-200 borders and a pointer cursor on buttons. */
+@layer base {
+    *, ::after, ::before, ::backdrop, ::file-selector-button { border-color: var(--color-gray-200, currentcolor); }
+    button:not(:disabled), [role='button']:not(:disabled) { cursor: pointer; }
+}
+@utility text-ink { color: rgb(var(--ink, 15 23 42)); }
+@utility text-muted { color: rgb(var(--muted, 100 116 139)); }
