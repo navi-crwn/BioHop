@@ -14,6 +14,7 @@ Route::middleware(['web', 'ip.ban'])->prefix('b')->name('bio.public.')->group(fu
     Route::get('/shop/{slug}', [PublicBioController::class, 'shop'])->name('shop');
     Route::match(['get', 'post'], '/{slug}', [PublicBioController::class, 'show'])->name('show');
     Route::get('/{slug}/qr', [PublicBioController::class, 'qr'])->name('qr');
+    Route::get('/{slug}/manifest.webmanifest', [PublicBioController::class, 'manifest'])->name('manifest');
     Route::get('/click/{bioLink:public_id}', [PublicBioController::class, 'click'])->middleware('throttle:bio-click')->name('click');
     Route::post('/poll/{bioLink:public_id}', [PublicBioController::class, 'vote'])->middleware('throttle:20,10')->name('poll');
     Route::post('/form/{bioLink:public_id}', [PublicBioController::class, 'submitForm'])->middleware('throttle:20,10')->name('form');

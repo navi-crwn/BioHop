@@ -28,9 +28,17 @@
     @endif
     @php
         $pageFile = fn ($v) => $v ? (str_starts_with($v, 'http') || str_starts_with($v, '/') ? $v : Storage::disk('public')->url($v)) : null;
+        $cardSource = trim((string) ($bioPage->background_value ?: $bioPage->background_gradient ?: $bioPage->background_color ?: ($themeData['background'] ?? '')));
+        preg_match_all('/#[0-9a-fA-F]{6}\b/', $cardSource, $cardMatches);
+        $cardColors = array_slice($cardMatches[0] ?? [], 0, 3) ?: ['#6366f1', '#a855f7'];
+        $srcTag = in_array(request()->query('src'), \Hop\Bio\Http\Controllers\PublicBioController::SOURCES, true) ? request()->query('src') : null;
+        $clickHref = fn ($publicId) => route('bio.public.click', ['bioLink' => $publicId] + ($srcTag ? ['s' => $srcTag] : []));
         $ogImage = $pageFile($bioPage->og_image) ?: ($bioPage->avatar_url ? Storage::disk('public')->url($bioPage->avatar_url) : null);
     @endphp
     <link rel="icon" href="{{ $pageFile($bioPage->favicon) ?: route('brand.favicon') }}">
+    <link rel="manifest" href="{{ route('bio.public.manifest', $bioPage->slug) }}">
+    @if($bioPage->avatar_url)<link rel="apple-touch-icon" href="{{ Storage::disk('public')->url($bioPage->avatar_url) }}">@endif
+    <meta name="apple-mobile-web-app-title" content="{{ \Illuminate\Support\Str::limit($bioPage->title, 12, '') }}">
     <meta property="og:title" content="{{ $bioPage->seo_title ?? $bioPage->title }} | By LinkHop">
     <meta property="og:description" content="{{ $bioPage->seo_description ?? $bioPage->bio ?? 'Check out my links' }}">
     @if($ogImage)
@@ -755,10 +763,13 @@
             <div class="border-t pt-3" style="border-color: {{ $isDarkTheme ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }};">
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-xs font-medium" style="color: {{ $isDarkTheme ? '#94a3b8' : '#64748b' }};">QR Code</span>
+                    <span class="flex items-center gap-1.5">
+                    <button data-call="downloadShareCard" class="px-2 py-1 text-[10px] font-medium rounded-sm transition-colors flex items-center gap-1" style="background: {{ $isDarkTheme ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }}; color: {{ $isDarkTheme ? '#e2e8f0' : '#334155' }};" title="{{ __('A picture for Instagram or WhatsApp stories') }}">{{ __('Story image') }}</button>
                     <button data-call="downloadShareQR" class="px-2 py-1 text-[10px] font-medium rounded-sm transition-colors flex items-center gap-1" style="background: {{ $isDarkTheme ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }}; color: {{ $isDarkTheme ? '#e2e8f0' : '#334155' }};">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                         Save
                     </button>
+                    </span>
                 </div>
                 <div class="flex justify-center">
                     <div id="share-qr-container" class="p-2 rounded-lg" style="background: #ffffff;"></div>
@@ -881,7 +892,7 @@
                         @if($groupId)<h3 class="bio-collection-title">{{ $activeBlocks->firstWhere('id', $groupId)?->title }}</h3>@endif
                         @foreach($groupProducts as $product)
                             @php
-                                $pHref = $product->url ? route('bio.public.click', $product->public_id) : null;
+                                $pHref = $product->url ? $clickHref($product->public_id) : null;
                                 $pImg = $product->thumbnail_url ?: $product->content;
                                 if ($pImg && !str_starts_with($pImg, 'http') && !str_starts_with($pImg, '/storage/')) { $pImg = Storage::disk('public')->url($pImg); }
                                 $soldOut = $product->isSoldOut();
@@ -961,7 +972,7 @@
                                 $linkRel = $getLinkRel($link->url);
                                 // http(s) links go through the click tracker; mailto/tel/sms stay direct
                                 $linkHref = in_array($link->type, ['whatsapp', 'app'], true) || preg_match('#^https?://#i', trim((string) $link->url))
-                                    ? route('bio.public.click', $link->public_id)
+                                    ? $clickHref($link->public_id)
                                     : \Hop\Safety\SafeContent::url($link->url);
                                 $entranceAnim = $link->entrance_animation ?? 'none';
                                 $attentionAnim = $link->attention_animation ?? 'none';
@@ -1187,7 +1198,7 @@
                                 <div class="flex items-baseline justify-between gap-2 text-sm font-semibold"><span>{{ $link->title }}</span><span class="tabular-nums">{{ $pct }}%</span></div>
                                 <div class="mt-2 h-2.5 w-full overflow-hidden rounded-full" style="background: rgba(127,127,127,.25)" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ $pct }}" aria-label="{{ $link->title }}"><div class="h-full rounded-full" style="width: {{ $pct }}%; background: currentColor; opacity: .85"></div></div>
                                 <div class="mt-1.5 flex justify-between text-xs opacity-80"><span>{{ $fmt($link->settings['current'] ?? 0) }}</span><span>{{ __('Goal') }}: {{ $fmt($link->settings['target'] ?? 0) }}</span></div>
-                                @if($link->url && preg_match('#^https?://#i', $link->url))<a href="{{ route('bio.public.click', $link->public_id) }}" target="_blank" rel="nofollow noopener" class="mt-2 inline-block text-xs font-semibold underline">{{ $link->description ?: __('Support') }} ↗</a>@endif
+                                @if($link->url && preg_match('#^https?://#i', $link->url))<a href="{{ $clickHref($link->public_id) }}" target="_blank" rel="nofollow noopener" class="mt-2 inline-block text-xs font-semibold underline">{{ $link->description ?: __('Support') }} ↗</a>@endif
                             </div>
                         @elseif($link->type === 'audio' && $link->content)
                             <div class="bio-audio w-full rounded-2xl p-3" style="background: {{ $blockBg }}; color: {{ $linkTextColor }};">
@@ -1345,6 +1356,14 @@ END:VCARD`;
             });
             return qrLibrary;
         }
+        // The address without any query, plus ?src= so scans of this code are counted as QR visits.
+        function shareUrl(src) {
+            const u = new URL(window.location.href);
+            u.search = '';
+            u.hash = '';
+            if (src) u.searchParams.set('src', src);
+            return u.toString();
+        }
         async function initShareQR() {
             const container = document.getElementById('share-qr-container');
             if (!container || shareQrInstance) return;
@@ -1354,7 +1373,7 @@ END:VCARD`;
                 width: 120,
                 height: 120,
                 type: 'svg',
-                data: window.location.href,
+                data: shareUrl('qr'),
                 dotsOptions: {
                     color: qrColor,
                     type: qrDotStyle
@@ -1380,6 +1399,65 @@ END:VCARD`;
             container.innerHTML = '';
             shareQrInstance.append(container);
         }
+        // A 1080x1920 picture for stories: the page's colours, picture, name, a short line and a QR code that counts as a QR visit.
+        async function downloadShareCard() {
+            try { await loadQrLibrary(); } catch (e) { return; }
+            if (!window.QRCodeStyling) return;
+            const W = 1080, H = 1920, colors = @js($cardColors), name = @js($bioPage->title), line = @js(html_entity_decode((string) $bioPage->bio)), avatar = @js($bioPage->avatar_url ? Storage::disk('public')->url($bioPage->avatar_url) : null), shown = @js(preg_replace('#^https?://#', '', rtrim(public_url('b/'.$bioPage->slug), '/')));
+            const family = getComputedStyle(document.body).fontFamily;
+            try { await Promise.all([document.fonts.load('700 72px ' + family), document.fonts.load('400 38px ' + family)]); } catch (e) {}
+            const c = document.createElement('canvas');
+            c.width = W; c.height = H;
+            const g = c.getContext('2d');
+            const grad = g.createLinearGradient(0, 0, W, H);
+            colors.forEach((col, i) => grad.addColorStop(colors.length === 1 ? 0 : i / (colors.length - 1), col));
+            g.fillStyle = colors.length === 1 ? colors[0] : grad;
+            g.fillRect(0, 0, W, H);
+            const lum = (hex) => { const n = parseInt(hex.slice(1), 16); return (0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255; };
+            const light = lum(colors[0]) > 0.62;
+            const ink = light ? '#0f172a' : '#ffffff';
+            g.textAlign = 'center';
+            // picture
+            const cx = W / 2, cy = 390, r = 190;
+            g.save();
+            g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.closePath(); g.clip();
+            let drawn = false;
+            if (avatar) {
+                try {
+                    const img = await new Promise((ok, no) => { const i = new Image(); i.crossOrigin = 'anonymous'; i.onload = () => ok(i); i.onerror = no; i.src = avatar; });
+                    const s = Math.max(2 * r / img.width, 2 * r / img.height);
+                    g.drawImage(img, cx - img.width * s / 2, cy - img.height * s / 2, img.width * s, img.height * s);
+                    drawn = true;
+                } catch (e) {}
+            }
+            if (!drawn) { g.fillStyle = 'rgba(255,255,255,0.25)'; g.fillRect(cx - r, cy - r, 2 * r, 2 * r); g.fillStyle = ink; g.font = '700 190px ' + family; g.textBaseline = 'middle'; g.fillText((name || '?').trim().charAt(0).toUpperCase(), cx, cy + 10); }
+            g.restore();
+            g.lineWidth = 10; g.strokeStyle = 'rgba(255,255,255,0.7)'; g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.stroke();
+            g.textBaseline = 'alphabetic';
+            const wrap = (text, font, max, lines) => { g.font = font; const words = String(text).split(/\s+/); const out = []; let cur = ''; for (const w of words) { const t = cur ? cur + ' ' + w : w; if (g.measureText(t).width > max && cur) { out.push(cur); cur = w; } else cur = t; } if (cur) out.push(cur); if (out.length > lines) { out.length = lines; out[lines - 1] = out[lines - 1].replace(/\s*\S*$/, '') + '…'; } return out; };
+            g.fillStyle = ink;
+            let y = 680;
+            wrap(name, '700 78px ' + family, 900, 2).forEach(l => { g.font = '700 78px ' + family; g.fillText(l, cx, y); y += 92; });
+            y += 10;
+            g.globalAlpha = 0.85;
+            wrap(line, '400 40px ' + family, 860, 3).forEach(l => { g.font = '400 40px ' + family; g.fillText(l, cx, y); y += 54; });
+            g.globalAlpha = 1;
+            // QR on a white card
+            const qr = new QRCodeStyling({ width: 560, height: 560, type: 'canvas', data: shareUrl('qr'), margin: 0, dotsOptions: { color: '#111827', type: qrDotStyle }, backgroundOptions: { color: '#ffffff' }, cornersSquareOptions: { color: '#111827', type: qrCornerSquareType }, cornersDotOptions: { color: '#111827', type: qrCornerDotType }, qrOptions: { errorCorrectionLevel: 'M' } });
+            const blob = await qr.getRawData('png');
+            const qimg = await createImageBitmap(blob);
+            const cardY = 1020, pad = 50, size = 560 + pad * 2;
+            g.fillStyle = '#ffffff';
+            g.beginPath(); (g.roundRect ? g.roundRect(cx - size / 2, cardY, size, size, 48) : g.rect(cx - size / 2, cardY, size, size)); g.fill();
+            g.drawImage(qimg, cx - 280, cardY + pad, 560, 560);
+            g.fillStyle = ink;
+            g.font = '600 44px ' + family;
+            g.fillText(shown, cx, cardY + size + 90);
+            g.globalAlpha = 0.7; g.font = '400 34px ' + family;
+            g.fillText(@js(__('Scan to open')), cx, cardY + size + 145);
+            g.globalAlpha = 1;
+            c.toBlob((b) => { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = @js($bioPage->slug).concat('-story.png'); document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }, 'image/png');
+        }
         async function downloadShareQR() {
             if (!shareQrInstance) {
                 await initShareQR();
@@ -1392,7 +1470,7 @@ END:VCARD`;
                 width: qrSize,
                 height: qrSize,
                 type: 'canvas',
-                data: window.location.href,
+                data: shareUrl('qr'),
                 dotsOptions: {
                     color: qrColor,
                     type: qrDotStyle

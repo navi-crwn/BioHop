@@ -11,12 +11,14 @@ use Hop\Bio\Contracts\UserAgentParser;
 use Hop\Bio\Models\BioLink;
 use Hop\Bio\Models\BioPage;
 use Hop\Bio\Models\BioPollVote;
+use Hop\Bio\Support\ImageMeta;
 use Hop\Safety\SafeContent;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -161,6 +163,7 @@ class PublicBioController extends Controller
                 'device' => strtolower($ua['device']),
                 'browser' => $ua['browser'],
                 'referrer' => request()->header('referer'),
+                'source' => in_array(request()->query('s'), self::SOURCES, true) ? request()->query('s') : null,
             ];
             // The country lookup can take seconds for a new IP; record after the redirect is sent.
             defer(fn () => $bioLink->recordClick($click + ['country' => $this->getCountryFromIp($ipAddress)]));
@@ -189,12 +192,41 @@ class PublicBioController extends Controller
     {
         $bioPage = BioPage::where('slug', $slug)->first();
         abort_unless($this->isVisible($bioPage), 404);
-        $url = public_url('b/'.$bioPage->slug);
+        $url = public_url('b/'.$bioPage->slug).'?src=qr';
         $qrCode = QrPng::render($url, 512, margin: 2);
 
         return response($qrCode)
             ->header('Content-Type', 'image/png')
             ->header('Content-Disposition', "attachment; filename=\"{$bioPage->slug}-qr.png\"");
+    }
+
+    /** The page as an installable web app: a name, an icon, and a start address that counts those visits as "pwa". */
+    public function manifest(string $slug)
+    {
+        $bioPage = BioPage::where('slug', $slug)->first();
+        abort_unless($this->isVisible($bioPage), 404);
+        $pick = function (?string $value) {
+            return $value && preg_match('/#[0-9a-fA-F]{6}\b/', $value, $m) ? $m[0] : null;
+        };
+        $themes = config('bio-themes.presets');
+        $theme = $themes[$bioPage->theme] ?? null;
+        $color = $pick($bioPage->background_value) ?: $pick($bioPage->background_color) ?: $pick($bioPage->background_gradient) ?: $pick($theme['background'] ?? null) ?: '#ffffff';
+        $icons = [];
+        if ($bioPage->avatar_url && ($meta = ImageMeta::for($bioPage->avatar_url))) {
+            $ext = strtolower(pathinfo($bioPage->avatar_url, PATHINFO_EXTENSION));
+            $icons[] = ['src' => Storage::disk('public')->url($bioPage->avatar_url), 'sizes' => $meta['w'].'x'.$meta['h'], 'type' => ['webp' => 'image/webp', 'png' => 'image/png', 'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'gif' => 'image/gif'][$ext] ?? 'image/png', 'purpose' => 'any'];
+        }
+
+        return response()->json([
+            'name' => $bioPage->title,
+            'short_name' => Str::limit($bioPage->title, 12, ''),
+            'start_url' => '/b/'.$bioPage->slug.'?src=pwa',
+            'scope' => '/b/'.$bioPage->slug,
+            'display' => 'standalone',
+            'background_color' => $color,
+            'theme_color' => $color,
+            'icons' => $icons,
+        ], 200, ['Content-Type' => 'application/manifest+json', 'Cache-Control' => 'public, max-age=300']);
     }
 
     /** Adds utm_source/medium/campaign to an http(s) address that has no UTM parameters of its own. */
@@ -264,6 +296,9 @@ class PublicBioController extends Controller
 
         return $back;
     }
+
+    /** Where a visit came from, set by ?src= on the page address and carried to the clicks as ?s= */
+    public const SOURCES = ['qr', 'nfc', 'pwa'];
 
     public const MAX_LEADS_PER_FORM = 5000;
 

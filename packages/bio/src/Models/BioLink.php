@@ -348,6 +348,7 @@ class BioLink extends Model
             'device' => $data['device'] ?? null,
             'browser' => $data['browser'] ?? null,
             'referrer' => $data['referrer'] ?? null,
+            'source' => $data['source'] ?? null,
             'ip_address' => $data['ip_address'] ?? null,
         ]);
         $this->incrementClicks();
