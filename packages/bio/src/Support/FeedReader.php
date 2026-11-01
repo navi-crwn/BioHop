@@ -2,9 +2,7 @@
 
 namespace Hop\Bio\Support;
 
-use Hop\Safety\UrlGuard;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 /**
@@ -15,8 +13,6 @@ use Illuminate\Support\Str;
 class FeedReader
 {
     public const MAX_BYTES = 1_000_000;
-
-    public const MAX_REDIRECTS = 2;
 
     public const FRESH_SECONDS = 3600;
 
@@ -48,26 +44,7 @@ class FeedReader
     /** @throws \RuntimeException */
     public static function download(string $url): string
     {
-        $guard = app(UrlGuard::class);
-        for ($hop = 0; $hop <= self::MAX_REDIRECTS; $hop++) {
-            if (! $guard->isSafe($url)) {
-                throw new \RuntimeException('Address not allowed');
-            }
-            $response = Http::timeout(3)->withOptions(['allow_redirects' => false])
-                ->withHeaders(['User-Agent' => 'Mozilla/5.0 (compatible; BioHop feed)', 'Accept' => 'application/rss+xml, application/atom+xml, application/xml, text/xml'])
-                ->get($url);
-            if (in_array($response->status(), [301, 302, 303, 307, 308], true) && ($next = $response->header('Location'))) {
-                $url = (string) (parse_url($next, PHP_URL_SCHEME) ? $next : self::absolute($url, $next));
-
-                continue;
-            }
-            if (! $response->ok() || strlen($response->body()) > self::MAX_BYTES) {
-                throw new \RuntimeException('Feed not readable');
-            }
-
-            return $response->body();
-        }
-        throw new \RuntimeException('Too many redirects');
+        return SafeFetch::get($url, self::MAX_BYTES, 3.0, 'application/rss+xml, application/atom+xml, application/xml, text/xml')['body'];
     }
 
     /** @return array<int, array{title:string, url:string, date:?string}> */
@@ -111,12 +88,5 @@ class FeedReader
         }
 
         return $items;
-    }
-
-    private static function absolute(string $base, string $location): string
-    {
-        $p = parse_url($base);
-
-        return ($p['scheme'] ?? 'https').'://'.($p['host'] ?? '').(str_starts_with($location, '/') ? '' : '/').$location;
     }
 }

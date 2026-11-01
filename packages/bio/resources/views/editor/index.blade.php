@@ -808,6 +808,10 @@
                                     <label for="bfindex-p4" class="form-label">Where to buy (address)</label>
                                     <input id="bfindex-p4" type="url" x-model="editingBlock.url" class="form-input" placeholder="https://your-shop.com/linen-shirt">
                                     <p class="text-xs editor-text-muted mt-1">Your own shop, a marketplace listing or an affiliate link. Visitors open it in a new tab.</p>
+                                    <div class="mt-2 flex flex-wrap items-center gap-2">
+                                        <button type="button" class="btn btn-secondary text-xs py-1 px-2" :disabled="productFetch.busy || !/^https?:\/\//i.test(editingBlock.url || '')" @click="fillProductFromAddress()" x-text="productFetch.busy ? 'Reading the page…' : 'Fill the details from this address'"></button>
+                                        <span class="text-xs" :class="productFetch.ok ? 'text-emerald-600' : 'editor-text-muted'" x-show="productFetch.message" x-text="productFetch.message" role="status"></span>
+                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="bfindex-p5" class="form-label">Short description</label>
