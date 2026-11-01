@@ -22,6 +22,7 @@ All notable changes to BioHop are listed here. The format follows [Keep a Change
 - Fewer blurred layers (the app chrome only) and a fixed background that is composited rather than repainted, so scrolling is smooth.
 
 ### Fixed
+- An uploaded background picture now saves. The upload worked, but the save then refused the file's own path as "a link type that is not allowed", so the page fell back to its theme; the check now applies only to outside addresses. A replaced background picture is deleted once nothing uses it.
 - The phone in the hero is sized by the stage's height, so it no longer spills over the buttons above it and the running line below it on phones, before the 3D scene starts, or without WebGL; the "Live" note sits under the stage instead of on the phone. On phones the 3D scene fills the stage instead of a 240 px box.
 - Counters never show a negative number for a frame (shared `hop-motion.js`).
 - SVG icons, QR logos and thumbnails now upload. Laravel's `image` rule refuses SVG, so every SVG failed. An SVG is rebuilt from an allowlist (no script, handlers, external files or entities) before it is stored, and an SVG that cannot be made safe is refused with the reason.
