@@ -21,6 +21,32 @@ class BioPage extends Model
     /** The four ways the top of a page can look; classic is the small centred avatar. */
     public const HEADER_LAYOUTS = ['classic', 'hero', 'banner', 'cutout'];
 
+    /** The status chip text while it is current; null once status_until has passed. */
+    public function statusLabel(): ?string
+    {
+        $text = trim((string) $this->status_text);
+        if ($text === '' || ($this->status_until && $this->status_until->lte(now()))) {
+            return null;
+        }
+
+        return $text;
+    }
+
+    public const FAB_TYPES = ['none', 'whatsapp', 'custom'];
+
+    /** The floating button's address, or null when there is none to show. */
+    public function fabHref(): ?string
+    {
+        $url = trim((string) $this->fab_url);
+        if ($this->fab_type === 'whatsapp') {
+            $digits = preg_replace('/\D+/', '', $url);
+
+            return strlen($digits) >= 6 ? 'https://wa.me/'.$digits : null;
+        }
+
+        return $this->fab_type === 'custom' && preg_match('#^(https?://|mailto:|tel:)#i', $url) ? $url : null;
+    }
+
     public function headerLayout(): string
     {
         return in_array($this->header_layout, self::HEADER_LAYOUTS, true) ? $this->header_layout : 'classic';
@@ -31,6 +57,8 @@ class BioPage extends Model
         'slug',
         'title',
         'bio',
+        'status_text',
+        'status_until',
         'avatar_url',
         'avatar_shape',
         'badge',
@@ -83,6 +111,9 @@ class BioPage extends Model
         'footer_note',
         'footer_url',
         'privacy_mode',
+        'fab_type',
+        'fab_label',
+        'fab_url',
         'google_analytics_id',
         'facebook_pixel_id',
         'tiktok_pixel_id',
@@ -110,6 +141,7 @@ class BioPage extends Model
         'hide_branding' => 'boolean',
         'auto_utm' => 'boolean',
         'privacy_mode' => 'boolean',
+        'status_until' => 'datetime',
         'seo_noindex' => 'boolean',
         'allow_indexing' => 'boolean',
         'view_count' => 'integer',

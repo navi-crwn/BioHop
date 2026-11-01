@@ -84,6 +84,36 @@
                 </div>
                 <p class="text-[10px] font-medium" style="color: var(--editor-text);">Countdown</p>
             </button>
+            <button @click="addBlock('app')" class="block-modal-btn p-2 rounded-lg hover:border-sky-500 hover:bg-sky-900/20 transition-all text-center group">
+                <div class="w-8 h-8 bg-sky-500 rounded-lg flex items-center justify-center mx-auto mb-1">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                </div>
+                <p class="text-[10px] font-medium" style="color: var(--editor-text);">App store link</p>
+            </button>
+            <button @click="addBlock('goal')" class="block-modal-btn p-2 rounded-lg hover:border-emerald-500 hover:bg-emerald-900/20 transition-all text-center group">
+                <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center mx-auto mb-1">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                </div>
+                <p class="text-[10px] font-medium" style="color: var(--editor-text);">Goal bar</p>
+            </button>
+            <button @click="addBlock('audio')" class="block-modal-btn p-2 rounded-lg hover:border-fuchsia-500 hover:bg-fuchsia-900/20 transition-all text-center group">
+                <div class="w-8 h-8 bg-fuchsia-500 rounded-lg flex items-center justify-center mx-auto mb-1">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.1-1.3 2-3 2s-3-.9-3-2 1.3-2 3-2 3 .9 3 2zm12-3c0 1.1-1.3 2-3 2s-3-.9-3-2 1.3-2 3-2 3 .9 3 2z"/></svg>
+                </div>
+                <p class="text-[10px] font-medium" style="color: var(--editor-text);">Audio clip</p>
+            </button>
+            <button @click="addBlock('carousel')" class="block-modal-btn p-2 rounded-lg hover:border-orange-500 hover:bg-orange-900/20 transition-all text-center group">
+                <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center mx-auto mb-1">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.6-4.6a2 2 0 012.8 0L16 16m-2-2l1.6-1.6a2 2 0 012.8 0L20 14M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+                <p class="text-[10px] font-medium" style="color: var(--editor-text);">Picture carousel</p>
+            </button>
+            <button @click="addBlock('pdf')" class="block-modal-btn p-2 rounded-lg hover:border-red-500 hover:bg-red-900/20 transition-all text-center group">
+                <div class="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center mx-auto mb-1">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9l-6-6H7a2 2 0 00-2 2v14a2 2 0 002 2zm6-18v6h6"/></svg>
+                </div>
+                <p class="text-[10px] font-medium" style="color: var(--editor-text);">PDF document</p>
+            </button>
             <button @click="addBlock('whatsapp')" class="block-modal-btn p-2 rounded-lg hover:border-green-500 hover:bg-green-900/20 transition-all text-center group">
                 <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mx-auto mb-1">
                     <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-4 4v-4z"/></svg>

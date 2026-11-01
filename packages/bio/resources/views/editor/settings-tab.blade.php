@@ -245,6 +245,28 @@
         </div>
     </div>
 </div>
+<!-- Floating button -->
+<div class="editor-card">
+    <div class="editor-card-header">
+        <h3 class="editor-card-title">Floating button</h3>
+    </div>
+    <p class="text-xs editor-text-muted mb-3">One button that stays in the corner while visitors scroll: chat with you on WhatsApp, or open any address.</p>
+    <div class="flex gap-2 mb-3" role="radiogroup" aria-label="Floating button">
+        <template x-for="t in [['none','Off'],['whatsapp','WhatsApp'],['custom','Link']]" :key="t[0]">
+            <button type="button" role="radio" :aria-checked="(bioPage.fab_type || 'none') === t[0]" @click="bioPage.fab_type = t[0]" class="btn btn-secondary text-sm py-1.5 flex-1" :class="{ 'ring-2 ring-blue-500': (bioPage.fab_type || 'none') === t[0] }" x-text="t[1]"></button>
+        </template>
+    </div>
+    <div class="grid gap-3 sm:grid-cols-2" x-show="(bioPage.fab_type || 'none') !== 'none'" x-transition>
+        <div class="form-group">
+            <label for="bfsettin-f1" class="form-label" x-text="bioPage.fab_type === 'whatsapp' ? 'WhatsApp number' : 'Address'"></label>
+            <input id="bfsettin-f1" type="text" maxlength="500" x-model="bioPage.fab_url" class="form-input" :placeholder="bioPage.fab_type === 'whatsapp' ? '+62 812 3456 7890' : 'https://…'" autocomplete="off">
+        </div>
+        <div class="form-group">
+            <label for="bfsettin-f2" class="form-label">Button text <span class="editor-text-muted font-normal">(optional)</span></label>
+            <input id="bfsettin-f2" type="text" maxlength="30" x-model="bioPage.fab_label" class="form-input" :placeholder="bioPage.fab_type === 'whatsapp' ? 'Chat' : 'Open'" autocomplete="off">
+        </div>
+    </div>
+</div>
 <!-- Footer line -->
 <div class="editor-card">
     <div class="editor-card-header">

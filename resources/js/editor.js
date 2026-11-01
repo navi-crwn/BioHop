@@ -444,6 +444,7 @@ window.bioEditorV2 = function() {
                             bio: bioPageData.bio || '',
                             avatar: formatAvatarUrl(bioPageData.avatar_url),
                             avatarShape: bioPageData.avatar_shape || 'circle',
+                            status: (bioPageData.status_text && (!bioPageData.status_until || new Date(bioPageData.status_until).getTime() > Date.now())) ? bioPageData.status_text : '',
                             badge: bioPageData.badge || null,
                             badgeColor: bioPageData.badge_color || '#3b82f6'
                         },
@@ -497,7 +498,8 @@ window.bioEditorV2 = function() {
                             theme: bioPageData.theme || 'default'
                         },
                         settings: {
-                            hideBranding: bioPageData.hide_branding || false
+                            hideBranding: bioPageData.hide_branding || false,
+                            fab: { type: bioPageData.fab_type || 'none', label: bioPageData.fab_label || '' }
                         }
                     };
                 // Only the parts that changed since the last message go over: the preview then touches less of its page.
@@ -546,11 +548,11 @@ window.bioEditorV2 = function() {
                 faq_items: [],
                 html_content: '',
                 description: '',
-                settings: type === 'product' ? { price: '', currency: 'IDR', sold_out: false } : (type === 'collection' ? { layout: 'stack' } : (type === 'whatsapp' ? { text: '', mode: 'round_robin', numbers: [{ number: '', label: '', weight: 1 }] } : null))
+                settings: type === 'product' ? { price: '', currency: 'IDR', sold_out: false } : (type === 'collection' ? { layout: 'stack' } : (type === 'whatsapp' ? { text: '', mode: 'round_robin', numbers: [{ number: '', label: '', weight: 1 }] } : (type === 'goal' ? { target: '', current: '', unit: '' } : (type === 'app' ? { ios: '', android: '', web: '' } : (type === 'carousel' ? { images: [] } : null)))))
             };
             if (type === 'whatsapp') newBlock.brand = 'whatsapp';
             this.blocks.push(newBlock);
-            if (['link', 'header', 'text', 'video', 'music', 'vcard', 'html', 'countdown', 'map', 'faq', 'youtube', 'spotify', 'soundcloud', 'code', 'image', 'product', 'collection', 'whatsapp'].includes(type)) {
+            if (['link', 'header', 'text', 'video', 'music', 'vcard', 'html', 'countdown', 'map', 'faq', 'youtube', 'spotify', 'soundcloud', 'code', 'image', 'product', 'collection', 'whatsapp', 'app', 'goal', 'audio', 'carousel', 'pdf'].includes(type)) {
                 this.editingBlock = JSON.parse(JSON.stringify(newBlock));
             }
             this.showAddBlockModal = false;
@@ -568,7 +570,12 @@ window.bioEditorV2 = function() {
                 'faq': 'FAQ',
                 'product': 'Product',
                 'collection': 'Collection',
-                'whatsapp': 'Chat on WhatsApp'
+                'whatsapp': 'Chat on WhatsApp',
+                'app': 'Get the app',
+                'goal': 'Our goal',
+                'audio': 'Listen',
+                'carousel': 'Pictures',
+                'pdf': 'Menu (PDF)'
             };
             return titles[type] || '';
         },
@@ -911,6 +918,49 @@ window.bioEditorV2 = function() {
         },
         setWaNumber(i, key, value) {
             this.setProductSetting('numbers', (this.editingBlock.settings?.numbers || []).map((n, k) => k === i ? Object.assign({}, n, { [key]: value }) : n));
+        },
+        // Audio clip / PDF: uploaded to bio-audio/ or bio-files/; the block keeps the /storage address in content.
+        uploadBlockMedia(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('_token', csrf());
+            fetch(bioEditorUrl('/upload-media'), { method: 'POST', headers: { 'Accept': 'application/json' }, body: formData })
+            .then(async res => ({ ok: res.ok, data: await res.json().catch(() => ({})) }))
+            .then(({ ok, data }) => {
+                if (ok && data.url) {
+                    this.editingBlock.content = data.url;
+                    this.showNotification('Uploaded!', 'success');
+                } else {
+                    throw new Error(data.errors?.file?.[0] || data.message || 'Upload failed');
+                }
+            })
+            .catch(error => this.showNotification(error.message || 'Failed to upload', 'error'));
+            event.target.value = '';
+        },
+        // Carousel pictures: the same image upload as thumbnails, up to 10.
+        uploadCarouselImage(event) {
+            const files = Array.from(event.target.files || []).slice(0, 10 - (this.editingBlock.settings?.images || []).length);
+            event.target.value = '';
+            files.forEach(file => {
+                const formData = new FormData();
+                formData.append('image', file);
+                formData.append('_token', csrf());
+                fetch(bioEditorUrl('/upload-image'), { method: 'POST', headers: { 'Accept': 'application/json' }, body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.success || !data.url) throw new Error(data.message || 'Upload failed');
+                    this.setProductSetting('images', [...(this.editingBlock.settings?.images || []), { url: data.url, caption: '' }]);
+                })
+                .catch(error => this.showNotification(error.message || 'Failed to upload', 'error'));
+            });
+        },
+        removeCarouselImage(i) {
+            this.setProductSetting('images', (this.editingBlock.settings?.images || []).filter((_, k) => k !== i));
+        },
+        setCarouselCaption(i, value) {
+            this.setProductSetting('images', (this.editingBlock.settings?.images || []).map((img, k) => k === i ? Object.assign({}, img, { caption: value }) : img));
         },
         // 'scheduled' before publish_at, 'expired' after expire_at, null when live (same rule as the server).
         scheduleState(block) {

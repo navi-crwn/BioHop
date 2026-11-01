@@ -70,6 +70,18 @@
                         <label for="bfprofil-2" class="form-label">Bio <span class="text-xs editor-text-muted" x-text="'(' + (bioPage.bio?.length || 0) + '/{{ \Hop\Bio\Models\BioPage::BIO_MAX }})'"></span></label>
                         <textarea id="bfprofil-2" x-model="bioPage.bio" @input="bioPage.bio = $event.target.value.slice(0, {{ \Hop\Bio\Models\BioPage::BIO_MAX }})" class="form-input form-textarea" placeholder="Tell visitors about yourself..." rows="2" maxlength="{{ \Hop\Bio\Models\BioPage::BIO_MAX }}"></textarea>
                     </div>
+                    <!-- Status chip -->
+                    <div class="form-group">
+                        <label for="bfprofil-st" class="form-label">Status <span class="text-xs editor-text-muted">(optional)</span></label>
+                        <input id="bfprofil-st" type="text" maxlength="60" x-model="bioPage.status_text" class="form-input" placeholder="Open for commissions" autocomplete="off">
+                        <div class="mt-2 grid grid-cols-2 gap-3" x-show="bioPage.status_text">
+                            <div>
+                                <label for="bfprofil-su" class="form-label text-xs mb-1">Hide it on</label>
+                                <input id="bfprofil-su" type="datetime-local" :value="toLocalInput(bioPage.status_until)" @input="bioPage.status_until = fromLocalInput($event.target.value) || null" class="form-input text-xs">
+                            </div>
+                            <p class="text-xs editor-text-muted self-end">A small green chip under your name. Leave the date empty to keep it until you remove it.</p>
+                        </div>
+                    </div>
                     <!-- Badge Feature -->
                     <div class="form-group mb-0">
                         <label class="form-label">Badge</label>

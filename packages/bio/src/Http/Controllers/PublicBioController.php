@@ -105,8 +105,13 @@ class PublicBioController extends Controller
     {
         // Disabled blocks / hidden pages must not keep redirecting.
         $bioPage = $bioLink->bioPage;
-        // A WhatsApp rotator picks one of its numbers per click; other blocks go to their address.
-        $target = $bioLink->type === 'whatsapp' ? ($bioLink->whatsappTarget() ?? '#') : SafeContent::url($bioLink->url);
+        $ua = app(UserAgentParser::class)->parse(request()->userAgent());
+        // A WhatsApp rotator picks one of its numbers per click, an app block the store for the visitor's system; other blocks go to their address.
+        $target = match ($bioLink->type) {
+            'whatsapp' => $bioLink->whatsappTarget() ?? '#',
+            'app' => $bioLink->appTarget((string) ($ua['os'] ?? '')) ?? '#',
+            default => SafeContent::url($bioLink->url),
+        };
         if (! $bioLink->is_active || $bioLink->archived_at || ! $bioLink->isLive() || ! $this->isVisible($bioPage) || $target === '#') {
             abort(404);
         }
@@ -122,7 +127,6 @@ class PublicBioController extends Controller
             return response()->view('bio::link-pin', compact('bioLink'));
         }
         $ipAddress = request()->ip();
-        $ua = app(UserAgentParser::class)->parse(request()->userAgent());
         $visitorId = $this->visitorId();
         $newVisitorId = $visitorId === null && ! $ua['bot'] ? Str::random(32) : null;
         // Visitors always reach the destination; limits only decide whether the click is counted.

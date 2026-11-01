@@ -407,6 +407,9 @@ class BioPageController extends Controller
             }
         }
         // An uploaded background is a path on our own disk (bio-images/…); only an outside address is checked.
+        if (! empty($data['fab_url']) && ($data['fab_type'] ?? null) === 'custom' && ($reason = $safety->rejectionReason($data['fab_url'], '', UrlSafety::BIO_SCHEMES))) {
+            $errors['fab_url'] = $reason;
+        }
         foreach (['fallback_url', 'footer_url'] as $field) {
             if (! empty($data[$field]) && ($reason = $safety->rejectionReason($data[$field], '', UrlSafety::BIO_SCHEMES))) {
                 $errors[$field] = $reason;
@@ -536,6 +539,11 @@ class BioPageController extends Controller
             'hide_branding' => 'nullable|boolean',
             'auto_utm' => 'nullable|boolean',
             'privacy_mode' => 'nullable|boolean',
+            'status_text' => 'nullable|string|max:60',
+            'status_until' => 'nullable|date',
+            'fab_type' => 'nullable|in:'.implode(',', BioPage::FAB_TYPES),
+            'fab_label' => 'nullable|string|max:30',
+            'fab_url' => 'nullable|string|max:500',
             'og_image' => ['nullable', 'string', 'max:500', 'regex:'.CssValue::IMAGE],
             'favicon' => ['nullable', 'string', 'max:500', 'regex:'.CssValue::IMAGE],
             'gtm_id' => ['nullable', 'regex:/^GTM-[A-Z0-9]{4,12}$/'],
@@ -587,6 +595,9 @@ class BioPageController extends Controller
             $validated['is_adult_content'] = ($validated['content_warning'] === 'adult');
         } elseif (array_key_exists('is_adult_content', $validated)) {
             $validated['content_warning'] = $validated['is_adult_content'] ? 'adult' : 'none';
+        }
+        if (array_key_exists('status_until', $validated)) {
+            $validated['status_until'] = ! empty($validated['status_until']) ? Carbon::parse($validated['status_until'])->setTimezone(config('app.timezone')) : null;
         }
         $bioPage->update($validated);
         BioUploads::deleteUnused($oldFiles);
@@ -761,6 +772,23 @@ class BioPageController extends Controller
                 'message' => 'Failed to upload image: '.$e->getMessage(),
             ], 500);
         }
+    }
+
+    /** Audio clips (mp3, m4a, ogg, wav; 12 MB) and PDF files (15 MB) for the audio and pdf blocks. */
+    public function uploadMedia(Request $request, BioPage $bioPage)
+    {
+        $this->authorize('update', $bioPage);
+        $request->validate(['file' => ['required', 'file', 'max:15360', 'mimetypes:audio/mpeg,audio/mp4,audio/x-m4a,audio/ogg,audio/wav,audio/x-wav,application/pdf']]);
+        $file = $request->file('file');
+        $isPdf = $file->getMimeType() === 'application/pdf';
+        if (! $isPdf && $file->getSize() > 12 * 1024 * 1024) {
+            throw ValidationException::withMessages(['file' => 'Audio clips can be up to 12 MB.']);
+        }
+        $ext = $isPdf ? 'pdf' : (['audio/mpeg' => 'mp3', 'audio/mp4' => 'm4a', 'audio/x-m4a' => 'm4a', 'audio/ogg' => 'ogg', 'audio/wav' => 'wav', 'audio/x-wav' => 'wav'][$file->getMimeType()] ?? 'mp3');
+        $path = ($isPdf ? 'bio-files/' : 'bio-audio/').Str::random(40).'.'.$ext;
+        Storage::disk('public')->putFileAs(dirname($path), $file, basename($path));
+
+        return response()->json(['success' => true, 'path' => $path, 'url' => '/storage/'.$path, 'kind' => $isPdf ? 'pdf' : 'audio', 'size' => $file->getSize()]);
     }
 
     /**
