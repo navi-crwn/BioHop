@@ -1120,6 +1120,18 @@
                                     </form>
                                 @endif
                             </div>
+                        @elseif($link->type === 'rss')
+                            @php $feed = $link->feedItems(); @endphp
+                            @if($feed)
+                            <div class="bio-feed w-full rounded-2xl p-3" style="background: {{ $blockBg }}; color: {{ $linkTextColor }};">
+                                @if($link->title)<div class="mb-1 px-1 text-sm font-semibold">{{ $link->title }}</div>@endif
+                                <ul class="grid gap-0.5">
+                                    @foreach($feed as $item)
+                                        <li><a href="{{ $item['url'] }}" target="_blank" rel="nofollow noopener" class="flex items-baseline justify-between gap-3 rounded-lg px-1 py-1.5 text-sm hover:bg-black/5"><span>{{ $item['title'] }}</span>@if($item['date'])<time class="shrink-0 text-[11px] opacity-70" datetime="{{ $item['date'] }}">{{ \Illuminate\Support\Carbon::parse($item['date'])->isoFormat('D MMM') }}</time>@endif</a></li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                            @endif
                         @elseif($link->type === 'goal')
                             @php $pct = $link->goalPercent(); $unit = trim((string) ($link->settings['unit'] ?? '')); $fmt = fn ($n) => number_format((float) $n, 0, '.', ',').($unit !== '' ? ' '.$unit : ''); @endphp
                             <div class="bio-goal w-full rounded-2xl p-4" style="background: {{ $blockBg }}; color: {{ $linkTextColor }};">

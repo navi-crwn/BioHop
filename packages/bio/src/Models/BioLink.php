@@ -3,6 +3,7 @@
 namespace Hop\Bio\Models;
 
 use Carbon\CarbonInterface;
+use Hop\Bio\Support\FeedReader;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -93,6 +94,17 @@ class BioLink extends Model
         ];
 
         return array_filter($fields) ?: ['email' => true];
+    }
+
+    /** @return array<int, array{title:string, url:string, date:?string}> the latest items of a feed block (cached an hour) */
+    public function feedItems(bool $refresh = false): array
+    {
+        $url = trim((string) $this->url);
+        if ($this->type !== 'rss' || ! preg_match('#^https?://#i', $url)) {
+            return [];
+        }
+
+        return FeedReader::items($url, (int) ($this->settings['count'] ?? 5), $refresh);
     }
 
     public function leadRetentionDays(): int

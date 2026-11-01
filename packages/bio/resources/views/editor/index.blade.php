@@ -628,6 +628,12 @@
                                 </div>
                             </div>
                         </template>
+                        <template x-if="editingBlock?.type === 'rss'">
+                            <div class="space-y-4">
+                                <div class="form-group"><label for="bfindex-r1" class="form-label">Feed address</label><input id="bfindex-r1" type="url" x-model="editingBlock.url" class="form-input" placeholder="https://your-blog.example/feed.xml"><p class="text-xs editor-text-muted mt-1">An RSS or Atom address: a blog, a Substack, a Medium user, a podcast. BioHop reads it about once an hour and shows the newest posts; nothing from the feed is stored.</p></div>
+                                <div class="form-group"><label for="bfindex-r2" class="form-label">How many posts</label><select id="bfindex-r2" :value="editingBlock.settings?.count ?? 5" @change="setProductSetting('count', parseInt($event.target.value, 10))" class="form-input"><template x-for="n in [1,2,3,4,5,6,8,10]" :key="n"><option :value="n" x-text="n"></option></template></select></div>
+                            </div>
+                        </template>
                         <template x-if="editingBlock?.type === 'app'">
                             <div class="space-y-4">
                                 <p class="text-xs editor-text-muted">One button, three addresses: iPhone and iPad visitors go to the App Store, Android visitors to Google Play, everyone else (computers) to the website.</p>
