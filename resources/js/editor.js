@@ -332,6 +332,38 @@ window.bioEditorV2 = function() {
             this.$nextTick(() => { this.announcement = message; });
         },
         // Keyboard alternative to drag and drop (arrow keys on the drag handle).
+        // ---- page speed: a plain estimate of how heavy the page is for a visitor on a phone -------------------------
+        pageHealth() {
+            const active = this.blocks.filter(b => b.is_active && !b.archived_at);
+            const count = types => active.filter(b => types.includes(b.type)).length;
+            const tips = [];
+            let score = 100;
+            const ext = v => (String(v || '').split('?')[0].match(/\.([a-z0-9]+)$/i) || [])[1]?.toLowerCase() || '';
+            const embeds = count(['youtube', 'spotify', 'soundcloud', 'video', 'music']);
+            if (embeds > 5) { score -= (embeds - 5) * 2; tips.push(`${embeds} videos or players. They load only when tapped, but a long page of them is tiring to scroll: keep the best five.`); }
+            const maps = count(['map']);
+            if (maps > 1) { score -= (maps - 1) * 2; tips.push(`${maps} maps. One map is enough for most pages.`); }
+            const pictures = count(['image']) + active.filter(b => b.type === 'carousel').reduce((n, b) => n + ((b.settings?.images || []).length), 0);
+            if (pictures > 10) { score -= Math.min(15, (pictures - 10)); tips.push(`${pictures} pictures. Every one is downloaded on a phone: show fewer or move some into a carousel.`); }
+            if (active.length > 40) { score -= Math.min(15, active.length - 40); tips.push(`${active.length} blocks on one page. Group them in collections or split the page.`); }
+            const anim = this.bioPage.background_animation;
+            if (anim && anim !== 'none') { score -= anim === 'matrix' ? 10 : 6; tips.push('The background animation makes weak phones stutter. Visitors who save data or have little memory get a calm page automatically, but others see it.'); }
+            const pixels = ['google_analytics_id', 'facebook_pixel_id', 'tiktok_pixel_id', 'gtm_id'].filter(k => this.bioPage[k]).length;
+            if (pixels) { score -= pixels * 3; tips.push(`${pixels} tracking script${pixels > 1 ? 's' : ''}. They load only after the visitor agrees, but each one costs data.`); }
+            const heavyFiles = [this.bioPage.avatar_url, this.bioPage.cover_image, this.bioPage.background_image, ...active.map(b => b.thumbnail_url)].filter(v => v && /^(\/?storage\/)?(avatars|bio-images|bio-thumbnails)\//.test(v));
+            const gifs = heavyFiles.filter(v => ext(v) === 'gif').length;
+            const old = heavyFiles.filter(v => ['png', 'jpg', 'jpeg'].includes(ext(v))).length;
+            if (gifs) { score -= gifs * 8; tips.push(`${gifs} animated picture${gifs > 1 ? 's' : ''} (GIF). They are heavy for a phone: use a still picture where you can.`); }
+            if (old) { score -= Math.min(8, old * 2); tips.push(`${old} older picture${old > 1 ? 's' : ''} not yet shrunk. New uploads are shrunk automatically; upload these again to make them light.`); }
+            if (!this.bioPage.avatar_url && !this.bioPage.cover_image && !this.bioPage.background_image) score = Math.min(100, score + 0);
+            score = Math.max(40, Math.round(score));
+            const level = score >= 90 ? 'good' : score >= 70 ? 'ok' : 'heavy';
+            return {
+                score, level, tips,
+                label: level === 'good' ? 'Fast' : level === 'ok' ? 'Good, could be lighter' : 'Heavy for a phone',
+                summary: 'A rough estimate from what is on the page, not a measurement.',
+            };
+        },
         // ---- block picker (bento) and command palette --------------------------------------------------------
         blockGroups() {
             const q = this.blockSearch.trim().toLowerCase();

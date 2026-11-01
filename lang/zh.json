@@ -570,5 +570,9 @@
     "The security check failed. Please try again.": "安全检查失败，请重试。",
     "This form is not taking more entries right now.": "此表单目前不再接受提交。",
     "Results": "结果",
-    ":count vote|:count votes": ":count 票|:count 票"
+    ":count vote|:count votes": ":count 票|:count 票",
+    "Play video": "播放视频",
+    "Play music": "播放音乐",
+    "Show map": "显示地图",
+    "Loads from :site when you tap": "点击后从 :site 加载"
 }

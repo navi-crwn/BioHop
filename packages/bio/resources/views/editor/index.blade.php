@@ -120,7 +120,21 @@
         </section>
         <aside class="be-preview" aria-label="Live preview">
             <div class="be-preview-bar">
-                <span>Live preview</span>
+                <span class="flex items-center gap-2">Live preview
+                    <span class="relative" x-data="{ open: false }" @click.outside="open = false" @keydown.escape="open = false">
+                        <button type="button" class="be-health" :class="'is-' + pageHealth().level" @click="open = !open" :aria-expanded="open" aria-label="Page speed details">
+                            <span aria-hidden="true">⚡</span> <span x-text="pageHealth().score"></span><small>/100</small>
+                        </button>
+                        <div class="be-health-pop" x-show="open" x-cloak x-transition role="dialog" aria-label="Page speed">
+                            <b x-text="pageHealth().label"></b>
+                            <p class="text-xs editor-text-muted" x-text="pageHealth().summary"></p>
+                            <ul>
+                                <template x-for="t in pageHealth().tips" :key="t"><li x-text="t"></li></template>
+                            </ul>
+                            <p class="text-xs editor-text-muted" x-show="!pageHealth().tips.length">Nothing to fix. Visitors on a weak connection will see your page quickly.</p>
+                        </div>
+                    </span>
+                </span>
                 <span class="flex items-center gap-3">
                     <a :href="'{{ public_url('b') }}/' + bioPage.slug" target="_blank" rel="noopener">Open in new tab
                         <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
