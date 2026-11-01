@@ -41,6 +41,15 @@
             <h2 class="section-title">Top countries</h2>
             <x-analytics.rank-list class="mt-3" color="bg-emerald-500/70" :items="$stats['topCountries']->map(fn ($c) => ['label' => country_name($c->country), 'value' => (int) $c->clicks, 'flag' => $c->country])" empty="No clicks in this period." />
         </section>
+        <section class="glass-card">
+            <h2 class="section-title">How visitors arrived</h2>
+            <x-analytics.rank-list class="mt-3" color="bg-violet-500/70" :items="$stats['sources']" empty="No clicks in this period." />
+            <p class="mt-2 text-xs text-muted">QR codes made here and the story image count as "QR code". Put <code>?src=nfc</code> after the address on an NFC card to see taps on their own.</p>
+        </section>
+        <section class="glass-card">
+            <h2 class="section-title">Where they came from</h2>
+            <x-analytics.rank-list class="mt-3" color="bg-sky-500/70" :items="$stats['referrers']" empty="No clicks in this period." />
+        </section>
         <section class="glass overflow-hidden rounded-2xl">
             <h2 class="section-title px-4 pb-2 pt-4">Recent clicks</h2>
             <ul class="divide-glass max-h-96 overflow-y-auto">

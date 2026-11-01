@@ -40,7 +40,7 @@ class OptionalSession extends StartSession
     private function statelessVisit(Request $request): bool
     {
         $name = $request->route()?->getName();
-        if (! $request->isMethod('GET') || ! in_array($name, ['bio.public.show', 'bio.public.shop'], true)
+        if (! $request->isMethod('GET') || ! in_array($name, ['bio.public.show', 'bio.public.shop', 'bio.public.manifest', 'bio.public.qr'], true)
             || $request->hasCookie((string) config('session.cookie'))) {
             return false;
         }

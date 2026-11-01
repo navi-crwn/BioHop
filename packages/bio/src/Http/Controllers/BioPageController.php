@@ -689,6 +689,20 @@ class BioPageController extends Controller
             return ucfirst($device);
         })->toArray();
         $deviceChartData = $devicesData->pluck('count')->toArray();
+        $sourceLabels = ['qr' => 'QR code', 'nfc' => 'NFC tag', 'pwa' => 'Home-screen app'];
+        $sources = BioClick::query()
+            ->whereIn('bio_link_id', $bioPage->links->pluck('id'))
+            ->where('clicked_at', '>=', now()->subDays($days))
+            ->selectRaw('source, COUNT(*) as n')->groupBy('source')->orderByDesc('n')->get()
+            ->map(fn ($r) => ['label' => $sourceLabels[$r->source] ?? 'Link in bio', 'value' => (int) $r->n])->values();
+        // where the visitor came from, by site (the browser tells us only the address of the previous page)
+        $referrers = BioClick::query()
+            ->whereIn('bio_link_id', $bioPage->links->pluck('id'))
+            ->where('clicked_at', '>=', now()->subDays($days))
+            ->latest('clicked_at')->limit(3000)->pluck('referrer')
+            ->map(fn ($r) => $r ? preg_replace('/^(www|m|l|lm)\./', '', strtolower((string) parse_url($r, PHP_URL_HOST))) : '')
+            ->map(fn ($h) => $h === '' || $h === preg_replace('/^www\./', '', strtolower((string) parse_url(public_url(''), PHP_URL_HOST))) ? 'Direct or unknown' : $h)
+            ->countBy()->sortDesc()->map(fn ($n, $host) => ['label' => $host, 'value' => $n])->values();
         $recentClicks = BioClick::query()
             ->with('bioLink')
             ->whereIn('bio_link_id', $bioPage->links->pluck('id'))
@@ -713,6 +727,8 @@ class BioPageController extends Controller
             'topLinks' => $topLinks,
             'topCountries' => $topCountries,
             'recentClicks' => $recentClicks,
+            'sources' => $sources,
+            'referrers' => $referrers,
         ];
 
         return view('bio::analytics', compact('bioPage', 'stats', 'days'));
