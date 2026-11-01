@@ -109,7 +109,7 @@ class BioLink extends Model
         'link' => 'Link', 'image' => 'Image', 'text' => 'Text', 'header' => 'Header',
         'divider' => 'Divider', 'spacer' => 'Spacer', 'video' => 'Video', 'youtube' => 'YouTube',
         'music' => 'Music', 'spotify' => 'Spotify', 'soundcloud' => 'SoundCloud', 'vcard' => 'Contact card',
-        'html' => 'HTML', 'countdown' => 'Countdown', 'map' => 'Map', 'faq' => 'FAQ',
+        'html' => 'HTML', 'countdown' => 'Countdown', 'map' => 'Map', 'faq' => 'FAQ', 'product' => 'Product',
         'email' => 'Email', 'code' => 'Code',
     ];
 
@@ -144,6 +144,7 @@ class BioLink extends Model
     {
         $detail = match ($this->type) {
             'link', 'email', 'image' => $this->url,
+            'product' => trim($this->priceLabel().' · '.$this->url, ' ·'),
             'video', 'youtube', 'music', 'spotify', 'soundcloud' => $this->embed_url ?: $this->url,
             'text' => filled($this->title) ? $this->excerpt($this->content) : null,
             'vcard' => collect([$this->vcard_phone, $this->vcard_email, $this->vcard_company])->filter()->implode(' · '),
@@ -165,11 +166,33 @@ class BioLink extends Model
     {
         $target = match ($this->type) {
             'video', 'youtube', 'music', 'spotify', 'soundcloud' => $this->embed_url ?: $this->url,
-            'link', 'image' => $this->url,
+            'link', 'image', 'product' => $this->url,
             default => null,
         };
 
         return $target && preg_match('#^https?://#i', $target) ? $target : null;
+    }
+
+    /** "Rp 120.000" / "$ 20" for a product block, from settings.price and settings.currency; empty when there is no price. */
+    public function priceLabel(): string
+    {
+        $price = $this->settings['price'] ?? null;
+        if ($price === null || $price === '') {
+            return '';
+        }
+        $currency = strtoupper((string) ($this->settings['currency'] ?? 'USD'));
+        $amount = (float) $price;
+        $decimals = in_array($currency, ['IDR', 'JPY', 'KRW', 'VND'], true) ? 0 : 2;
+        if (class_exists(\NumberFormatter::class)) {
+            $fmt = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);
+            $fmt->setAttribute(\NumberFormatter::FRACTION_DIGITS, $decimals);
+            $out = $fmt->formatCurrency($amount, $currency);
+            if ($out !== false) {
+                return $out;
+            }
+        }
+
+        return $currency.' '.number_format($amount, $decimals);
     }
 
     private function excerpt(?string $html): ?string

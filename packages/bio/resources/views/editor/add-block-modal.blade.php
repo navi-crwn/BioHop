@@ -84,6 +84,14 @@
                 </div>
                 <p class="text-[10px] font-medium" style="color: var(--editor-text);">Countdown</p>
             </button>
+            <button @click="addBlock('product')" class="block-modal-btn p-2 rounded-lg hover:border-pink-500 hover:bg-pink-900/20 transition-all text-center group">
+                <div class="w-8 h-8 bg-pink-500 rounded-lg flex items-center justify-center mx-auto mb-1">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                    </svg>
+                </div>
+                <p class="text-[10px] font-medium" style="color: var(--editor-text);">Product</p>
+            </button>
             <button @click="addBlock('map')" class="block-modal-btn p-2 rounded-lg hover:border-teal-500 hover:bg-teal-900/20 transition-all text-center group">
                 <div class="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center mx-auto mb-1">
                     <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

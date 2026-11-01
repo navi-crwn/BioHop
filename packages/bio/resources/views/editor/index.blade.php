@@ -603,6 +603,51 @@
                                 </div>
                             </div>
                         </template>
+                        <template x-if="editingBlock?.type === 'product'">
+                            <div class="space-y-4">
+                                <div class="form-group">
+                                    <label for="bfindex-p1" class="form-label">Product name</label>
+                                    <input maxlength="100" id="bfindex-p1" type="text" x-model="editingBlock.title" class="form-input" placeholder="Linen shirt">
+                                </div>
+                                <div class="grid grid-cols-3 gap-3">
+                                    <div class="form-group col-span-2">
+                                        <label for="bfindex-p2" class="form-label">Price</label>
+                                        <input id="bfindex-p2" type="number" min="0" step="0.01" inputmode="decimal" :value="editingBlock.settings?.price ?? ''" @input="editingBlock.settings = Object.assign({}, editingBlock.settings, { price: $event.target.value })" class="form-input" placeholder="120000">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="bfindex-p3" class="form-label">Currency</label>
+                                        <select id="bfindex-p3" :value="editingBlock.settings?.currency ?? 'IDR'" @change="editingBlock.settings = Object.assign({}, editingBlock.settings, { currency: $event.target.value })" class="form-input">
+                                            <template x-for="c in ['IDR','USD','EUR','GBP','JPY','SGD','MYR','AUD','BRL','CNY','KRW','INR']" :key="c"><option :value="c" x-text="c"></option></template>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="bfindex-p4" class="form-label">Where to buy (address)</label>
+                                    <input id="bfindex-p4" type="url" x-model="editingBlock.url" class="form-input" placeholder="https://your-shop.com/linen-shirt">
+                                    <p class="text-xs editor-text-muted mt-1">Your own shop, a marketplace listing or an affiliate link. Visitors open it in a new tab.</p>
+                                </div>
+                                <div class="form-group">
+                                    <label for="bfindex-p5" class="form-label">Short description</label>
+                                    <input maxlength="500" id="bfindex-p5" type="text" x-model="editingBlock.description" class="form-input" placeholder="Organic linen, three colours">
+                                </div>
+                                <div class="form-group" x-show="editingBlock?.thumbnail_url">
+                                    <label class="form-label">Picture</label>
+                                    <div class="relative w-full h-40 rounded-lg overflow-hidden" style="background: var(--editor-input-bg);">
+                                        <img :src="editingBlock?.thumbnail_url" class="w-full h-full object-cover">
+                                        <button aria-label="Remove picture" type="button" @click="editingBlock.thumbnail_url = ''; editingBlock.content = ''" class="absolute top-2 right-2 p-1.5 bg-red-600 hover:bg-red-700 rounded-full text-white">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <label class="block p-4 border-2 border-dashed border-(--editor-border) hover:border-indigo-500 rounded-lg cursor-pointer transition-colors text-center">
+                                    <input aria-label="Upload product picture" type="file" class="hidden" accept="image/*" @change="uploadBlockImage($event, editingBlock)">
+                                    <span class="text-sm editor-text-muted">Upload a picture (square looks best)</span>
+                                </label>
+                                <label class="flex items-center gap-2 text-sm">
+                                    <input type="checkbox" :checked="!!editingBlock.settings?.sold_out" @change="editingBlock.settings = Object.assign({}, editingBlock.settings, { sold_out: $event.target.checked })"> Sold out
+                                </label>
+                            </div>
+                        </template>
                         <template x-if="editingBlock?.type === 'header'">
                             <div class="space-y-4">
                                 <div class="form-group">
