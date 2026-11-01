@@ -19,23 +19,28 @@
     <link rel="icon" type="image/svg+xml" href="{{ route('brand.favicon', ['v' => 'b10b1000']) }}">
     <x-hop::fonts />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="{{ asset('hop-home/hop-home.css') }}">
+    <script src="{{ asset('hop-home/hop-hero3d.js') }}" defer></script>
+    <script src="{{ asset('hop-home/hop-motion.js') }}" defer></script>
+    <script src="{{ asset('hop-home/hop-home.js') }}" defer></script>
     <script nonce="{{ Vite::cspNonce() }}">
         try { const t = localStorage.getItem('helink-theme'); if (t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches)) document.documentElement.classList.add('dark'); } catch (e) {}
     </script>
 </head>
 <body class="bio-home bg-slate-50 text-slate-900 antialiased dark:bg-[#0e1322] dark:text-slate-100 font-sans">
     @include('partials.site-header')
-    <main class="product-showcase" x-data="{ theme: 'galaxy', themes: @js($themes), selected: '' }">
-        <section class="showcase-wrap bio-hero" aria-labelledby="bio-title">
+    <main class="product-showcase hop-home" x-data="{ theme: 'galaxy', themes: @js($themes), selected: '' }">
+        <section class="showcase-wrap bio-hero h-hero" aria-labelledby="bio-title">
             <div class="bio-hero-copy">
                 <p class="showcase-kicker">BioHop / {{ __('Your own little corner of the internet') }}</p>
-                <h1 id="bio-title">{{ __('One page.') }}<br><span class="hop-serif">{{ __('Every part of you.') }}</span></h1>
+                <h1 id="bio-title">{{ __('One page.') }}<br><em>{{ __('Every part of you.') }}</em></h1>
                 <p class="showcase-lead">{{ __('Your work, your links, your next big thing. Bring them together on a page that feels like you.') }}</p>
                 @include('partials.home-claim')
                 <div class="showcase-actions"><a class="showcase-text-link" href="#tour">{{ __('Explore the editor') }} ↓</a><a class="showcase-text-link" href="https://hel.ink/b/hel" target="_blank" rel="noopener">{{ __('Open the official profile') }} ↗</a></div>
                 <p class="showcase-caption">{{ __('Try the HEL.ink profile. Tilt it, tap a link, open the FAQ.') }}</p>
             </div>
             <div class="bio-universe" data-tilt-scene id="preview" aria-label="{{ __('Interactive HEL.ink profile') }}">
+                <figure class="h-art bio-logo-art"><picture><source srcset="{{ asset('hop-home/home/biohop-dark.webp') }}" media="(prefers-color-scheme: dark)"><img src="{{ asset('hop-home/home/biohop-light.webp') }}" alt="" width="460" height="460" fetchpriority="high"></picture><canvas data-hop-hero="biohop" tabindex="0" aria-label="{{ __('Rotate profile') }}"></canvas></figure>
                 <div class="bio-orbit bio-orbit-one" aria-hidden="true"></div><div class="bio-orbit bio-orbit-two" aria-hidden="true"></div>
                 <div class="bio-orbit-label bio-orbit-links" aria-hidden="true"><span>↗</span>{{ __('Your links') }}<small>hel.ink/b/hel</small></div>
                 <div class="bio-orbit-label bio-orbit-style" aria-hidden="true"><span>◒</span>{{ __('Your style') }}<small>20+ {{ __('Themes') }}</small></div>
@@ -49,7 +54,7 @@
 
         <section id="tour" class="showcase-wrap showcase-section" aria-labelledby="tour-title">
             <p class="showcase-kicker">01 / {{ __('From idea to your bio') }}</p>
-            <h2 id="tour-title">{{ __('A little building.') }}<br><span class="hop-serif">{{ __('A lot of you.') }}</span></h2>
+            <h2 id="tour-title" data-split>{{ __('A little building.') }}<br><em>{{ __('A lot of you.') }}</em></h2>
             <p class="showcase-lead">{{ __('Scroll through the story, or choose a step. Try the controls inside the preview.') }}</p>
             <div class="showcase-story" data-story>
                 <div class="showcase-story-pin">
@@ -81,25 +86,28 @@
             </div>
         </section>
 
-        <section id="themes" class="showcase-wrap showcase-section" aria-labelledby="themes-title">
-            <p class="showcase-kicker">02 / {{ __('Your signature') }}</p><h2 id="themes-title">{{ __('Pick a mood.') }}<br><span class="hop-serif">{{ __('Make it yours.') }}</span></h2>
+        <section id="features" class="showcase-wrap showcase-section" aria-labelledby="features-title" data-home-tabs>
+            <p class="showcase-kicker">02 / {{ __('Small page. Big possibilities.') }}</p><h2 id="features-title" data-split>{{ __('More than a list') }} <em>{{ __('of links.') }}</em></h2><p class="h-sub" data-rv>{{ __('No premium tier and no locked features.') }}</p>
+            <div class="h-tabs" role="tablist" aria-label="{{ __('Small page. Big possibilities.') }}">@foreach (['Themes', 'Sample analytics', 'Your boundaries'] as $label)<button type="button" role="tab" id="feature-tab-{{ $loop->index }}" aria-controls="feature-panel-{{ $loop->index }}" aria-selected="{{ $loop->first ? 'true' : 'false' }}">{{ __($label) }}</button>@endforeach</div>
+            <div role="tabpanel" id="feature-panel-0" aria-labelledby="feature-tab-0">
+            <div id="themes"><h3 id="themes-title">{{ __('Pick a mood.') }} <em>{{ __('Make it yours.') }}</em></h3>
             <div class="bio-theme-gallery"><div class="bio-gallery-preview"><x-official-profile /><p class="showcase-caption">{{ __('Theme:') }} <strong x-text="themes[theme].name"></strong></p></div><div><p class="showcase-lead">{{ __('Gradients, animations and button effects, or your own colors, fonts and CSS.') }}</p><div class="bio-theme-grid" role="group" aria-label="{{ __('Theme gallery') }}">@foreach ($themes as $key => $t)<button type="button" @click="theme = @js($key)" :aria-pressed="theme === @js($key)"><span class="bio-theme-swatch" style="background: {{ $t['background'] }}"><i style="background: {{ $t['link_bg'] }}; border: 1px solid {{ $t['link_border'] ?? '#94a3b8' }}"></i><i style="background: {{ $t['link_bg'] }}; border: 1px solid {{ $t['link_border'] ?? '#94a3b8' }}"></i></span><span>{{ $t['name'] }}</span></button>@endforeach</div></div></div>
-        </section>
-
-        <section id="features" class="showcase-wrap showcase-section" aria-labelledby="features-title">
-            <p class="showcase-kicker">03 / {{ __('Small page. Big possibilities.') }}</p><h2 id="features-title">{{ __('More than a list') }}<br><span class="hop-serif">{{ __('of links.') }}</span></h2>
-            <div class="showcase-bento">
-                <article class="showcase-card wide"><div class="showcase-card-head"><span class="showcase-kicker">{{ __('Your workspace') }}</span><h3>{{ __('Build it your way.') }}</h3><p>{{ __('Links, text, images, videos, music, a map or a contact card, in any order.') }}</p></div><x-feature-demo name="page" label="Your page" /></article>
+            </div><x-feature-demo name="themes" label="Themes" /></div>
+            <div class="h-feature-panel" role="tabpanel" id="feature-panel-1" aria-labelledby="feature-tab-1">
                 <article class="showcase-card" x-data="{ period: 7 }"><span class="showcase-kicker">{{ __('Sample analytics') }}</span><h3>{{ __('See what connects.') }}</h3><p>{{ __('Views and clicks per block, counted without storing visitor IP addresses.') }}</p><div class="showcase-actions"><button class="showcase-button" type="button" @click="period = 7" :aria-pressed="period === 7">7 {{ __('days') }}</button><button class="showcase-button" type="button" @click="period = 30" :aria-pressed="period === 30">30 {{ __('days') }}</button></div><div class="showcase-chart" aria-hidden="true">@foreach ([42, 68, 35, 80, 55, 92, 72] as $height)<i :style="`height:${period === 7 ? {{ $height }} : {{ 105 - $height / 2 }}}%`"></i>@endforeach</div><p class="showcase-stat" x-text="period === 7 ? '1,284' : '4,820'">1,284</p><span class="showcase-caption">{{ __('Demo views · illustrative data') }}</span></article>
-                <article class="showcase-card" x-data="{ protected: false }"><span class="showcase-kicker">{{ __('Your boundaries') }}</span><h3>{{ __('Choose who gets in.') }}</h3><p>{{ __('A password or an 18+ check before the page opens.') }}</p><div class="bio-lock-demo" :class="protected && 'is-locked'"><span aria-hidden="true" x-text="protected ? '▣' : '↗'">↗</span><strong x-text="protected ? @js(__('Password required')) : @js(__('Public page'))"></strong></div><button class="showcase-button" type="button" @click="protected = !protected" :aria-pressed="protected">{{ __('Try password protection') }}</button><p class="showcase-caption">{{ __('Demo only · your page is unchanged.') }}</p></article>
-                <article class="showcase-card wide"><div class="showcase-card-head"><span class="showcase-kicker">{{ __('Designed to feel like you') }}</span><h3>{{ __('A fresh look, in a click.') }}</h3><p>{{ __('No premium tier and no locked features.') }}</p></div><x-feature-demo name="themes" label="Themes" /></article>
+                <x-feature-demo name="analytics" label="Sample analytics" />
+            </div><div class="h-feature-panel" role="tabpanel" id="feature-panel-2" aria-labelledby="feature-tab-2">
+                <article class="showcase-card" x-data="{ protected: false }"><span class="showcase-kicker">{{ __('Your boundaries') }}</span><h3>{{ __('Choose who gets in.') }}</h3><p>{{ __('A password or an 18+ check before the page opens.') }}</p><div class="bio-lock-demo" :class="protected && 'is-locked'"><span aria-hidden="true" x-text="protected ? '▣' : '↗'">↗</span><strong x-text="protected ? @js(__('Password required')) : @js(__('Public page'))">{{ __('Public page') }}</strong></div><button class="showcase-button" type="button" @click="protected = !protected" :aria-pressed="protected">{{ __('Try password protection') }}</button><p class="showcase-caption">{{ __('Demo only · your page is unchanged.') }}</p></article><x-feature-demo name="page" label="Your page" />
             </div>
         </section>
 
-        <section id="faq" class="showcase-wrap showcase-section showcase-faq" aria-labelledby="faq-title"><p class="showcase-kicker">04 / {{ __('Good questions') }}</p><h2 id="faq-title">{{ __('A few things') }} <span class="hop-serif">{{ __('to know.') }}</span></h2>@foreach (['Is BioHop really free?' => 'Yes. No paid plan and no locked feature. The code is MIT licensed.', 'Do I need an account?' => 'Yes, a free HOP ID. The same account works in LinkHop, PixelHop and NoteHop.', 'Do you track my visitors?' => 'Views and clicks are counted with a keyed hash of the IP address, never the address itself. Pixels you add load only after the visitor agrees.', 'Can I move my page later?' => 'Yes. You can rename it, and export everything from the settings.'] as $question => $answer)<details><summary>{{ __($question) }}</summary><p>{{ __($answer) }}</p></details>@endforeach</section>
+        <section class="h-sec" aria-labelledby="uses-title"><span class="h-tag">03 / {{ __('Your next project') }}</span><h2 id="uses-title" data-split>{{ __('One page.') }} <em>{{ __('Every part of you.') }}</em></h2><p class="h-sub">{{ __('A single address for everything you want to share.') }}</p><div class="h-grid">@foreach (['Social profiles', 'Business cards', 'Your next project'] as $use)<article class="h-demo"><h3>{{ __($use) }}</h3><p>{{ __('Put the link in your profiles, or print the QR code.') }}</p></article>@endforeach</div></section>
+        <section class="h-sec" aria-labelledby="open-title"><span class="h-tag">04 / MIT</span><h2 id="open-title" data-split><em>{{ __('Open source') }}</em></h2><p class="h-sub">{{ __('Yes. No paid plan and no locked feature. The code is MIT licensed.') }}</p><div class="h-cta"><a class="h-pill dark" href="https://github.com/navi-crwn/BioHop">GitHub ↗</a></div></section>
 
-        <section class="showcase-wrap showcase-section bio-final"><p class="showcase-kicker">{{ __('Your next chapter') }}</p><h2>{{ __('The internet is big.') }}<br><span class="hop-serif">{{ __('Make a little space.') }}</span></h2><a class="showcase-button primary" href="{{ route('register') }}">{{ __('Create your bio') }} ↗</a><a class="showcase-text-link" href="https://github.com/navi-crwn/BioHop" target="_blank" rel="noopener">{{ __('Open source') }} ↗</a></section>
-        <section id="family" class="showcase-wrap showcase-family" aria-label="{{ __('Part of the HOP family') }}"><p class="showcase-kicker">{{ __('One free HOP ID signs you in to every app.') }}</p><div>@foreach (collect(\Hop\Ui\Assets::family('biohop'))->reject(fn ($app) => $app['current']) as $app)<a href="{{ $app['url'] }}"><img src="{{ $app['icons']['mark']['url'] }}" alt="" width="32" height="32" loading="lazy"><span>{{ $app['name'] }}</span><span aria-hidden="true">↗</span></a>@endforeach</div></section>
+        <section id="faq" class="showcase-wrap showcase-section showcase-faq" aria-labelledby="faq-title"><p class="showcase-kicker">05 / {{ __('Good questions') }}</p><h2 id="faq-title" data-split>{{ __('A few things') }} <em>{{ __('to know.') }}</em></h2><p class="h-sub">{{ __('No premium tier and no locked features.') }}</p>@foreach (['Is BioHop really free?' => 'Yes. No paid plan and no locked feature. The code is MIT licensed.', 'Do I need an account?' => 'Yes, a free HOP ID. The same account works in LinkHop, PixelHop and NoteHop.', 'Do you track my visitors?' => 'Views and clicks are counted with a keyed hash of the IP address, never the address itself. Pixels you add load only after the visitor agrees.', 'Can I move my page later?' => 'Yes. You can rename it, and export everything from the settings.'] as $question => $answer)<details><summary>{{ __($question) }}</summary><p>{{ __($answer) }}</p></details>@endforeach</section>
+
+        <section id="family" class="showcase-wrap showcase-family h-sec" aria-labelledby="family-title"><p class="h-tag">06 / HOP</p><h2 id="family-title" data-split><em>{{ __('Part of the HOP family') }}</em></h2><p class="h-sub">{{ __('One free HOP ID signs you in to every app.') }}</p><div>@foreach (collect(\Hop\Ui\Assets::family('biohop'))->reject(fn ($app) => $app['current']) as $app)<a href="{{ $app['url'] }}"><img src="{{ $app['icons']['mark']['url'] }}" alt="" width="32" height="32" loading="lazy"><span>{{ $app['name'] }}</span><span aria-hidden="true">↗</span></a>@endforeach</div></section>
+        <section class="showcase-wrap showcase-section bio-final h-final" aria-labelledby="final-title"><p class="showcase-kicker">{{ __('Your next chapter') }}</p><h2 id="final-title" data-split>{{ __('The internet is big.') }}<br><em>{{ __('Make a little space.') }}</em></h2><p class="h-sub">{{ __('Your work, your links, your next big thing. Bring them together on a page that feels like you.') }}</p><a class="h-pill dark" href="{{ route('register') }}">{{ __('Create your bio') }} ↗</a></section>
     </main>
     @include('partials.site-footer')
 </body>

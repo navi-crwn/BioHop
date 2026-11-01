@@ -108,7 +108,7 @@ class HopBioApiTest extends TestCase
         $u = User::factory()->create(['username' => 'rani']);
         $p1 = BioPage::create(['user_id' => $u->id, 'slug' => 'rani', 'title' => 'Rani Bio', 'is_published' => true, 'view_count' => 12]);
         BioPage::create(['user_id' => $u->id, 'slug' => 'draft', 'title' => 'Draft Bio', 'is_published' => false, 'is_adult_content' => true]);
-        BioLink::create(['bio_page_id' => $p1->id, 'type' => 'link', 'title' => 'Site', 'url' => 'https://example.com', 'position' => 1, 'is_active' => true, 'click_count' => 4]);
+        BioLink::create(['bio_page_id' => $p1->id, 'type' => 'link', 'title' => 'Site', 'url' => 'https://example.com', 'order' => 1, 'is_active' => true, 'click_count' => 4]);
 
         $this->signed('GET', '/api/hop/health')
             ->assertOk()
@@ -157,7 +157,7 @@ class HopBioApiTest extends TestCase
             'type' => 'link',
             'title' => 'My Portfolio',
             'url' => 'https://portfolio.example.com',
-            'position' => 1,
+            'order' => 1,
             'is_active' => true,
         ]);
 
@@ -180,10 +180,12 @@ class HopBioApiTest extends TestCase
         $this->signed('GET', "/api/hop/content/page/{$page->id}")
             ->assertOk()
             ->assertJsonPath('data.slug', 'budi')
-            ->assertJsonPath('data.blocks.0.title', 'My Portfolio');
+            ->assertJsonPath('data.blocks.0.title', 'My Portfolio')
+            ->assertJsonPath('data.blocks.0.position', 1);
         $this->signed('GET', "/api/hop/content/block/{$block->id}")
             ->assertOk()
-            ->assertJsonPath('data.title', 'My Portfolio');
+            ->assertJsonPath('data.title', 'My Portfolio')
+            ->assertJsonPath('data.position', 1);
 
         // Owner protection
         $this->signed('POST', "/api/hop/content/page/{$ownerPage->id}/actions", ['action' => 'unpublish', 'reason' => 'test'])
