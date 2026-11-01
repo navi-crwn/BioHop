@@ -9,6 +9,7 @@ use Hop\Bio\Models\BioPage;
 use Hop\Ui\Assets;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Write the official HEL.ink page (hel.ink/b/hel): every public HOP app from the shared manifest, the ways
@@ -17,6 +18,8 @@ use Illuminate\Support\Facades\Cache;
  */
 class OfficialPage extends Command
 {
+    public const AVATAR = 'avatars/official-hel.png';
+
     protected $signature = 'bio:official-page {--apply : Write the page (without it, only show what would change)} {--user= : Owner e-mail when the page does not exist yet}';
 
     protected $description = 'Fill the official HEL.ink bio page with every HOP app, the ways to start, and a FAQ';
@@ -47,7 +50,9 @@ class OfficialPage extends Command
             return self::SUCCESS;
         }
 
-        $page->fill($fields)->save();
+        // the avatar is a file on the public disk, like an uploaded one (the page renders Storage::url of it)
+        Storage::disk('public')->put(self::AVATAR, (string) file_get_contents(public_path('images/brand/rabbit-mark.png')));
+        $page->fill($fields + ['avatar_url' => self::AVATAR])->save();
         BioLink::where('bio_page_id', $page->id)->where('settings->official', true)->delete();
         $start = (int) BioLink::where('bio_page_id', $page->id)->max('order') + 1;
         foreach ($blocks as $i => $block) {
@@ -65,7 +70,6 @@ class OfficialPage extends Command
         return [
             'title' => 'HEL.ink',
             'bio' => 'Short links, bio pages, images and private notes. One free HOP ID, open source, yours to host.',
-            'avatar_url' => public_url('images/brand/rabbit-mark.png'),
             'theme' => 'galaxy',
             'button_shape' => 'pill',
             'social_links' => [
@@ -86,7 +90,7 @@ class OfficialPage extends Command
     {
         $blocks = [['type' => 'header', 'title' => 'Hop in']];
         foreach (Assets::family() as $app) {
-            $blocks[] = ['type' => 'link', 'title' => $app['name'], 'url' => $app['url'], 'description' => $app['tagline'] ?? null, 'thumbnail_url' => $app['icons']['mark']['url'] ?? null];
+            $blocks[] = ['type' => 'link', 'title' => $app['name'], 'url' => $app['url'], 'thumbnail_url' => $app['icons']['mark']['url'] ?? null];
         }
         $blocks[] = ['type' => 'header', 'title' => 'Start here'];
         $blocks[] = ['type' => 'link', 'title' => 'Create your free HOP ID', 'url' => rtrim((string) config('hop.hub_url'), '/').'/register', 'description' => 'One account signs you in to every app.'];
