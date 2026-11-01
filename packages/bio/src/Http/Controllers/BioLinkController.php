@@ -105,6 +105,18 @@ class BioLinkController extends Controller
         }
     }
 
+    /** A feed block fetches its feed once when saved, so the first visitor does not wait for it. */
+    private function warmFeed(BioLink $link): void
+    {
+        if ($link->type === 'rss') {
+            try {
+                $link->feedItems(true);
+            } catch (\Throwable) {
+                // the page asks again later
+            }
+        }
+    }
+
     private function normalizeCountdown(array $data): array
     {
         foreach (['countdown_date', 'publish_at', 'expire_at'] as $field) {
@@ -150,6 +162,7 @@ class BioLinkController extends Controller
             'settings.layout' => 'nullable|in:stack,grid',
             'settings.text' => 'nullable|string|max:500',
             'settings.pin' => ['nullable', 'regex:/^[0-9]{4,8}$/'],
+            'settings.count' => 'nullable|integer|min:1|max:10',
             'settings.ask_name' => 'nullable|boolean',
             'settings.ask_email' => 'nullable|boolean',
             'settings.ask_phone' => 'nullable|boolean',
@@ -252,6 +265,8 @@ class BioLinkController extends Controller
             'html_content' => $validated['html_content'] ?? null,
         ]);
 
+        $this->warmFeed($link);
+
         return response()->json([
             'success' => true,
             'block' => $link,
@@ -291,6 +306,7 @@ class BioLinkController extends Controller
             'settings.layout' => 'nullable|in:stack,grid',
             'settings.text' => 'nullable|string|max:500',
             'settings.pin' => ['nullable', 'regex:/^[0-9]{4,8}$/'],
+            'settings.count' => 'nullable|integer|min:1|max:10',
             'settings.ask_name' => 'nullable|boolean',
             'settings.ask_email' => 'nullable|boolean',
             'settings.ask_phone' => 'nullable|boolean',
@@ -358,6 +374,7 @@ class BioLinkController extends Controller
             $validated['is_active'] = true;
         }
         $bioLink->update($validated);
+        $this->warmFeed($bioLink);
 
         return response()->json([
             'success' => true,
