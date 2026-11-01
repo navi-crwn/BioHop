@@ -13,6 +13,8 @@ All notable changes to BioHop are listed here. The format follows [Keep a Change
 - Fewer blurred layers (the app chrome only) and a fixed background that is composited rather than repainted, so scrolling is smooth.
 
 ### Fixed
+- The preview in the editor scrolls again on every browser and on touch: the editor now sizes the frame to the whole page and scrolls it, instead of relying on a scroll box inside a frame inside a scrolling page.
+- A link to hel.ink or a HOP app (note, pixel, link, bio ...) is kept as typed and no longer wrapped in a short link. `php artisan bio:unwrap-family-links` lists, and with `--apply` restores, blocks that were already wrapped.
 - SVG icons, QR logos and thumbnails now upload. Laravel's `image` rule refuses SVG, so every SVG failed. An SVG is rebuilt from an allowlist (no script, handlers, external files or entities) before it is stored, and an SVG that cannot be made safe is refused with the reason.
 - A block's custom icon was never saved for an existing block; edits are now detected by content, so no edit depends on a "mark as changed" call.
 - Saving the SEO section failed (and could fail any save) when an older, longer SEO title was stored: the whole page was sent and validated every time. Only changed fields are sent now; the SEO title accepts 60 characters and the description 160.
