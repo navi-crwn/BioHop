@@ -453,5 +453,11 @@
     "Yes, continue": "はい、続ける",
     "18+ check": "18 歳以上の確認",
     "For pages with adult or sensitive content.": "成人向けやセンシティブな内容のページ用。",
-    "Drag or use arrow keys to rotate": "ドラッグまたは矢印キーで回転"
+    "Drag or use arrow keys to rotate": "ドラッグまたは矢印キーで回転",
+    "Hop in": "ここから",
+    "Create your free HOP ID": "無料の HOP ID を作成",
+    "Status and uptime": "稼働状況",
+    "Is it free?": "無料ですか？",
+    "Yes. No paid plan, no locked feature, no ads. The code is MIT licensed.": "はい。有料プランも機能制限も広告もありません。コードは MIT ライセンスです。",
+    "Short links, bio pages, images and private notes. One free HOP ID, open source, yours to host.": "短縮リンク、プロフィールページ、画像、プライベートなメモ。無料の HOP ID ひとつ、オープンソース、自分でホストできます。"
 }
