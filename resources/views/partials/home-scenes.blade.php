@@ -12,6 +12,7 @@
 <section id="blocks" class="bx" aria-labelledby="blocks-title">
     <div class="bx-wrap">
         <div class="bx-head"><p class="h-label"><span class="n">01</span> · <span>{{ __('Blocks') }}</span></p><h2 id="blocks-title"><span>{{ __('Not just links.') }} <em>{{ __('Everything you make.') }}</em></span></h2><p class="h-sub"><span>{{ __('Add a block, drag it where you want it. Each kind knows how to look good on a phone.') }}</span></p></div>
+        <div class="bx-blocks" data-bx-blocks>
         <div class="bx-bento" data-bx-bento>
             <article class="bx-cell"><div class="bx-vis v-link" aria-hidden="true"><span class="bx-pill">{{ __('Portfolio') }} <i>↗</i></span><span class="bx-pill">{{ __('Book a call') }} <i>↗</i></span><span class="bx-cursor"></span></div><h3>{{ __('Link') }}</h3><p>{{ __('Any address, with an icon, a thumbnail and a style of its own.') }}</p></article>
             <article class="bx-cell"><div class="bx-vis v-text" aria-hidden="true"><span></span><span></span><span></span><span class="short"></span></div><h3>{{ __('Text') }}</h3><p>{{ __('A heading, a paragraph, a quote. Say a little more than a link can.') }}</p></article>
@@ -21,6 +22,19 @@
             <article class="bx-cell"><div class="bx-vis v-map" aria-hidden="true"><span class="pin"></span><span class="ring"></span></div><h3>{{ __('Map') }}</h3><p>{{ __('Show where you are, with a pin people can tap.') }}</p></article>
             <article class="bx-cell"><div class="bx-vis v-card" aria-hidden="true"><span class="av"></span><span class="row"></span><span class="row"></span><span class="btn">{{ __('Save contact') }}</span></div><h3>{{ __('Contact card') }}</h3><p>{{ __('A vCard visitors save to their phone in one tap.') }}</p></article>
             <article class="bx-cell"><div class="bx-vis v-qr" aria-hidden="true">@for ($q = 0; $q < 49; $q++)<i></i>@endfor</div><h3>{{ __('QR code') }}</h3><p>{{ __('Print your page, with your colours and your logo.') }}</p></article>
+        </div>
+            <div class="bx-blocks-stage" aria-hidden="true">
+                <x-bx-phone id="blocks-phone" :links="false">
+                    <span class="bx-fly f-link"><span class="bx-pill">{{ __('Portfolio') }} <i>↗</i></span></span>
+                    <span class="bx-fly f-text"><i></i><i></i><i class="short"></i></span>
+                    <span class="bx-fly f-image"><i class="sun"></i><i class="hill"></i></span>
+                    <span class="bx-fly f-video"><i class="play"></i></span>
+                    <span class="bx-fly f-music"><b><i></i><i></i><i></i><i></i><i></i></b></span>
+                    <span class="bx-fly f-map"><i class="pin"></i></span>
+                    <span class="bx-fly f-card"><i class="av"></i><b>{{ __('Save contact') }}</b></span>
+                    <span class="bx-fly f-qr">@for ($q = 0; $q < 25; $q++)<i></i>@endfor</span>
+                </x-bx-phone>
+            </div>
         </div>
     </div>
 </section>
@@ -55,9 +69,13 @@
     <script type="application/json" id="bx-themes-data">@json($themes)</script>
     <div class="bx-wrap bx-two">
         <div class="bx-head"><p class="h-label"><span class="n">03</span> · <span>{{ __('Themes') }}</span></p><h2 id="themes-title"><span>{{ __('Pick a mood.') }} <em>{{ __('Make it yours.') }}</em></span></h2><p class="h-sub"><span>{{ __('Gradients, animations and button effects. Scroll to see them change, or tap one.') }}</span></p>
-            <div class="bx-swatches" role="group" aria-label="{{ __('Themes') }}">@foreach ($themes as $key => $theme)<button type="button" data-theme-key="{{ $key }}" aria-pressed="{{ $loop->first ? 'true' : 'false' }}"><i style="background:{{ $theme['background'] }}"></i>{{ $theme['name'] ?? $key }}</button>@endforeach</div>
         </div>
-        <div class="bx-themes-vis"><x-bx-phone id="theme-phone"></x-bx-phone><p class="bx-note" data-theme-name>{{ collect($themes)->first()['name'] ?? '' }}</p></div>
+        <div class="bx-themes-vis">
+            <div class="bx-ring-box"><x-bx-phone id="theme-phone"></x-bx-phone>
+                <div class="bx-swatches bx-ring" role="group" aria-label="{{ __('Themes') }}" style="--n:{{ count($themes) }}">@foreach ($themes as $key => $theme)<button type="button" data-theme-key="{{ $key }}" style="--i:{{ $loop->index }}" aria-pressed="{{ $loop->first ? 'true' : 'false' }}"><i style="background:{{ $theme['background'] }}"></i>{{ $theme['name'] ?? $key }}</button>@endforeach</div>
+            </div>
+            <p class="bx-note" data-theme-name>{{ collect($themes)->first()['name'] ?? '' }}</p>
+        </div>
     </div>
 </section>
 
@@ -66,12 +84,15 @@
     <div class="bx-wrap bx-two rev">
         <div class="bx-head"><p class="h-label"><span class="n">04</span> · <span>{{ __('Analytics') }}</span></p><h2 id="analytics-title"><span>{{ __('See what') }} <em>{{ __('connects.') }}</em></span></h2><p class="h-sub"><span>{{ __('Views and clicks per block, countries, devices and where people came from. Counted with a keyed hash, never the visitor itself.') }}</span></p>
             <ul class="bx-facts"><li><b>{{ __('Per block.') }}</b> <span>{{ __('Find the link people actually tap.') }}</span></li><li><b>{{ __('No cookies.') }}</b> <span>{{ __('Nothing to accept, nothing to follow.') }}</span></li><li><b>{{ __('Yours to export.') }}</b> <span>{{ __('Download everything from the settings.') }}</span></li></ul></div>
+        <div class="bx-analytics-vis">
+        <div class="bx-iso" data-bx-iso aria-label="{{ __('Clicks per day, last four weeks') }}"><div class="bx-iso-grid">@foreach ([3,5,4,7,6,9,8, 4,6,5,8,7,10,9, 5,4,7,9,8,12,10, 6,8,7,11,9,14,12] as $n)<i style="--h:{{ round($n / 14, 2) }}" data-n="{{ $n }}"><b class="top"></b><b class="front"></b><b class="side"></b></i>@endforeach</div><p class="bx-iso-label">{{ __('Clicks per day, last four weeks') }}</p></div>
         <article class="bx-card" aria-label="{{ __('Sample analytics') }}">
             <div class="bx-card-bar"><span>● ● ●</span> BioHop / {{ __('Analytics') }} <span>{{ __('Sample data') }}</span></div>
             <div class="bx-metrics"><div><small>{{ __('Views') }}</small><b data-metric="12840">12,840</b></div><div><small>{{ __('Clicks') }}</small><b data-metric="3912">3,912</b></div><div><small>{{ __('Click rate') }}</small><b data-metric="30" data-suffix="%">30%</b></div></div>
             <svg class="bx-line" viewBox="0 0 400 120" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="bxg" x1="0" x2="1"><stop offset="0" stop-color="#22d3ee"/><stop offset=".5" stop-color="#a78bfa"/><stop offset="1" stop-color="#f472b6"/></linearGradient></defs><path class="area" d="M0 96 C40 90 60 70 100 74 S160 40 200 52 S270 20 310 30 S370 10 400 8 L400 120 L0 120Z"/><path class="draw" d="M0 96 C40 90 60 70 100 74 S160 40 200 52 S270 20 310 30 S370 10 400 8" stroke="url(#bxg)"/></svg>
             <ul class="bx-top">@foreach ([['Portfolio', 82], ['New short film', 61], ['Book a call', 44], ['Studio playlist', 27]] as [$label, $pct])<li><span>{{ __($label) }}</span><i style="--w:{{ $pct }}%"></i><em>{{ $pct }}%</em></li>@endforeach</ul>
         </article>
+        </div>
     </div>
 </section>
 
