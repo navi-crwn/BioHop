@@ -83,6 +83,10 @@ Route::middleware('hop.auth')->group(function () {
     });
 });
 
+Route::get('/internal/accounts/{user}/summary', [HopBioController::class, 'summary'])
+    ->whereNumber('user')
+    ->middleware(['hub.signed', 'throttle:60,1,internal'])
+    ->name('internal.accounts.summary');
 Route::delete('/internal/accounts/{user}', [HopBioController::class, 'purge'])
     ->whereNumber('user')
     ->middleware(['hub.signed', 'throttle:60,1,internal'])
