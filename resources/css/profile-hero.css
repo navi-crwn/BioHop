@@ -154,3 +154,30 @@
     .bio-home .bio-theme-picks i { flex:0 0 10px; height:24px; margin:0; }
     .bio-home .bio-theme-picks { margin-top:4px; }
 }
+/* P7: the hero assembles the logo from pixels, then the pixels become the page. */
+.bio-home .hop-home .bio-universe { min-height: 560px; }
+.bio-home .hop-home .bio-universe .bio-logo-art { position: absolute; inset: 0 0 auto; width: 100%; max-width: none; aspect-ratio: 1; margin: 0; z-index: 4; pointer-events: none; }
+.bio-home .hop-home .bio-universe .bio-logo-art img { display: none; }
+.bio-home .hop-home .bio-universe .bio-logo-art canvas { pointer-events: auto; transition: opacity .4s; }
+.bio-home .hop-home .bio-universe .bio-logo-art canvas[data-morph=done] { opacity: 0 !important; pointer-events: none; }
+.bio-home .bio-profile-float, .bio-home .bio-orbit-label, .bio-home .bio-scene-controls { transition: opacity .6s ease .1s, transform .6s ease .1s; }
+.bio-universe:has(canvas.on:not([data-morph=done])) :is(.bio-profile-float, .bio-orbit-label, .bio-scene-controls) { opacity: 0; transform: scale(.96); pointer-events: none; }
+.bio-home .hop-home .bio-hero.h-tool { align-items: start; }
+.bio-home .hop-home .bio-hero .bio-claim { margin-top: 0; }
+.bio-home .hop-home .official-profile-avatar { width: 96px; height: 96px; border-radius: 28px; }
+.bio-home .bio-blocks-demo { gap: 8px; }
+.bio-home .bio-block { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--showcase-line); background: var(--showcase-soft); font-size: 14px; }
+.bio-home .bio-block::before { content: "⠿"; color: var(--showcase-muted); margin-inline-end: 8px; }
+.bio-home .bio-block button { min-height: 32px; padding: 4px 10px; font-size: 12px; }
+.bio-home .bio-color { display: inline-flex; align-items: center; gap: 8px; font: 12px var(--font-mono); }
+.bio-home .bio-color input { width: 36px; height: 36px; padding: 0; border: 1px solid var(--showcase-line); border-radius: 10px; background: none; }
+.bio-home .bio-style-demo { text-align: center; }
+.bio-home .bio-style-demo strong { display: block; font-size: 22px; }
+.bio-home .bio-style-demo p { color: var(--showcase-muted); font-size: 13px; margin: 6px 0 12px; }
+.bio-home .bio-style-demo i { display: block; font-style: normal; padding: 12px; margin-top: 8px; border-radius: 12px; background: var(--demo-color, #7c3aed); color: #fff; font-weight: 600; }
+.bio-home .bio-style-demo[data-font=serif] :is(strong, i) { font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-style: italic; }
+.bio-home .bio-style-demo[data-font=mono] :is(strong, i) { font-family: 'JetBrains Mono', monospace; }
+.bio-home .bio-style-demo pre { margin: 14px 0 0; padding: 12px; border-radius: 10px; background: #0b1020; color: #dbe4ff; font: 11px/1.6 var(--font-mono); text-align: start; white-space: pre-wrap; }
+.bio-home .h-final :is(.h-sub, .h-cta) { margin-inline: auto; justify-content: center; }
+.bio-home .bio-final { border-top: 0; }
+@media (max-width: 800px) { .bio-home .hop-home .bio-universe { min-height: 0; margin-top: 24px; } }
