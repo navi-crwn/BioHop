@@ -84,7 +84,7 @@ class BioLinkController extends Controller
     {
         $this->authorize('update', $bioPage);
         $validated = $request->validate([
-            'type' => 'required|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code,product',
+            'type' => 'required|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code,product,collection',
             'title' => 'nullable|string|max:100',
             'url' => 'nullable|string|max:500',
             'content' => 'nullable|string|max:5000',
@@ -101,6 +101,7 @@ class BioLinkController extends Controller
             'settings.price' => 'nullable|numeric|min:0|max:999999999',
             'settings.currency' => 'nullable|string|size:3|alpha',
             'settings.sold_out' => 'nullable|boolean',
+            'settings.layout' => 'nullable|in:stack,grid',
             'is_active' => 'nullable|boolean',
             'order' => 'nullable|integer',
             // Advanced block fields
@@ -177,7 +178,7 @@ class BioLinkController extends Controller
     {
         $this->authorize('update', $bioPage);
         $validated = $request->validate([
-            'type' => 'nullable|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code,product',
+            'type' => 'nullable|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code,product,collection',
             'title' => 'nullable|string|max:100',
             'url' => 'nullable|string|max:500',
             'content' => 'nullable|string|max:5000',
@@ -194,6 +195,7 @@ class BioLinkController extends Controller
             'settings.price' => 'nullable|numeric|min:0|max:999999999',
             'settings.currency' => 'nullable|string|size:3|alpha',
             'settings.sold_out' => 'nullable|boolean',
+            'settings.layout' => 'nullable|in:stack,grid',
             'is_active' => 'nullable|boolean',
             'order' => 'nullable|integer',
             // Advanced block fields
@@ -282,5 +284,22 @@ class BioLinkController extends Controller
             'is_active' => $bioLink->is_active,
             'page_updated_at' => $this->touchPage($bioPage),
         ]);
+    }
+
+    /** The block leaves the page and the list but keeps its clicks; restore() brings it back. */
+    public function archive(BioPage $bioPage, BioLink $bioLink)
+    {
+        $this->authorize('update', $bioPage);
+        $bioLink->update(['archived_at' => now()]);
+
+        return response()->json(['success' => true, 'link' => $bioLink->fresh()]);
+    }
+
+    public function restore(BioPage $bioPage, BioLink $bioLink)
+    {
+        $this->authorize('update', $bioPage);
+        $bioLink->update(['archived_at' => null, 'order' => (int) $bioPage->links()->notArchived()->max('order') + 1]);
+
+        return response()->json(['success' => true, 'link' => $bioLink->fresh()]);
     }
 }

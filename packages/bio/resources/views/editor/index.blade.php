@@ -10,7 +10,8 @@
 @php
     $editorConfig = [
         'bioPage' => \Illuminate\Support\Arr::except($bioPage->toArray(), ['links']),
-        'blocks' => $bioPage->links->sortBy('order')->values(),
+        'blocks' => $bioPage->links->whereNull('archived_at')->sortBy('order')->values(),
+        'archived' => $bioPage->links->whereNotNull('archived_at')->sortByDesc('archived_at')->values(),
         'platforms' => config('brands.platforms', []),
         'themes' => \Hop\Bio\Support\BioThemes::picker(),
         'defaults' => config('bio-themes.defaults'),
@@ -646,6 +647,22 @@
                                 <label class="flex items-center gap-2 text-sm">
                                     <input type="checkbox" :checked="!!editingBlock.settings?.sold_out" @change="editingBlock.settings = Object.assign({}, editingBlock.settings, { sold_out: $event.target.checked })"> Sold out
                                 </label>
+                            </div>
+                        </template>
+                        <template x-if="editingBlock?.type === 'collection'">
+                            <div class="space-y-4">
+                                <div class="form-group">
+                                    <label for="bfindex-c1" class="form-label">Collection name</label>
+                                    <input maxlength="100" id="bfindex-c1" type="text" x-model="editingBlock.title" class="form-input" placeholder="New arrivals">
+                                </div>
+                                <div class="form-group">
+                                    <label for="bfindex-c2" class="form-label">Layout</label>
+                                    <select id="bfindex-c2" :value="editingBlock.settings?.layout ?? 'stack'" @change="editingBlock.settings = Object.assign({}, editingBlock.settings, { layout: $event.target.value })" class="form-input">
+                                        <option value="stack">Stacked (one per row)</option>
+                                        <option value="grid">Grid (two per row)</option>
+                                    </select>
+                                </div>
+                                <p class="text-xs editor-text-muted">Everything placed under this collection belongs to it, until the next collection or a divider. Products under it are grouped on the Shop tab.</p>
                             </div>
                         </template>
                         <template x-if="editingBlock?.type === 'header'">

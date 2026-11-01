@@ -405,6 +405,8 @@
             line-height: 1.6;
         }
         /* Countdown Block */
+        .collection-title { margin: 10px 0 2px; text-align: center; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; opacity: .8; }
+        .collection-title small { margin-left: 6px; font-weight: 500; opacity: .7; }
         .product-block { display: flex; gap: 12px; align-items: center; padding: 10px; border-radius: var(--button-radius, 12px); }
         .product-pic { flex: none; width: 64px; height: 64px; border-radius: 10px; overflow: hidden; background: rgba(0,0,0,.08); }
         .product-pic img { width: 100%; height: 100%; object-fit: cover; }
@@ -1090,6 +1092,10 @@
                             <div class="block-title-header" x-text="block.title" x-show="block.title"></div>
                             <div class="html-content" x-html="sanitizeHtml(block.html_content)"></div>
                         </div>
+                    </template>
+                    <!-- Collection: a titled group; the public page wraps what follows it -->
+                    <template x-if="block.type === 'collection'">
+                        <div class="collection-title" :style="{ color: getEffectiveTitleColor() }"><span x-text="block.title || 'Collection'"></span><small x-text="(block.settings && block.settings.layout) === 'grid' ? 'grid' : ''"></small></div>
                     </template>
                     <!-- Product Block (the public page shows these on a Shop tab) -->
                     <template x-if="block.type === 'product'">

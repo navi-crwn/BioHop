@@ -29,6 +29,7 @@ class BioLink extends Model
         'custom_icon',
         'settings',
         'is_active',
+        'archived_at',
         'order',
         'click_count',
         // Advanced block fields
@@ -49,6 +50,7 @@ class BioLink extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'archived_at' => 'datetime',
         'btn_icon_invert' => 'boolean',
         'order' => 'integer',
         'click_count' => 'integer',
@@ -74,9 +76,20 @@ class BioLink extends Model
         return $this->hasMany(BioClick::class);
     }
 
+    /** Shown on the page: switched on and not archived. */
     public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $query->where('is_active', true)->whereNull('archived_at');
+    }
+
+    public function scopeNotArchived($query)
+    {
+        return $query->whereNull('archived_at');
+    }
+
+    public function scopeArchived($query)
+    {
+        return $query->whereNotNull('archived_at');
     }
 
     public function scopeOrdered($query)
@@ -109,7 +122,7 @@ class BioLink extends Model
         'link' => 'Link', 'image' => 'Image', 'text' => 'Text', 'header' => 'Header',
         'divider' => 'Divider', 'spacer' => 'Spacer', 'video' => 'Video', 'youtube' => 'YouTube',
         'music' => 'Music', 'spotify' => 'Spotify', 'soundcloud' => 'SoundCloud', 'vcard' => 'Contact card',
-        'html' => 'HTML', 'countdown' => 'Countdown', 'map' => 'Map', 'faq' => 'FAQ', 'product' => 'Product',
+        'html' => 'HTML', 'countdown' => 'Countdown', 'map' => 'Map', 'faq' => 'FAQ', 'product' => 'Product', 'collection' => 'Collection',
         'email' => 'Email', 'code' => 'Code',
     ];
 

@@ -298,6 +298,13 @@
         .bio-product-price { font-style: normal; font-weight: 700; font-size: 14px; }
         .bio-product-cta { font-style: normal; font-size: 12px; opacity: .85; }
         @media (max-width: 360px) { .bio-shop { grid-template-columns: minmax(0, 1fr); } }
+        /* a collection: a titled group of blocks, stacked or as a grid */
+        .bio-collection { display: block; margin-block: 6px; }
+        .bio-collection-title { margin: 14px 0 8px; font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; opacity: .8; text-align: center; }
+        .bio-shop .bio-collection-title { grid-column: 1 / -1; margin-top: 8px; }
+        .bio-collection-body { display: grid; gap: 12px; }
+        .layout-grid .bio-collection-body { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .layout-grid .bio-collection-body .link-block { padding: 12px 10px; font-size: 13px; }
         .link-block {
             display: flex;
             align-items: center;
@@ -755,16 +762,28 @@
                     $activeBlocks = $bioPage->links->where('is_active', true)->sortBy('order');
                     $products = $activeBlocks->where('type', 'product');
                     $hasShop = $products->isNotEmpty();
-                    $openShop = $hasShop && request()->query('tab') === 'shop';
+                    $openShop = $hasShop && (request()->attributes->get('openShop') || request()->query('tab') === 'shop');
+                    // collections: a marker block that groups what follows it, until the next collection or divider
+                    $collectionOf = []; $current = null;
+                    foreach ($activeBlocks as $b) {
+                        if ($b->type === 'collection') { $current = $b; continue; }
+                        if ($b->type === 'divider') { $current = null; }
+                        $collectionOf[$b->id] = $current;
+                    }
+                    $shopGroups = $products->groupBy(fn ($b) => $collectionOf[$b->id]?->id ?? 0);
+                    $linkBlocks = $activeBlocks->whereNotIn('type', ['product', 'collection']);
+                    $linkCollections = $linkBlocks->map(fn ($b) => $collectionOf[$b->id]?->id)->filter()->unique()->all();
                 @endphp
                 @if($hasShop)
                     {{-- Links · Shop: a tab bar once the page sells something; without script the address ?tab=shop opens the shop --}}
                     <div class="bio-tabs mt-8" role="tablist" aria-label="Page sections">
-                        <a href="?tab=links" role="tab" id="tab-links" aria-controls="panel-links" aria-selected="{{ $openShop ? 'false' : 'true' }}" :aria-selected="String(tab === 'links')" @click.prevent="tab = 'links'" class="bio-tab" style="--tab-bg: {{ $linkBgColor ?? $blockBg ?? 'rgba(255,255,255,.2)' }}; --tab-text: {{ $linkTextColor }}">{{ __('Links') }}</a>
-                        <a href="?tab=shop" role="tab" id="tab-shop" aria-controls="panel-shop" aria-selected="{{ $openShop ? 'true' : 'false' }}" :aria-selected="String(tab === 'shop')" @click.prevent="tab = 'shop'" class="bio-tab" style="--tab-bg: {{ $linkBgColor ?? $blockBg ?? 'rgba(255,255,255,.2)' }}; --tab-text: {{ $linkTextColor }}">{{ __('Shop') }} <span class="bio-tab-count">{{ $products->count() }}</span></a>
+                        <a href="{{ route('bio.public.show', $bioPage->slug) }}" role="tab" id="tab-links" aria-controls="panel-links" aria-selected="{{ $openShop ? 'false' : 'true' }}" :aria-selected="String(tab === 'links')" @click.prevent="tab = 'links'" class="bio-tab" style="--tab-bg: {{ $linkBgColor ?? $blockBg ?? 'rgba(255,255,255,.2)' }}; --tab-text: {{ $linkTextColor }}">{{ __('Links') }}</a>
+                        <a href="{{ route('bio.public.shop', $bioPage->slug) }}" role="tab" id="tab-shop" aria-controls="panel-shop" aria-selected="{{ $openShop ? 'true' : 'false' }}" :aria-selected="String(tab === 'shop')" @click.prevent="tab = 'shop'" class="bio-tab" style="--tab-bg: {{ $linkBgColor ?? $blockBg ?? 'rgba(255,255,255,.2)' }}; --tab-text: {{ $linkTextColor }}">{{ __('Shop') }} <span class="bio-tab-count">{{ $products->count() }}</span></a>
                     </div>
                     <div id="panel-shop" role="tabpanel" aria-labelledby="tab-shop" class="bio-shop mt-6" x-show="tab === 'shop'" @if(!$openShop) hidden @endif x-bind:hidden="false">
-                        @foreach($products as $product)
+                        @foreach($shopGroups as $groupId => $groupProducts)
+                        @if($groupId)<h3 class="bio-collection-title">{{ $activeBlocks->firstWhere('id', $groupId)?->title }}</h3>@endif
+                        @foreach($groupProducts as $product)
                             @php
                                 $pHref = $product->url ? route('bio.public.click', $product->public_id) : null;
                                 $pImg = $product->thumbnail_url ?: $product->content;
@@ -778,10 +797,24 @@
                                     <span class="bio-product-row"><em class="bio-product-price">{{ $product->priceLabel() }}</em>@if($pHref && !$soldOut)<i class="bio-product-cta">{{ __('View') }} ↗</i>@endif</span></span>
                             </a>
                         @endforeach
+                        @endforeach
                     </div>
                 @endif
                 <div id="panel-links" @if($hasShop) role="tabpanel" aria-labelledby="tab-links" x-show="tab === 'links'" @if($openShop) hidden @endif x-bind:hidden="false" @endif class="mt-8 grow blocks-container shape-{{ $bioPage->block_shape ?? 'rounded-sm' }} shadow-{{ $bioPage->block_shadow ?? 'md' }}">
-                    @forelse($activeBlocks->where('type', '!=', 'product') as $link)
+                    @php $openCollection = null; @endphp
+                    @forelse($activeBlocks->whereNotIn('type', ['product']) as $link)
+                        @php $owner = $link->type === 'collection' ? null : ($collectionOf[$link->id] ?? null); @endphp
+                        @if($openCollection && $owner?->id !== $openCollection->id)
+                            </div></section>
+                            @php $openCollection = null; @endphp
+                        @endif
+                        @if($link->type === 'collection')
+                            @if(in_array($link->id, $linkCollections, true))
+                                @php $openCollection = $link; @endphp
+                                <section class="bio-collection layout-{{ $link->settings['layout'] ?? 'stack' }}"><h3 class="bio-collection-title">{{ $link->title }}</h3><div class="bio-collection-body">
+                            @endif
+                            @continue
+                        @endif
                         @if($link->type === 'link')
                             @php
                                 $hasThumbnail = $link->thumbnail_url || $link->thumbnail;
@@ -1009,6 +1042,7 @@
                     @empty
                         <p class="py-8 text-center text-sm opacity-60">No links yet</p>
                     @endforelse
+                    @if($openCollection)</div></section>@endif
                 </div>
                 @if($bioPage->social_links && count($bioPage->social_links) > 0 && $bioPage->social_icons_position === 'bottom_page')
                     <div class="mt-8 flex justify-center gap-3 flex-wrap">
