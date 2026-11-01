@@ -625,6 +625,36 @@
                                         </select>
                                     </div>
                                 </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div class="form-group">
+                                        <label for="bfindex-p6" class="form-label">Was price <span class="editor-text-muted font-normal">(optional)</span></label>
+                                        <input id="bfindex-p6" type="number" min="0" step="0.01" inputmode="decimal" :value="editingBlock.settings?.compare_price ?? ''" @input="setProductSetting('compare_price', $event.target.value)" class="form-input" placeholder="150000">
+                                        <p class="text-xs editor-text-muted mt-1">Shown struck through next to the price.</p>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="bfindex-p7" class="form-label">Stock <span class="editor-text-muted font-normal">(optional)</span></label>
+                                        <input id="bfindex-p7" type="number" min="0" step="1" inputmode="numeric" :value="editingBlock.settings?.stock ?? ''" @input="setProductSetting('stock', $event.target.value)" class="form-input" placeholder="Leave empty if unlimited">
+                                        <p class="text-xs editor-text-muted mt-1">0 shows "Sold out"; 1–5 shows "Only n left".</p>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="flex items-center justify-between">
+                                        <label class="form-label mb-0">Variants <span class="editor-text-muted font-normal">(sizes, colours…)</span></label>
+                                        <button type="button" class="btn btn-secondary text-xs py-1 px-2" @click="addVariant()" x-show="(editingBlock.settings?.variants || []).length < 20">+ Add variant</button>
+                                    </div>
+                                    <p class="text-xs editor-text-muted mt-1" x-show="!(editingBlock.settings?.variants || []).length">Each variant can have its own price, stock and buy address. Without them the product's own are used.</p>
+                                    <div class="mt-2 space-y-2">
+                                        <template x-for="(v, i) in (editingBlock.settings?.variants || [])" :key="i">
+                                            <div class="be-variant">
+                                                <input type="text" maxlength="40" :value="v.name" @input="setVariant(i, 'name', $event.target.value)" class="form-input" placeholder="Size M" :aria-label="'Variant ' + (i + 1) + ' name'">
+                                                <input type="number" min="0" step="0.01" inputmode="decimal" :value="v.price ?? ''" @input="setVariant(i, 'price', $event.target.value)" class="form-input" placeholder="Price" :aria-label="'Variant ' + (i + 1) + ' price'">
+                                                <input type="number" min="0" step="1" inputmode="numeric" :value="v.stock ?? ''" @input="setVariant(i, 'stock', $event.target.value)" class="form-input" placeholder="Stock" :aria-label="'Variant ' + (i + 1) + ' stock'">
+                                                <input type="url" :value="v.url ?? ''" @input="setVariant(i, 'url', $event.target.value)" class="form-input" placeholder="https://… (optional)" :aria-label="'Variant ' + (i + 1) + ' address'">
+                                                <button type="button" class="icon-btn" @click="removeVariant(i)" :aria-label="'Remove variant ' + (i + 1)" title="Remove"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
                                 <div class="form-group">
                                     <label for="bfindex-p4" class="form-label">Where to buy (address)</label>
                                     <input id="bfindex-p4" type="url" x-model="editingBlock.url" class="form-input" placeholder="https://your-shop.com/linen-shirt">

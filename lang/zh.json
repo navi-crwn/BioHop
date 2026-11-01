@@ -544,5 +544,8 @@
     "That page could not be read. Linktree may have changed its layout, or the page is private.": "无法读取该页面。Linktree 可能更改了布局，或者该页面是私密的。",
     "That Linktree page is locked, so nothing can be read from it.": "该 Linktree 页面已锁定，无法读取任何内容。",
     "Imported :links blocks and :socials social icons from linktr.ee/:name. The page stays a draft until you publish it.": "已从 linktr.ee/:name 导入 :links 个区块和 :socials 个社交图标。页面在发布前保持草稿状态。",
-    ":count links were left out because their addresses are blocked here.": "有 :count 个链接因地址在此被屏蔽而未导入。"
+    ":count links were left out because their addresses are blocked here.": "有 :count 个链接因地址在此被屏蔽而未导入。",
+    "from :price": "起价 :price",
+    "Only :count left": "仅剩 :count 件",
+    "Variants": "款式"
 }

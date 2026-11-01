@@ -250,3 +250,8 @@
 .be-sec.is-open .be-sec-chev { transform: rotate(180deg); }
 .be-sec-body { padding: 0 14px 14px; }
 @media (prefers-reduced-motion: reduce) { .be-sec-chev { transition: none; } }
+
+/* Product variants in the block form: name · price · stock · address · remove. */
+.be-variant { display: grid; grid-template-columns: 1.3fr .8fr .6fr 1.4fr auto; gap: 6px; align-items: center; }
+.be-variant .form-input { padding-top: 6px; padding-bottom: 6px; font-size: 13px; }
+@media (max-width: 640px) { .be-variant { grid-template-columns: 1fr 1fr; } .be-variant input[type=url] { grid-column: span 2; } }

@@ -427,6 +427,12 @@
         .product-row { display: flex; gap: 8px; align-items: center; font-weight: 700; font-size: 13px; }
         .product-row em { font-style: normal; }
         .product-row span { font-size: 10px; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: rgba(0,0,0,.35); color: #fff; }
+        .product-row span.product-amount { font-size: inherit; font-weight: inherit; padding: 0; border-radius: 0; background: none; color: inherit; }
+        .product-row s { font-weight: 500; opacity: .6; }
+        .product-variants { display: flex; flex-wrap: wrap; gap: 3px; }
+        .product-variants i { font-style: normal; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 999px; border: 1px solid currentColor; opacity: .85; }
+        .product-variants i.is-out { opacity: .45; text-decoration: line-through; }
+        .product-low { font-size: 10px; font-weight: 600; color: #d97706; }
         .countdown-block {
             /* Background is set via inline style from getCountdownBg() */
             border-radius: 16px;
@@ -1124,7 +1130,9 @@
                             <div class="product-body">
                                 <b x-text="block.title || 'Product'"></b>
                                 <small x-show="block.description" x-text="block.description"></small>
-                                <div class="product-row"><em x-text="priceLabel(block)"></em><span x-show="block.settings && block.settings.sold_out">Sold out</span></div>
+                                <div class="product-variants" x-show="productVariants(block).length"><template x-for="(v, i) in productVariants(block)" :key="i"><i :class="{ 'is-out': v.sold_out }" x-text="v.name"></i></template></div>
+                                <small class="product-low" x-show="lowStock(block)" x-text="'Only ' + lowStock(block) + ' left'"></small>
+                                <div class="product-row"><em><s x-show="comparePriceLabel(block)" x-text="comparePriceLabel(block)"></s> <span class="product-amount" x-text="priceLabel(block)"></span></em><span x-show="isSoldOut(block)">Sold out</span></div>
                             </div>
                         </div>
                     </template>
@@ -1398,12 +1406,43 @@
                     return 'none';
                 },
                 // Price of a product block, as the public page prints it
-                priceLabel(block) {
-                    const p = block.settings && block.settings.price;
-                    if (p === undefined || p === null || p === '') return '';
+                formatPrice(block, amount) {
                     const cur = ((block.settings && block.settings.currency) || 'USD').toUpperCase();
-                    try { return new Intl.NumberFormat(document.documentElement.lang || 'en', { style: 'currency', currency: cur, maximumFractionDigits: ['IDR','JPY','KRW','VND'].includes(cur) ? 0 : 2 }).format(Number(p)); }
-                    catch (e) { return cur + ' ' + p; }
+                    try { return new Intl.NumberFormat(document.documentElement.lang || 'en', { style: 'currency', currency: cur, maximumFractionDigits: ['IDR','JPY','KRW','VND'].includes(cur) ? 0 : 2 }).format(Number(amount)); }
+                    catch (e) { return cur + ' ' + amount; }
+                },
+                // Same rules as BioLink::variants() / priceLabel() / isSoldOut() / lowStock() on the server.
+                productVariants(block) {
+                    return ((block.settings && block.settings.variants) || []).filter(v => v && String(v.name || '').trim() !== '').map(v => {
+                        const stock = v.stock === '' || v.stock === null || v.stock === undefined ? null : parseInt(v.stock, 10);
+                        return { name: String(v.name).trim(), price: v.price === '' || v.price == null ? null : Number(v.price), stock, sold_out: !!v.sold_out || (stock !== null && stock <= 0) };
+                    });
+                },
+                priceLabel(block) {
+                    const prices = this.productVariants(block).map(v => v.price).filter(p => p !== null);
+                    const p = block.settings && block.settings.price;
+                    if (!(p === undefined || p === null || p === '')) prices.push(Number(p));
+                    if (!prices.length) return '';
+                    const label = this.formatPrice(block, Math.min(...prices));
+                    return new Set(prices).size > 1 ? 'from ' + label : label;
+                },
+                comparePriceLabel(block) {
+                    const was = block.settings && block.settings.compare_price, p = block.settings && block.settings.price;
+                    if (was === undefined || was === null || was === '' || p === undefined || p === null || p === '' || Number(was) <= Number(p)) return '';
+                    return this.formatPrice(block, was);
+                },
+                isSoldOut(block) {
+                    if (block.settings && block.settings.sold_out) return true;
+                    const stock = block.settings && block.settings.stock;
+                    if (stock !== undefined && stock !== null && stock !== '' && parseInt(stock, 10) <= 0) return true;
+                    const variants = this.productVariants(block);
+                    return variants.length > 0 && variants.every(v => v.sold_out);
+                },
+                lowStock(block) {
+                    const stock = block.settings && block.settings.stock;
+                    if (stock === undefined || stock === null || stock === '') return null;
+                    const n = parseInt(stock, 10);
+                    return n > 0 && n <= 5 ? n : null;
                 },
                 // Get effective background
                 getEffectiveBackground() {

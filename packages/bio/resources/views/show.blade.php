@@ -308,8 +308,10 @@
         .bio-tab-count { font-size: 11px; padding: 1px 7px; border-radius: 999px; background: color-mix(in srgb, currentColor 14%, transparent); }
         .bio-shop { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
         .bio-product { display: flex; flex-direction: column; border-radius: var(--button-radius, 16px); overflow: hidden; background: var(--pbg); color: var(--ptext); text-decoration: none; transition: transform .2s, box-shadow .2s; }
-        a.bio-product[href]:hover { transform: translateY(-2px); box-shadow: 0 12px 30px -16px rgba(0,0,0,.45); }
-        .bio-product-pic { position: relative; display: grid; place-items: center; aspect-ratio: 1; background: color-mix(in srgb, var(--ptext) 8%, transparent); }
+        .bio-product.can-buy:hover { transform: translateY(-2px); box-shadow: 0 12px 30px -16px rgba(0,0,0,.45); }
+        .bio-product a { color: inherit; text-decoration: none; }
+        .bio-product-name a:hover, .bio-product-cta:hover { text-decoration: underline; }
+        .bio-product-pic { position: relative; display: grid; color: inherit; place-items: center; aspect-ratio: 1; background: color-mix(in srgb, var(--ptext) 8%, transparent); }
         .bio-product-pic img { width: 100%; height: 100%; object-fit: cover; }
         .bio-product-pic svg { width: 36px; height: 36px; opacity: .5; }
         .bio-product-flag { position: absolute; left: 8px; top: 8px; padding: 3px 9px; border-radius: 999px; background: #0b1020; color: #fff; font-size: 11px; font-weight: 600; }
@@ -320,6 +322,12 @@
         .bio-product-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 4px; }
         .bio-product-price { font-style: normal; font-weight: 700; font-size: 14px; }
         .bio-product-cta { font-style: normal; font-size: 12px; opacity: .85; }
+        .bio-product-was { font-weight: 500; opacity: .6; margin-right: 4px; }
+        .bio-product-low { font-size: 11px; font-weight: 600; color: #d97706; }
+        .bio-variants { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+        .bio-variant { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--ptext) 35%, transparent); color: inherit; text-decoration: none; }
+        a.bio-variant:hover { background: color-mix(in srgb, var(--ptext) 12%, transparent); }
+        .bio-variant.is-out { opacity: .5; text-decoration: line-through; }
         @media (max-width: 360px) { .bio-shop { grid-template-columns: minmax(0, 1fr); } }
         /* a collection: a titled group of blocks, stacked or as a grid */
         .bio-collection { display: block; margin-block: 6px; }
@@ -824,14 +832,32 @@
                                 $pHref = $product->url ? route('bio.public.click', $product->public_id) : null;
                                 $pImg = $product->thumbnail_url ?: $product->content;
                                 if ($pImg && !str_starts_with($pImg, 'http') && !str_starts_with($pImg, '/storage/')) { $pImg = Storage::disk('public')->url($pImg); }
-                                $soldOut = !empty($product->settings['sold_out']);
+                                $soldOut = $product->isSoldOut();
+                                $variants = $product->variants();
+                                $lowStock = $product->lowStock();
+                                $wasPrice = $product->comparePriceLabel();
                             @endphp
-                            <a @if($pHref && !$soldOut) href="{{ $pHref }}" target="_blank" rel="nofollow noopener" @endif class="bio-product {{ $soldOut ? 'is-sold-out' : '' }}" style="--pbg: {{ $linkBgColor ?? $blockBg ?? 'rgba(255,255,255,.2)' }}; --ptext: {{ $linkTextColor }}">
-                                <span class="bio-product-pic">@if($pImg)<img src="{{ $pImg }}" alt="" loading="lazy" decoding="async">@else<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>@endif
-                                    @if($soldOut)<b class="bio-product-flag">{{ __('Sold out') }}</b>@endif</span>
-                                <span class="bio-product-body"><b class="bio-product-name">{{ $product->title }}</b>@if($product->description)<small class="bio-product-desc">{{ $product->description }}</small>@endif
-                                    <span class="bio-product-row"><em class="bio-product-price">{{ $product->priceLabel() }}</em>@if($pHref && !$soldOut)<i class="bio-product-cta">{{ __('View') }} ↗</i>@endif</span></span>
-                            </a>
+                            @php $buy = $pHref && !$soldOut; @endphp
+                            <article class="bio-product {{ $soldOut ? 'is-sold-out' : '' }} {{ $buy ? 'can-buy' : '' }}" style="--pbg: {{ $linkBgColor ?? $blockBg ?? 'rgba(255,255,255,.2)' }}; --ptext: {{ $linkTextColor }}">
+                                @if($buy)<a href="{{ $pHref }}" target="_blank" rel="nofollow noopener" class="bio-product-pic" aria-label="{{ $product->title }}">@else<span class="bio-product-pic">@endif
+                                    @if($pImg)<img src="{{ $pImg }}" alt="" loading="lazy" decoding="async">@else<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>@endif
+                                    @if($soldOut)<b class="bio-product-flag">{{ __('Sold out') }}</b>@endif
+                                @if($buy)</a>@else</span>@endif
+                                <span class="bio-product-body"><b class="bio-product-name">@if($buy)<a href="{{ $pHref }}" target="_blank" rel="nofollow noopener">{{ $product->title }}</a>@else{{ $product->title }}@endif</b>@if($product->description)<small class="bio-product-desc">{{ $product->description }}</small>@endif
+                                    @if($variants !== [])
+                                    <span class="bio-variants" role="list" aria-label="{{ __('Variants') }}">
+                                        @foreach($variants as $v)
+                                            @if($v['url'] && !$v['sold_out'])
+                                                <a role="listitem" href="{{ $v['url'] }}" target="_blank" rel="nofollow noopener" class="bio-variant" title="{{ $v['price'] !== null ? $product->formatPrice($v['price']) : '' }}">{{ $v['name'] }}</a>
+                                            @else
+                                                <span role="listitem" class="bio-variant {{ $v['sold_out'] ? 'is-out' : '' }}" title="{{ $v['sold_out'] ? __('Sold out') : ($v['price'] !== null ? $product->formatPrice($v['price']) : '') }}">{{ $v['name'] }}</span>
+                                            @endif
+                                        @endforeach
+                                    </span>
+                                    @endif
+                                    @if($lowStock && !$soldOut)<small class="bio-product-low">{{ __('Only :count left', ['count' => $lowStock]) }}</small>@endif
+                                    <span class="bio-product-row"><em class="bio-product-price">@if($wasPrice)<s class="bio-product-was">{{ $wasPrice }}</s> @endif{{ $product->priceLabel() }}</em>@if($buy)<a href="{{ $pHref }}" target="_blank" rel="nofollow noopener" class="bio-product-cta">{{ __('View') }} ↗</a>@endif</span></span>
+                            </article>
                         @endforeach
                         @endforeach
                     </div>

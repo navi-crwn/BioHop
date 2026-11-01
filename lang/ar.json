@@ -544,5 +544,8 @@
     "That page could not be read. Linktree may have changed its layout, or the page is private.": "تعذر قراءة تلك الصفحة. ربما غيّر Linktree تصميمه، أو الصفحة خاصة.",
     "That Linktree page is locked, so nothing can be read from it.": "صفحة Linktree تلك مقفلة، لذا لا يمكن قراءة أي شيء منها.",
     "Imported :links blocks and :socials social icons from linktr.ee/:name. The page stays a draft until you publish it.": "تم استيراد :links كتلة و :socials أيقونة تواصل من linktr.ee/:name. تبقى الصفحة مسودة حتى تنشرها.",
-    ":count links were left out because their addresses are blocked here.": "تم استبعاد :count روابط لأن عناوينها محظورة هنا."
+    ":count links were left out because their addresses are blocked here.": "تم استبعاد :count روابط لأن عناوينها محظورة هنا.",
+    "from :price": "ابتداءً من :price",
+    "Only :count left": "لم يتبقَّ سوى :count",
+    "Variants": "الأنواع"
 }

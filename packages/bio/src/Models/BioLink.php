@@ -186,15 +186,84 @@ class BioLink extends Model
         return $target && preg_match('#^https?://#i', $target) ? $target : null;
     }
 
-    /** "Rp 120.000" / "$ 20" for a product block, from settings.price and settings.currency; empty when there is no price. */
+    /**
+     * "Rp 120.000" / "$ 20" for a product block, from settings.price and settings.currency; empty when there is no price.
+     * With variants at different prices it is "from <lowest>".
+     */
     public function priceLabel(): string
     {
-        $price = $this->settings['price'] ?? null;
-        if ($price === null || $price === '') {
+        $prices = array_values(array_filter(array_map(fn ($v) => $v['price'], $this->variants()), fn ($p) => $p !== null));
+        $base = $this->settings['price'] ?? null;
+        if ($base !== null && $base !== '') {
+            $prices[] = (float) $base;
+        }
+        if ($prices === []) {
             return '';
         }
+        $label = $this->formatPrice(min($prices));
+
+        return count(array_unique($prices)) > 1 ? __('from :price', ['price' => $label]) : $label;
+    }
+
+    /** The struck-through "was" price, when settings.compare_price is above the price. */
+    public function comparePriceLabel(): string
+    {
+        $was = $this->settings['compare_price'] ?? null;
+        $price = $this->settings['price'] ?? null;
+        if ($was === null || $was === '' || $price === null || $price === '' || (float) $was <= (float) $price) {
+            return '';
+        }
+
+        return $this->formatPrice((float) $was);
+    }
+
+    /** Sold out when switched off by hand, when the stock count reached zero, or when every variant is out. */
+    public function isSoldOut(): bool
+    {
+        if (! empty($this->settings['sold_out'])) {
+            return true;
+        }
+        $stock = $this->settings['stock'] ?? null;
+        if ($stock !== null && $stock !== '' && (int) $stock <= 0) {
+            return true;
+        }
+        $variants = $this->variants();
+
+        return $variants !== [] && ! array_filter($variants, fn ($v) => ! $v['sold_out']);
+    }
+
+    /** "Only 3 left" worth of stock: the count when it is tracked and between 1 and 5, else null. */
+    public function lowStock(): ?int
+    {
+        $stock = $this->settings['stock'] ?? null;
+
+        return $stock !== null && $stock !== '' && (int) $stock > 0 && (int) $stock <= 5 ? (int) $stock : null;
+    }
+
+    /** @return array<int, array{name:string, price:?float, stock:?int, url:?string, sold_out:bool}> */
+    public function variants(): array
+    {
+        $out = [];
+        foreach ((array) ($this->settings['variants'] ?? []) as $v) {
+            if (! is_array($v) || trim((string) ($v['name'] ?? '')) === '') {
+                continue;
+            }
+            $stock = isset($v['stock']) && $v['stock'] !== '' ? (int) $v['stock'] : null;
+            $out[] = [
+                'name' => trim((string) $v['name']),
+                'price' => isset($v['price']) && $v['price'] !== '' ? (float) $v['price'] : null,
+                'stock' => $stock,
+                'url' => ! empty($v['url']) && preg_match('#^https?://#i', (string) $v['url']) ? (string) $v['url'] : null,
+                'sold_out' => ! empty($v['sold_out']) || ($stock !== null && $stock <= 0),
+            ];
+        }
+
+        return $out;
+    }
+
+    public function formatPrice(float $amount): string
+    {
         $currency = strtoupper((string) ($this->settings['currency'] ?? 'USD'));
-        $amount = (float) $price;
         $decimals = in_array($currency, ['IDR', 'JPY', 'KRW', 'VND'], true) ? 0 : 2;
         if (class_exists(\NumberFormatter::class)) {
             $fmt = new \NumberFormatter(app()->getLocale(), \NumberFormatter::CURRENCY);

@@ -544,5 +544,8 @@
     "That page could not be read. Linktree may have changed its layout, or the page is private.": "そのページを読み取れませんでした。Linktree のレイアウトが変わったか、ページが非公開です。",
     "That Linktree page is locked, so nothing can be read from it.": "その Linktree ページはロックされているため、何も読み取れません。",
     "Imported :links blocks and :socials social icons from linktr.ee/:name. The page stays a draft until you publish it.": "linktr.ee/:name から :links 個のブロックと :socials 個の SNS アイコンを取り込みました。公開するまで下書きのままです。",
-    ":count links were left out because their addresses are blocked here.": ":count 件のリンクは、アドレスがここでブロックされているため除外されました。"
+    ":count links were left out because their addresses are blocked here.": ":count 件のリンクは、アドレスがここでブロックされているため除外されました。",
+    "from :price": ":price から",
+    "Only :count left": "残り :count 点",
+    "Variants": "バリエーション"
 }

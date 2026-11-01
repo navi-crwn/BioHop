@@ -544,5 +544,8 @@
     "That page could not be read. Linktree may have changed its layout, or the page is private.": "Essa página não pôde ser lida. O Linktree pode ter mudado o layout, ou a página é privada.",
     "That Linktree page is locked, so nothing can be read from it.": "Essa página do Linktree está bloqueada, então nada pode ser lido.",
     "Imported :links blocks and :socials social icons from linktr.ee/:name. The page stays a draft until you publish it.": "Importados :links blocos e :socials ícones sociais de linktr.ee/:name. A página fica como rascunho até você publicá-la.",
-    ":count links were left out because their addresses are blocked here.": ":count links ficaram de fora porque seus endereços são bloqueados aqui."
+    ":count links were left out because their addresses are blocked here.": ":count links ficaram de fora porque seus endereços são bloqueados aqui.",
+    "from :price": "a partir de :price",
+    "Only :count left": "Só restam :count",
+    "Variants": "Variantes"
 }
