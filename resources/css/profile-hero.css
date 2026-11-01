@@ -4,7 +4,12 @@
 .bio-claim form { display: flex; gap: 8px; }
 .bio-claim-field { display: flex; align-items: center; min-width: 0; background: var(--showcase-surface); border: 1px solid var(--showcase-line); border-radius: 12px; padding-inline: 14px; flex: 1; font: 12px var(--font-mono); }
 .bio-claim-field > span { color: var(--showcase-muted); white-space: nowrap; }
-.bio-claim-field input { width: 100%; min-width: 0; background: transparent; border: 0; padding: 16px 0; color: var(--showcase-ink); font-size: 13px; }
+.bio-claim-field input { width: 100%; min-width: 0; background: transparent; border: 0; padding: 11px 0; color: var(--showcase-ink); font-size: 14px; }
+/* the box shows the focus, not the input inside it (the shared ring is for stand-alone controls) */
+.bio-claim-field { min-height: 46px; transition: border-color .15s, box-shadow .15s; }
+.bio-claim-field:focus-within { border-color: #0891b2; box-shadow: 0 0 0 3px #0891b233; }
+.hop-home .bio-claim-field input, .hop-home .bio-claim-field input:focus, .hop-home .bio-claim-field input:focus-visible { outline: 0; box-shadow: none; background: transparent; }
+.hop-home .bio-claim form .h-pill, .bio-claim form button { min-height: 46px; padding-inline: 20px; white-space: nowrap; flex: none; }
 .bio-claim > p { margin-top: 12px; font-size: 11px; line-height: 1.6; }
 .bio-claim > p:last-child { color: var(--showcase-muted); }
 .bio-universe { position: relative; isolation: isolate; min-width: 0; padding: 32px 0 0; perspective: 1600px; }
