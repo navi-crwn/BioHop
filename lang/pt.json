@@ -570,5 +570,9 @@
     "The security check failed. Please try again.": "A verificação de segurança falhou. Tente novamente.",
     "This form is not taking more entries right now.": "Este formulário não está aceitando mais envios agora.",
     "Results": "Resultados",
-    ":count vote|:count votes": ":count voto|:count votos"
+    ":count vote|:count votes": ":count voto|:count votos",
+    "Play video": "Reproduzir vídeo",
+    "Play music": "Reproduzir música",
+    "Show map": "Mostrar mapa",
+    "Loads from :site when you tap": "Carrega de :site ao tocar"
 }

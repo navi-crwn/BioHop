@@ -570,5 +570,9 @@
     "The security check failed. Please try again.": "Pemeriksaan keamanan gagal. Coba lagi.",
     "This form is not taking more entries right now.": "Formulir ini sedang tidak menerima isian lagi.",
     "Results": "Hasil",
-    ":count vote|:count votes": ":count suara|:count suara"
+    ":count vote|:count votes": ":count suara|:count suara",
+    "Play video": "Putar video",
+    "Play music": "Putar musik",
+    "Show map": "Tampilkan peta",
+    "Loads from :site when you tap": "Dimuat dari :site saat kamu ketuk"
 }

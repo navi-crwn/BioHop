@@ -570,5 +570,9 @@
     "The security check failed. Please try again.": "セキュリティチェックに失敗しました。もう一度お試しください。",
     "This form is not taking more entries right now.": "このフォームは現在、これ以上の入力を受け付けていません。",
     "Results": "結果",
-    ":count vote|:count votes": ":count 票|:count 票"
+    ":count vote|:count votes": ":count 票|:count 票",
+    "Play video": "動画を再生",
+    "Play music": "音楽を再生",
+    "Show map": "地図を表示",
+    "Loads from :site when you tap": "タップすると :site から読み込みます"
 }

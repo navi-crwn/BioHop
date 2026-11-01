@@ -570,5 +570,9 @@
     "The security check failed. Please try again.": "فشل التحقق الأمني. حاول مرة أخرى.",
     "This form is not taking more entries right now.": "هذا النموذج لا يقبل المزيد من الإدخالات حاليًا.",
     "Results": "النتائج",
-    ":count vote|:count votes": "صوت واحد|:count أصوات"
+    ":count vote|:count votes": "صوت واحد|:count أصوات",
+    "Play video": "تشغيل الفيديو",
+    "Play music": "تشغيل الموسيقى",
+    "Show map": "عرض الخريطة",
+    "Loads from :site when you tap": "يُحمَّل من :site عند النقر"
 }

@@ -2,10 +2,20 @@
     use App\Helpers\SocialUrlHelper;
 @endphp
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" @class(['lite' => request()->header('Save-Data') === 'on'])>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script nonce="{{ Vite::cspNonce() }}">
+        // Lite mode: a visitor who asked to save data, a phone with little memory or few cores, or ?lite=1 gets a calm page
+        // (no background animation, entrance effects or blur). ?lite=0 turns it off.
+        (function () {
+            var d = document.documentElement, c = navigator.connection || {}, q = /[?&]lite=([01])/.exec(location.search);
+            var low = c.saveData === true || (navigator.deviceMemory && navigator.deviceMemory <= 2) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2)
+                || (window.matchMedia && matchMedia('(prefers-reduced-data: reduce)').matches);
+            if (q ? q[1] === '1' : low) d.classList.add('lite'); else if (q) d.classList.remove('lite');
+        })();
+    </script>
     @if(request()->attributes->get('hop.embed'))
         {{-- Shown inside the BioHop home: links open in a new tab and the copy stays out of search. --}}
         <base target="_blank">
@@ -335,6 +345,20 @@
         .bio-poll-bar { position: absolute; inset: 0 auto 0 0; background: rgba(129,140,248,.45); }
         .bio-poll-res.is-mine { border-color: #818cf8; }
         .bio-poll-row { position: relative; display: flex; justify-content: space-between; gap: 8px; padding: 9px 12px; font-size: 14px; font-weight: 600; }
+        /* player placeholders: the real iframe is made on tap */
+        .bio-facade { position: relative; display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; min-height: 96px; height: 100%; padding: 14px; color: #fff; text-decoration: none; text-align: left; background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 12px; overflow: hidden; cursor: pointer; }
+        .bio-facade-music, .bio-facade-map { background: linear-gradient(135deg, rgba(30,41,59,.92), rgba(15,23,42,.92)); }
+        .bio-facade-play { flex: none; display: grid; place-items: center; width: 54px; height: 54px; border-radius: 50%; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.35); }
+        .bio-facade:hover .bio-facade-play { background: rgba(255,255,255,.28); }
+        .bio-facade:focus-visible { outline: 3px solid #818cf8; outline-offset: 2px; }
+        .bio-facade-text { display: grid; gap: 2px; }
+        .bio-facade-text b { font-size: 14px; }
+        .bio-facade-text small { font-size: 11px; opacity: .75; }
+        .bio-facade-tiktok { max-width: 325px; margin-inline: auto; height: 120px; }
+        .bio-facade-video { min-height: 0; border-radius: 0; }
+        .bio-embed iframe { display: block; }
+        /* long lists: cards that are off screen are not painted until they come close */
+        .bio-product, .bio-embed, .bio-feed, .bio-poll, .bio-form { content-visibility: auto; contain-intrinsic-size: auto 220px; }
         .bio-carousel { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: thin; padding-bottom: 4px; border-radius: 16px; }
         .bio-slide { flex: 0 0 86%; scroll-snap-align: center; position: relative; border-radius: 16px; overflow: hidden; aspect-ratio: 4 / 3; background: rgba(127,127,127,.2); }
         .bio-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -487,6 +511,10 @@
         .attention-bounce { animation: attentionBounce 1s ease-in-out infinite; }
         .bg-animation-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
         .bg-particle { position: absolute; pointer-events: none; }
+        /* Lite mode: nothing that costs a weak phone frames. */
+        .lite #bg-animation { display: none !important; }
+        .lite *, .lite *::before, .lite *::after { animation: none !important; transition: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+        .lite .bio-facade-play, .lite .bio-product { will-change: auto; }
         /* Visitors who asked for less motion get the final state without animating. */
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after {
@@ -1090,15 +1118,7 @@
                                     <div class="mb-2 text-sm font-semibold" style="color: inherit;">{{ $link->title }}</div>
                                 @endif
                                 <div class="rounded-lg overflow-hidden mb-2">
-                                    <iframe 
-                                        src="https://maps.google.com/maps?q={{ urlencode($link->map_address) }}&z={{ $link->map_zoom ?? 15 }}&output=embed"
-                                        width="100%" 
-                                        height="200" 
-                                        style="border:0;" 
-                                        allowfullscreen="" 
-                                        title="{{ $link->title ?: 'Map' }}"
-                                        loading="lazy">
-                                    </iframe>
+                                    @include('bio::partials.facade', ['src' => "https://maps.google.com/maps?q=".urlencode($link->map_address)."&z=".($link->map_zoom ?? 15)."&output=embed", 'href' => 'https://www.google.com/maps/search/?api=1&query='.urlencode($link->map_address), 'title' => $link->title ?: 'Map', 'kind' => 'map', 'height' => 200, 'sandbox' => null])
                                 </div>
                                 <div class="text-xs text-center opacity-80" style="color: inherit;">{{ $link->map_address }}</div>
                             </div>
@@ -1453,7 +1473,7 @@ END:VCARD`;
             const theme = document.body.dataset.theme;
             const container = document.getElementById('bg-animation');
             if (!container) return;
-            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.classList.contains('lite')) return;
             if ((theme === 'neon' || theme === 'matrix') && bgAnim === 'matrix') {
                 initMatrixEffect(container);
                 return; // Matrix is the only animation
@@ -1784,6 +1804,26 @@ END:VCARD`;
                 drawMatrix();
             }
         })();
+    </script>
+    <script nonce="{{ Vite::cspNonce() }}">
+        // A tap on a player placeholder swaps it for the real iframe; modified clicks (new tab) keep the plain link.
+        document.addEventListener('click', function (e) {
+            var a = e.target.closest && e.target.closest('.bio-facade');
+            if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+            e.preventDefault();
+            var src = a.dataset.embedSrc, kind = a.dataset.embedKind, f = document.createElement('iframe');
+            if (kind === 'video' && src.indexOf('youtube.com') > -1) src += (src.indexOf('?') > -1 ? '&' : '?') + 'autoplay=1';
+            f.src = src;
+            f.title = a.dataset.embedTitle || '';
+            f.setAttribute('allow', kind === 'video' || kind === 'tiktok' ? 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen' : 'autoplay *; clipboard-write; encrypted-media *; fullscreen *; picture-in-picture');
+            if (a.dataset.embedSandbox) f.setAttribute('sandbox', a.dataset.embedSandbox);
+            f.style.border = '0';
+            f.style.width = '100%';
+            if (kind === 'video') { f.style.height = '100%'; }
+            else { f.style.height = (a.dataset.embedHeight || 200) + 'px'; if (kind === 'tiktok') { f.style.maxWidth = '325px'; f.style.margin = '0 auto'; } else { f.style.borderRadius = '8px'; } }
+            a.replaceWith(f);
+            f.focus();
+        });
     </script>
     @if($fab = $bioPage->fabHref())
         <div aria-hidden="true" style="height: 72px"></div>
