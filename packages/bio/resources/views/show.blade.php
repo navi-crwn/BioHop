@@ -58,11 +58,7 @@
         $hasCustomBackground = $bioPage->background_type === 'image' && ($bioPage->background_image || $bioPage->background_value);
         if ($hasCustomBackground) {
             $bgImage = $bioPage->background_image ?: $bioPage->background_value;
-            if (str_starts_with($bgImage, 'http') || str_starts_with($bgImage, '/storage/')) {
-                $bgUrl = $bgImage;
-            } else {
-                $bgUrl = Storage::disk('public')->url($bgImage);
-            }
+            $bgUrl = bio_media_url($bgImage);
             $bgStyle = "background: url('{$bgUrl}') center/cover fixed;";
         } elseif ($hasTheme && $themeData) {
             $bg = $themeData['background'];
@@ -859,7 +855,7 @@
                                 <a href="{{ $url }}" target="_blank" rel="nofollow noreferrer" 
                                    class="social-icon-btn rounded-full p-2.5 transition-all duration-200"
                                    style="background: {{ $brandColor }};">
-                                    <img src="/images/brands/{{ $platform }}.svg?v=20251212" 
+                                    <img src="{{ bio_media_url('/images/brands/'.$platform.'.svg') }}?v=20251212" 
                                          alt="{{ ucfirst(str_replace('-', ' ', $platform)) }}" 
                                          class="social-icon h-5 w-5" width="20" height="20" decoding="async"
                                          style="filter: brightness(0) invert(1);"
@@ -898,7 +894,7 @@
                             @php
                                 $pHref = $product->url ? $clickHref($product->public_id) : null;
                                 $pImg = $product->thumbnail_url ?: $product->content;
-                                if ($pImg && !str_starts_with($pImg, 'http') && !str_starts_with($pImg, '/storage/')) { $pImg = Storage::disk('public')->url($pImg); }
+                                $pImg = bio_media_url($pImg);
                                 $soldOut = $product->isSoldOut();
                                 $variants = $product->variants();
                                 $lowStock = $product->lowStock();
@@ -970,7 +966,8 @@
                                 }
                                 $iconPath = null;
                                 if ($hasIcon) {
-                                    $iconPath = $link->custom_icon ?: ($hasBrand ? "/images/brands/" . ($brandConfig['icon'] ?? "{$link->brand}.svg") . "?v=20251212" : null);
+                                    $iconPath = bio_media_url($link->custom_icon ?: ($hasBrand ? "/images/brands/" . ($brandConfig['icon'] ?? "{$link->brand}.svg") : null));
+                                    $iconPath = $iconPath && ! $link->custom_icon ? $iconPath.'?v=20251212' : $iconPath;
                                 }
                                 $borderStyle = $link->btn_border_color ? 'border: 1px solid '.$link->btn_border_color.';' : ($themeLinkBorder ? 'border: 1px solid '.$themeLinkBorder.';' : '');
                                 $linkRel = $getLinkRel($link->url);
@@ -993,9 +990,7 @@
                                 @if($hasThumbnail)
                                     @php
                                         $thumbUrl = $link->thumbnail_url ?? $link->thumbnail;
-                                        if (!str_starts_with($thumbUrl, 'http') && !str_starts_with($thumbUrl, '/storage/') && !str_starts_with($thumbUrl, '/')) {
-                                            $thumbUrl = Storage::disk('public')->url($thumbUrl);
-                                        }
+                                        $thumbUrl = bio_media_url($thumbUrl);
                                     @endphp
                                     <img src="{{ $thumbUrl }}" 
                                          alt="" class="block-thumbnail" width="42" height="42" loading="lazy" decoding="async">
@@ -1028,9 +1023,7 @@
                         @elseif($link->type === 'image' && ($link->thumbnail_url || $link->content))
                             @php
                                 $imageUrl = $link->content ?: $link->thumbnail_url;
-                                if ($imageUrl && !str_starts_with($imageUrl, 'http') && !str_starts_with($imageUrl, '/storage/')) {
-                                    $imageUrl = Storage::disk('public')->url($imageUrl);
-                                }
+                                $imageUrl = bio_media_url($imageUrl);
                             @endphp
                             <div class="image-block-wrapper">
                                 <div class="image-block">
@@ -1265,7 +1258,7 @@
                                 <a href="{{ $url }}" target="_blank" rel="nofollow noreferrer" 
                                    class="social-icon-btn rounded-full p-2.5 transition-all duration-200"
                                    style="background: {{ $brandColor }};">
-                                    <img src="/images/brands/{{ $platform }}.svg?v=20251212" 
+                                    <img src="{{ bio_media_url('/images/brands/'.$platform.'.svg') }}?v=20251212" 
                                          alt="{{ ucfirst(str_replace('-', ' ', $platform)) }}" 
                                          class="social-icon h-5 w-5" width="20" height="20" decoding="async"
                                          style="filter: brightness(0) invert(1);"

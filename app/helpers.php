@@ -22,6 +22,30 @@ if (! function_exists('public_host')) {
         return preg_replace('/^www\./', '', (string) parse_url(public_url(), PHP_URL_HOST));
     }
 }
+if (! function_exists('bio_media_url')) {
+    /**
+     * A stored picture, icon or brand image as a full address on the asset host (ASSET_URL). Public bio pages are
+     * served from the public host (hel.ink/b/...) while the files live at the app host (bio.hel.ink), so a bare
+     * /storage/... or /images/... path would be looked up on the wrong host and come back missing.
+     */
+    function bio_media_url(?string $path): ?string
+    {
+        $path = trim((string) $path);
+        if ($path === '') {
+            return null;
+        }
+        if (preg_match('#^(https?:)?//#i', $path) || str_starts_with($path, 'data:')) {
+            return $path;
+        }
+        if (str_starts_with($path, '/')) {
+            $host = rtrim((string) config('app.asset_url'), '/');
+
+            return $host !== '' ? $host.$path : asset(ltrim($path, '/'));
+        }
+
+        return \Illuminate\Support\Facades\Storage::disk('public')->url($path);
+    }
+}
 if (! function_exists('bio_enabled')) {
     /** Whether the hop/bio package is switched on (BIO_ENABLED). */
     function bio_enabled(): bool
