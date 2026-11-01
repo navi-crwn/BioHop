@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Hop\Bio\Models\BioClick;
 use Hop\Bio\Models\BioLead;
 use Hop\Bio\Models\BioLink;
+use Hop\Bio\Models\BioWebhookDelivery;
 use Illuminate\Console\Command;
 
 /**
@@ -15,9 +16,12 @@ class PrunePersonalData extends Command
 {
     public const BIO_CLICK_DAYS = 30;
 
+    /** Webhook deliveries carry the form entry as JSON (for retries and resend), so they go after a week. */
+    public const WEBHOOK_DAYS = 7;
+
     protected $signature = 'privacy:prune';
 
-    protected $description = 'Delete bio click logs older than the privacy policy allows (30 days)';
+    protected $description = 'Delete bio click logs (30 days), form entries past their retention and webhook deliveries (7 days)';
 
     public function handle(): int
     {
@@ -31,6 +35,9 @@ class PrunePersonalData extends Command
             }
         });
         $this->info("form entries: {$leads}");
+
+        $deliveries = BioWebhookDelivery::where('created_at', '<', now()->subDays(self::WEBHOOK_DAYS))->delete();
+        $this->info("webhook deliveries: {$deliveries}");
 
         return self::SUCCESS;
     }

@@ -15,3 +15,8 @@ test('the home 3D engine animates every app mark in the family row, not only the
     $js = file_get_contents(public_path('hop-home/hop-hero3d.js'));
     expect($js)->toContain('.slice(0, 4)')->not->toContain('.sort(function (a, b) { return b.ratio - a.ratio; })[0]');
 });
+
+test('the home page versions its engine files by content, so an edited file is not served from a year-old cache', function () {
+    $html = $this->get('/')->assertOk()->getContent();
+    expect($html)->toMatch('#hop-home/hop-hero3d\.js\?v=[0-9a-f]{8}#')->and($html)->toMatch('#hop-home/hop-home\.css\?v=[0-9a-f]{8}#');
+});
