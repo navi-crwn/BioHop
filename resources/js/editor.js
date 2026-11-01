@@ -1177,6 +1177,7 @@ window.bioEditorV2 = function() {
             const formData = new FormData();
             formData.append('image', file);
             formData.append('_token', csrf());
+            if (field === 'favicon') formData.append('format', 'png');
             fetch(bioEditorUrl('/upload-image'), { method: 'POST', body: formData })
             .then(res => res.json())
             .then(data => {

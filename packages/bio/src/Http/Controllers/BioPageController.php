@@ -13,6 +13,7 @@ use Hop\Bio\Models\BioClick;
 use Hop\Bio\Models\BioPage;
 use Hop\Bio\Support\BioRevisions;
 use Hop\Bio\Support\BioUploads;
+use Hop\Bio\Support\ImageOptimizer;
 use Hop\Bio\Support\LinktreeImport;
 use Hop\Bio\Support\SvgSanitizer;
 use Illuminate\Http\Request;
@@ -141,7 +142,7 @@ class BioPageController extends Controller
             'links' => 'nullable|array|max:10',
             'links.*' => 'nullable|string|max:500',
             'palette' => 'nullable|integer|min:0|max:'.(count(self::WIZARD_PALETTES) - 1),
-            'avatar' => 'nullable|image|max:2048',
+            'avatar' => 'nullable|image|max:8192',
             'content_warning' => 'nullable|in:none,sensitive,adult',
         ]);
         $this->assertSafeContent($validated);
@@ -555,7 +556,7 @@ class BioPageController extends Controller
             'google_analytics_id' => 'nullable|string|max:50',
             'facebook_pixel_id' => 'nullable|string|max:50',
             'tiktok_pixel_id' => ['nullable', 'regex:/^[A-Z0-9]{20,30}$/'],
-            'avatar' => 'nullable|image|max:2048',
+            'avatar' => 'nullable|image|max:8192',
             'avatar_url' => 'nullable|string|max:255',
             'password_enabled' => 'nullable|boolean',
             'password' => 'nullable|string|max:50',
@@ -574,7 +575,7 @@ class BioPageController extends Controller
         }
         $oldFiles = [$bioPage->avatar_url, $bioPage->background_image, $bioPage->cover_image, $bioPage->og_image, $bioPage->favicon, $bioPage->qr_settings['image'] ?? null, $bioPage->qr_settings['logo_url'] ?? null];
         if ($request->hasFile('avatar')) {
-            $validated['avatar_url'] = $request->file('avatar')->store('avatars', 'public');
+            $validated['avatar_url'] = ImageOptimizer::store($request->file('avatar'), 'avatars', null, 'avatar');
         }
         // socials is cast to array on the model; encoding it here stored a JSON string inside JSON (L1).
         if (isset($validated['qr_settings'])) {
@@ -757,10 +758,11 @@ class BioPageController extends Controller
     {
         $this->authorize('update', $bioPage);
         $request->validate([
-            'image' => 'required|image|max:5120', // 5MB max
+            'image' => 'required|image|max:10240', // 10 MB: it is shrunk to WebP before it is stored
         ]);
         try {
-            $path = $request->file('image')->store('bio-images', 'public');
+            $favicon = $request->input('format') === 'png';
+            $path = ImageOptimizer::store($request->file('image'), 'bio-images', $favicon ? 128 : null, 'image', $favicon ? 'png' : 'webp');
 
             return response()->json([
                 'success' => true,
@@ -800,11 +802,11 @@ class BioPageController extends Controller
     {
         $this->authorize('update', $bioPage);
         $request->validate([
-            'avatar' => 'required|image|max:2048', // 2MB max
+            'avatar' => 'required|image|max:8192', // 8 MB: it is shrunk to WebP before it is stored
         ]);
         try {
             $oldAvatar = $bioPage->avatar_url;
-            $path = $request->file('avatar')->store('avatars', 'public');
+            $path = ImageOptimizer::store($request->file('avatar'), 'avatars', null, 'avatar');
             $bioPage->update(['avatar_url' => $path]);
             BioUploads::deleteIfUnused($oldAvatar);
 
@@ -863,9 +865,10 @@ class BioPageController extends Controller
 
             return $path;
         }
-        $request->validate([$field => 'required|image|max:1024']);
+        $request->validate([$field => 'required|image|max:'.($directory === 'avatars' ? 8192 : 4096)]);
 
-        return $request->file($field)->store($directory, 'public');
+        // the QR logo is read back by the QR generator as it is; everything else is shrunk (WebP, right size)
+        return $directory === 'qr-logos' ? $request->file($field)->store($directory, 'public') : ImageOptimizer::store($request->file($field), $directory, null, $field);
     }
 
     /**
