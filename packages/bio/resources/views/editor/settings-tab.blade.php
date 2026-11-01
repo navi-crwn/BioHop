@@ -62,6 +62,17 @@
                 <span class="toggle-slider"></span>
             </label>
         </div>
+        <!-- UTM on outgoing links -->
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="font-medium text-slate-900 dark:text-white">Add UTM to outgoing links</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Appends utm_source=biohop, utm_medium=bio and utm_campaign=<span x-text="bioPage.slug"></span> to every http(s) link that has no UTM of its own, so clicks show up in the destination's analytics.</p>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" x-model="bioPage.auto_utm" aria-label="Add UTM parameters to outgoing links">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
         <!-- 18+ Adult Content & Warning Gate -->
         <div class="space-y-3">
             <div class="flex items-center justify-between">

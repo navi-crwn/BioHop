@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class BioLink extends Model
@@ -30,6 +31,8 @@ class BioLink extends Model
         'settings',
         'is_active',
         'archived_at',
+        'publish_at',
+        'expire_at',
         'order',
         'click_count',
         // Advanced block fields
@@ -51,6 +54,8 @@ class BioLink extends Model
     protected $casts = [
         'is_active' => 'boolean',
         'archived_at' => 'datetime',
+        'publish_at' => 'datetime',
+        'expire_at' => 'datetime',
         'btn_icon_invert' => 'boolean',
         'order' => 'integer',
         'click_count' => 'integer',
@@ -77,9 +82,74 @@ class BioLink extends Model
     }
 
     /** Shown on the page: switched on and not archived. */
+    /** Shown on the page: switched on, not archived, and inside its schedule window (if any). */
     public function scopeActive($query)
     {
-        return $query->where('is_active', true)->whereNull('archived_at');
+        return $query->where('is_active', true)->whereNull('archived_at')
+            ->where(fn ($q) => $q->whereNull('publish_at')->orWhere('publish_at', '<=', now()))
+            ->where(fn ($q) => $q->whereNull('expire_at')->orWhere('expire_at', '>', now()));
+    }
+
+    /** Inside the schedule window: not before publish_at and not after expire_at. */
+    public function isLive(): bool
+    {
+        return (! $this->publish_at || $this->publish_at->lte(now())) && (! $this->expire_at || $this->expire_at->gt(now()));
+    }
+
+    /** "scheduled" before publish_at, "expired" after expire_at, null when live. */
+    public function scheduleState(): ?string
+    {
+        if ($this->publish_at && $this->publish_at->gt(now())) {
+            return 'scheduled';
+        }
+
+        return $this->expire_at && $this->expire_at->lte(now()) ? 'expired' : null;
+    }
+
+    public const WHATSAPP_MODES = ['round_robin', 'weighted'];
+
+    /** @return array<int, array{number:string, label:string, weight:int}> the rotator's numbers, digits only */
+    public function whatsappNumbers(): array
+    {
+        $out = [];
+        foreach ((array) ($this->settings['numbers'] ?? []) as $n) {
+            $digits = preg_replace('/\D+/', '', (string) ($n['number'] ?? ''));
+            if (is_array($n) && strlen($digits) >= 6) {
+                $out[] = ['number' => $digits, 'label' => trim((string) ($n['label'] ?? '')), 'weight' => max(1, (int) ($n['weight'] ?? 1))];
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * The wa.me address for this click: round robin (one counter per block in the cache) or weighted random.
+     * Null when the block has no usable number.
+     */
+    public function whatsappTarget(): ?string
+    {
+        $numbers = $this->whatsappNumbers();
+        if ($numbers === []) {
+            return null;
+        }
+        if (($this->settings['mode'] ?? 'round_robin') === 'weighted' && count($numbers) > 1) {
+            $total = array_sum(array_column($numbers, 'weight'));
+            $pick = random_int(1, $total);
+            $chosen = $numbers[0];
+            foreach ($numbers as $n) {
+                $pick -= $n['weight'];
+                if ($pick <= 0) {
+                    $chosen = $n;
+                    break;
+                }
+            }
+        } else {
+            $i = Cache::increment('wa_rotator:'.$this->id) - 1;
+            $chosen = $numbers[$i % count($numbers)];
+        }
+        $text = trim((string) ($this->settings['text'] ?? ''));
+
+        return 'https://wa.me/'.$chosen['number'].($text !== '' ? '?text='.rawurlencode($text) : '');
     }
 
     public function scopeNotArchived($query)
@@ -122,7 +192,7 @@ class BioLink extends Model
         'link' => 'Link', 'image' => 'Image', 'text' => 'Text', 'header' => 'Header',
         'divider' => 'Divider', 'spacer' => 'Spacer', 'video' => 'Video', 'youtube' => 'YouTube',
         'music' => 'Music', 'spotify' => 'Spotify', 'soundcloud' => 'SoundCloud', 'vcard' => 'Contact card',
-        'html' => 'HTML', 'countdown' => 'Countdown', 'map' => 'Map', 'faq' => 'FAQ', 'product' => 'Product', 'collection' => 'Collection',
+        'html' => 'HTML', 'countdown' => 'Countdown', 'map' => 'Map', 'faq' => 'FAQ', 'product' => 'Product', 'collection' => 'Collection', 'whatsapp' => 'WhatsApp',
         'email' => 'Email', 'code' => 'Code',
     ];
 

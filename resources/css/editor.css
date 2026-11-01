@@ -263,3 +263,12 @@
 .bio-editor .block-item.block-ghost.in-collection { margin-left: 0; }
 .bio-editor .be-in-collection b { font-weight: 600; color: #6366f1; }
 @media (max-width: 640px) { .bio-editor .block-item.in-collection { margin-left: 12px; } }
+
+/* Schedule chips in the block list and the WhatsApp number rows. */
+.be-chip { display: inline-block; vertical-align: middle; margin-left: 4px; padding: 1px 7px; border-radius: 999px; font-size: 10px; font-weight: 600; line-height: 1.5; background: #e0f2fe; color: #0369a1; }
+.be-chip.expired { background: #fee2e2; color: #b91c1c; }
+.dark .be-chip { background: rgb(14 165 233 / .2); color: #7dd3fc; }
+.dark .be-chip.expired { background: rgb(239 68 68 / .2); color: #fca5a5; }
+.be-wa-row { display: grid; grid-template-columns: 1.3fr 1fr auto auto; gap: 6px; align-items: center; }
+.be-wa-row input[type=number] { width: 72px; }
+@media (max-width: 640px) { .be-wa-row { grid-template-columns: 1fr 1fr; } }
