@@ -122,7 +122,9 @@ class BioPageController extends Controller
                 $errors["social_links.{$i}.value"] = $reason;
             }
         }
+        // An uploaded background is a path on our own disk (bio-images/…); only an outside address is checked.
         if (! empty($data['background_image']) && ! str_starts_with($data['background_image'], '/')
+            && ! preg_match('#^bio-images/[A-Za-z0-9._-]+$#', $data['background_image'])
             && ($reason = $safety->rejectionReason($data['background_image']))) {
             $errors['background_image'] = $reason;
         }
@@ -259,7 +261,7 @@ class BioPageController extends Controller
         if (array_key_exists('avatar_url', $validated) && $validated['avatar_url'] !== null && $validated['avatar_url'] !== $bioPage->avatar_url) {
             unset($validated['avatar_url']);
         }
-        $oldFiles = [$bioPage->avatar_url, $bioPage->qr_settings['image'] ?? null, $bioPage->qr_settings['logo_url'] ?? null];
+        $oldFiles = [$bioPage->avatar_url, $bioPage->background_image, $bioPage->qr_settings['image'] ?? null, $bioPage->qr_settings['logo_url'] ?? null];
         if ($request->hasFile('avatar')) {
             $validated['avatar_url'] = $request->file('avatar')->store('avatars', 'public');
         }
