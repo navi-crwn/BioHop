@@ -453,5 +453,11 @@
     "Yes, continue": "نعم، تابع",
     "18+ check": "تحقق +18",
     "For pages with adult or sensitive content.": "للصفحات ذات المحتوى للبالغين أو الحسّاس.",
-    "Drag or use arrow keys to rotate": "اسحب أو استخدم مفاتيح الأسهم للتدوير"
+    "Drag or use arrow keys to rotate": "اسحب أو استخدم مفاتيح الأسهم للتدوير",
+    "Hop in": "ادخل",
+    "Create your free HOP ID": "أنشئ HOP ID مجانيًا",
+    "Status and uptime": "الحالة ووقت التشغيل",
+    "Is it free?": "هل هو مجاني؟",
+    "Yes. No paid plan, no locked feature, no ads. The code is MIT licensed.": "نعم. لا خطة مدفوعة ولا ميزات مقفلة ولا إعلانات. الكود مرخّص بترخيص MIT.",
+    "Short links, bio pages, images and private notes. One free HOP ID, open source, yours to host.": "روابط قصيرة وصفحات تعريف وصور وملاحظات خاصة. HOP ID مجاني واحد، مفتوح المصدر، ويمكنك استضافته بنفسك."
 }

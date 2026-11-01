@@ -1,0 +1,103 @@
+<?php
+
+namespace App\Console\Commands;
+
+use App\Bio\OfficialPage as Official;
+use App\Models\User;
+use Hop\Bio\Models\BioLink;
+use Hop\Bio\Models\BioPage;
+use Hop\Ui\Assets;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
+
+/**
+ * Write the official HEL.ink page (hel.ink/b/hel): every public HOP app from the shared manifest, the ways
+ * to start, and a short FAQ. The BioHop home shows this page live inside a phone, so it is the family's
+ * front door. Blocks written here are marked `settings.official`; anything added by hand is left alone.
+ */
+class OfficialPage extends Command
+{
+    protected $signature = 'bio:official-page {--apply : Write the page (without it, only show what would change)} {--user= : Owner e-mail when the page does not exist yet}';
+
+    protected $description = 'Fill the official HEL.ink bio page with every HOP app, the ways to start, and a FAQ';
+
+    public function handle(): int
+    {
+        $slug = Official::slug();
+        $page = BioPage::where('slug', $slug)->first();
+        if (! $page) {
+            $owner = $this->option('user') ? User::where('email', $this->option('user'))->first() : null;
+            if (! $owner) {
+                $this->error("No page '{$slug}' yet: pass --user=<e-mail> of the account that should own it.");
+
+                return self::FAILURE;
+            }
+            $page = new BioPage(['user_id' => $owner->id, 'slug' => $slug]);
+        }
+
+        $fields = self::fields();
+        $blocks = self::blocks();
+        $this->line(($page->exists ? 'Update' : 'Create')." hel.ink/b/{$slug}: ".count($blocks).' blocks');
+        foreach ($blocks as $i => $block) {
+            $this->line(sprintf('  %2d. %-8s %s', $i + 1, $block['type'], $block['title'] ?? ''));
+        }
+        if (! $this->option('apply')) {
+            $this->info('Dry run. Add --apply to write it.');
+
+            return self::SUCCESS;
+        }
+
+        $page->fill($fields)->save();
+        BioLink::where('bio_page_id', $page->id)->where('settings->official', true)->delete();
+        $start = (int) BioLink::where('bio_page_id', $page->id)->max('order') + 1;
+        foreach ($blocks as $i => $block) {
+            BioLink::create($block + ['bio_page_id' => $page->id, 'order' => $start + $i, 'is_active' => true, 'settings' => ['official' => true]]);
+        }
+        Cache::forget('official-bio-live');
+        $this->info("Written: hel.ink/b/{$slug} with ".count($blocks).' official blocks.');
+
+        return self::SUCCESS;
+    }
+
+    /** @return array<string, mixed> */
+    public static function fields(): array
+    {
+        return [
+            'title' => 'HEL.ink',
+            'bio' => 'Short links, bio pages, images and private notes. One free HOP ID, open source, yours to host.',
+            'avatar_url' => public_url('images/brand/rabbit-mark.png'),
+            'theme' => 'galaxy',
+            'button_shape' => 'pill',
+            'social_links' => [
+                ['platform' => 'github', 'value' => 'https://github.com/navi-crwn', 'enabled' => true],
+                ['platform' => 'website', 'value' => 'https://hel.ink', 'enabled' => true],
+            ],
+            'seo_title' => 'HEL.ink · every HOP app in one place',
+            'seo_description' => 'LinkHop, BioHop, PixelHop and NoteHop: short links, bio pages, images and private notes with one free HOP ID.',
+            'is_published' => true,
+            'is_public' => true,
+            'password_enabled' => false,
+            'content_warning' => 'none',
+        ];
+    }
+
+    /** The blocks, top to bottom. @return list<array<string, mixed>> */
+    public static function blocks(): array
+    {
+        $blocks = [['type' => 'header', 'title' => 'Hop in']];
+        foreach (Assets::family() as $app) {
+            $blocks[] = ['type' => 'link', 'title' => $app['name'], 'url' => $app['url'], 'description' => $app['tagline'] ?? null, 'thumbnail_url' => $app['icons']['mark']['url'] ?? null];
+        }
+        $blocks[] = ['type' => 'header', 'title' => 'Start here'];
+        $blocks[] = ['type' => 'link', 'title' => 'Create your free HOP ID', 'url' => rtrim((string) config('hop.hub_url'), '/').'/register', 'description' => 'One account signs you in to every app.'];
+        $blocks[] = ['type' => 'link', 'title' => 'Source code on GitHub', 'url' => 'https://github.com/navi-crwn', 'description' => 'MIT licensed. Read it, report an issue, or self-host.'];
+        $blocks[] = ['type' => 'link', 'title' => 'Status and uptime', 'url' => 'https://hel.ink/status', 'description' => 'Every app, checked around the clock.'];
+        $blocks[] = ['type' => 'faq', 'title' => 'Good questions', 'faq_items' => [
+            ['question' => 'Is it free?', 'answer' => 'Yes. No paid plan, no locked feature, no ads. The code is MIT licensed.'],
+            ['question' => 'Do I need an account?', 'answer' => 'Not to shorten a link or share an image. With a free HOP ID you keep your links, get analytics, folders, the API, a bio page and encrypted notes.'],
+            ['question' => 'Can I host it myself?', 'answer' => 'Yes. Every app is open source; each repository has a self-host guide.'],
+        ]];
+
+        return $blocks;
+    }
+}
