@@ -21,6 +21,10 @@ return [
     'public_url' => rtrim((string) (env('PUBLIC_URL') ?: env('APP_URL', 'http://localhost')), '/'),
     // The official page the BioHop home shows live inside a phone (hel.ink/b/{slug}).
     'official_bio' => env('HOP_OFFICIAL_BIO', 'hel'),
+    // Media on that page, written by `bio:official-page`: a YouTube video and a Spotify link (empty: no block).
+    'official_video' => env('HOP_OFFICIAL_VIDEO', ''),
+    'official_music' => env('HOP_OFFICIAL_MUSIC', ''),
+    'official_contact' => env('HOP_OFFICIAL_CONTACT', ''),
     // The hub (HOP ID). hop/auth reads the same value as hop-auth.hub_url.
     'hub_url' => rtrim((string) env('HOP_HUB_URL', 'https://hub.hel.ink'), '/'),
 

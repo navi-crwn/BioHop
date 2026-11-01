@@ -26,6 +26,7 @@ class OfficialPageCommandTest extends TestCase
     public function test_it_lists_every_public_app_and_can_run_again_without_duplicates(): void
     {
         Storage::fake('public');
+        config(['hop.official_video' => '', 'hop.official_music' => '']);
         $user = User::factory()->create();
         $this->artisan('bio:official-page', ['--user' => $user->email, '--apply' => true])->assertSuccessful();
         $page = BioPage::where('slug', 'hel')->firstOrFail();
@@ -36,7 +37,14 @@ class OfficialPageCommandTest extends TestCase
         foreach (Assets::family() as $app) {
             $this->assertDatabaseHas('bio_links', ['bio_page_id' => $page->id, 'type' => 'link', 'title' => $app['name'], 'url' => $app['url']]);
         }
-        $this->assertDatabaseHas('bio_links', ['bio_page_id' => $page->id, 'type' => 'faq']);
+        foreach (['faq', 'text', 'image', 'map', 'vcard', 'header', 'divider'] as $type) {
+            $this->assertDatabaseHas('bio_links', ['bio_page_id' => $page->id, 'type' => $type]);
+        }
+        $this->assertDatabaseMissing('bio_links', ['bio_page_id' => $page->id, 'type' => 'youtube']);
+        config(['hop.official_video' => 'https://www.youtube.com/watch?v=jNQXAC9IVRw', 'hop.official_music' => 'https://open.spotify.com/track/2Foc5Q5nqNiosCNqttzHof']);
+        $this->artisan('bio:official-page', ['--apply' => true])->assertSuccessful();
+        $this->assertDatabaseHas('bio_links', ['bio_page_id' => $page->id, 'type' => 'youtube', 'embed_url' => 'https://www.youtube.com/embed/jNQXAC9IVRw?rel=0']);
+        $this->assertDatabaseHas('bio_links', ['bio_page_id' => $page->id, 'type' => 'spotify', 'embed_url' => 'https://open.spotify.com/embed/track/2Foc5Q5nqNiosCNqttzHof']);
         $count = BioLink::where('bio_page_id', $page->id)->count();
 
         BioLink::create(['bio_page_id' => $page->id, 'type' => 'link', 'title' => 'Added by hand', 'url' => 'https://example.com', 'order' => 99]);
