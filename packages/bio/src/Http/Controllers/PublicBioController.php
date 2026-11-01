@@ -76,7 +76,10 @@ class PublicBioController extends Controller
                 return view('bio::age-verify', compact('bioPage'));
             }
         }
-        $this->trackView($bioPage);
+        // A copy of the page inside another page (the BioHop home) is not a visit.
+        if (! $request->attributes->get('hop.embed')) {
+            $this->trackView($bioPage);
+        }
 
         return view('bio::show', compact('bioPage'));
     }

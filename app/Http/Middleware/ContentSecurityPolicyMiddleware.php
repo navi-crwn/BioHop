@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Bio\OfficialPage;
 use Closure;
 use Hop\Bio\Support\BioEmbed;
 use Illuminate\Http\Request;
@@ -19,6 +20,9 @@ class ContentSecurityPolicyMiddleware
     {
         // Per-request nonce: added to every <script> tag (Vite::cspNonce()) and @vite output.
         Vite::useCspNonce();
+        // The official page, asked for as an embed, may sit in a frame on the HOP sites (the BioHop home).
+        $embed = OfficialPage::isEmbed($request);
+        $request->attributes->set('hop.embed', $embed);
         $response = $next($request);
         $isPreviewRoute = $request->routeIs('bio.preview');
         $hub = rtrim((string) config('hop-auth.hub_url', config('hop.hub_url')), '/');
@@ -40,12 +44,17 @@ class ContentSecurityPolicyMiddleware
             // Signing in ends at the hub, and logging out hops hub -> each app's logout -> the home page.
             // form-action applies to every redirect after a form post, so every HOP host is allowed.
             "form-action 'self' ".self::hopOrigins($hub),
-            $isPreviewRoute ? "frame-ancestors 'self'" : "frame-ancestors 'none'",
+            $embed ? "frame-ancestors 'self' ".self::hopOrigins($hub) : ($isPreviewRoute ? "frame-ancestors 'self'" : "frame-ancestors 'none'"),
             'upgrade-insecure-requests',
         ];
         $response->headers->set('Content-Security-Policy', implode('; ', $csp));
         $response->headers->set('X-Content-Type-Options', 'nosniff');
-        $response->headers->set('X-Frame-Options', $isPreviewRoute ? 'SAMEORIGIN' : 'DENY');
+        // X-Frame-Options cannot name several origins, so an embed relies on frame-ancestors alone.
+        if (! $embed) {
+            $response->headers->set('X-Frame-Options', $isPreviewRoute ? 'SAMEORIGIN' : 'DENY');
+        } else {
+            $response->headers->remove('X-Frame-Options');
+        }
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
         $response->headers->set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
 

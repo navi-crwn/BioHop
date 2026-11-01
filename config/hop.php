@@ -19,6 +19,8 @@ return [
 
     // Where the public bio pages are reached (hel.ink/b/{slug}): PUBLIC_URL, default APP_URL. See public_url().
     'public_url' => rtrim((string) (env('PUBLIC_URL') ?: env('APP_URL', 'http://localhost')), '/'),
+    // The official page the BioHop home shows live inside a phone (hel.ink/b/{slug}).
+    'official_bio' => env('HOP_OFFICIAL_BIO', 'hel'),
     // The hub (HOP ID). hop/auth reads the same value as hop-auth.hub_url.
     'hub_url' => rtrim((string) env('HOP_HUB_URL', 'https://hub.hel.ink'), '/'),
 

@@ -4,6 +4,6 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 source_root="${1:?Pass the HEL.ink checkout path}"
 mkdir -p public/hop-home/home
-for file in hop-home.css hop-home.js hop-hero3d.js hop-motion.js home/biohop-light.webp home/biohop-dark.webp; do
+for file in hop-home.css hop-home.js hop-hero3d.js hop-motion.js hop-scenes.css hop-scenes.js home/biohop-light.webp home/biohop-dark.webp; do
   cp "$source_root/public/hop-assets/v1/$file" "public/hop-home/$file"
 done

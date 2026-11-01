@@ -6,6 +6,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @if(request()->attributes->get('hop.embed'))
+        {{-- Shown inside the BioHop home: links open in a new tab and the copy stays out of search. --}}
+        <base target="_blank">
+        <meta name="robots" content="noindex">
+    @endif
     <title>{{ $bioPage->seo_title ?? $bioPage->title }} | By LinkHop</title>
     <meta name="description" content="{{ $bioPage->seo_description ?? $bioPage->bio ?? 'Check out my links' }}">
     @if(!($bioPage->allow_indexing ?? true))
