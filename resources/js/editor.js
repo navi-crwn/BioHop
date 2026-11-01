@@ -392,8 +392,10 @@ window.bioEditorV2 = function() {
                             }))
                         },
                         design: {
-                            // Avatar
+                            // Avatar and header
                             avatarShape: bioPageData.avatar_shape || 'circle',
+                            headerLayout: bioPageData.header_layout || 'classic',
+                            coverImage: formatAvatarUrl(bioPageData.cover_image),
                             // Background
                             backgroundColor: bioPageData.background_type === 'solid' ? 
                                 (bioPageData.background_value || bioPageData.background_color || '#f8fafc') : 
@@ -824,6 +826,24 @@ window.bioEditorV2 = function() {
                     this.saveBioPage();
                 }
             });
+        },
+        uploadCoverImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const formData = new FormData();
+            formData.append('image', file);
+            formData.append('_token', csrf());
+            fetch(bioEditorUrl('/upload-image'), { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.path) {
+                    this.bioPage.cover_image = data.path;
+                    this.showNotification('Cover uploaded!', 'success');
+                } else {
+                    throw new Error(data.message || 'Upload failed');
+                }
+            })
+            .catch(error => this.showNotification(error.message || 'Failed to upload', 'error'));
         },
         uploadBackgroundImage(event) {
             const file = event.target.files[0];

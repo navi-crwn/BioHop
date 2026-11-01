@@ -136,6 +136,14 @@
             default => 'max-w-md'
         };
         $headerBgColor = $bioPage->header_bg_color ?? '';
+        $headerLayout = $bioPage->headerLayout();
+        $avatarSrc = $bioPage->avatar_url ? Storage::disk('public')->url($bioPage->avatar_url) : null;
+        // hero and cutout are built around the picture: without one they fall back to classic
+        if (! $avatarSrc && in_array($headerLayout, ['hero', 'cutout'], true)) {
+            $headerLayout = 'classic';
+        }
+        $coverSrc = $bioPage->cover_image ? (str_starts_with($bioPage->cover_image, 'http') || str_starts_with($bioPage->cover_image, '/') ? $bioPage->cover_image : Storage::disk('public')->url($bioPage->cover_image)) : null;
+        $avatarRadius = $bioPage->avatar_shape === 'rounded-sm' ? '16px' : ($bioPage->avatar_shape === 'square' ? '0' : '50%');
         $showHeaderBg = !$hasTheme && $layout === 'wide' && $headerBgColor;
         $isLightColor = function($color) {
             if (!$color) return false;
@@ -253,6 +261,21 @@
         .powered-link:hover {
             color: {{ $isDarkTheme ? '#cbd5e1' : '#475569' }};
         }
+        /* Header layouts: classic (small avatar), hero (picture fills the top), banner (cover strip), cutout (big fading picture). */
+        .bio-head { position: relative; }
+        .bio-head-hero { margin: -2rem -2rem 1.25rem; border-radius: 1.5rem 1.5rem 1.25rem 1.25rem; overflow: hidden; aspect-ratio: 4 / 5; max-height: 460px; background: #0f172a; }
+        .bio-head-hero .bio-hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+        .bio-head-hero .bio-hero-text { position: absolute; inset: auto 0 0 0; padding: 4rem 1.5rem 1.5rem; background: linear-gradient(180deg, rgba(15, 23, 42, 0) 0%, rgba(15, 23, 42, .55) 45%, rgba(15, 23, 42, .85) 100%); }
+        .bio-head-hero .bio-title, .bio-head-hero .bio-bio { color: #fff !important; text-shadow: 0 1px 2px rgba(0, 0, 0, .35); }
+        .bio-head-hero .bio-title { font-size: 1.75rem; }
+        .bio-head-hero .bio-bio { opacity: .92; }
+        .bio-head-banner { margin-top: -2rem; }
+        .bio-head-banner .bio-cover { height: 150px; margin: 0 -2rem 0; border-radius: 1.5rem 1.5rem 0 0; background: {{ $coverSrc ? 'url('.e($coverSrc).') center / cover no-repeat' : ($headerBgColor ?: 'linear-gradient(135deg, '.$linkBgColor.', '.$titleColor.')') }}; }
+        .bio-head-banner .bio-avatar { margin-top: -48px; position: relative; border-color: {{ $cardBg !== 'transparent' ? $cardBg : 'rgba(255,255,255,.85)' }}; border-width: 4px; }
+        .bio-head-cutout { padding-top: .25rem; }
+        .bio-head-cutout .bio-avatar { width: 250px; height: 250px; max-width: 78%; border: 0; box-shadow: none; border-radius: 0 !important; margin-bottom: -2.25rem; object-fit: cover; -webkit-mask-image: radial-gradient(ellipse 72% 86% at 50% 36%, #000 42%, transparent 94%); mask-image: radial-gradient(ellipse 72% 86% at 50% 36%, #000 42%, transparent 94%); }
+        .bio-head-cutout .bio-title { position: relative; font-size: 1.75rem; text-shadow: 0 1px 12px rgba(0, 0, 0, .18); }
+        @media (max-width: 480px) { .bio-head-hero, .bio-head-banner .bio-cover { margin-left: -1rem; margin-right: -1rem; } .bio-head-hero { margin-top: -1rem; } .bio-head-banner { margin-top: -1rem; } }
         @if($showHeaderBg)
         .bio-header-bg {
             background: {{ $headerBgColor }};
@@ -696,17 +719,27 @@
     <div class="min-h-screen flex flex-col {{ $containerAlign }} justify-center p-4" x-data="{ tab: '{{ (request()->attributes->get('openShop') || request()->query('tab') === 'shop') ? 'shop' : 'links' }}' }">
         <div class="w-full {{ $maxWidth }}">
             <div class="rounded-3xl p-8">
-                <div class="text-center {{ $showHeaderBg ? 'bio-header-bg' : '' }}">
-                    @if($bioPage->avatar_url)
-                        <img src="{{ Storage::disk('public')->url($bioPage->avatar_url) }}" 
+                <div class="text-center bio-head bio-head-{{ $headerLayout }} {{ $showHeaderBg ? 'bio-header-bg' : '' }}">
+                    @if($headerLayout === 'hero')
+                        <img src="{{ $avatarSrc }}" alt="{{ $bioPage->title }}" class="bio-hero-img" fetchpriority="high">
+                        <div class="bio-hero-text">
+                    @elseif($headerLayout === 'banner')
+                        <div class="bio-cover" role="presentation"></div>
+                    @endif
+                    @if($headerLayout === 'cutout')
+                        <img src="{{ $avatarSrc }}" alt="{{ $bioPage->title }}" class="bio-avatar mx-auto" fetchpriority="high">
+                    @elseif($headerLayout !== 'hero')
+                        @if($avatarSrc)
+                        <img src="{{ $avatarSrc }}" 
                              alt="{{ $bioPage->title }}" 
                              class="bio-avatar mx-auto mb-4 h-24 w-24 object-cover" width="96" height="96" fetchpriority="high"
-                             style="border-radius: {{ $bioPage->avatar_shape === 'rounded-sm' ? '16px' : ($bioPage->avatar_shape === 'square' ? '0' : '50%') }};">
-                    @else
+                             style="border-radius: {{ $avatarRadius }};">
+                        @else
                         <div class="bio-avatar mx-auto mb-4 flex h-24 w-24 items-center justify-center bg-linear-to-br from-blue-500 to-indigo-600 text-3xl font-bold text-white"
-                             style="border-radius: {{ $bioPage->avatar_shape === 'rounded-sm' ? '16px' : ($bioPage->avatar_shape === 'square' ? '0' : '50%') }};">
+                             style="border-radius: {{ $avatarRadius }};">
                             {{ substr($bioPage->title, 0, 1) }}
                         </div>
+                        @endif
                     @endif
                     <div class="text-center relative flex justify-center">
                         <h1 class="bio-title text-2xl font-bold relative inline-block">
@@ -728,6 +761,9 @@
                     </div>
                     @if($bioPage->bio)
                         <p class="bio-bio mt-2 text-sm">{{ html_entity_decode($bioPage->bio) }}</p>
+                    @endif
+                    @if($headerLayout === 'hero')
+                        </div>
                     @endif
                 </div>
                 @if($bioPage->social_links && count($bioPage->social_links) > 0 && (!$bioPage->social_icons_position || $bioPage->social_icons_position === 'below_bio'))

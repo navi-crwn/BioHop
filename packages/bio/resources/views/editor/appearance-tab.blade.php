@@ -73,6 +73,35 @@
             <h3 class="editor-card-title text-base font-semibold">Design & Background</h3>
         </div>
         <div class="space-y-5">
+            <!-- Header layout -->
+            <div class="pb-4 border-b border-slate-200 dark:border-(--editor-border)">
+                <div class="flex items-center gap-2 mb-3">
+                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5h16v6H4zM4 15h16M4 19h10"/></svg>
+                    <h4 class="text-sm font-semibold">Header</h4>
+                </div>
+                <div class="be-heads" role="radiogroup" aria-label="Header layout">
+                    <template x-for="h in [['classic','Classic'],['hero','Hero'],['banner','Banner'],['cutout','Cutout']]" :key="h[0]">
+                        <button type="button" role="radio" :aria-checked="(bioPage.header_layout || 'classic') === h[0]" @click="bioPage.header_layout = h[0]"
+                                class="be-head" :class="{ 'is-on': (bioPage.header_layout || 'classic') === h[0] }">
+                            <span class="be-head-pic" :data-head="h[0]"><i></i><b></b><u></u></span>
+                            <span x-text="h[1]"></span>
+                        </button>
+                    </template>
+                </div>
+                <p class="text-xs editor-text-muted mt-2" x-show="!bioPage.avatar_url && ['hero','cutout'].includes(bioPage.header_layout)">Hero and Cutout need a profile picture; until one is uploaded the page shows the classic header.</p>
+                <div x-show="bioPage.header_layout === 'banner'" class="mt-3">
+                    <label class="form-label text-xs mb-1">Cover picture</label>
+                    <input aria-label="Upload cover picture" type="file" accept="image/*" class="hidden" x-ref="coverInput" @change="uploadCoverImage($event)">
+                    <div class="flex items-center gap-2">
+                        <button type="button" @click="$refs.coverInput.click()" class="btn btn-secondary text-sm py-2 flex-1">Upload cover</button>
+                        <button type="button" x-show="bioPage.cover_image" @click="bioPage.cover_image = ''" class="btn btn-secondary text-sm py-2">Remove</button>
+                    </div>
+                    <template x-if="bioPage.cover_image">
+                        <img :src="bioPage.cover_image.startsWith('/') || bioPage.cover_image.startsWith('http') ? bioPage.cover_image : '/storage/' + bioPage.cover_image" alt="Cover" class="mt-2 w-full h-16 object-cover rounded-lg">
+                    </template>
+                    <p class="text-xs editor-text-muted mt-1" x-show="!bioPage.cover_image">Without a picture the banner uses the header colour, or the button and title colours.</p>
+                </div>
+            </div>
             <!-- Font Section -->
             <div class="pb-4 border-b border-slate-200 dark:border-(--editor-border)">
                 <div class="flex items-center gap-2 mb-3">

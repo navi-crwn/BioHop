@@ -53,7 +53,19 @@
         .profile-section {
             text-align: center;
             margin-bottom: 16px;
+            position: relative;
         }
+        /* Header layouts, same rules as the public page at phone scale. */
+        .profile-section.head-hero { margin: -8px -8px 14px; border-radius: 18px 18px 14px 14px; overflow: hidden; aspect-ratio: 4 / 5; max-height: 340px; background: #0f172a; }
+        .profile-section.head-hero .hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+        .profile-section.head-hero .hero-text { position: absolute; inset: auto 0 0 0; padding: 48px 14px 14px; background: linear-gradient(180deg, rgba(15,23,42,0) 0%, rgba(15,23,42,.55) 45%, rgba(15,23,42,.85) 100%); }
+        .profile-section.head-hero .display-name, .profile-section.head-hero .bio-text { color: #fff !important; text-shadow: 0 1px 2px rgba(0,0,0,.35); }
+        .profile-section.head-hero .display-name { font-size: 20px; }
+        .profile-section.head-banner { margin-top: -8px; }
+        .profile-section.head-banner .cover { height: 104px; margin: 0 -8px 0; border-radius: 18px 18px 0 0; background: var(--cover, linear-gradient(135deg, var(--button-bg, #6366f1), var(--title-color, #1e293b))); background-size: cover; background-position: center; }
+        .profile-section.head-banner .avatar-wrapper { margin-top: -36px; position: relative; border: 4px solid rgba(255,255,255,.85); }
+        .profile-section.head-cutout .avatar-wrapper { width: 180px; height: 180px; max-width: 78%; border: 0; box-shadow: none; border-radius: 0 !important; margin-bottom: -26px; -webkit-mask-image: radial-gradient(ellipse 72% 86% at 50% 36%, #000 42%, transparent 94%); mask-image: radial-gradient(ellipse 72% 86% at 50% 36%, #000 42%, transparent 94%); }
+        .profile-section.head-cutout .display-name { position: relative; font-size: 20px; }
         .avatar-wrapper {
             width: 72px;
             height: 72px;
@@ -896,8 +908,14 @@
     </div>
     <div x-show="isLoaded" class="bio-container">
         <!-- Profile Section -->
-        <div class="profile-section">
-            <div class="avatar-wrapper" :class="'shape-' + (design.avatarShape || 'circle')">
+        <div class="profile-section" :class="'head-' + headerLayout()" :style="design.coverImage ? { '--cover': 'url(' + design.coverImage + ')' } : {}">
+            <template x-if="headerLayout() === 'hero'">
+                <img :src="profile.avatar" :alt="profile.displayName" class="hero-img">
+            </template>
+            <template x-if="headerLayout() === 'banner'">
+                <div class="cover"></div>
+            </template>
+            <div class="avatar-wrapper" x-show="headerLayout() !== 'hero'" :class="'shape-' + (design.avatarShape || 'circle')">
                 <template x-if="profile.avatar">
                     <img :src="profile.avatar" :alt="profile.displayName">
                 </template>
@@ -905,6 +923,7 @@
                     <div class="avatar-placeholder" x-text="getInitials(profile.displayName)"></div>
                 </template>
             </div>
+            <div :class="headerLayout() === 'hero' ? 'hero-text' : ''">
             <div class="display-name-row" style="text-align: center;">
                 <h1 class="display-name" style="margin-bottom: 0; justify-content: center;">
                     <span x-text="profile.displayName || 'Your Name'"></span>
@@ -937,6 +956,7 @@
                 </h1>
             </div>
             <p class="bio-text" x-text="decodeHtmlEntities(profile.bio) || 'Your bio goes here'"></p>
+            </div>
         </div>
         <!-- Social Icons (Top) -->
         <template x-if="socials.position === 'top' && socials.items && socials.items.length > 0">
@@ -1229,6 +1249,8 @@
                     fontFamily: 'inter',
                     backgroundType: 'solid',
                     backgroundGradient: null,
+                    headerLayout: 'classic',
+                    coverImage: null,
                     theme: 'none'
                 },
                 themes: @json(config('bio-themes.presets')),
@@ -1257,6 +1279,11 @@
                     const theme = this.design.theme || 'default';
                     document.documentElement.style.setProperty('--hover-glow-color', themeGlowColors[theme] || 'rgba(99, 102, 241, 0.4)');
                     document.documentElement.style.setProperty('--hover-hue-shift', themeHueShifts[theme] || '30deg');
+                },
+                // hero and cutout need a picture; without one the page shows the classic header
+                headerLayout() {
+                    const l = this.design.headerLayout || 'classic';
+                    return (l === 'hero' || l === 'cutout') && !this.profile.avatar ? 'classic' : l;
                 },
                 updatePreview(data) {
                     // Only values that really changed are written: replacing a whole object made every binding that reads

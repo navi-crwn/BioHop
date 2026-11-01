@@ -211,3 +211,27 @@
     .bio-editor .block-drag-handle { padding: 8px 2px; }
     .bio-editor .block-actions .toggle-switch { transform: scale(.85); }
 }
+
+/* Header layout picker (Design tab): four small sketches of the top of a page. */
+.be-heads { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.be-head { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px 4px; border: 1px solid var(--editor-border, #e2e8f0); border-radius: 12px; font-size: 11px; font-weight: 600; background: transparent; color: inherit; cursor: pointer; }
+.be-head:hover { border-color: #94a3b8; }
+.be-head.is-on { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37, 99, 235, .25); }
+.be-head-pic { position: relative; width: 44px; height: 56px; border-radius: 8px; background: var(--editor-input-bg, #f1f5f9); overflow: hidden; display: block; }
+.be-head-pic i, .be-head-pic b, .be-head-pic u { position: absolute; display: block; }
+.be-head-pic i { background: #64748b; }
+.be-head-pic b { background: #94a3b8; height: 4px; border-radius: 2px; }
+.be-head-pic u { background: #cbd5e1; height: 3px; border-radius: 2px; }
+.be-head-pic[data-head=classic] i { width: 16px; height: 16px; border-radius: 50%; top: 10px; left: 14px; }
+.be-head-pic[data-head=classic] b { width: 22px; top: 31px; left: 11px; }
+.be-head-pic[data-head=classic] u { width: 28px; top: 39px; left: 8px; }
+.be-head-pic[data-head=hero] i { inset: 0 0 18px 0; background: linear-gradient(180deg, #64748b 40%, #334155); }
+.be-head-pic[data-head=hero] b { width: 22px; top: 28px; left: 11px; background: #fff; }
+.be-head-pic[data-head=hero] u { width: 28px; top: 44px; left: 8px; }
+.be-head-pic[data-head=banner] i { inset: 0 0 auto 0; height: 18px; background: #94a3b8; }
+.be-head-pic[data-head=banner]::after { content: ""; position: absolute; width: 16px; height: 16px; border-radius: 50%; background: #64748b; top: 10px; left: 14px; border: 2px solid #fff; box-sizing: border-box; }
+.be-head-pic[data-head=banner] b { width: 22px; top: 32px; left: 11px; }
+.be-head-pic[data-head=banner] u { width: 28px; top: 40px; left: 8px; }
+.be-head-pic[data-head=cutout] i { width: 26px; height: 30px; top: 4px; left: 9px; border-radius: 10px 10px 2px 2px; -webkit-mask-image: linear-gradient(#000 50%, transparent); mask-image: linear-gradient(#000 50%, transparent); }
+.be-head-pic[data-head=cutout] b { width: 22px; top: 31px; left: 11px; }
+.be-head-pic[data-head=cutout] u { width: 28px; top: 40px; left: 8px; }
