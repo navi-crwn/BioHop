@@ -24,3 +24,8 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 /storage/app/GeoLite2-*.mmdb
+
+# Written by install.sh / update.sh
+/start.sh
+/backups/
+/.env.backup-*
