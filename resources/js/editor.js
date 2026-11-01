@@ -111,6 +111,7 @@ window.bioEditorV2 = function() {
         urlInputTimeout: null,
         previewUrl: CONFIG.previewUrl,
         previewReady: false,
+        previewHeight: 0, // the preview page's own height: the editor scrolls the frame, the frame does not scroll
         deletedBlockIds: [],
         // Last server revision this tab has seen; a save from another tab makes the next save fail with 409 (L2).
         _baseUpdatedAt: null,
@@ -189,6 +190,10 @@ window.bioEditorV2 = function() {
             // Listen for preview ready
             window.addEventListener('message', (event) => {
                 if (event.origin !== window.location.origin) return;
+                if (event.data?.type === 'preview-size') {
+                    this.previewHeight = Math.min(20000, Math.max(0, Number(event.data.height) || 0));
+                    return;
+                }
                 if (event.data?.type === 'preview-ready') {
                     this.previewReady = true;
                     this._pvLast = {};
@@ -226,6 +231,15 @@ window.bioEditorV2 = function() {
                 }
             });
             this.$watch('previewOpen', open => { document.documentElement.style.overflow = open ? 'hidden' : ''; });
+        },
+        // hel.ink and the HOP apps (note, pixel, link, bio, ...): kept as typed, never wrapped in a short link.
+        isFamilyUrl(url) {
+            try {
+                const host = new URL(url).hostname.toLowerCase();
+                return host === 'hel.ink' || host.endsWith('.hel.ink') || CONFIG.familyHosts.includes(host);
+            } catch (e) {
+                return false;
+            }
         },
         uid() {
             return Math.random().toString(36).slice(2, 10);
@@ -852,7 +866,7 @@ window.bioEditorV2 = function() {
                 this.editingBlock.url = urlToCheck;
                 // Auto-shorten custom web links (not brand/mailto/tel links, not our own short links)
                 const isWeb = /^https?:\/\//i.test(urlToCheck);
-                if (isWeb && !this.editingBlock.brand && !urlToCheck.includes(window.location.host)) {
+                if (isWeb && !this.editingBlock.brand && !urlToCheck.includes(window.location.host) && !this.isFamilyUrl(urlToCheck)) {
                     this.saving = true;
                     try {
                         const response = await fetch('/api/bio/shorten', {

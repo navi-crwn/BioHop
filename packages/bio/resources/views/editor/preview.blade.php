@@ -36,6 +36,7 @@
             scrollbar-width: none;
             -ms-overflow-style: none;
         }
+        html { overflow-x: hidden; }
         body {
             font-family: 'Inter', system-ui, sans-serif;
             background: var(--bg-color);
@@ -1321,6 +1322,24 @@
                             this.updateHoverColors();
                         }
                     });
+                    // The editor sizes this frame to the whole page and scrolls it itself: a scroll box inside a frame inside
+                    // a scrolling page is where touch, trackpad and some browsers stop scrolling.
+                    if (window.parent !== window) {
+                        let last = 0;
+                        const report = () => {
+                            const box = document.querySelector('.bio-container');
+                            if (!box) return;
+                            const height = Math.ceil(box.getBoundingClientRect().bottom + window.scrollY + 32);
+                            if (height > 40 && height !== last) {
+                                last = height;
+                                window.parent.postMessage({ type: 'preview-size', height }, window.location.origin);
+                            }
+                        };
+                        const observer = new ResizeObserver(report);
+                        observer.observe(document.querySelector('.bio-container'));
+                        window.addEventListener('load', report);
+                        document.fonts?.ready.then(report);
+                    }
                     // Signal ready
                     window.parent.postMessage({ type: 'preview-ready' }, window.location.origin);
                 },
