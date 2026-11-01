@@ -261,10 +261,12 @@ class BioPageController extends Controller
             }
         }
         // An uploaded background is a path on our own disk (bio-images/…); only an outside address is checked.
-        if (! empty($data['background_image']) && ! str_starts_with($data['background_image'], '/')
-            && ! preg_match('#^bio-images/[A-Za-z0-9._-]+$#', $data['background_image'])
-            && ($reason = $safety->rejectionReason($data['background_image']))) {
-            $errors['background_image'] = $reason;
+        foreach (['background_image', 'cover_image'] as $field) {
+            if (! empty($data[$field]) && ! str_starts_with($data[$field], '/')
+                && ! preg_match('#^bio-images/[A-Za-z0-9._-]+$#', $data[$field])
+                && ($reason = $safety->rejectionReason($data[$field]))) {
+                $errors[$field] = $reason;
+            }
         }
         if ($errors !== []) {
             throw ValidationException::withMessages($errors);
@@ -337,6 +339,8 @@ class BioPageController extends Controller
             'bio' => 'nullable|string|max:'.BioPage::BIO_MAX,
             'theme' => CssValue::keyword(50),
             'layout' => CssValue::keyword(50),
+            'header_layout' => 'nullable|in:'.implode(',', BioPage::HEADER_LAYOUTS),
+            'cover_image' => ['nullable', 'string', 'max:500', 'regex:'.CssValue::IMAGE],
             'background_type' => 'nullable|in:color,gradient,image,solid',
             'background_value' => ['nullable', 'string', 'max:500', fn ($attribute, $value, $fail) => CssValue::isBackground($value) ? null : $fail('Use a colour, a gradient or an uploaded image.')],
             'background_color' => CssValue::color(20),
@@ -399,7 +403,7 @@ class BioPageController extends Controller
         if (array_key_exists('avatar_url', $validated) && $validated['avatar_url'] !== null && $validated['avatar_url'] !== $bioPage->avatar_url) {
             unset($validated['avatar_url']);
         }
-        $oldFiles = [$bioPage->avatar_url, $bioPage->background_image, $bioPage->qr_settings['image'] ?? null, $bioPage->qr_settings['logo_url'] ?? null];
+        $oldFiles = [$bioPage->avatar_url, $bioPage->background_image, $bioPage->cover_image, $bioPage->qr_settings['image'] ?? null, $bioPage->qr_settings['logo_url'] ?? null];
         if ($request->hasFile('avatar')) {
             $validated['avatar_url'] = $request->file('avatar')->store('avatars', 'public');
         }
