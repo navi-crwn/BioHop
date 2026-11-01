@@ -245,9 +245,9 @@ class HopBioController extends Controller
                 'password' => (bool) $p->password_enabled,
                 'seo_noindex' => (bool) $p->seo_noindex,
                 'blocks' => BioLink::where('bio_page_id', $p->id)
-                    ->orderBy('position')
+                    ->orderBy('order')
                     ->limit(100)
-                    ->get(['id', 'title', 'url', 'type', 'is_active', 'click_count', 'position'])
+                    ->get(['id', 'title', 'url', 'type', 'is_active', 'click_count', 'order as position'])
                     ->all(),
                 'findings' => $this->flagsFor('bio_page', $p->id),
             ];
@@ -690,7 +690,7 @@ class HopBioController extends Controller
             'owner' => $owner ? ['sub' => (string) $owner->id, 'username' => $owner->username, 'name' => $owner->name] : null,
             'status' => $b->is_active ? 'active' : 'disabled',
             'clicks' => (int) $b->click_count,
-            'position' => (int) $b->position,
+            'position' => (int) $b->order,
             'created_at' => $b->created_at?->toIso8601String(),
         ];
     }
