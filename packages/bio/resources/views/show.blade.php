@@ -330,6 +330,13 @@
         .bio-form-input { width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(127,127,127,.4); background: rgba(255,255,255,.85); color: #0f172a; font-size: 14px; }
         .bio-form-btn { padding: 10px 14px; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; background: rgba(15,23,42,.92); color: #fff; border: 1px solid rgba(255,255,255,.35); }
         .bio-form-btn:focus-visible, .bio-form-input:focus-visible { outline: 3px solid #818cf8; outline-offset: 2px; }
+        .bio-poll-opt { width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(127,127,127,.45); background: rgba(255,255,255,.18); color: inherit; font-size: 14px; font-weight: 600; text-align: left; cursor: pointer; }
+        .bio-poll-opt:hover { background: rgba(255,255,255,.32); }
+        .bio-poll-opt:focus-visible { outline: 3px solid #818cf8; outline-offset: 2px; }
+        .bio-poll-res { position: relative; border-radius: 12px; overflow: hidden; border: 1px solid rgba(127,127,127,.35); }
+        .bio-poll-bar { position: absolute; inset: 0 auto 0 0; background: rgba(129,140,248,.45); }
+        .bio-poll-res.is-mine { border-color: #818cf8; }
+        .bio-poll-row { position: relative; display: flex; justify-content: space-between; gap: 8px; padding: 9px 12px; font-size: 14px; font-weight: 600; }
         .bio-carousel { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: thin; padding-bottom: 4px; border-radius: 16px; }
         .bio-slide { flex: 0 0 86%; scroll-snap-align: center; position: relative; border-radius: 16px; overflow: hidden; aspect-ratio: 4 / 3; background: rgba(127,127,127,.2); }
         .bio-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -1118,6 +1125,30 @@
                                         @foreach($errs->all() as $e)<p class="text-xs" style="color:#fecaca" role="alert">{{ $e }}</p>@endforeach
                                         <button type="submit" class="bio-form-btn"><span x-show="!waiting">{{ trim((string) ($link->settings['button'] ?? '')) ?: __('Send') }}</span><span x-cloak x-show="waiting">{{ __('Checking…') }}</span></button>
                                     </form>
+                                @endif
+                            </div>
+                        @elseif($link->type === 'poll' && $link->pollOptions())
+                            @php
+                                $pOpts = $link->pollOptions();
+                                $pRes = $link->pollResults(\Hop\Bio\Models\BioPollVote::voterHash(request()->ip(), request()->userAgent()));
+                            @endphp
+                            <div id="poll-{{ $link->public_id }}" class="bio-poll w-full rounded-2xl p-4" style="background: {{ $blockBg }}; color: {{ $linkTextColor }};">
+                                <div class="mb-2 text-sm font-semibold">{{ $link->title }}</div>
+                                @if($pRes['voted'] === null)
+                                    <form method="POST" action="{{ route('bio.public.poll', $link->public_id) }}" class="grid gap-2">
+                                        @csrf
+                                        @foreach($pOpts as $i => $opt)
+                                            <button type="submit" name="option" value="{{ $i }}" class="bio-poll-opt">{{ $opt }}</button>
+                                        @endforeach
+                                    </form>
+                                @else
+                                    <ul class="grid gap-2" aria-label="{{ __('Results') }}">
+                                        @foreach($pOpts as $i => $opt)
+                                            @php $pc = $pRes['total'] > 0 ? (int) round($pRes['counts'][$i] / $pRes['total'] * 100) : 0; @endphp
+                                            <li class="bio-poll-res {{ $pRes['voted'] === $i ? 'is-mine' : '' }}"><span class="bio-poll-bar" style="width: {{ $pc }}%"></span><span class="bio-poll-row"><span>{{ $opt }}@if($pRes['voted'] === $i) ✓@endif</span><span class="tabular-nums">{{ $pc }}%</span></span></li>
+                                        @endforeach
+                                    </ul>
+                                    <p class="mt-2 text-[11px] opacity-70">{{ trans_choice(':count vote|:count votes', $pRes['total'], ['count' => $pRes['total']]) }}</p>
                                 @endif
                             </div>
                         @elseif($link->type === 'rss')

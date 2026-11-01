@@ -10,7 +10,9 @@ use Hop\Bio\Contracts\GeoLookup;
 use Hop\Bio\Contracts\UserAgentParser;
 use Hop\Bio\Models\BioLink;
 use Hop\Bio\Models\BioPage;
+use Hop\Bio\Models\BioPollVote;
 use Hop\Safety\SafeContent;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
@@ -234,6 +236,33 @@ class PublicBioController extends Controller
         }
 
         return true;
+    }
+
+    /** POST /b/poll/{public_id}: one vote per device (keyed hash of address and browser); a second try just shows the results. */
+    public function vote(Request $request, BioLink $bioLink)
+    {
+        $bioPage = $bioLink->bioPage;
+        if ($bioLink->type !== 'poll' || ! $bioLink->is_active || $bioLink->archived_at || ! $bioLink->isLive() || ! $this->isVisible($bioPage) || $bioLink->pollOptions() === []) {
+            abort(404);
+        }
+        if ($this->needsPassword($bioPage) || $this->needsAgeCheck($bioPage)) {
+            return redirect()->route('bio.public.show', $bioPage->slug);
+        }
+        $back = redirect()->to(route('bio.public.show', $bioPage->slug).'#poll-'.$bioLink->public_id, 303);
+        $count = count($bioLink->pollOptions());
+        $choice = $request->input('option');
+        if (! is_numeric($choice) || (int) $choice < 0 || (int) $choice >= $count || ($bioLink->pollVotes()->count() >= 100000)) {
+            return $back;
+        }
+        if (! $request->attributes->get('hop.embed') && ! app(UserAgentParser::class)->parse($request->userAgent())['bot']) {
+            try {
+                $bioLink->pollVotes()->create(['option_index' => (int) $choice, 'voter_hash' => BioPollVote::voterHash($request->ip(), $request->userAgent())]);
+            } catch (UniqueConstraintViolationException) {
+                // already voted from this device
+            }
+        }
+
+        return $back;
     }
 
     public const MAX_LEADS_PER_FORM = 5000;
