@@ -62,7 +62,9 @@ test('the sidebar lists every public HOP app with its mark, once', function () {
     foreach (['LinkHop', 'PixelHop', 'NoteHop'] as $app) {
         expect(substr_count($html, '<span class="flex-1">'.$app.'</span>'))->toBe(1);
     }
-    expect($html)->toContain('Account (HOP ID)')->not->toContain('HOP ID (account)');
+    expect($html)->toContain('<span class="flex-1">HOP ID</span>');
+    // the top bar holds settings-type controls (account menu, language, theme), not a second list of apps
+    expect($html)->toContain('hop-account')->not->toContain('aria-label="HOP Family"');
     // BioHop is the current app and does not list itself in the family
     expect(substr_count($html, '<span class="flex-1">BioHop</span>'))->toBe(0);
 });
