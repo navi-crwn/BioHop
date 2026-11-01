@@ -53,6 +53,6 @@ test('a link with a PIN opens only after the right PIN, once per session', funct
     auth()->logout();
     $this->get(route('bio.public.click', $link->public_id))->assertOk()->assertSee('PIN required');
     $this->post(route('bio.public.click.pin', $link->public_id), ['pin' => '0000'])->assertSee('Wrong PIN');
-    $this->post(route('bio.public.click.pin', $link->public_id), ['pin' => '2468'])->assertOk()->assertSee('http-equiv="refresh"', false)->assertSee(route('bio.public.click', $link->public_id), false);
+    $this->post(route('bio.public.click.pin', $link->public_id), ['pin' => '2468'])->assertOk()->assertSee('http-equiv="refresh"', false)->assertSee(route('bio.public.click', $link->public_id, false), false);
     $this->get(route('bio.public.click', $link->public_id))->assertRedirect('https://example.com/secret');
 });

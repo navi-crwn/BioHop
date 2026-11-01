@@ -17,7 +17,7 @@ function formPage(string $slug, array $settings = []): array
 test('the form shows only the fields it asks for and a consent line', function () {
     [, , $link] = formPage('fshow', ['ask_phone' => true, 'ask_name' => false, 'button' => 'Join', 'consent' => 'I agree to be written to.']);
     $html = $this->get('/b/fshow')->assertOk()->getContent();
-    expect($html)->toContain('name="email"')->toContain('name="phone"')->not->toContain('name="name"')->toContain('Join')->toContain('I agree to be written to.')->toContain('name="website"')->toContain(route('bio.public.form', $link->public_id));
+    expect($html)->toContain('name="email"')->toContain('name="phone"')->not->toContain('name="name"')->toContain('Join')->toContain('I agree to be written to.')->toContain('name="website"')->toContain(route('bio.public.form', $link->public_id, false));
 });
 
 test('an entry is stored once the visitor consents, and bad entries are refused', function () {
