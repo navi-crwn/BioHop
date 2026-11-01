@@ -255,3 +255,11 @@
 .be-variant { display: grid; grid-template-columns: 1.3fr .8fr .6fr 1.4fr auto; gap: 6px; align-items: center; }
 .be-variant .form-input { padding-top: 6px; padding-bottom: 6px; font-size: 13px; }
 @media (max-width: 640px) { .be-variant { grid-template-columns: 1fr 1fr; } .be-variant input[type=url] { grid-column: span 2; } }
+
+/* Collection members are indented under their collection; the rail shows where the group ends. */
+.bio-editor .block-item.is-collection { border-color: #6366f1; background: color-mix(in srgb, #6366f1 7%, var(--editor-input-bg)); margin-bottom: 4px; }
+.bio-editor .block-item.in-collection { margin-left: 22px; margin-bottom: 4px; border-left: 3px solid #6366f1; border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+.bio-editor .block-item.in-collection.is-last-member { margin-bottom: 10px; }
+.bio-editor .block-item.block-ghost.in-collection { margin-left: 0; }
+.bio-editor .be-in-collection b { font-weight: 600; color: #6366f1; }
+@media (max-width: 640px) { .bio-editor .block-item.in-collection { margin-left: 12px; } }
