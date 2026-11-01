@@ -35,7 +35,7 @@
 
 /* the sample phone every scene restyles through --ph-* */
 .bx-phone { width: min(100%, 270px); margin-inline: auto; padding: 9px; border-radius: 38px; background: #0b1020; box-shadow: 0 34px 80px -44px #7c3aed; }
-.bx-phone-in { display: grid; align-content: start; gap: 9px; height: 560px; overflow: auto; scrollbar-width: none; padding: 26px 16px 22px; border-radius: 30px; background: var(--ph-bg, linear-gradient(160deg, var(--ph-a, #1e1b4b), var(--ph-b, #7c3aed))); color: var(--ph-t, #fff); text-align: center; font-family: var(--ph-font, inherit); transition: background .5s, color .5s; }
+.bx-phone-in { display: grid; align-content: start; gap: 9px; aspect-ratio: 9 / 19; overflow: auto; scrollbar-width: none; padding: 26px 16px 22px; border-radius: 30px; background: var(--ph-bg, linear-gradient(160deg, var(--ph-a, #1e1b4b), var(--ph-b, #7c3aed))); color: var(--ph-t, #fff); text-align: center; font-family: var(--ph-font, inherit); transition: background .5s, color .5s; }
 .bx-av { display: grid; place-items: center; width: 62px; height: 62px; margin: 0 auto 2px; border-radius: 50%; background: var(--ph-l, #ffffff29); font: 700 24px var(--h-sans); }
 .bx-name { font-size: 18px; letter-spacing: -.01em; }
 .bx-bio { margin: 0 0 6px; font-size: 12px; line-height: 1.55; color: var(--ph-m, currentColor); opacity: .85; }
@@ -196,7 +196,7 @@
 .bx-style-vis { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 18px; align-items: center; }
 .bx-code pre { margin: 0; padding: 18px; font: 12px/1.9 var(--h-mono); white-space: pre-wrap; overflow-wrap: anywhere; min-height: 190px; direction: ltr; text-align: start; color: var(--home-text); }
 .bx-style-vis .bx-phone { width: min(100%, 250px); }
-.bx-style-vis .bx-phone-in { height: 520px; }
+.bx-style-vis .bx-phone-in { aspect-ratio: 9 / 18; }
 
 /* 08 install: .h-shell, .h-term come from hop-home.css */
 .bx-term pre span { display: block; }
