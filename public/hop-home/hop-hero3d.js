@@ -17,9 +17,11 @@
     if (scheduled || document.hidden || preference.matches || !scenes.some(function (s) { return s.visible && !s.dead; })) return;
     scheduled = requestAnimationFrame(function tick(now) {
       scheduled = 0;
-      var active = scenes.filter(function (s) { return s.visible && !s.dead; }).sort(function (a, b) { return b.ratio - a.ratio; })[0];
-      scenes.forEach(function (s) { var state = String(s === active); if (s.canvas.dataset.animating !== state) s.canvas.dataset.animating = state; });
-      if (active && !document.hidden && !preference.matches) { active.draw(now); schedule(); }
+      // The few most visible scenes animate together (the four app marks sit side by side and each must settle);
+      // anything beyond that waits for a slot.
+      var live = scenes.filter(function (s) { return s.visible && !s.dead; }).sort(function (a, b) { return b.ratio - a.ratio; }).slice(0, 4);
+      scenes.forEach(function (s) { var state = String(live.indexOf(s) !== -1); if (s.canvas.dataset.animating !== state) s.canvas.dataset.animating = state; });
+      if (live.length && !document.hidden && !preference.matches) { live.forEach(function (s) { s.draw(now); }); schedule(); }
     });
   }
   function pause() {
