@@ -322,11 +322,21 @@ class BioPageController extends Controller
         return null;
     }
 
-    private static function hostTitle(string $url): string
+    /** A readable name for an address with no known brand: the site's own label, "nadia-draws.carrd.co" becomes "Nadia Draws". */
+    public static function hostTitle(string $url): string
     {
-        $host = preg_replace('/^www\./', '', strtolower((string) parse_url($url, PHP_URL_HOST)));
+        $host = preg_replace('/^(www|m)\./', '', strtolower((string) parse_url($url, PHP_URL_HOST)));
+        $parts = array_values(array_filter(explode('.', $host)));
+        array_pop($parts); // the top-level domain
+        if (count($parts) > 1 && in_array(end($parts), ['co', 'com', 'net', 'org', 'ac', 'or', 'go', 'gov', 'edu'], true)) {
+            array_pop($parts); // a generic second level, as in example.co.id
+        }
+        $label = $parts[0] ?? 'link';
+        if (count($parts) > 1 && in_array($label, ['shop', 'store', 'blog', 'app', 'link', 'go', 'web', 'my', 'pages', 'site'], true)) {
+            $label = $parts[1];
+        }
 
-        return ucfirst(explode('.', $host)[0] ?: 'Link');
+        return Str::title(str_replace(['-', '_'], ' ', $label)) ?: 'Link';
     }
 
     public function checkSlug(Request $request)
