@@ -17,11 +17,12 @@
         'defaults' => config('bio-themes.defaults'),
         'previewUrl' => route('bio.preview', $bioPage),
         'publicBase' => public_url('b'),
+        'pages' => auth()->user()->bioPages()->orderBy('title')->get(['slug', 'title'])->map(fn ($p) => ['slug' => $p->slug, 'title' => $p->title])->values(),
         'familyHosts' => \App\Bio\FamilyUrls::hosts(),
     ];
 @endphp
 <script type="application/json" id="bio-editor-config">{!! json_encode($editorConfig, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
-<div class="bio-editor" :class="{ 'preview-open': previewOpen }" x-data="window.bioEditorV2()" @keydown.escape.window="previewOpen = false">
+<div class="bio-editor" :class="{ 'preview-open': previewOpen }" x-data="window.bioEditorV2()" @keydown.escape.window="previewOpen = false" @keydown.window="if ((($event.metaKey || $event.ctrlKey) && $event.key.toLowerCase() === 'k')) { $event.preventDefault(); paletteOpen ? closePalette() : openPalette(); }">
     <div class="sr-only" role="status" aria-live="polite" aria-atomic="true" x-text="announcement"></div>
     <!-- Fake fields to prevent browser password autofill -->
     <input type="text" name="fake_username" style="display:none !important" tabindex="-1" autocomplete="username">
@@ -37,7 +38,17 @@
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                     </a>
                     <div class="min-w-0">
-                        <h1 x-text="bioPage.title || 'Untitled'"></h1>
+                        <div class="relative flex items-center gap-1" x-data="{ pagesOpen: false }" @click.outside="pagesOpen = false" @keydown.escape="pagesOpen = false">
+                            <h1 x-text="bioPage.title || 'Untitled'"></h1>
+                            <button type="button" class="be-iconbtn" style="width:24px;height:24px" x-show="pages.length > 1" @click="pagesOpen = !pagesOpen" :aria-expanded="pagesOpen" aria-haspopup="menu" aria-label="Switch to another page">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </button>
+                            <div x-show="pagesOpen" x-cloak x-transition class="be-pages-menu" role="menu">
+                                <template x-for="pg in pages" :key="pg.slug">
+                                    <button type="button" role="menuitem" class="be-pages-item" :class="{ 'is-current': pg.slug === bioPage.slug }" @click="pagesOpen = false; pg.slug !== bioPage.slug && handleNavigation('/bio/' + encodeURIComponent(pg.slug) + '/edit')"><b x-text="pg.title || pg.slug"></b><small x-text="'/b/' + pg.slug"></small></button>
+                                </template>
+                            </div>
+                        </div>
                         <a :href="'{{ public_url('b') }}/' + bioPage.slug" target="_blank" rel="noopener" class="be-url">
                             <span x-text="'{{ public_host() }}/b/' + bioPage.slug"></span>
                             <svg class="h-3 w-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
@@ -49,6 +60,9 @@
                         <i aria-hidden="true"></i>
                         <span x-text="saveState === 'saving' ? 'Saving…' : saveState === 'error' ? 'Not saved' : saveState === 'dirty' ? (autosave ? 'Saving soon…' : 'Unsaved changes') : 'All changes saved'"></span>
                     </span>
+                    <button type="button" class="be-iconbtn be-kbd" @click="openPalette()" title="Commands (Ctrl or Cmd + K)" aria-label="Open the command palette" aria-keyshortcuts="Control+K Meta+K">
+                        <span aria-hidden="true">⌘K</span>
+                    </button>
                     <button type="button" class="be-iconbtn" @click="copyPageUrl()" title="Copy link" aria-label="Copy page link">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                     </button>
@@ -107,7 +121,21 @@
         </section>
         <aside class="be-preview" aria-label="Live preview">
             <div class="be-preview-bar">
-                <span>Live preview</span>
+                <span class="flex items-center gap-2">Live preview
+                    <span class="relative" x-data="{ open: false }" @click.outside="open = false" @keydown.escape="open = false">
+                        <button type="button" class="be-health" :class="'is-' + pageHealth().level" @click="open = !open" :aria-expanded="open" aria-label="Page speed details">
+                            <span aria-hidden="true">⚡</span> <span x-text="pageHealth().score"></span><small>/100</small>
+                        </button>
+                        <div class="be-health-pop" x-show="open" x-cloak x-transition role="dialog" aria-label="Page speed">
+                            <b x-text="pageHealth().label"></b>
+                            <p class="text-xs editor-text-muted" x-text="pageHealth().summary"></p>
+                            <ul>
+                                <template x-for="t in pageHealth().tips" :key="t"><li x-text="t"></li></template>
+                            </ul>
+                            <p class="text-xs editor-text-muted" x-show="!pageHealth().tips.length">Nothing to fix. Visitors on a weak connection will see your page quickly.</p>
+                        </div>
+                    </span>
+                </span>
                 <span class="flex items-center gap-3">
                     <a :href="'{{ public_url('b') }}/' + bioPage.slug" target="_blank" rel="noopener">Open in new tab
                         <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
@@ -608,6 +636,95 @@
                                 </div>
                             </div>
                         </template>
+                        <template x-if="editingBlock?.type === 'form'">
+                            <div class="space-y-4">
+                                <p class="text-xs editor-text-muted">Visitors leave their details on your page. You see them here and can download them as a CSV file. Only what you switch on is asked for.</p>
+                                <div class="flex flex-wrap gap-x-5 gap-y-2 text-sm">
+                                    <label class="flex items-center gap-2"><input type="checkbox" :checked="editingBlock.settings?.ask_name ?? true" @change="setProductSetting('ask_name', $event.target.checked)"> Name</label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" :checked="editingBlock.settings?.ask_email ?? true" @change="setProductSetting('ask_email', $event.target.checked)"> E-mail</label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" :checked="editingBlock.settings?.ask_phone ?? false" @change="setProductSetting('ask_phone', $event.target.checked)"> WhatsApp number</label>
+                                </div>
+                                <div class="form-group"><label for="bfindex-f1" class="form-label">Button text</label><input id="bfindex-f1" type="text" maxlength="40" :value="editingBlock.settings?.button ?? ''" @input="setProductSetting('button', $event.target.value)" class="form-input" placeholder="Send"></div>
+                                <div class="form-group"><label for="bfindex-f2" class="form-label">Thank-you message</label><input id="bfindex-f2" type="text" maxlength="200" :value="editingBlock.settings?.thanks ?? ''" @input="setProductSetting('thanks', $event.target.value)" class="form-input" placeholder="Thank you! I will write back soon."></div>
+                                <div class="form-group"><label for="bfindex-f3" class="form-label">Consent line <span class="editor-text-muted font-normal">(the visitor ticks it)</span></label><input id="bfindex-f3" type="text" maxlength="200" :value="editingBlock.settings?.consent ?? ''" @input="setProductSetting('consent', $event.target.value)" class="form-input" placeholder="I agree that you keep these details to get back to me."></div>
+                                <div class="form-group"><label for="bfindex-f4" class="form-label">Keep entries for (days)</label><input id="bfindex-f4" type="number" min="1" max="365" :value="editingBlock.settings?.retention_days ?? 90" @input="setProductSetting('retention_days', $event.target.value)" class="form-input"><p class="text-xs editor-text-muted mt-1">After this many days entries are deleted automatically. You are responsible for what you do with the details; tell visitors in your footer line.</p></div>
+                                <div class="flex items-center justify-between gap-2 p-2 rounded-lg" style="background: var(--editor-input-bg)" x-show="editingBlock.id < 1000000000">
+                                    <span class="text-sm"><b x-text="editingBlock.leads_count ?? 0"></b> entries</span>
+                                    <span class="flex gap-2">
+                                        <a :href="bioEditorUrl('/links/' + editingBlock.id + '/leads.csv')" class="btn btn-secondary text-xs py-1 px-2" x-show="(editingBlock.leads_count ?? 0) > 0">Download CSV</a>
+                                        <button type="button" class="btn btn-secondary text-xs py-1 px-2" x-show="(editingBlock.leads_count ?? 0) > 0" @click="deleteLeads()">Delete all</button>
+                                    </span>
+                                </div>
+                            </div>
+                        </template>
+                        <template x-if="editingBlock?.type === 'rss'">
+                            <div class="space-y-4">
+                                <div class="form-group"><label for="bfindex-r1" class="form-label">Feed address</label><input id="bfindex-r1" type="url" x-model="editingBlock.url" class="form-input" placeholder="https://your-blog.example/feed.xml"><p class="text-xs editor-text-muted mt-1">An RSS or Atom address: a blog, a Substack, a Medium user, a podcast. BioHop reads it about once an hour and shows the newest posts; nothing from the feed is stored.</p></div>
+                                <div class="form-group"><label for="bfindex-r2" class="form-label">How many posts</label><select id="bfindex-r2" :value="editingBlock.settings?.count ?? 5" @change="setProductSetting('count', parseInt($event.target.value, 10))" class="form-input"><template x-for="n in [1,2,3,4,5,6,8,10]" :key="n"><option :value="n" x-text="n"></option></template></select></div>
+                            </div>
+                        </template>
+                        <template x-if="editingBlock?.type === 'poll'">
+                            <div class="space-y-3" x-init="loadPollResults()">
+                                <p class="text-xs editor-text-muted">The title above is the question. Visitors vote once, then see the results. One vote per device, so it is a mood check, not an election.</p>
+                                <div class="flex items-center justify-between"><label class="form-label mb-0">Options <span class="editor-text-muted font-normal">(2 to 6)</span></label><button type="button" class="btn btn-secondary text-xs py-1 px-2" @click="addPollOption()" x-show="(editingBlock.settings?.options || []).length < 6">+ Add option</button></div>
+                                <template x-for="(o, i) in (editingBlock.settings?.options || [])" :key="i">
+                                    <div class="flex items-center gap-2">
+                                        <input type="text" maxlength="80" :value="o.text ?? ''" @input="setPollOption(i, $event.target.value)" class="form-input text-sm" :placeholder="'Option ' + (i + 1)" :aria-label="'Option ' + (i + 1)">
+                                        <span class="text-xs editor-text-muted w-16 text-right shrink-0" x-show="pollResults" x-text="(pollResults?.counts?.[i] ?? 0) + ((pollResults?.counts?.[i] ?? 0) === 1 ? ' vote' : ' votes')"></span>
+                                        <button type="button" class="icon-btn" @click="removePollOption(i)" :aria-label="'Remove option ' + (i + 1)"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                                    </div>
+                                </template>
+                                <div class="flex items-center justify-between gap-2 p-2 rounded-lg" style="background: var(--editor-input-bg)" x-show="pollResults">
+                                    <span class="text-sm">Votes so far: <b x-text="pollResults?.total ?? 0"></b></span>
+                                    <button type="button" class="btn btn-secondary text-xs py-1 px-2" x-show="(pollResults?.total ?? 0) > 0" @click="resetPoll()">Reset votes</button>
+                                </div>
+                                <p class="text-xs editor-text-muted">Changing the number or order of options after people voted mixes up the old votes: reset them first.</p>
+                            </div>
+                        </template>
+                        <template x-if="editingBlock?.type === 'app'">
+                            <div class="space-y-4">
+                                <p class="text-xs editor-text-muted">One button, three addresses: iPhone and iPad visitors go to the App Store, Android visitors to Google Play, everyone else (computers) to the website.</p>
+                                <div class="form-group"><label for="bfindex-a1" class="form-label">App Store address</label><input id="bfindex-a1" type="url" :value="editingBlock.settings?.ios ?? ''" @input="setProductSetting('ios', $event.target.value)" class="form-input" placeholder="https://apps.apple.com/app/…"></div>
+                                <div class="form-group"><label for="bfindex-a2" class="form-label">Google Play address</label><input id="bfindex-a2" type="url" :value="editingBlock.settings?.android ?? ''" @input="setProductSetting('android', $event.target.value)" class="form-input" placeholder="https://play.google.com/store/apps/details?id=…"></div>
+                                <div class="form-group"><label for="bfindex-a3" class="form-label">Website (computers and others)</label><input id="bfindex-a3" type="url" :value="editingBlock.settings?.web ?? ''" @input="setProductSetting('web', $event.target.value)" class="form-input" placeholder="https://your-app.example"></div>
+                            </div>
+                        </template>
+                        <template x-if="editingBlock?.type === 'goal'">
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-3 gap-3">
+                                    <div class="form-group"><label for="bfindex-g1" class="form-label">So far</label><input id="bfindex-g1" type="number" min="0" step="any" :value="editingBlock.settings?.current ?? ''" @input="setProductSetting('current', $event.target.value)" class="form-input" placeholder="7500000"></div>
+                                    <div class="form-group"><label for="bfindex-g2" class="form-label">Goal</label><input id="bfindex-g2" type="number" min="0" step="any" :value="editingBlock.settings?.target ?? ''" @input="setProductSetting('target', $event.target.value)" class="form-input" placeholder="10000000"></div>
+                                    <div class="form-group"><label for="bfindex-g3" class="form-label">Unit</label><input id="bfindex-g3" type="text" maxlength="20" :value="editingBlock.settings?.unit ?? ''" @input="setProductSetting('unit', $event.target.value)" class="form-input" placeholder="IDR"></div>
+                                </div>
+                                <p class="text-xs editor-text-muted">You update "So far" yourself; nothing here takes payments.</p>
+                                <div class="form-group"><label for="bfindex-g4" class="form-label">Link <span class="editor-text-muted font-normal">(optional)</span></label><input id="bfindex-g4" type="url" x-model="editingBlock.url" class="form-input" placeholder="https://… where people can help"></div>
+                                <div class="form-group"><label for="bfindex-g5" class="form-label">Link text <span class="editor-text-muted font-normal">(optional)</span></label><input id="bfindex-g5" type="text" maxlength="100" x-model="editingBlock.description" class="form-input" placeholder="Support the film"></div>
+                            </div>
+                        </template>
+                        <template x-if="editingBlock?.type === 'audio' || editingBlock?.type === 'pdf'">
+                            <div class="space-y-3">
+                                <input aria-label="Upload file" type="file" class="hidden" x-ref="mediaInput" :accept="editingBlock.type === 'audio' ? 'audio/mpeg,audio/mp4,audio/ogg,audio/wav,.mp3,.m4a,.ogg,.wav' : 'application/pdf,.pdf'" @change="uploadBlockMedia($event)">
+                                <button type="button" class="btn btn-secondary text-sm py-2 w-full" @click="$refs.mediaInput.click()" x-text="editingBlock.content ? 'Replace file' : (editingBlock.type === 'audio' ? 'Upload audio clip' : 'Upload PDF')"></button>
+                                <p class="text-xs editor-text-muted" x-text="editingBlock.type === 'audio' ? 'MP3, M4A, OGG or WAV, up to 12 MB. It never plays by itself.' : 'A PDF up to 15 MB (menu, price list, catalogue). It opens in a new tab.'"></p>
+                                <audio controls preload="none" class="w-full" :src="editingBlock.content" x-show="editingBlock.type === 'audio' && editingBlock.content"></audio>
+                                <p class="text-xs" x-show="editingBlock.type === 'pdf' && editingBlock.content"><a :href="editingBlock.content" target="_blank" rel="noopener" class="underline">Open the uploaded PDF</a></p>
+                            </div>
+                        </template>
+                        <template x-if="editingBlock?.type === 'carousel'">
+                            <div class="space-y-3">
+                                <input aria-label="Upload pictures" type="file" accept="image/*" multiple class="hidden" x-ref="carouselInput" @change="uploadCarouselImage($event)">
+                                <button type="button" class="btn btn-secondary text-sm py-2 w-full" @click="$refs.carouselInput.click()" x-show="(editingBlock.settings?.images || []).length < 10">+ Add pictures (up to 10)</button>
+                                <div class="space-y-2">
+                                    <template x-for="(img, i) in (editingBlock.settings?.images || [])" :key="i">
+                                        <div class="flex items-center gap-2">
+                                            <img :src="pageImageUrl(img.url)" alt="" class="w-14 h-14 rounded-lg object-cover shrink-0">
+                                            <input type="text" maxlength="100" :value="img.caption ?? ''" @input="setCarouselCaption(i, $event.target.value)" class="form-input text-sm" placeholder="Caption (also the picture's description)" :aria-label="'Caption ' + (i + 1)">
+                                            <button type="button" class="icon-btn" @click="removeCarouselImage(i)" :aria-label="'Remove picture ' + (i + 1)"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
                         <template x-if="editingBlock?.type === 'whatsapp'">
                             <div class="space-y-4">
                                 <div class="form-group">
@@ -692,6 +809,10 @@
                                     <label for="bfindex-p4" class="form-label">Where to buy (address)</label>
                                     <input id="bfindex-p4" type="url" x-model="editingBlock.url" class="form-input" placeholder="https://your-shop.com/linen-shirt">
                                     <p class="text-xs editor-text-muted mt-1">Your own shop, a marketplace listing or an affiliate link. Visitors open it in a new tab.</p>
+                                    <div class="mt-2 flex flex-wrap items-center gap-2">
+                                        <button type="button" class="btn btn-secondary text-xs py-1 px-2" :disabled="productFetch.busy || !/^https?:\/\//i.test(editingBlock.url || '')" @click="fillProductFromAddress()" x-text="productFetch.busy ? 'Reading the page…' : 'Fill the details from this address'"></button>
+                                        <span class="text-xs" :class="productFetch.ok ? 'text-emerald-600' : 'editor-text-muted'" x-show="productFetch.message" x-text="productFetch.message" role="status"></span>
+                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="bfindex-p5" class="form-label">Short description</label>
@@ -791,6 +912,33 @@
                                     </div>
                                 </div>
                                 <p class="text-[10px] editor-text-muted">Leave both empty to show it always. Times are in your time zone; outside the window the block is hidden from the page and its address stops working.</p>
+                                <div x-show="['link', 'product', 'whatsapp', 'app'].includes(editingBlock.type)">
+                                    <label for="bfindex-s3" class="form-label text-xs mb-1">PIN <span class="editor-text-muted font-normal">(optional, 4–8 digits)</span></label>
+                                    <input id="bfindex-s3" type="text" inputmode="numeric" pattern="[0-9]{4,8}" maxlength="8" :value="editingBlock.settings?.pin ?? ''" @input="setProductSetting('pin', $event.target.value.replace(/\D/g, ''))" class="form-input text-xs" placeholder="e.g. 2468" autocomplete="off">
+                                    <p class="text-[10px] editor-text-muted mt-1">Visitors enter it once before the address opens. Share the PIN yourself (a story, a newsletter).</p>
+                                </div>
+                            </div>
+                        </template>
+                        <template x-if="editingBlock?.type === 'link'">
+                            <div class="p-3 rounded-lg space-y-3" style="background: var(--editor-card-bg)">
+                                <div class="flex items-center justify-between gap-2">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4M16 17H4m0 0l4 4m-4-4l4-4"/></svg>
+                                        <span class="text-sm font-medium editor-text">Send some visitors elsewhere</span>
+                                    </div>
+                                    <button type="button" class="btn btn-secondary text-xs py-1 px-2" @click="addRule()" x-show="(editingBlock.settings?.rules || []).length < 10">+ Add rule</button>
+                                </div>
+                                <p class="text-[10px] editor-text-muted" x-show="!(editingBlock.settings?.rules || []).length">Rules are checked top to bottom, the first that fits wins; everyone else goes to the address above. Match by country, phone or computer, iPhone or Android, and the hours of the day (your time zone).</p>
+                                <template x-for="(r, i) in (editingBlock.settings?.rules || [])" :key="i">
+                                    <div class="be-rule">
+                                        <input type="text" maxlength="60" :value="r.country ?? ''" @input="setRule(i, 'country', $event.target.value)" class="form-input text-xs" placeholder="Countries: ID, SG" :aria-label="'Rule ' + (i + 1) + ' countries'">
+                                        <select :value="r.device || 'any'" @change="setRule(i, 'device', $event.target.value)" class="form-input text-xs" :aria-label="'Rule ' + (i + 1) + ' device'"><option value="any">Any device</option><option value="mobile">Phone</option><option value="tablet">Tablet</option><option value="desktop">Computer</option></select>
+                                        <select :value="r.os || 'any'" @change="setRule(i, 'os', $event.target.value)" class="form-input text-xs" :aria-label="'Rule ' + (i + 1) + ' system'"><option value="any">Any system</option><option value="ios">iPhone / iPad</option><option value="android">Android</option></select>
+                                        <div class="flex items-center gap-1 text-xs"><input type="number" min="0" max="23" :value="r.from ?? ''" @input="setRule(i, 'from', $event.target.value)" class="form-input text-xs" placeholder="From h" :aria-label="'Rule ' + (i + 1) + ' from hour'"><span>–</span><input type="number" min="0" max="23" :value="r.to ?? ''" @input="setRule(i, 'to', $event.target.value)" class="form-input text-xs" placeholder="To h" :aria-label="'Rule ' + (i + 1) + ' to hour'"></div>
+                                        <input type="url" :value="r.url ?? ''" @input="setRule(i, 'url', $event.target.value)" class="form-input text-xs be-rule-url" placeholder="https://… go here instead" :aria-label="'Rule ' + (i + 1) + ' address'">
+                                        <button type="button" class="icon-btn" @click="removeRule(i)" :aria-label="'Remove rule ' + (i + 1)"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                                    </div>
+                                </template>
                             </div>
                         </template>
                         <template x-if="editingBlock?.type === 'link'">
@@ -877,6 +1025,23 @@
             </div>
         </div>
     </div>
+    </template>
+    <template x-if="paletteOpen">
+        <div class="be-palette-overlay" @click.self="closePalette()">
+            <div class="be-palette" role="dialog" aria-modal="true" aria-label="Command palette">
+                <input x-ref="paletteInput" type="text" x-model="paletteQuery" @input="paletteIndex = 0" @keydown="paletteKey($event)" placeholder="Type a command: add WhatsApp, open Design, copy link…" aria-label="Search commands" autocomplete="off" role="combobox" aria-expanded="true" aria-controls="palette-list" :aria-activedescendant="'palette-' + paletteIndex">
+                <ul id="palette-list" role="listbox">
+                    <template x-for="(c, i) in paletteResults()" :key="c.group + c.label">
+                        <li :id="'palette-' + i" role="option" :aria-selected="i === paletteIndex" :class="{ 'is-on': i === paletteIndex }" @mouseenter="paletteIndex = i" @click="runPalette(c)">
+                            <span><b x-text="c.label"></b><small x-show="c.hint" x-text="c.hint"></small></span>
+                            <em x-text="c.group"></em>
+                        </li>
+                    </template>
+                    <li class="be-palette-empty" x-show="!paletteResults().length">Nothing matches. Try fewer words.</li>
+                </ul>
+                <p class="be-palette-foot"><kbd>↑</kbd> <kbd>↓</kbd> to move · <kbd>Enter</kbd> to run · <kbd>Esc</kbd> to close</p>
+            </div>
+        </div>
     </template>
     <template x-if="showAddBlockModal">
     <div class="modal-overlay" @click.self="showAddBlockModal = false">

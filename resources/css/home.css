@@ -35,7 +35,7 @@
 
 /* the sample phone every scene restyles through --ph-* */
 .bx-phone { width: min(100%, 270px); margin-inline: auto; padding: 9px; border-radius: 38px; background: #0b1020; box-shadow: 0 34px 80px -44px #7c3aed; }
-.bx-phone-in { display: grid; align-content: start; gap: 9px; aspect-ratio: 9 / 19; overflow: auto; scrollbar-width: none; padding: 26px 16px 22px; border-radius: 30px; background: var(--ph-bg, linear-gradient(160deg, var(--ph-a, #1e1b4b), var(--ph-b, #7c3aed))); color: var(--ph-t, #fff); text-align: center; font-family: var(--ph-font, inherit); transition: background .5s, color .5s; }
+.bx-phone-in { display: grid; align-content: start; gap: 9px; aspect-ratio: 9 / 19; overflow: hidden; padding: 26px 16px 22px; border-radius: 30px; background: var(--ph-bg, linear-gradient(160deg, var(--ph-a, #1e1b4b), var(--ph-b, #7c3aed))); color: var(--ph-t, #fff); text-align: center; font-family: var(--ph-font, inherit); transition: background .5s, color .5s; }
 .bx-av { display: grid; place-items: center; width: 62px; height: 62px; margin: 0 auto 2px; border-radius: 50%; background: var(--ph-l, #ffffff29); font: 700 24px var(--h-sans); }
 .bx-name { font-size: 18px; letter-spacing: -.01em; }
 .bx-bio { margin: 0 0 6px; font-size: 12px; line-height: 1.55; color: var(--ph-m, currentColor); opacity: .85; }
@@ -264,7 +264,8 @@
 /* 11 */
 .bx-final { text-align: center; }
 .bx-final .h-label { justify-content: center; }
-.bx-final .h-sub { margin-inline: auto; }
+/* doubled class: a later, more specific .h-sub rule had put its left margin back to 0 */
+.bx-final .h-sub.h-sub { margin-inline: auto; }
 .bx-final .h-cta { justify-content: center; }
 .bx-final h2 { font-size: clamp(40px, 6vw, 76px); }
 

@@ -10,11 +10,17 @@ use App\Support\ReservedSlugs;
 use Carbon\Carbon;
 use Hop\Bio\Contracts\UrlSafety;
 use Hop\Bio\Models\BioClick;
+use Hop\Bio\Models\BioLink;
 use Hop\Bio\Models\BioPage;
+use Hop\Bio\Support\BioRevisions;
 use Hop\Bio\Support\BioUploads;
+use Hop\Bio\Support\ImageOptimizer;
 use Hop\Bio\Support\LinktreeImport;
 use Hop\Bio\Support\SvgSanitizer;
+use Hop\Bio\Support\Webhooks;
+use Hop\Safety\UrlGuard;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -109,6 +115,8 @@ class BioPageController extends Controller
             'platforms' => collect(config('brands.platforms', []))->only(self::WIZARD_PLATFORMS)->map(fn ($p, $id) => ['id' => $id, 'name' => $p['name'], 'color' => $p['color'] ?? '#6b7280', 'placeholder' => $p['placeholder'] ?? ''])->values(),
             'palettes' => self::WIZARD_PALETTES,
             'slugMin' => auth()->user()?->isAdmin() ? 3 : (int) config('bio.slug_min_length', 5),
+            'atLimit' => auth()->user()->bioPages()->count() >= self::MAX_PAGES,
+            'max' => self::MAX_PAGES,
         ]);
     }
 
@@ -140,7 +148,7 @@ class BioPageController extends Controller
             'links' => 'nullable|array|max:10',
             'links.*' => 'nullable|string|max:500',
             'palette' => 'nullable|integer|min:0|max:'.(count(self::WIZARD_PALETTES) - 1),
-            'avatar' => 'nullable|image|max:2048',
+            'avatar' => 'nullable|image|max:8192',
             'content_warning' => 'nullable|in:none,sensitive,adult',
         ]);
         $this->assertSafeContent($validated);
@@ -314,11 +322,21 @@ class BioPageController extends Controller
         return null;
     }
 
-    private static function hostTitle(string $url): string
+    /** A readable name for an address with no known brand: the site's own label, "nadia-draws.carrd.co" becomes "Nadia Draws". */
+    public static function hostTitle(string $url): string
     {
-        $host = preg_replace('/^www\./', '', strtolower((string) parse_url($url, PHP_URL_HOST)));
+        $host = preg_replace('/^(www|m)\./', '', strtolower((string) parse_url($url, PHP_URL_HOST)));
+        $parts = array_values(array_filter(explode('.', $host)));
+        array_pop($parts); // the top-level domain
+        if (count($parts) > 1 && in_array(end($parts), ['co', 'com', 'net', 'org', 'ac', 'or', 'go', 'gov', 'edu'], true)) {
+            array_pop($parts); // a generic second level, as in example.co.id
+        }
+        $label = $parts[0] ?? 'link';
+        if (count($parts) > 1 && in_array($label, ['shop', 'store', 'blog', 'app', 'link', 'go', 'web', 'my', 'pages', 'site'], true)) {
+            $label = $parts[1];
+        }
 
-        return ucfirst(explode('.', $host)[0] ?: 'Link');
+        return Str::title(str_replace(['-', '_'], ' ', $label)) ?: 'Link';
     }
 
     public function checkSlug(Request $request)
@@ -407,7 +425,23 @@ class BioPageController extends Controller
             }
         }
         // An uploaded background is a path on our own disk (bio-images/…); only an outside address is checked.
-        foreach (['background_image', 'cover_image'] as $field) {
+        if (! empty($data['fab_url']) && ($data['fab_type'] ?? null) === 'custom' && ($reason = $safety->rejectionReason($data['fab_url'], '', UrlSafety::BIO_SCHEMES))) {
+            $errors['fab_url'] = $reason;
+        }
+        if (! empty($data['webhook_url'])) {
+            if ($reason = $safety->rejectionReason($data['webhook_url'])) {
+                $errors['webhook_url'] = $reason;
+            } elseif (! app(UrlGuard::class)->isSafe($data['webhook_url'])) {
+                // our server must be able to reach it over the internet: no private or internal addresses
+                $errors['webhook_url'] = 'This address is not reachable from the internet. Use a public https address.';
+            }
+        }
+        foreach (['fallback_url', 'footer_url'] as $field) {
+            if (! empty($data[$field]) && ($reason = $safety->rejectionReason($data[$field], '', UrlSafety::BIO_SCHEMES))) {
+                $errors[$field] = $reason;
+            }
+        }
+        foreach (['background_image', 'cover_image', 'og_image', 'favicon'] as $field) {
             if (! empty($data[$field]) && ! str_starts_with($data[$field], '/')
                 && ! preg_match('#^bio-images/[A-Za-z0-9._-]+$#', $data[$field])
                 && ($reason = $safety->rejectionReason($data[$field]))) {
@@ -456,7 +490,7 @@ class BioPageController extends Controller
     {
         $this->authorize('update', $bioPage);
         $bioPage->load(['links' => function ($query) {
-            $query->orderBy('order');
+            $query->orderBy('order')->withCount('leads');
         }]);
         $brands = config('brands.platforms', []);
 
@@ -476,6 +510,7 @@ class BioPageController extends Controller
                 'conflict' => true,
             ], 409);
         }
+        BioRevisions::maybeSnapshot($bioPage);
         if ($request->has('slug')) {
             $request->merge(['slug' => strtolower($request->slug)]);
         }
@@ -530,10 +565,23 @@ class BioPageController extends Controller
             'show_in_directory' => 'nullable|boolean',
             'hide_branding' => 'nullable|boolean',
             'auto_utm' => 'nullable|boolean',
+            'privacy_mode' => 'nullable|boolean',
+            'status_text' => 'nullable|string|max:60',
+            'status_until' => 'nullable|date',
+            'webhook_url' => ['nullable', 'string', 'max:500', 'regex:#^https://#i'],
+            'fab_type' => 'nullable|in:'.implode(',', BioPage::FAB_TYPES),
+            'fab_label' => 'nullable|string|max:30',
+            'fab_url' => 'nullable|string|max:500',
+            'og_image' => ['nullable', 'string', 'max:500', 'regex:'.CssValue::IMAGE],
+            'favicon' => ['nullable', 'string', 'max:500', 'regex:'.CssValue::IMAGE],
+            'gtm_id' => ['nullable', 'regex:/^GTM-[A-Z0-9]{4,12}$/'],
+            'fallback_url' => ['nullable', 'string', 'max:500', 'regex:#^https?://#i'],
+            'footer_note' => 'nullable|string|max:200',
+            'footer_url' => ['nullable', 'string', 'max:500', 'regex:#^(https?://|mailto:)#i'],
             'google_analytics_id' => 'nullable|string|max:50',
             'facebook_pixel_id' => 'nullable|string|max:50',
             'tiktok_pixel_id' => ['nullable', 'regex:/^[A-Z0-9]{20,30}$/'],
-            'avatar' => 'nullable|image|max:2048',
+            'avatar' => 'nullable|image|max:8192',
             'avatar_url' => 'nullable|string|max:255',
             'password_enabled' => 'nullable|boolean',
             'password' => 'nullable|string|max:50',
@@ -550,9 +598,9 @@ class BioPageController extends Controller
         if (array_key_exists('avatar_url', $validated) && $validated['avatar_url'] !== null && $validated['avatar_url'] !== $bioPage->avatar_url) {
             unset($validated['avatar_url']);
         }
-        $oldFiles = [$bioPage->avatar_url, $bioPage->background_image, $bioPage->cover_image, $bioPage->qr_settings['image'] ?? null, $bioPage->qr_settings['logo_url'] ?? null];
+        $oldFiles = [$bioPage->avatar_url, $bioPage->background_image, $bioPage->cover_image, $bioPage->og_image, $bioPage->favicon, $bioPage->qr_settings['image'] ?? null, $bioPage->qr_settings['logo_url'] ?? null];
         if ($request->hasFile('avatar')) {
-            $validated['avatar_url'] = $request->file('avatar')->store('avatars', 'public');
+            $validated['avatar_url'] = ImageOptimizer::store($request->file('avatar'), 'avatars', null, 'avatar');
         }
         // socials is cast to array on the model; encoding it here stored a JSON string inside JSON (L1).
         if (isset($validated['qr_settings'])) {
@@ -576,7 +624,18 @@ class BioPageController extends Controller
         } elseif (array_key_exists('is_adult_content', $validated)) {
             $validated['content_warning'] = $validated['is_adult_content'] ? 'adult' : 'none';
         }
+        if (array_key_exists('status_until', $validated)) {
+            $validated['status_until'] = ! empty($validated['status_until']) ? Carbon::parse($validated['status_until'])->setTimezone(config('app.timezone')) : null;
+        }
+        $oldSlug = $bioPage->slug;
         $bioPage->update($validated);
+        if (! empty($bioPage->webhook_url) && ! $bioPage->webhook_secret) {
+            $bioPage->forceFill(['webhook_secret' => Webhooks::newSecret()])->save();
+        }
+        // a password, content warning or new address changes whether a reader needs a session
+        foreach (array_unique([$oldSlug, $bioPage->slug]) as $forgetSlug) {
+            Cache::forget('bio-stateless:'.strtolower($forgetSlug));
+        }
         BioUploads::deleteUnused($oldFiles);
         // Return JSON for AJAX requests
         if ($request->expectsJson() || $request->wantsJson()) {
@@ -625,6 +684,7 @@ class BioPageController extends Controller
         $topLinks = $bioPage->links()
             ->reorder()
             ->where('is_active', true)
+            ->whereNotIn('type', BioLink::INERT_TYPES)
             ->orderByDesc('click_count')
             ->limit(10)
             ->get();
@@ -657,6 +717,20 @@ class BioPageController extends Controller
             return ucfirst($device);
         })->toArray();
         $deviceChartData = $devicesData->pluck('count')->toArray();
+        $sourceLabels = ['qr' => 'QR code', 'nfc' => 'NFC tag', 'pwa' => 'Home-screen app'];
+        $sources = BioClick::query()
+            ->whereIn('bio_link_id', $bioPage->links->pluck('id'))
+            ->where('clicked_at', '>=', now()->subDays($days))
+            ->selectRaw('source, COUNT(*) as n')->groupBy('source')->orderByDesc('n')->get()
+            ->map(fn ($r) => ['label' => $sourceLabels[$r->source] ?? 'Link in bio', 'value' => (int) $r->n])->values();
+        // where the visitor came from, by site (the browser tells us only the address of the previous page)
+        $referrers = BioClick::query()
+            ->whereIn('bio_link_id', $bioPage->links->pluck('id'))
+            ->where('clicked_at', '>=', now()->subDays($days))
+            ->latest('clicked_at')->limit(3000)->pluck('referrer')
+            ->map(fn ($r) => $r ? preg_replace('/^(www|m|l|lm)\./', '', strtolower((string) parse_url($r, PHP_URL_HOST))) : '')
+            ->map(fn ($h) => $h === '' || $h === preg_replace('/^www\./', '', strtolower((string) parse_url(public_url(''), PHP_URL_HOST))) ? 'Direct or unknown' : $h)
+            ->countBy()->sortDesc()->map(fn ($n, $host) => ['label' => $host, 'value' => $n])->values();
         $recentClicks = BioClick::query()
             ->with('bioLink')
             ->whereIn('bio_link_id', $bioPage->links->pluck('id'))
@@ -669,7 +743,7 @@ class BioPageController extends Controller
             'totalViews' => $bioPage->view_count,
             'totalClicks' => $totalClicks,
             'ctr' => $ctr,
-            'activeLinks' => $bioPage->links()->where('is_active', true)->count(),
+            'activeLinks' => $bioPage->links()->where('is_active', true)->whereNotIn('type', BioLink::INERT_TYPES)->count(),
             'viewsChart' => [
                 'labels' => $viewsChartLabels,
                 'data' => $viewsChartData,
@@ -681,6 +755,8 @@ class BioPageController extends Controller
             'topLinks' => $topLinks,
             'topCountries' => $topCountries,
             'recentClicks' => $recentClicks,
+            'sources' => $sources,
+            'referrers' => $referrers,
         ];
 
         return view('bio::analytics', compact('bioPage', 'stats', 'days'));
@@ -732,10 +808,11 @@ class BioPageController extends Controller
     {
         $this->authorize('update', $bioPage);
         $request->validate([
-            'image' => 'required|image|max:5120', // 5MB max
+            'image' => 'required|image|max:10240', // 10 MB: it is shrunk to WebP before it is stored
         ]);
         try {
-            $path = $request->file('image')->store('bio-images', 'public');
+            $favicon = $request->input('format') === 'png';
+            $path = ImageOptimizer::store($request->file('image'), 'bio-images', $favicon ? 128 : null, 'image', $favicon ? 'png' : 'webp');
 
             return response()->json([
                 'success' => true,
@@ -751,6 +828,23 @@ class BioPageController extends Controller
         }
     }
 
+    /** Audio clips (mp3, m4a, ogg, wav; 12 MB) and PDF files (15 MB) for the audio and pdf blocks. */
+    public function uploadMedia(Request $request, BioPage $bioPage)
+    {
+        $this->authorize('update', $bioPage);
+        $request->validate(['file' => ['required', 'file', 'max:15360', 'mimetypes:audio/mpeg,audio/mp4,audio/x-m4a,audio/ogg,audio/wav,audio/x-wav,application/pdf']]);
+        $file = $request->file('file');
+        $isPdf = $file->getMimeType() === 'application/pdf';
+        if (! $isPdf && $file->getSize() > 12 * 1024 * 1024) {
+            throw ValidationException::withMessages(['file' => 'Audio clips can be up to 12 MB.']);
+        }
+        $ext = $isPdf ? 'pdf' : (['audio/mpeg' => 'mp3', 'audio/mp4' => 'm4a', 'audio/x-m4a' => 'm4a', 'audio/ogg' => 'ogg', 'audio/wav' => 'wav', 'audio/x-wav' => 'wav'][$file->getMimeType()] ?? 'mp3');
+        $path = ($isPdf ? 'bio-files/' : 'bio-audio/').Str::random(40).'.'.$ext;
+        Storage::disk('public')->putFileAs(dirname($path), $file, basename($path));
+
+        return response()->json(['success' => true, 'path' => $path, 'url' => '/storage/'.$path, 'kind' => $isPdf ? 'pdf' : 'audio', 'size' => $file->getSize()]);
+    }
+
     /**
      * Upload avatar for bio page
      */
@@ -758,11 +852,11 @@ class BioPageController extends Controller
     {
         $this->authorize('update', $bioPage);
         $request->validate([
-            'avatar' => 'required|image|max:2048', // 2MB max
+            'avatar' => 'required|image|max:8192', // 8 MB: it is shrunk to WebP before it is stored
         ]);
         try {
             $oldAvatar = $bioPage->avatar_url;
-            $path = $request->file('avatar')->store('avatars', 'public');
+            $path = ImageOptimizer::store($request->file('avatar'), 'avatars', null, 'avatar');
             $bioPage->update(['avatar_url' => $path]);
             BioUploads::deleteIfUnused($oldAvatar);
 
@@ -821,9 +915,10 @@ class BioPageController extends Controller
 
             return $path;
         }
-        $request->validate([$field => 'required|image|max:1024']);
+        $request->validate([$field => 'required|image|max:'.($directory === 'avatars' ? 8192 : 4096)]);
 
-        return $request->file($field)->store($directory, 'public');
+        // the QR logo is read back by the QR generator as it is; everything else is shrunk (WebP, right size)
+        return $directory === 'qr-logos' ? $request->file($field)->store($directory, 'public') : ImageOptimizer::store($request->file($field), $directory, null, $field);
     }
 
     /**

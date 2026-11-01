@@ -96,9 +96,10 @@ test('the public page loads only the chosen font', function () {
     uploadsPage('fontpage', ['font_family' => 'merriweather']);
 
     $html = $this->get('/b/fontpage')->assertOk()->getContent();
-    expect($html)->toContain('css2?family=Merriweather:')
-        ->not->toContain('family=Inter:')
-        ->not->toContain('@import url(\'https://fonts.googleapis.com')
+    // Served from our own domain (public/fonts/bio): only the chosen font's files, nothing from Google.
+    expect($html)->toContain('url(/fonts/bio/merriweather-')
+        ->not->toContain('url(/fonts/bio/inter-')
+        ->not->toContain('fonts.googleapis.com')
         // The HOP family fonts are for BioHop's own pages; a bio keeps the owner's font.
         ->not->toContain('hop-assets/v1/fonts-amnesia.css');
 });

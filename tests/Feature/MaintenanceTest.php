@@ -5,6 +5,7 @@ use App\Models\User;
 use Hop\Bio\Models\BioClick;
 use Hop\Bio\Models\BioLink;
 use Hop\Bio\Models\BioPage;
+use Hop\Bio\Models\BioWebhookDelivery;
 use Illuminate\Support\Facades\DB;
 
 test('privacy:prune deletes bio clicks older than 30 days only', function () {
@@ -14,6 +15,15 @@ test('privacy:prune deletes bio clicks older than 30 days only', function () {
     BioClick::create(['bio_link_id' => $link->id, 'clicked_at' => now()->subDays(2)]);
     $this->artisan('privacy:prune')->expectsOutputToContain('bio clicks: 1')->assertSuccessful();
     expect(BioClick::count())->toBe(1);
+});
+
+test('privacy:prune deletes webhook deliveries after a week, since they hold the form entry', function () {
+    $page = BioPage::create(['user_id' => User::factory()->create()->id, 'slug' => 'hookprune', 'title' => 'H', 'theme' => 'default', 'is_published' => true]);
+    $make = fn (string $uuid, int $days) => tap(BioWebhookDelivery::create(['bio_page_id' => $page->id, 'uuid' => $uuid, 'event' => 'form.entry', 'payload' => '{"name":"A"}', 'status' => 'delivered']), fn ($d) => $d->forceFill(['created_at' => now()->subDays($days)])->save());
+    $make('old-one', 8);
+    $make('new-one', 2);
+    $this->artisan('privacy:prune')->expectsOutputToContain('webhook deliveries: 1')->assertSuccessful();
+    expect(BioWebhookDelivery::pluck('uuid')->all())->toBe(['new-one']);
 });
 
 test('abuse:scan unpublishes a spam bio page and records the finding', function () {
