@@ -20,3 +20,13 @@ test('the home page versions its engine files by content, so an edited file is n
     $html = $this->get('/')->assertOk()->getContent();
     expect($html)->toMatch('#hop-home/hop-hero3d\.js\?v=[0-9a-f]{8}#')->and($html)->toMatch('#hop-home/hop-home\.css\?v=[0-9a-f]{8}#');
 });
+
+test('the claim box on the home page shows its focus on the box, not as a ring around the bare input', function () {
+    $css = file_get_contents(base_path('resources/css/profile-hero.css'));
+    expect($css)->toContain('.bio-claim-field:focus-within')->toContain('.bio-claim-field input:focus-visible { outline: 0');
+});
+
+test('the site header never wraps its controls onto a second row and keeps the sign-up button on one line', function () {
+    $header = file_get_contents(base_path('resources/views/partials/site-header.blade.php'));
+    expect($header)->not->toContain('flex-wrap')->toContain('flex-nowrap')->toContain('whitespace-nowrap rounded-xl bg-gradient-to-r');
+});
