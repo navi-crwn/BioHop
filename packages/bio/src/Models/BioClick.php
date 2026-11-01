@@ -19,6 +19,7 @@ class BioClick extends Model
         'device',
         'browser',
         'referrer',
+        'source',
         'ip_address',
     ];
 

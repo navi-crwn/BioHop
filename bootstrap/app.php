@@ -4,6 +4,7 @@ use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\CheckIpBan;
 use App\Http\Middleware\CheckSuspended;
 use App\Http\Middleware\ContentSecurityPolicyMiddleware;
+use App\Http\Middleware\OptionalSession;
 use App\Http\Middleware\RequireHopAdminClient;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\VerifyHopSignature;
@@ -12,6 +13,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Session\TokenMismatchException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -23,6 +25,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // A first-time reader of a plain public bio page gets no session row and no cookies (see OptionalSession).
+        $middleware->web(replace: [StartSession::class => OptionalSession::class]);
         $middleware->appendToGroup('web', [
             SetLocale::class,
             CheckSuspended::class,

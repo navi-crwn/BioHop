@@ -18,11 +18,11 @@
             padding: 1rem;
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
             position: relative;
-            overflow: hidden;
         }
         body::before {
             content: '';
-            position: absolute;
+            position: fixed;
+            pointer-events: none;
             top: -50%;
             left: -50%;
             width: 200%;

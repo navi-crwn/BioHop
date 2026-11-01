@@ -2,6 +2,8 @@
 
 namespace Hop\Bio\Models;
 
+use Carbon\CarbonInterface;
+use Hop\Bio\Support\FeedReader;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -76,6 +78,74 @@ class BioLink extends Model
         return $this->belongsTo(BioPage::class);
     }
 
+    public function leads(): HasMany
+    {
+        return $this->hasMany(BioLead::class);
+    }
+
+    /** What a form block asks for: name, e-mail and phone, each on or off (name and e-mail by default). */
+    public function formFields(): array
+    {
+        $s = $this->settings ?? [];
+        $fields = [
+            'name' => (bool) ($s['ask_name'] ?? true),
+            'email' => (bool) ($s['ask_email'] ?? true),
+            'phone' => (bool) ($s['ask_phone'] ?? false),
+        ];
+
+        return array_filter($fields) ?: ['email' => true];
+    }
+
+    /** @return array<int, array{title:string, url:string, date:?string}> the latest items of a feed block (cached an hour) */
+    public function feedItems(bool $refresh = false): array
+    {
+        $url = trim((string) $this->url);
+        if ($this->type !== 'rss' || ! preg_match('#^https?://#i', $url)) {
+            return [];
+        }
+
+        return FeedReader::items($url, (int) ($this->settings['count'] ?? 5), $refresh);
+    }
+
+    /** @return array<int, string> the poll's options (2–6), empty when the poll is not ready */
+    public function pollOptions(): array
+    {
+        $out = [];
+        foreach ((array) ($this->settings['options'] ?? []) as $o) {
+            $text = is_array($o) ? trim((string) ($o['text'] ?? '')) : '';
+            if ($text !== '') {
+                $out[] = mb_substr($text, 0, 80);
+            }
+        }
+
+        return count($out) >= 2 ? array_slice($out, 0, 6) : [];
+    }
+
+    public function pollVotes(): HasMany
+    {
+        return $this->hasMany(BioPollVote::class);
+    }
+
+    /** @return array{counts:array<int,int>, total:int, voted:?int} votes per option and what this visitor chose (null: not voted) */
+    public function pollResults(?string $voterHash = null): array
+    {
+        $options = $this->pollOptions();
+        $counts = array_fill(0, count($options), 0);
+        foreach ($this->pollVotes()->selectRaw('option_index, count(*) as n')->groupBy('option_index')->pluck('n', 'option_index') as $i => $n) {
+            if (isset($counts[$i])) {
+                $counts[$i] = (int) $n;
+            }
+        }
+        $voted = $voterHash ? $this->pollVotes()->where('voter_hash', $voterHash)->value('option_index') : null;
+
+        return ['counts' => $counts, 'total' => array_sum($counts), 'voted' => $voted === null ? null : (int) $voted];
+    }
+
+    public function leadRetentionDays(): int
+    {
+        return max(1, min(365, (int) ($this->settings['retention_days'] ?? 90)));
+    }
+
     public function clicks(): HasMany
     {
         return $this->hasMany(BioClick::class);
@@ -107,6 +177,109 @@ class BioLink extends Model
     }
 
     public const WHATSAPP_MODES = ['round_robin', 'weighted'];
+
+    /** @return array<int, array{country:array<int,string>, device:string, os:string, from:?int, to:?int, url:string}> */
+    public function routingRules(): array
+    {
+        $out = [];
+        foreach ((array) ($this->settings['rules'] ?? []) as $r) {
+            $url = is_array($r) ? trim((string) ($r['url'] ?? '')) : '';
+            if (! preg_match('#^https?://#i', $url)) {
+                continue;
+            }
+            $countries = array_values(array_filter(array_map(fn ($c) => strtoupper(trim($c)), explode(',', (string) ($r['country'] ?? ''))), fn ($c) => preg_match('/^[A-Z]{2}$/', $c)));
+            $from = isset($r['from']) && $r['from'] !== '' && $r['from'] !== null ? (int) $r['from'] : null;
+            $to = isset($r['to']) && $r['to'] !== '' && $r['to'] !== null ? (int) $r['to'] : null;
+            $out[] = [
+                'country' => $countries,
+                'device' => in_array($r['device'] ?? 'any', ['mobile', 'tablet', 'desktop'], true) ? $r['device'] : 'any',
+                'os' => in_array($r['os'] ?? 'any', ['ios', 'android'], true) ? $r['os'] : 'any',
+                'from' => $from !== null && $to !== null ? $from : null,
+                'to' => $from !== null && $to !== null ? $to : null,
+                'url' => $url,
+            ];
+        }
+
+        return $out;
+    }
+
+    /**
+     * The first rule whose conditions all hold decides the address: a rule with a country list needs the visitor's country,
+     * one with hours needs the time in the owner's zone, the others need only the device or system. Null when none matches.
+     *
+     * @param  array{device?:string, os?:string}  $ua
+     * @param  callable():?string  $country  looked up only when a rule asks for it
+     */
+    public function routedUrl(array $ua, callable $country, CarbonInterface $now): ?string
+    {
+        $device = strtolower((string) ($ua['device'] ?? ''));
+        $os = strtolower((string) ($ua['os'] ?? ''));
+        $isIos = (bool) preg_match('/ios|ipados/', $os);
+        $isAndroid = str_contains($os, 'android');
+        $code = null;
+        $looked = false;
+        foreach ($this->routingRules() as $rule) {
+            if ($rule['device'] !== 'any' && $rule['device'] !== $device) {
+                continue;
+            }
+            if (($rule['os'] === 'ios' && ! $isIos) || ($rule['os'] === 'android' && ! $isAndroid)) {
+                continue;
+            }
+            if ($rule['from'] !== null) {
+                $h = (int) $now->format('G');
+                $inside = $rule['from'] <= $rule['to'] ? ($h >= $rule['from'] && $h < $rule['to']) : ($h >= $rule['from'] || $h < $rule['to']);
+                if (! $inside) {
+                    continue;
+                }
+            }
+            if ($rule['country'] !== []) {
+                if (! $looked) {
+                    $code = $country();
+                    $looked = true;
+                }
+                if (! $code || ! in_array(strtoupper($code), $rule['country'], true)) {
+                    continue;
+                }
+            }
+
+            return $rule['url'];
+        }
+
+        return null;
+    }
+
+    /** The app block's address for a visitor's operating system: iOS → App Store, Android → Play, else the web address. */
+    public function appTarget(string $os): ?string
+    {
+        $s = $this->settings ?? [];
+        $pick = preg_match('/ios|ipados/i', $os) ? ($s['ios'] ?? null) : (preg_match('/android/i', $os) ? ($s['android'] ?? null) : null);
+        $url = trim((string) ($pick ?: ($s['web'] ?? $this->url ?: ($s['ios'] ?? $s['android'] ?? ''))));
+
+        return preg_match('#^https?://#i', $url) ? $url : null;
+    }
+
+    /** 0–100 for a goal block. */
+    public function goalPercent(): int
+    {
+        $target = (float) ($this->settings['target'] ?? 0);
+        $current = (float) ($this->settings['current'] ?? 0);
+
+        return $target > 0 ? (int) max(0, min(100, round($current / $target * 100))) : 0;
+    }
+
+    /** @return array<int, array{url:string, caption:string}> */
+    public function carouselImages(): array
+    {
+        $out = [];
+        foreach ((array) ($this->settings['images'] ?? []) as $i) {
+            $url = is_array($i) ? trim((string) ($i['url'] ?? '')) : '';
+            if ($url !== '' && (preg_match('#^/?storage/bio-images/#', $url) || preg_match('#^https://#', $url))) {
+                $out[] = ['url' => $url, 'caption' => trim((string) ($i['caption'] ?? ''))];
+            }
+        }
+
+        return $out;
+    }
 
     /** @return array<int, array{number:string, label:string, weight:int}> the rotator's numbers, digits only */
     public function whatsappNumbers(): array
@@ -175,6 +348,7 @@ class BioLink extends Model
             'device' => $data['device'] ?? null,
             'browser' => $data['browser'] ?? null,
             'referrer' => $data['referrer'] ?? null,
+            'source' => $data['source'] ?? null,
             'ip_address' => $data['ip_address'] ?? null,
         ]);
         $this->incrementClicks();
@@ -192,9 +366,12 @@ class BioLink extends Model
         'link' => 'Link', 'image' => 'Image', 'text' => 'Text', 'header' => 'Header',
         'divider' => 'Divider', 'spacer' => 'Spacer', 'video' => 'Video', 'youtube' => 'YouTube',
         'music' => 'Music', 'spotify' => 'Spotify', 'soundcloud' => 'SoundCloud', 'vcard' => 'Contact card',
-        'html' => 'HTML', 'countdown' => 'Countdown', 'map' => 'Map', 'faq' => 'FAQ', 'product' => 'Product', 'collection' => 'Collection', 'whatsapp' => 'WhatsApp',
+        'html' => 'HTML', 'countdown' => 'Countdown', 'map' => 'Map', 'faq' => 'FAQ', 'product' => 'Product', 'collection' => 'Collection', 'whatsapp' => 'WhatsApp', 'app' => 'App', 'form' => 'Form', 'rss' => 'Feed', 'poll' => 'Poll', 'goal' => 'Goal', 'audio' => 'Audio', 'carousel' => 'Carousel', 'pdf' => 'PDF',
         'email' => 'Email', 'code' => 'Code',
     ];
+
+    /** Blocks a visitor can only read or use in place: they never get a click, so analytics leaves them out. */
+    public const INERT_TYPES = ['text', 'header', 'divider', 'spacer', 'html', 'code', 'countdown', 'faq', 'collection', 'poll', 'form', 'rss', 'carousel', 'map', 'youtube', 'video', 'music', 'spotify', 'soundcloud', 'audio'];
 
     public function typeName(): string
     {

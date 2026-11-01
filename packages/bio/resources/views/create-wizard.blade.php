@@ -2,6 +2,13 @@
     <x-slot name="pageTitle">BioHop - {{ __('New bio page') }}</x-slot>
     {{-- Five steps that end in a finished page: name, goal, platforms, links, profile and colours, with the phone on the right. --}}
     <div class="bio-wizard" x-data="bioWizard()" x-init="init()">
+        @if($atLimit)
+        <div class="bw-limit" role="status">
+            <h1 class="bw-title">{{ __('Your pages are full') }}</h1>
+            <p class="bw-lead">{{ __('You are using all :max of your bio pages. Delete one you no longer need to make room for a new page.', ['max' => $max]) }}</p>
+            <a href="{{ route('bio.index') }}" class="btn-primary btn-sm">{{ __('Go to my pages') }}</a>
+        </div>
+        @else
         <div class="bw-progress" aria-hidden="true"><i :style="'width:' + Math.round(step / steps * 100) + '%'"></i></div>
         <div class="bw-grid">
             <div class="bw-main">
@@ -78,6 +85,7 @@
                     </div>
                 </section>
                 <p class="bw-error" x-show="error" x-text="error" x-cloak role="alert"></p>
+                <p class="bw-hint bw-blocker" x-show="step < steps && !canContinue()" x-cloak x-text="blocker()"></p>
                 <div class="bw-nav">
                     <button type="button" class="bw-ghost" x-show="step > 1" @click="step--">{{ __('Back') }}</button>
                     <button type="button" class="bw-next" x-show="step < steps" :disabled="!canContinue()" @click="step++">{{ __('Continue') }}</button>
@@ -100,6 +108,7 @@
                 </div>
             </aside>
         </div>
+        @endif
     </div>
     <script type="application/json" id="bio-wizard-config">{!! json_encode(['platforms' => $platforms, 'palettes' => $palettes, 'checkUrl' => route('bio.check-slug'), 'submitUrl' => route('bio.wizard'), 'goals' => [
         ['id' => 'creator', 'title' => __('Creator'), 'text' => __('Grow a following and share what you make.'), 'color' => 'linear-gradient(135deg,#d9f99d,#d946ef)'],
@@ -125,6 +134,7 @@
             },
             togglePlatform(id) { if (this.picked[id] !== undefined) { delete this.picked[id]; this.picked = { ...this.picked }; } else { this.picked = { ...this.picked, [id]: '' }; } },
             pickAvatar(e) { const f = e.target.files[0]; if (!f) return; this.avatarFile = f; this.avatarUrl = URL.createObjectURL(f); },
+            blocker() { return this.step === 1 ? '{{ __('Choose a free address to continue.') }}' : this.step === 5 ? '{{ __('Add a display name to continue.') }}' : ''; },
             canContinue() {
                 if (this.step === 1) return this.slug.trim().length >= 3 && this.available !== false;
                 if (this.step === 5) return this.title.trim().length > 0;
@@ -133,7 +143,18 @@
             wallpaper() { return this.palette === null ? '#1e1b4b' : this.palettes[this.palette][0]; },
             button() { return this.palette === null ? '#ffffff' : this.palettes[this.palette][1]; },
             buttonText() { return this.palette === null ? '#1e1b4b' : this.palettes[this.palette][2]; },
-            linkTitle(u) { try { const h = new URL(u.startsWith('http') ? u : 'https://' + u).hostname.replace(/^(www|m)\./, ''); const p = this.platforms.find(p => p.placeholder && p.placeholder.includes(h.split('.')[0])); return p ? p.name : h.split('.')[0].charAt(0).toUpperCase() + h.split('.')[0].slice(1); } catch (e) { return u; } },
+            linkTitle(u) {
+                try {
+                    const h = new URL(u.startsWith('http') ? u : 'https://' + u).hostname.toLowerCase().replace(/^(www|m)\./, '');
+                    const p = this.platforms.find(p => p.placeholder && p.placeholder.includes(h.split('.')[0]));
+                    if (p) return p.name;
+                    const parts = h.split('.').filter(Boolean); parts.pop();
+                    if (parts.length > 1 && ['co', 'com', 'net', 'org', 'ac', 'or', 'go', 'gov', 'edu'].includes(parts[parts.length - 1])) parts.pop();
+                    let label = parts[0] || 'Link';
+                    if (parts.length > 1 && ['shop', 'store', 'blog', 'app', 'link', 'go', 'web', 'my', 'pages', 'site'].includes(label)) label = parts[1];
+                    return label.replace(/[-_]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                } catch (e) { return u; }
+            },
             async submit() {
                 this.busy = true; this.error = '';
                 const fd = new FormData();
@@ -158,6 +179,7 @@
         .bio-wizard { max-width: 1040px; margin: 0 auto; padding: 8px 0 40px; }
         .bw-progress { height: 6px; width: 240px; margin: 0 auto 28px; border-radius: 99px; background: rgba(120,120,140,.2); overflow: hidden; }
         .bw-progress i { display: block; height: 100%; background: linear-gradient(90deg, #a855f7, #ec4899); transition: width .4s; }
+        .bw-limit { max-width: 520px; margin: 12vh auto 0; text-align: center; display: grid; gap: 14px; justify-items: center; }
         .bw-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr); gap: 40px; align-items: start; }
         .bw-step { max-width: 560px; }
         .bw-title { font-size: clamp(28px, 4vw, 40px); font-weight: 800; letter-spacing: -.03em; line-height: 1.05; margin: 0 0 10px; }

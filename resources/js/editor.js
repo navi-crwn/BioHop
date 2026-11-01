@@ -11,22 +11,62 @@ const NOT_SAVED = new Set(['id', 'user_id', 'links', 'user', 'created_at', 'upda
 window.bioEditorSlug = CONFIG.bioPage.slug;
 window.bioEditorUrl = (path = '') => '/bio/' + encodeURIComponent(window.bioEditorSlug) + path;
 
-// The Design tab: six collapsible sections; which ones are open is remembered per browser.
+
+// The block picker and the command palette read the same list: [group, [type, label, hint, colour, icon path, action, keywords]].
+// action: add = open the block form, quick = text/image quick editors, divider = add at once.
+const BLOCK_CATALOG = [
+    ['Essentials', [
+        ['link', 'Link', 'A button to any address', '#2563eb', 'M13.8 10.2a4 4 0 00-5.7 0l-4 4a4 4 0 105.7 5.7l1.1-1.1m-.8-4.9a4 4 0 005.7 0l4-4a4 4 0 00-5.7-5.7l-1.1 1.1', 'add', 'url website button'],
+        ['text', 'Text', 'A paragraph with formatting', '#16a34a', 'M4 6h16M4 12h10M4 18h14', 'quick', 'paragraph note about'],
+        ['header', 'Header', 'A title that splits the page', '#7c3aed', 'M5 5v14M19 5v14M5 12h14', 'add', 'heading title section'],
+        ['image', 'Image', 'A picture, tap to enlarge', '#e11d48', 'M4 16l4.6-4.6a2 2 0 012.8 0L16 16m-2-2l1.6-1.6a2 2 0 012.8 0L20 14M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z', 'quick', 'photo picture'],
+        ['divider', 'Divider', 'A line between groups', '#475569', 'M20 12H4', 'divider', 'line separator'],
+    ]],
+    ['Media & embeds', [
+        ['youtube', 'YouTube', 'A video that plays on the page', '#dc2626', 'M14.7 12L10 9v6l4.7-3zM21 12a9 9 0 11-18 0 9 9 0 0118 0z', 'add', 'video'],
+        ['spotify', 'Spotify', 'A track, album or playlist', '#16a34a', 'M9 19V6l12-3v13M9 19a3 3 0 11-6 0 3 3 0 016 0zm12-3a3 3 0 11-6 0 3 3 0 016 0z', 'add', 'music podcast'],
+        ['soundcloud', 'SoundCloud', 'A track or set', '#ea580c', 'M9 19V6l12-3v13M9 19a3 3 0 11-6 0 3 3 0 016 0zm12-3a3 3 0 11-6 0 3 3 0 016 0z', 'add', 'music audio'],
+        ['audio', 'Audio clip', 'Your own recording, up to 12 MB', '#c026d3', 'M12 3v10m0 0a3 3 0 100 6 3 3 0 000-6zm0 0V3m6 6v4a6 6 0 01-12 0V9', 'add', 'voice podcast sample mp3'],
+        ['carousel', 'Picture carousel', 'Swipe through up to 10 pictures', '#ea580c', 'M4 16l4.6-4.6a2 2 0 012.8 0L16 16m-2-2l1.6-1.6a2 2 0 012.8 0L20 14M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z', 'add', 'gallery slider photos'],
+        ['pdf', 'PDF document', 'A menu, price list or catalogue', '#dc2626', 'M7 21h10a2 2 0 002-2V9l-6-6H7a2 2 0 00-2 2v14a2 2 0 002 2zm6-18v6h6', 'add', 'file menu catalogue'],
+    ]],
+    ['Shop & promotion', [
+        ['product', 'Product', 'Picture, price, variants and stock', '#db2777', 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z', 'add', 'shop sell price store'],
+        ['collection', 'Collection', 'A titled group of blocks', '#d97706', 'M4 6h16M4 12h16M4 18h7', 'add', 'group section category'],
+        ['goal', 'Goal bar', 'A progress bar toward a target', '#059669', 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6', 'add', 'progress fundraising'],
+        ['app', 'App store link', 'iPhone, Android and web in one button', '#0284c7', 'M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z', 'add', 'ios android play download'],
+    ]],
+    ['Smart & conversion', [
+        ['whatsapp', 'WhatsApp rotator', 'Share chats between several numbers', '#16a34a', 'M21 11.5a8.4 8.4 0 01-12.4 7.4L3 21l2.1-5.4A8.4 8.4 0 1121 11.5z', 'add', 'chat customer service'],
+        ['form', 'Sign-up form', 'Collect names, e-mails or numbers', '#4f46e5', 'M3 8l7.9 5.3a2 2 0 002.2 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z', 'add', 'lead newsletter subscribe contact'],
+        ['poll', 'Poll', 'Ask visitors to vote', '#65a30d', 'M9 19v-6H5v6h4zm0 0V9h4v10m-4 0h4m0 0V5h4v14h-4z', 'add', 'vote survey question'],
+        ['countdown', 'Countdown', 'Time left to a launch or sale', '#0891b2', 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z', 'add', 'timer event launch'],
+        ['rss', 'Blog / podcast feed', 'The latest posts, kept up to date', '#d97706', 'M6 5c7.7 0 14 6.3 14 14M6 11a8 8 0 018 8M7 18a1 1 0 11-2 0 1 1 0 012 0z', 'add', 'rss atom articles news'],
+        ['vcard', 'Contact card', 'A button that saves you to contacts', '#0d9488', 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z', 'add', 'vcard phone address book'],
+        ['map', 'Location', 'A map with an address', '#0d9488', 'M17.7 16.7L13.4 20.9a2 2 0 01-2.8 0l-4.2-4.2a8 8 0 1111.3 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z', 'add', 'address place'],
+        ['faq', 'FAQ', 'Questions that open to answers', '#6366f1', 'M8.2 9a3 3 0 115.8 1c-.7 1-2 1.3-2 2.5M12 17h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z', 'add', 'questions answers help'],
+    ]],
+];
+
+// The Design tab: six sub-tabs, one section at a time; the last one used is remembered per browser.
 window.designTab = function() {
-    const KEY = 'bio-design-open';
-    let saved = {};
-    try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+    const KEY = 'bio-design-section';
+    const sections = [['header', 'Header'], ['theme', 'Theme'], ['wallpaper', 'Wallpaper'], ['text', 'Text'], ['buttons', 'Buttons'], ['footer', 'Footer']];
+    let saved = '';
+    try { saved = localStorage.getItem(KEY) || ''; } catch (e) {}
     return {
-        sections: [['header', 'Header'], ['theme', 'Theme'], ['wallpaper', 'Wallpaper'], ['text', 'Text'], ['buttons', 'Buttons'], ['footer', 'Footer']],
-        open: { header: true, theme: true, wallpaper: true, text: true, buttons: true, footer: true, ...saved },
+        sections,
+        current: sections.some(s => s[0] === saved) ? saved : 'header',
         publicUrl: CONFIG.publicBase + '/' + encodeURIComponent(CONFIG.bioPage.slug),
-        toggle(key) {
-            this.open[key] = !this.open[key];
-            try { localStorage.setItem(KEY, JSON.stringify(this.open)); } catch (e) {}
+        select(key) {
+            this.current = key;
+            try { localStorage.setItem(KEY, key); } catch (e) {}
         },
-        jump(key) {
-            this.open[key] = true;
-            this.$nextTick(() => document.getElementById('design-' + key)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+        step(dir) {
+            const i = sections.findIndex(s => s[0] === this.current);
+            const next = sections[(i + dir + sections.length) % sections.length][0];
+            this.select(next);
+            this.$nextTick(() => document.getElementById('design-tab-' + next)?.focus());
         },
     };
 };
@@ -51,6 +91,7 @@ window.bioEditorV2 = function() {
         showAddBlockModal: false,
         blockCategoryFilter: 'all',
         blockSearch: '',
+        pages: CONFIG.pages || [],
         showSocialPicker: false,
         showSocialEditor: false,
         editingSocial: null,
@@ -308,6 +349,138 @@ window.bioEditorV2 = function() {
             this.$nextTick(() => { this.announcement = message; });
         },
         // Keyboard alternative to drag and drop (arrow keys on the drag handle).
+        // ---- page speed: a plain estimate of how heavy the page is for a visitor on a phone -------------------------
+        pageHealth() {
+            const active = this.blocks.filter(b => b.is_active && !b.archived_at);
+            const count = types => active.filter(b => types.includes(b.type)).length;
+            const tips = [];
+            let score = 100;
+            const ext = v => (String(v || '').split('?')[0].match(/\.([a-z0-9]+)$/i) || [])[1]?.toLowerCase() || '';
+            const embeds = count(['youtube', 'spotify', 'soundcloud', 'video', 'music']);
+            if (embeds > 5) { score -= (embeds - 5) * 2; tips.push(`${embeds} videos or players. They load only when tapped, but a long page of them is tiring to scroll: keep the best five.`); }
+            const maps = count(['map']);
+            if (maps > 1) { score -= (maps - 1) * 2; tips.push(`${maps} maps. One map is enough for most pages.`); }
+            const pictures = count(['image']) + active.filter(b => b.type === 'carousel').reduce((n, b) => n + ((b.settings?.images || []).length), 0);
+            if (pictures > 10) { score -= Math.min(15, (pictures - 10)); tips.push(`${pictures} pictures. Every one is downloaded on a phone: show fewer or move some into a carousel.`); }
+            if (active.length > 40) { score -= Math.min(15, active.length - 40); tips.push(`${active.length} blocks on one page. Group them in collections or split the page.`); }
+            const anim = this.bioPage.background_animation;
+            if (anim && anim !== 'none') { score -= anim === 'matrix' ? 10 : 6; tips.push('The background animation makes weak phones stutter. Visitors who save data or have little memory get a calm page automatically, but others see it.'); }
+            const pixels = ['google_analytics_id', 'facebook_pixel_id', 'tiktok_pixel_id', 'gtm_id'].filter(k => this.bioPage[k]).length;
+            if (pixels) { score -= pixels * 3; tips.push(`${pixels} tracking script${pixels > 1 ? 's' : ''}. They load only after the visitor agrees, but each one costs data.`); }
+            const heavyFiles = [this.bioPage.avatar_url, this.bioPage.cover_image, this.bioPage.background_image, ...active.map(b => b.thumbnail_url)].filter(v => v && /^(\/?storage\/)?(avatars|bio-images|bio-thumbnails)\//.test(v));
+            const gifs = heavyFiles.filter(v => ext(v) === 'gif').length;
+            const old = heavyFiles.filter(v => ['png', 'jpg', 'jpeg'].includes(ext(v))).length;
+            if (gifs) { score -= gifs * 8; tips.push(`${gifs} animated picture${gifs > 1 ? 's' : ''} (GIF). They are heavy for a phone: use a still picture where you can.`); }
+            if (old) { score -= Math.min(8, old * 2); tips.push(`${old} older picture${old > 1 ? 's' : ''} not yet shrunk. New uploads are shrunk automatically; upload these again to make them light.`); }
+            if (!this.bioPage.avatar_url && !this.bioPage.cover_image && !this.bioPage.background_image) score = Math.min(100, score + 0);
+            score = Math.max(40, Math.round(score));
+            const level = score >= 90 ? 'good' : score >= 70 ? 'ok' : 'heavy';
+            return {
+                score, level, tips,
+                label: level === 'good' ? 'Fast' : level === 'ok' ? 'Good, could be lighter' : 'Heavy for a phone',
+                summary: 'A rough estimate from what is on the page, not a measurement.',
+            };
+        },
+        // ---- block picker (bento) and command palette --------------------------------------------------------
+        blockGroups() {
+            const q = this.blockSearch.trim().toLowerCase();
+            return BLOCK_CATALOG.map(([title, items]) => ({
+                title,
+                items: items.filter(i => !q || (i[1] + ' ' + i[2] + ' ' + i[6] + ' ' + title).toLowerCase().includes(q)),
+            })).filter(g => g.items.length);
+        },
+        runCatalogItem(item) {
+            const type = item[0], action = item[5];
+            if (action === 'quick') this.addQuickBlock(type);
+            else if (action === 'divider') { this.addDividerInstant(); this.showAddBlockModal = false; }
+            else this.addBlock(type);
+        },
+        paletteOpen: false,
+        paletteQuery: '',
+        paletteIndex: 0,
+        openPalette() {
+            this.paletteQuery = '';
+            this.paletteIndex = 0;
+            this.paletteOpen = true;
+            this.$nextTick(() => this.$refs.paletteInput?.focus());
+        },
+        closePalette() { this.paletteOpen = false; },
+        paletteCommands() {
+            const cmds = [];
+            BLOCK_CATALOG.forEach(([group, items]) => items.forEach(i => cmds.push({ group: 'Add a block', label: 'Add ' + i[1], hint: i[2], keys: i[6], run: () => { this.activeTab = 'links'; this.runCatalogItem(i); } })));
+            [['profile', 'Profile'], ['links', 'Build (your blocks)'], ['socials', 'Socials'], ['appearance', 'Design'], ['settings', 'Settings']].forEach(([id, name]) =>
+                cmds.push({ group: 'Go to', label: 'Open ' + name, hint: '', keys: id, run: () => { this.activeTab = id; } }));
+            cmds.push({ group: 'Page', label: 'Copy the page link', hint: '', keys: 'share url', run: () => this.copyPageUrl() });
+            cmds.push({ group: 'Page', label: 'Open the page in a new tab', hint: '', keys: 'visit preview visitor', run: () => window.open(CONFIG.publicBase + '/' + this.bioPage.slug, '_blank', 'noopener') });
+            cmds.push({ group: 'Page', label: 'Save now', hint: '', keys: 'store', run: () => { this._autoBlocked = false; this.saveBioPage(); } });
+            cmds.push({ group: 'Page', label: this.autosave ? 'Turn autosave off' : 'Turn autosave on', hint: '', keys: 'auto save', run: () => this.toggleAutosave() });
+            cmds.push({ group: 'Page', label: 'Sort blocks by clicks', hint: 'Most clicked first, inside each group', keys: 'order popular', run: () => { this.activeTab = 'links'; this.sortByClicks(); } });
+            cmds.push({ group: 'Page', label: 'Select several blocks', hint: 'Show, hide, archive, move or delete together', keys: 'bulk', run: () => { this.activeTab = 'links'; if (!this.selectMode) this.toggleSelectMode(); } });
+            cmds.push({ group: 'Page', label: 'Toggle dark mode', hint: '', keys: 'theme light night', run: () => document.querySelector('button[aria-label*="theme" i], button[aria-label*="dark" i], button[aria-label*="mode" i]')?.click() });
+            (CONFIG.pages || []).filter(pg => pg.slug !== this.bioPage.slug).forEach(pg =>
+                cmds.push({ group: 'Switch page', label: 'Edit ' + (pg.title || pg.slug), hint: '/b/' + pg.slug, keys: pg.slug, run: () => this.handleNavigation('/bio/' + encodeURIComponent(pg.slug) + '/edit') }));
+            return cmds;
+        },
+        paletteResults() {
+            const q = this.paletteQuery.trim().toLowerCase().split(/\s+/).filter(Boolean);
+            const all = this.paletteCommands();
+            return q.length ? all.filter(c => q.every(w => (c.label + ' ' + c.hint + ' ' + c.keys + ' ' + c.group).toLowerCase().includes(w))) : all.slice(0, 12);
+        },
+        paletteKey(e) {
+            const n = this.paletteResults().length;
+            if (e.key === 'ArrowDown') { e.preventDefault(); this.paletteIndex = (this.paletteIndex + 1) % Math.max(n, 1); }
+            else if (e.key === 'ArrowUp') { e.preventDefault(); this.paletteIndex = (this.paletteIndex - 1 + Math.max(n, 1)) % Math.max(n, 1); }
+            else if (e.key === 'Enter') { e.preventDefault(); this.runPalette(this.paletteResults()[this.paletteIndex]); }
+            else if (e.key === 'Escape') { e.preventDefault(); this.closePalette(); }
+        },
+        runPalette(cmd) {
+            if (!cmd) return;
+            this.closePalette();
+            this.$nextTick(() => cmd.run());
+        },
+        // ---- order by clicks, and move several blocks into a collection --------------------------------------
+        _beforeSort: null,
+        // Most clicked first inside each run of blocks; collections, dividers and headers stay where they are.
+        sortByClicks() {
+            this._beforeSort = this.blocks.map(b => b.id);
+            const fixed = b => ['collection', 'divider', 'header'].includes(b.type);
+            const out = [];
+            let run = [];
+            const flush = () => { out.push(...run.sort((a, b) => (b.click_count || 0) - (a.click_count || 0))); run = []; };
+            this.blocks.forEach(b => { if (fixed(b)) { flush(); out.push(b); } else run.push(b); });
+            flush();
+            this.blocks.splice(0, this.blocks.length, ...out);
+            this.blocks.forEach((b, i) => b.order = i);
+            this._orderDirty = true; this.onModelChanged();
+            this.announce('Blocks sorted by clicks');
+            this.showNotification('Sorted by clicks. Undo is in the list header.', 'success');
+        },
+        undoSort() {
+            if (!this._beforeSort) return;
+            const byId = new Map(this.blocks.map(b => [b.id, b]));
+            const restored = this._beforeSort.map(id => byId.get(id)).filter(Boolean);
+            this.blocks.forEach(b => { if (!restored.includes(b)) restored.push(b); });
+            this.blocks.splice(0, this.blocks.length, ...restored);
+            this.blocks.forEach((b, i) => b.order = i);
+            this._beforeSort = null;
+            this._orderDirty = true; this.onModelChanged();
+        },
+        // The selected blocks go to the end of the chosen collection, in their current order.
+        bulkMoveToCollection(collectionId) {
+            const target = this.blocks.find(b => b.id === collectionId && b.type === 'collection');
+            if (!target) return;
+            const moving = this.blocks.filter(b => this.selectedIds.includes(b.id) && b.type !== 'collection' && b !== target);
+            if (!moving.length) return;
+            const rest = this.blocks.filter(b => !moving.includes(b));
+            let at = rest.indexOf(target) + 1;
+            while (at < rest.length && !['collection', 'divider'].includes(rest[at].type)) at++;
+            rest.splice(at, 0, ...moving);
+            this.blocks.splice(0, this.blocks.length, ...rest);
+            this.blocks.forEach((b, i) => b.order = i);
+            this._orderDirty = true; this.onModelChanged();
+            this.announce(moving.length + ' blocks moved to ' + this.getBlockDisplayTitle(target));
+            this.selectedIds = [];
+        },
         // Collections group what follows them until the next collection or divider: the same rule as the public page.
         // The list shows members indented, so dropping a block under a collection puts it inside.
         collectionOf(index) {
@@ -458,6 +631,7 @@ window.bioEditorV2 = function() {
                             bio: bioPageData.bio || '',
                             avatar: formatAvatarUrl(bioPageData.avatar_url),
                             avatarShape: bioPageData.avatar_shape || 'circle',
+                            status: (bioPageData.status_text && (!bioPageData.status_until || new Date(bioPageData.status_until).getTime() > Date.now())) ? bioPageData.status_text : '',
                             badge: bioPageData.badge || null,
                             badgeColor: bioPageData.badge_color || '#3b82f6'
                         },
@@ -511,7 +685,8 @@ window.bioEditorV2 = function() {
                             theme: bioPageData.theme || 'default'
                         },
                         settings: {
-                            hideBranding: bioPageData.hide_branding || false
+                            hideBranding: bioPageData.hide_branding || false,
+                            fab: { type: bioPageData.fab_type || 'none', label: bioPageData.fab_label || '' }
                         }
                     };
                 // Only the parts that changed since the last message go over: the preview then touches less of its page.
@@ -560,11 +735,11 @@ window.bioEditorV2 = function() {
                 faq_items: [],
                 html_content: '',
                 description: '',
-                settings: type === 'product' ? { price: '', currency: 'IDR', sold_out: false } : (type === 'collection' ? { layout: 'stack' } : (type === 'whatsapp' ? { text: '', mode: 'round_robin', numbers: [{ number: '', label: '', weight: 1 }] } : null))
+                settings: type === 'product' ? { price: '', currency: 'IDR', sold_out: false } : (type === 'collection' ? { layout: 'stack' } : (type === 'whatsapp' ? { text: '', mode: 'round_robin', numbers: [{ number: '', label: '', weight: 1 }] } : (type === 'goal' ? { target: '', current: '', unit: '' } : (type === 'poll' ? { options: [{ text: '' }, { text: '' }] } : type === 'rss' ? { count: 5 } : type === 'form' ? { ask_name: true, ask_email: true, ask_phone: false, button: '', thanks: '', consent: '', retention_days: 90 } : type === 'app' ? { ios: '', android: '', web: '' } : (type === 'carousel' ? { images: [] } : null)))))
             };
             if (type === 'whatsapp') newBlock.brand = 'whatsapp';
             this.blocks.push(newBlock);
-            if (['link', 'header', 'text', 'video', 'music', 'vcard', 'html', 'countdown', 'map', 'faq', 'youtube', 'spotify', 'soundcloud', 'code', 'image', 'product', 'collection', 'whatsapp'].includes(type)) {
+            if (['link', 'header', 'text', 'video', 'music', 'vcard', 'html', 'countdown', 'map', 'faq', 'youtube', 'spotify', 'soundcloud', 'code', 'image', 'product', 'collection', 'whatsapp', 'app', 'goal', 'audio', 'carousel', 'pdf', 'form', 'rss', 'poll'].includes(type)) {
                 this.editingBlock = JSON.parse(JSON.stringify(newBlock));
             }
             this.showAddBlockModal = false;
@@ -582,7 +757,15 @@ window.bioEditorV2 = function() {
                 'faq': 'FAQ',
                 'product': 'Product',
                 'collection': 'Collection',
-                'whatsapp': 'Chat on WhatsApp'
+                'whatsapp': 'Chat on WhatsApp',
+                'app': 'Get the app',
+                'goal': 'Our goal',
+                'audio': 'Listen',
+                'carousel': 'Pictures',
+                'pdf': 'Menu (PDF)',
+                'form': 'Stay in touch',
+                'rss': 'Latest posts',
+                'poll': 'Quick poll'
             };
             return titles[type] || '';
         },
@@ -917,6 +1100,69 @@ window.bioEditorV2 = function() {
             const plain = value && typeof value === 'object' ? JSON.parse(JSON.stringify(value)) : value;
             this.editingBlock.settings = Object.assign({}, JSON.parse(JSON.stringify(this.editingBlock.settings || {})), { [key]: plain });
         },
+        productFetch: { busy: false, ok: false, message: '' },
+        // Reads the shop page's public tags and fills only what is still empty; the shop may refuse, and then you type it.
+        async fillProductFromAddress() {
+            const b = this.editingBlock;
+            if (!b || !b.url) return;
+            this.productFetch = { busy: true, ok: false, message: '' };
+            try {
+                const res = await fetch(bioEditorUrl('/links/fetch-meta'), { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf(), 'Accept': 'application/json' }, body: JSON.stringify({ url: b.url }) });
+                const d = await res.json().catch(() => ({}));
+                if (!res.ok || !d.success) throw new Error(d.message || 'The shop did not answer. Type the details yourself.');
+                const filled = [];
+                if (d.title && !String(b.title || '').trim()) { b.title = d.title; filled.push('name'); }
+                if (d.description && !String(b.description || '').trim()) { b.description = d.description; filled.push('description'); }
+                if (d.thumbnail_url && !b.thumbnail_url) { b.thumbnail_url = d.thumbnail_url; b.content = d.thumbnail_url; filled.push('picture'); }
+                if (d.price != null && !String(b.settings?.price ?? '').trim()) { this.setProductSetting('price', String(d.price)); if (d.currency) this.setProductSetting('currency', d.currency); filled.push('price'); }
+                this.productFetch = { busy: false, ok: true, message: filled.length ? 'Filled: ' + filled.join(', ') + '. Check them before you save.' : 'Nothing new to fill: the fields already have values.' };
+            } catch (e) {
+                this.productFetch = { busy: false, ok: false, message: e.message };
+            }
+        },
+        pollResults: null,
+        async loadPollResults() {
+            this.pollResults = null;
+            if (!this.editingBlock || this.editingBlock.id >= 1000000000) return;
+            try {
+                const res = await fetch(bioEditorUrl('/links/' + this.editingBlock.id + '/poll'), { headers: { 'Accept': 'application/json' } });
+                if (res.ok) this.pollResults = await res.json();
+            } catch (e) { /* the form still works without counts */ }
+        },
+        async resetPoll() {
+            if (!confirm('Delete every vote of this poll? This cannot be undone.')) return;
+            const res = await fetch(bioEditorUrl('/links/' + this.editingBlock.id + '/poll'), { method: 'DELETE', headers: { 'X-CSRF-TOKEN': csrf(), 'Accept': 'application/json' } });
+            if (res.ok) { await this.loadPollResults(); this.showNotification('Votes deleted', 'success'); } else { this.showNotification('Could not delete the votes', 'error'); }
+        },
+        addPollOption() {
+            this.setProductSetting('options', [...(this.editingBlock.settings?.options || []), { text: '' }]);
+        },
+        removePollOption(i) {
+            this.setProductSetting('options', (this.editingBlock.settings?.options || []).filter((_, k) => k !== i));
+        },
+        setPollOption(i, value) {
+            this.setProductSetting('options', (this.editingBlock.settings?.options || []).map((o, k) => k === i ? { text: value } : o));
+        },
+        async deleteLeads() {
+            if (!confirm('Delete every entry of this form? This cannot be undone.')) return;
+            try {
+                const res = await fetch(bioEditorUrl('/links/' + this.editingBlock.id + '/leads'), { method: 'DELETE', headers: { 'X-CSRF-TOKEN': csrf(), 'Accept': 'application/json' } });
+                if (!res.ok) throw new Error('Could not delete the entries');
+                this.editingBlock.leads_count = 0;
+                const b = this.blocks.find(x => x.id === this.editingBlock.id);
+                if (b) b.leads_count = 0;
+                this.showNotification('Entries deleted', 'success');
+            } catch (e) { this.showNotification(e.message, 'error'); }
+        },
+        addRule() {
+            this.setProductSetting('rules', [...(this.editingBlock.settings?.rules || []), { country: '', device: 'any', os: 'any', from: '', to: '', url: '' }]);
+        },
+        removeRule(i) {
+            this.setProductSetting('rules', (this.editingBlock.settings?.rules || []).filter((_, k) => k !== i));
+        },
+        setRule(i, key, value) {
+            this.setProductSetting('rules', (this.editingBlock.settings?.rules || []).map((r, k) => k === i ? Object.assign({}, r, { [key]: value }) : r));
+        },
         addWaNumber() {
             this.setProductSetting('numbers', [...(this.editingBlock.settings?.numbers || []), { number: '', label: '', weight: 1 }]);
         },
@@ -925,6 +1171,49 @@ window.bioEditorV2 = function() {
         },
         setWaNumber(i, key, value) {
             this.setProductSetting('numbers', (this.editingBlock.settings?.numbers || []).map((n, k) => k === i ? Object.assign({}, n, { [key]: value }) : n));
+        },
+        // Audio clip / PDF: uploaded to bio-audio/ or bio-files/; the block keeps the /storage address in content.
+        uploadBlockMedia(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('_token', csrf());
+            fetch(bioEditorUrl('/upload-media'), { method: 'POST', headers: { 'Accept': 'application/json' }, body: formData })
+            .then(async res => ({ ok: res.ok, data: await res.json().catch(() => ({})) }))
+            .then(({ ok, data }) => {
+                if (ok && data.url) {
+                    this.editingBlock.content = data.url;
+                    this.showNotification('Uploaded!', 'success');
+                } else {
+                    throw new Error(data.errors?.file?.[0] || data.message || 'Upload failed');
+                }
+            })
+            .catch(error => this.showNotification(error.message || 'Failed to upload', 'error'));
+            event.target.value = '';
+        },
+        // Carousel pictures: the same image upload as thumbnails, up to 10.
+        uploadCarouselImage(event) {
+            const files = Array.from(event.target.files || []).slice(0, 10 - (this.editingBlock.settings?.images || []).length);
+            event.target.value = '';
+            files.forEach(file => {
+                const formData = new FormData();
+                formData.append('image', file);
+                formData.append('_token', csrf());
+                fetch(bioEditorUrl('/upload-image'), { method: 'POST', headers: { 'Accept': 'application/json' }, body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.success || !data.url) throw new Error(data.message || 'Upload failed');
+                    this.setProductSetting('images', [...(this.editingBlock.settings?.images || []), { url: data.url, caption: '' }]);
+                })
+                .catch(error => this.showNotification(error.message || 'Failed to upload', 'error'));
+            });
+        },
+        removeCarouselImage(i) {
+            this.setProductSetting('images', (this.editingBlock.settings?.images || []).filter((_, k) => k !== i));
+        },
+        setCarouselCaption(i, value) {
+            this.setProductSetting('images', (this.editingBlock.settings?.images || []).map((img, k) => k === i ? Object.assign({}, img, { caption: value }) : img));
         },
         // 'scheduled' before publish_at, 'expired' after expire_at, null when live (same rule as the server).
         scheduleState(block) {
@@ -949,6 +1238,31 @@ window.bioEditorV2 = function() {
             if (which === 'bg') { this.bioPage.link_bg_color = value; this.bioPage.button_bg_color = value; }
             else { this.bioPage.link_text_color = value; this.bioPage.button_text_color = value; }
             if (this.bioPage.theme !== 'default') this.bioPage.theme = 'default';
+        },
+        // Share picture and favicon: stored like the cover, as a path on the public disk.
+        uploadPageImage(field, event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const formData = new FormData();
+            formData.append('image', file);
+            formData.append('_token', csrf());
+            if (field === 'favicon') formData.append('format', 'png');
+            fetch(bioEditorUrl('/upload-image'), { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.path) {
+                    this.bioPage[field] = data.path;
+                    this.showNotification('Uploaded!', 'success');
+                } else {
+                    throw new Error(data.message || 'Upload failed');
+                }
+            })
+            .catch(error => this.showNotification(error.message || 'Failed to upload', 'error'));
+            event.target.value = '';
+        },
+        pageImageUrl(path) {
+            if (!path) return '';
+            return path.startsWith('/') || path.startsWith('http') ? path : '/storage/' + path;
         },
         uploadCoverImage(event) {
             const file = event.target.files[0];

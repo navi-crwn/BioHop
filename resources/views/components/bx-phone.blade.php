@@ -1,6 +1,6 @@
 @props(['id' => null, 'links' => true])
 {{-- A sample bio page in a phone. The scenes on the home page restyle it as you scroll. Sample content, not a real page. --}}
-<div class="bx-phone" @if ($id) id="{{ $id }}" @endif data-lenis-prevent>
+<div class="bx-phone" @if ($id) id="{{ $id }}" @endif>
     <div class="bx-phone-in">
         <span class="bx-av" aria-hidden="true">H</span>
         <b class="bx-name">Helena Studio</b>

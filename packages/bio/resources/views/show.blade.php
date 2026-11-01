@@ -2,10 +2,20 @@
     use App\Helpers\SocialUrlHelper;
 @endphp
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" @class(['lite' => request()->header('Save-Data') === 'on'])>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script nonce="{{ Vite::cspNonce() }}">
+        // Lite mode: a visitor who asked to save data, a phone with little memory or few cores, or ?lite=1 gets a calm page
+        // (no background animation, entrance effects or blur). ?lite=0 turns it off.
+        (function () {
+            var d = document.documentElement, c = navigator.connection || {}, q = /[?&]lite=([01])/.exec(location.search);
+            var low = c.saveData === true || (navigator.deviceMemory && navigator.deviceMemory <= 2) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2)
+                || (window.matchMedia && matchMedia('(prefers-reduced-data: reduce)').matches);
+            if (q ? q[1] === '1' : low) d.classList.add('lite'); else if (q) d.classList.remove('lite');
+        })();
+    </script>
     @if(request()->attributes->get('hop.embed'))
         {{-- Shown inside the BioHop home: links open in a new tab and the copy stays out of search. --}}
         <base target="_blank">
@@ -16,15 +26,28 @@
     @if(!($bioPage->allow_indexing ?? true))
         <meta name="robots" content="noindex, nofollow">
     @endif
-    <link rel="icon" href="{{ route('brand.favicon') }}">
+    @php
+        $pageFile = fn ($v) => $v ? (str_starts_with($v, 'http') || str_starts_with($v, '/') ? $v : Storage::disk('public')->url($v)) : null;
+        $cardSource = trim((string) ($bioPage->background_value ?: $bioPage->background_gradient ?: $bioPage->background_color ?: ($themeData['background'] ?? '')));
+        preg_match_all('/#[0-9a-fA-F]{6}\b/', $cardSource, $cardMatches);
+        $cardColors = array_slice($cardMatches[0] ?? [], 0, 3) ?: ['#6366f1', '#a855f7'];
+        $srcTag = in_array(request()->query('src'), \Hop\Bio\Http\Controllers\PublicBioController::SOURCES, true) ? request()->query('src') : null;
+        $clickHref = fn ($publicId) => route('bio.public.click', ['bioLink' => $publicId] + ($srcTag ? ['s' => $srcTag] : []));
+        $ogImage = $pageFile($bioPage->og_image) ?: ($bioPage->avatar_url ? Storage::disk('public')->url($bioPage->avatar_url) : null);
+    @endphp
+    <link rel="icon" href="{{ $pageFile($bioPage->favicon) ?: route('brand.favicon') }}">
+    <link rel="manifest" href="{{ route('bio.public.manifest', $bioPage->slug) }}">
+    @if($bioPage->avatar_url)<link rel="apple-touch-icon" href="{{ Storage::disk('public')->url($bioPage->avatar_url) }}">@endif
+    <meta name="apple-mobile-web-app-title" content="{{ \Illuminate\Support\Str::limit($bioPage->title, 12, '') }}">
     <meta property="og:title" content="{{ $bioPage->seo_title ?? $bioPage->title }} | By LinkHop">
     <meta property="og:description" content="{{ $bioPage->seo_description ?? $bioPage->bio ?? 'Check out my links' }}">
-    @if($bioPage->avatar_url)
-        <meta property="og:image" content="{{ Storage::disk('public')->url($bioPage->avatar_url) }}">
+    @if($ogImage)
+        <meta property="og:image" content="{{ $ogImage }}">
+        <meta name="twitter:card" content="summary_large_image">
     @endif
     <meta property="og:url" content="{{ public_url('b/'.$bioPage->slug) }}">
     <meta property="og:type" content="profile">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/public.css', 'resources/js/public.js'])
     @php
         $themes = config('bio-themes.presets');
         $currentTheme = $bioPage->theme ?? 'none';
@@ -97,10 +120,8 @@
             'mono' => 'ui-monospace, monospace',
             default => "'Inter', sans-serif"
         };
-        // Load only the chosen Google font (was all 20 families via a render-blocking @import).
+        // The page's own font is inlined from public/fonts/bio (see BioFonts); nothing is asked from Google.
         $fontName = str_replace(' ', '+', trim(explode(',', $fontFamily)[0], "' "));
-        $fontQuery = collect(explode('&', 'family=DM+Sans:wght@400;500;700&family=Inter:wght@400;500;600;700&family=Lato:wght@400;700&family=Lexend:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;500;600;700&family=Nunito:wght@400;500;600;700&family=Open+Sans:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&family=Raleway:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Source+Sans+Pro:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Ubuntu:wght@400;500;700&family=Work+Sans:wght@400;500;600;700'))
-            ->first(fn ($family) => str_starts_with($family, "family={$fontName}:"));
         $blockShape = match($bioPage->block_shape ?? 'rounded-sm') {
             'square' => 'border-radius: 0;',
             'pill' => 'border-radius: 9999px;',
@@ -202,10 +223,10 @@
             return $isInternalUrl($url) ? 'noopener' : 'nofollow noopener noreferrer';
         };
     @endphp
-    @if($fontQuery)
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?{{ $fontQuery }}&display=swap">
+    @php $pageFont = \Hop\Bio\Support\BioFonts::forFamily(str_replace('+', ' ', (string) $fontName)); @endphp
+    @if($pageFont)
+    @if($pageFont['preload'])<link rel="preload" as="font" type="font/woff2" href="{{ $pageFont['preload'] }}" crossorigin>@endif
+    <style>{!! $pageFont['css'] !!}</style>
     @endif
     <style>
         .bio-container {
@@ -226,6 +247,8 @@
         }
         .bio-title {
             color: {{ $titleColor }};
+            max-width: 100%;
+            overflow-wrap: break-word;
         }
         .bio-bio {
             color: {{ $bioColor }};
@@ -255,11 +278,13 @@
         .social-icon {
             color: {{ $isDarkTheme ? '#f1f5f9' : '#475569' }};
         }
+        /* Same colour as the page's own text, so it reads on any theme or wallpaper. */
         .powered-link {
-            color: {{ $isDarkTheme ? '#94a3b8' : '#64748b' }};
+            color: {{ $bioColor }};
+            opacity: .8;
         }
         .powered-link:hover {
-            color: {{ $isDarkTheme ? '#cbd5e1' : '#475569' }};
+            opacity: 1;
         }
         /* Header layouts: classic (small avatar), hero (picture fills the top), banner (cover strip), cutout (big fading picture). */
         .bio-head { position: relative; }
@@ -322,6 +347,40 @@
         .bio-product-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 4px; }
         .bio-product-price { font-style: normal; font-weight: 700; font-size: 14px; }
         .bio-product-cta { font-style: normal; font-size: 12px; opacity: .85; }
+        .bio-form-input { width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(127,127,127,.4); background: rgba(255,255,255,.85); color: #0f172a; font-size: 14px; }
+        .bio-form-btn { padding: 10px 14px; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; background: rgba(15,23,42,.92); color: #fff; border: 1px solid rgba(255,255,255,.35); }
+        .bio-form-btn:focus-visible, .bio-form-input:focus-visible { outline: 3px solid #818cf8; outline-offset: 2px; }
+        .bio-poll-opt { width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(127,127,127,.45); background: rgba(255,255,255,.18); color: inherit; font-size: 14px; font-weight: 600; text-align: left; cursor: pointer; }
+        .bio-poll-opt:hover { background: rgba(255,255,255,.32); }
+        .bio-poll-opt:focus-visible { outline: 3px solid #818cf8; outline-offset: 2px; }
+        .bio-poll-res { position: relative; border-radius: 12px; overflow: hidden; border: 1px solid rgba(127,127,127,.35); }
+        .bio-poll-bar { position: absolute; inset: 0 auto 0 0; background: rgba(129,140,248,.45); }
+        .bio-poll-res.is-mine { border-color: #818cf8; }
+        .bio-poll-row { position: relative; display: flex; justify-content: space-between; gap: 8px; padding: 9px 12px; font-size: 14px; font-weight: 600; }
+        /* player placeholders: the real iframe is made on tap */
+        .bio-facade { position: relative; display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; min-height: 96px; height: 100%; padding: 14px; color: #fff; text-decoration: none; text-align: left; background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 12px; overflow: hidden; cursor: pointer; }
+        .bio-facade-music, .bio-facade-map { background: linear-gradient(135deg, rgba(30,41,59,.92), rgba(15,23,42,.92)); }
+        .bio-facade-play { flex: none; display: grid; place-items: center; width: 54px; height: 54px; border-radius: 50%; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.35); }
+        .bio-facade:hover .bio-facade-play { background: rgba(255,255,255,.28); }
+        .bio-facade:focus-visible { outline: 3px solid #818cf8; outline-offset: 2px; }
+        .bio-facade-text { display: grid; gap: 2px; }
+        .bio-facade-text b { font-size: 14px; }
+        .bio-facade-text small { font-size: 11px; opacity: .75; }
+        .bio-facade-tiktok { max-width: 325px; margin-inline: auto; height: 120px; }
+        .bio-facade-video { min-height: 0; border-radius: 0; }
+        .bio-embed iframe { display: block; }
+        /* long lists: cards that are off screen are not painted until they come close */
+        .bio-product, .bio-embed, .bio-feed, .bio-poll, .bio-form { content-visibility: auto; contain-intrinsic-size: auto 220px; }
+        .bio-carousel { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: thin; padding-bottom: 4px; border-radius: 16px; }
+        .bio-slide { flex: 0 0 86%; scroll-snap-align: center; position: relative; border-radius: 16px; overflow: hidden; aspect-ratio: 4 / 3; background: rgba(127,127,127,.2); }
+        .bio-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .bio-slide figcaption { position: absolute; inset: auto 0 0 0; padding: 18px 12px 8px; font-size: 12px; color: #fff; background: linear-gradient(transparent, rgba(0,0,0,.6)); }
+        .bio-status { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; padding: 3px 11px; border-radius: 999px; font-size: 12px; font-weight: 600; background: rgba(34,197,94,.16); color: inherit; border: 1px solid rgba(34,197,94,.45); }
+        .bio-status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,.25); }
+        .bio-fab { position: fixed; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); z-index: 60; display: inline-flex; align-items: center; gap: 8px; padding: 12px 16px; border-radius: 999px; font-size: 14px; font-weight: 700; color: #fff; background: #16a34a; box-shadow: 0 10px 30px -10px rgba(0,0,0,.5); text-decoration: none; }
+        .bio-fab.custom { background: #4f46e5; }
+        .bio-fab:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+        @media (prefers-reduced-motion: no-preference) { .bio-fab { transition: transform .2s; } .bio-fab:hover { transform: translateY(-2px); } }
         .bio-product-was { font-weight: 500; opacity: .6; margin-right: 4px; }
         .bio-product-low { font-size: 11px; font-weight: 600; color: #d97706; }
         .bio-variants { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
@@ -464,6 +523,10 @@
         .attention-bounce { animation: attentionBounce 1s ease-in-out infinite; }
         .bg-animation-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
         .bg-particle { position: absolute; pointer-events: none; }
+        /* Lite mode: nothing that costs a weak phone frames. */
+        .lite #bg-animation { display: none !important; }
+        .lite *, .lite *::before, .lite *::after { animation: none !important; transition: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+        .lite .bio-facade-play, .lite .bio-product { will-change: auto; }
         /* Visitors who asked for less motion get the final state without animating. */
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after {
@@ -704,10 +767,13 @@
             <div class="border-t pt-3" style="border-color: {{ $isDarkTheme ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }};">
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-xs font-medium" style="color: {{ $isDarkTheme ? '#94a3b8' : '#64748b' }};">QR Code</span>
+                    <span class="flex items-center gap-1.5">
+                    <button data-call="downloadShareCard" class="px-2 py-1 text-[10px] font-medium rounded-sm transition-colors flex items-center gap-1" style="background: {{ $isDarkTheme ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }}; color: {{ $isDarkTheme ? '#e2e8f0' : '#334155' }};" title="{{ __('A picture for Instagram or WhatsApp stories') }}">{{ __('Story image') }}</button>
                     <button data-call="downloadShareQR" class="px-2 py-1 text-[10px] font-medium rounded-sm transition-colors flex items-center gap-1" style="background: {{ $isDarkTheme ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }}; color: {{ $isDarkTheme ? '#e2e8f0' : '#334155' }};">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                         Save
                     </button>
+                    </span>
                 </div>
                 <div class="flex justify-center">
                     <div id="share-qr-container" class="p-2 rounded-lg" style="background: #ffffff;"></div>
@@ -729,23 +795,23 @@
             <div class="rounded-3xl p-8">
                 <div class="text-center bio-head bio-head-{{ $headerLayout }} {{ $showHeaderBg ? 'bio-header-bg' : '' }}">
                     @if($headerLayout === 'hero')
-                        <img src="{{ $avatarSrc }}" alt="{{ $bioPage->title }}" class="bio-hero-img" fetchpriority="high">
+                        <img src="{{ $avatarSrc }}" alt="{{ $bioPage->title }}" class="bio-hero-img" fetchpriority="high" {!! \Hop\Bio\Support\ImageMeta::attrs($bioPage->avatar_url) !!}>
                         <div class="bio-hero-text">
                     @elseif($headerLayout === 'banner')
                         <div class="bio-cover" role="presentation"></div>
                     @endif
                     @if($headerLayout === 'cutout')
-                        <img src="{{ $avatarSrc }}" alt="{{ $bioPage->title }}" class="bio-avatar mx-auto" fetchpriority="high">
+                        <img src="{{ $avatarSrc }}" alt="{{ $bioPage->title }}" class="bio-avatar mx-auto" fetchpriority="high" {!! \Hop\Bio\Support\ImageMeta::attrs($bioPage->avatar_url) !!}>
                     @elseif($headerLayout !== 'hero')
                         @if($avatarSrc)
                         <img src="{{ $avatarSrc }}" 
                              alt="{{ $bioPage->title }}" 
                              class="bio-avatar mx-auto mb-4 h-24 w-24 object-cover" width="96" height="96" fetchpriority="high"
-                             style="border-radius: {{ $avatarRadius }};">
+                             style="border-radius: {{ $avatarRadius }};@if($avatarMeta = \Hop\Bio\Support\ImageMeta::for($bioPage->avatar_url)) background-color: {{ $avatarMeta['color'] }};@endif">
                         @else
                         <div class="bio-avatar mx-auto mb-4 flex h-24 w-24 items-center justify-center bg-linear-to-br from-blue-500 to-indigo-600 text-3xl font-bold text-white"
                              style="border-radius: {{ $avatarRadius }};">
-                            {{ substr($bioPage->title, 0, 1) }}
+                            {{ mb_strtoupper(mb_substr($bioPage->title, 0, 1)) }}
                         </div>
                         @endif
                     @endif
@@ -770,6 +836,7 @@
                     @if($bioPage->bio)
                         <p class="bio-bio mt-2 text-sm">{{ html_entity_decode($bioPage->bio) }}</p>
                     @endif
+                    @if($bioPage->statusLabel())<div><span class="bio-status">{{ $bioPage->statusLabel() }}</span></div>@endif
                     @if($headerLayout === 'hero')
                         </div>
                     @endif
@@ -829,7 +896,7 @@
                         @if($groupId)<h3 class="bio-collection-title">{{ $activeBlocks->firstWhere('id', $groupId)?->title }}</h3>@endif
                         @foreach($groupProducts as $product)
                             @php
-                                $pHref = $product->url ? route('bio.public.click', $product->public_id) : null;
+                                $pHref = $product->url ? $clickHref($product->public_id) : null;
                                 $pImg = $product->thumbnail_url ?: $product->content;
                                 if ($pImg && !str_starts_with($pImg, 'http') && !str_starts_with($pImg, '/storage/')) { $pImg = Storage::disk('public')->url($pImg); }
                                 $soldOut = $product->isSoldOut();
@@ -840,7 +907,7 @@
                             @php $buy = $pHref && !$soldOut; @endphp
                             <article class="bio-product {{ $soldOut ? 'is-sold-out' : '' }} {{ $buy ? 'can-buy' : '' }}" style="--pbg: {{ $linkBgColor ?? $blockBg ?? 'rgba(255,255,255,.2)' }}; --ptext: {{ $linkTextColor }}">
                                 @if($buy)<a href="{{ $pHref }}" target="_blank" rel="nofollow noopener" class="bio-product-pic" aria-label="{{ $product->title }}">@else<span class="bio-product-pic">@endif
-                                    @if($pImg)<img src="{{ $pImg }}" alt="" loading="lazy" decoding="async">@else<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>@endif
+                                    @if($pImg)<img src="{{ $pImg }}" alt="" loading="lazy" decoding="async" {!! \Hop\Bio\Support\ImageMeta::attrs($pImg) !!}>@else<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>@endif
                                     @if($soldOut)<b class="bio-product-flag">{{ __('Sold out') }}</b>@endif
                                 @if($buy)</a>@else</span>@endif
                                 <span class="bio-product-body"><b class="bio-product-name">@if($buy)<a href="{{ $pHref }}" target="_blank" rel="nofollow noopener">{{ $product->title }}</a>@else{{ $product->title }}@endif</b>@if($product->description)<small class="bio-product-desc">{{ $product->description }}</small>@endif
@@ -877,7 +944,7 @@
                             @endif
                             @continue
                         @endif
-                        @if($link->type === 'link' || $link->type === 'whatsapp')
+                        @if(in_array($link->type, ['link', 'whatsapp', 'app'], true))
                             @php
                                 $hasThumbnail = $link->thumbnail_url || $link->thumbnail;
                                 $hasBrand = $link->brand;
@@ -908,8 +975,8 @@
                                 $borderStyle = $link->btn_border_color ? 'border: 1px solid '.$link->btn_border_color.';' : ($themeLinkBorder ? 'border: 1px solid '.$themeLinkBorder.';' : '');
                                 $linkRel = $getLinkRel($link->url);
                                 // http(s) links go through the click tracker; mailto/tel/sms stay direct
-                                $linkHref = $link->type === 'whatsapp' || preg_match('#^https?://#i', trim((string) $link->url))
-                                    ? route('bio.public.click', $link->public_id)
+                                $linkHref = in_array($link->type, ['whatsapp', 'app'], true) || preg_match('#^https?://#i', trim((string) $link->url))
+                                    ? $clickHref($link->public_id)
                                     : \Hop\Safety\SafeContent::url($link->url);
                                 $entranceAnim = $link->entrance_animation ?? 'none';
                                 $attentionAnim = $link->attention_animation ?? 'none';
@@ -1066,17 +1133,91 @@
                                     <div class="mb-2 text-sm font-semibold" style="color: inherit;">{{ $link->title }}</div>
                                 @endif
                                 <div class="rounded-lg overflow-hidden mb-2">
-                                    <iframe 
-                                        src="https://maps.google.com/maps?q={{ urlencode($link->map_address) }}&z={{ $link->map_zoom ?? 15 }}&output=embed"
-                                        width="100%" 
-                                        height="200" 
-                                        style="border:0;" 
-                                        allowfullscreen="" 
-                                        title="{{ $link->title ?: 'Map' }}"
-                                        loading="lazy">
-                                    </iframe>
+                                    @include('bio::partials.facade', ['src' => "https://maps.google.com/maps?q=".urlencode($link->map_address)."&z=".($link->map_zoom ?? 15)."&output=embed", 'href' => 'https://www.google.com/maps/search/?api=1&query='.urlencode($link->map_address), 'title' => $link->title ?: 'Map', 'kind' => 'map', 'height' => 200, 'sandbox' => null])
                                 </div>
                                 <div class="text-xs text-center opacity-80" style="color: inherit;">{{ $link->map_address }}</div>
+                            </div>
+                        @elseif($link->type === 'form')
+                            @php
+                                $ff = $link->formFields(); $fid = $link->public_id; $sent = session('form_sent') === $fid; $errs = $errors->getBag('form_'.$fid);
+                                $consentText = trim((string) ($link->settings['consent'] ?? '')) ?: __('I agree that :name keeps these details to get back to me.', ['name' => $bioPage->title]);
+                            @endphp
+                            <div id="form-{{ $fid }}" class="bio-form w-full rounded-2xl p-4" style="background: {{ $blockBg }}; color: {{ $linkTextColor }};">
+                                @if($link->title)<div class="mb-2 text-sm font-semibold">{{ $link->title }}</div>@endif
+                                @if($sent)
+                                    <p class="text-sm" role="status">✓ {{ trim((string) ($link->settings['thanks'] ?? '')) ?: __('Thank you! Your details were sent.') }}</p>
+                                @else
+                                    <form method="POST" action="{{ route('bio.public.form', $fid) }}" class="grid gap-2" x-data="turnstileForm(@js(config('services.turnstile.site_key')))" x-on:submit="handleSubmit($event)">
+                                        @csrf
+                                        <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+                                        @if(isset($ff['name']))<input type="text" name="name" value="{{ old('name') }}" required maxlength="100" autocomplete="name" placeholder="{{ __('Your name') }}" aria-label="{{ __('Your name') }}" class="bio-form-input">@endif
+                                        @if(isset($ff['email']))<input type="email" name="email" value="{{ old('email') }}" required maxlength="150" autocomplete="email" placeholder="{{ __('Your e-mail') }}" aria-label="{{ __('Your e-mail') }}" class="bio-form-input">@endif
+                                        @if(isset($ff['phone']))<input type="tel" name="phone" value="{{ old('phone') }}" required maxlength="30" autocomplete="tel" placeholder="{{ __('Your WhatsApp number') }}" aria-label="{{ __('Your WhatsApp number') }}" class="bio-form-input">@endif
+                                        <label class="flex items-start gap-2 text-xs opacity-90"><input type="checkbox" name="consent" value="1" required class="mt-0.5"><span>{{ $consentText }}</span></label>
+                                        <x-turnstile />
+                                        @foreach($errs->all() as $e)<p class="text-xs" style="color:#fecaca" role="alert">{{ $e }}</p>@endforeach
+                                        <button type="submit" class="bio-form-btn"><span x-show="!waiting">{{ trim((string) ($link->settings['button'] ?? '')) ?: __('Send') }}</span><span x-cloak x-show="waiting">{{ __('Checking…') }}</span></button>
+                                    </form>
+                                @endif
+                            </div>
+                        @elseif($link->type === 'poll' && $link->pollOptions())
+                            @php
+                                $pOpts = $link->pollOptions();
+                                $pRes = $link->pollResults(\Hop\Bio\Models\BioPollVote::voterHash(request()->ip(), request()->userAgent()));
+                            @endphp
+                            <div id="poll-{{ $link->public_id }}" class="bio-poll w-full rounded-2xl p-4" style="background: {{ $blockBg }}; color: {{ $linkTextColor }};">
+                                <div class="mb-2 text-sm font-semibold">{{ $link->title }}</div>
+                                @if($pRes['voted'] === null)
+                                    <form method="POST" action="{{ route('bio.public.poll', $link->public_id) }}" class="grid gap-2">
+                                        @csrf
+                                        @foreach($pOpts as $i => $opt)
+                                            <button type="submit" name="option" value="{{ $i }}" class="bio-poll-opt">{{ $opt }}</button>
+                                        @endforeach
+                                    </form>
+                                @else
+                                    <ul class="grid gap-2" aria-label="{{ __('Results') }}">
+                                        @foreach($pOpts as $i => $opt)
+                                            @php $pc = $pRes['total'] > 0 ? (int) round($pRes['counts'][$i] / $pRes['total'] * 100) : 0; @endphp
+                                            <li class="bio-poll-res {{ $pRes['voted'] === $i ? 'is-mine' : '' }}"><span class="bio-poll-bar" style="width: {{ $pc }}%"></span><span class="bio-poll-row"><span>{{ $opt }}@if($pRes['voted'] === $i) ✓@endif</span><span class="tabular-nums">{{ $pc }}%</span></span></li>
+                                        @endforeach
+                                    </ul>
+                                    <p class="mt-2 text-[11px] opacity-70">{{ trans_choice(':count vote|:count votes', $pRes['total'], ['count' => $pRes['total']]) }}</p>
+                                @endif
+                            </div>
+                        @elseif($link->type === 'rss')
+                            @php $feed = $link->feedItems(); @endphp
+                            @if($feed)
+                            <div class="bio-feed w-full rounded-2xl p-3" style="background: {{ $blockBg }}; color: {{ $linkTextColor }};">
+                                @if($link->title)<div class="mb-1 px-1 text-sm font-semibold">{{ $link->title }}</div>@endif
+                                <ul class="grid gap-0.5">
+                                    @foreach($feed as $item)
+                                        <li><a href="{{ $item['url'] }}" target="_blank" rel="nofollow noopener" class="flex items-baseline justify-between gap-3 rounded-lg px-1 py-1.5 text-sm hover:bg-black/5"><span>{{ $item['title'] }}</span>@if($item['date'])<time class="shrink-0 text-[11px] opacity-70" datetime="{{ $item['date'] }}">{{ \Illuminate\Support\Carbon::parse($item['date'])->isoFormat('D MMM') }}</time>@endif</a></li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                            @endif
+                        @elseif($link->type === 'goal')
+                            @php $pct = $link->goalPercent(); $unit = trim((string) ($link->settings['unit'] ?? '')); $fmt = fn ($n) => number_format((float) $n, 0, '.', ',').($unit !== '' ? ' '.$unit : ''); @endphp
+                            <div class="bio-goal w-full rounded-2xl p-4" style="background: {{ $blockBg }}; color: {{ $linkTextColor }};">
+                                <div class="flex items-baseline justify-between gap-2 text-sm font-semibold"><span>{{ $link->title }}</span><span class="tabular-nums">{{ $pct }}%</span></div>
+                                <div class="mt-2 h-2.5 w-full overflow-hidden rounded-full" style="background: rgba(127,127,127,.25)" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ $pct }}" aria-label="{{ $link->title }}"><div class="h-full rounded-full" style="width: {{ $pct }}%; background: currentColor; opacity: .85"></div></div>
+                                <div class="mt-1.5 flex justify-between text-xs opacity-80"><span>{{ $fmt($link->settings['current'] ?? 0) }}</span><span>{{ __('Goal') }}: {{ $fmt($link->settings['target'] ?? 0) }}</span></div>
+                                @if($link->url && preg_match('#^https?://#i', $link->url))<a href="{{ $clickHref($link->public_id) }}" target="_blank" rel="nofollow noopener" class="mt-2 inline-block text-xs font-semibold underline">{{ $link->description ?: __('Support') }} ↗</a>@endif
+                            </div>
+                        @elseif($link->type === 'audio' && $link->content)
+                            <div class="bio-audio w-full rounded-2xl p-3" style="background: {{ $blockBg }}; color: {{ $linkTextColor }};">
+                                @if($link->title)<div class="mb-2 text-sm font-semibold">{{ $link->title }}</div>@endif
+                                <audio controls preload="none" class="w-full" src="{{ $link->content }}">{{ __('Your browser cannot play this clip.') }}</audio>
+                            </div>
+                        @elseif($link->type === 'pdf' && $link->content)
+                            <a href="{{ $link->content }}" target="_blank" rel="noopener" class="bio-pdf link-block" style="background: {{ $blockBg }}; color: {{ $linkTextColor }};">
+                                <span class="block-title">📄 {{ $link->title ?: __('Document') }} <small class="opacity-70">PDF</small></span>
+                            </a>
+                        @elseif($link->type === 'carousel' && $link->carouselImages())
+                            <div class="bio-carousel w-full" role="region" aria-roledescription="carousel" aria-label="{{ $link->title ?: __('Pictures') }}" tabindex="0">
+                                @foreach($link->carouselImages() as $img)
+                                    <figure class="bio-slide"><img src="{{ $img['url'] }}" alt="{{ $img['caption'] }}" loading="lazy" decoding="async" {!! \Hop\Bio\Support\ImageMeta::attrs($img['url']) !!}>@if($img['caption'])<figcaption>{{ $img['caption'] }}</figcaption>@endif</figure>
+                                @endforeach
                             </div>
                         @elseif($link->type === 'faq' && $link->faq_items)
                             <div class="w-full rounded-xl p-4" style="background: rgba(0,0,0,0.05);">
@@ -1134,8 +1275,13 @@
                         @endforeach
                     </div>
                 @endif
+                @if(trim((string) $bioPage->footer_note) !== '')
+                <p class="bio-footer-note mt-8 text-center text-xs" style="color: {{ $bioColor }}; opacity: .85">
+                    @if($bioPage->footer_url)<a href="{{ \Hop\Safety\SafeContent::url($bioPage->footer_url) }}" target="_blank" rel="nofollow noopener" class="underline">{{ $bioPage->footer_note }}</a>@else{{ $bioPage->footer_note }}@endif
+                </p>
+                @endif
                 @unless($bioPage->hide_branding)
-                <div class="mt-8 text-center">
+                <div class="{{ trim((string) $bioPage->footer_note) !== '' ? 'mt-3' : 'mt-8' }} text-center">
                     <a href="{{ url('/') }}" class="powered-link inline-flex items-center gap-2 text-sm transition-colors">
                         <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
@@ -1214,6 +1360,14 @@ END:VCARD`;
             });
             return qrLibrary;
         }
+        // The address without any query, plus ?src= so scans of this code are counted as QR visits.
+        function shareUrl(src) {
+            const u = new URL(window.location.href);
+            u.search = '';
+            u.hash = '';
+            if (src) u.searchParams.set('src', src);
+            return u.toString();
+        }
         async function initShareQR() {
             const container = document.getElementById('share-qr-container');
             if (!container || shareQrInstance) return;
@@ -1223,7 +1377,7 @@ END:VCARD`;
                 width: 120,
                 height: 120,
                 type: 'svg',
-                data: window.location.href,
+                data: shareUrl('qr'),
                 dotsOptions: {
                     color: qrColor,
                     type: qrDotStyle
@@ -1249,6 +1403,65 @@ END:VCARD`;
             container.innerHTML = '';
             shareQrInstance.append(container);
         }
+        // A 1080x1920 picture for stories: the page's colours, picture, name, a short line and a QR code that counts as a QR visit.
+        async function downloadShareCard() {
+            try { await loadQrLibrary(); } catch (e) { return; }
+            if (!window.QRCodeStyling) return;
+            const W = 1080, H = 1920, colors = @js($cardColors), name = @js($bioPage->title), line = @js(html_entity_decode((string) $bioPage->bio)), avatar = @js($bioPage->avatar_url ? Storage::disk('public')->url($bioPage->avatar_url) : null), shown = @js(preg_replace('#^https?://#', '', rtrim(public_url('b/'.$bioPage->slug), '/')));
+            const family = getComputedStyle(document.body).fontFamily;
+            try { await Promise.all([document.fonts.load('700 72px ' + family), document.fonts.load('400 38px ' + family)]); } catch (e) {}
+            const c = document.createElement('canvas');
+            c.width = W; c.height = H;
+            const g = c.getContext('2d');
+            const grad = g.createLinearGradient(0, 0, W, H);
+            colors.forEach((col, i) => grad.addColorStop(colors.length === 1 ? 0 : i / (colors.length - 1), col));
+            g.fillStyle = colors.length === 1 ? colors[0] : grad;
+            g.fillRect(0, 0, W, H);
+            const lum = (hex) => { const n = parseInt(hex.slice(1), 16); return (0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255; };
+            const light = lum(colors[0]) > 0.62;
+            const ink = light ? '#0f172a' : '#ffffff';
+            g.textAlign = 'center';
+            // picture
+            const cx = W / 2, cy = 390, r = 190;
+            g.save();
+            g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.closePath(); g.clip();
+            let drawn = false;
+            if (avatar) {
+                try {
+                    const img = await new Promise((ok, no) => { const i = new Image(); i.crossOrigin = 'anonymous'; i.onload = () => ok(i); i.onerror = no; i.src = avatar; });
+                    const s = Math.max(2 * r / img.width, 2 * r / img.height);
+                    g.drawImage(img, cx - img.width * s / 2, cy - img.height * s / 2, img.width * s, img.height * s);
+                    drawn = true;
+                } catch (e) {}
+            }
+            if (!drawn) { g.fillStyle = 'rgba(255,255,255,0.25)'; g.fillRect(cx - r, cy - r, 2 * r, 2 * r); g.fillStyle = ink; g.font = '700 190px ' + family; g.textBaseline = 'middle'; g.fillText((name || '?').trim().charAt(0).toUpperCase(), cx, cy + 10); }
+            g.restore();
+            g.lineWidth = 10; g.strokeStyle = 'rgba(255,255,255,0.7)'; g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.stroke();
+            g.textBaseline = 'alphabetic';
+            const wrap = (text, font, max, lines) => { g.font = font; const words = String(text).split(/\s+/); const out = []; let cur = ''; for (const w of words) { const t = cur ? cur + ' ' + w : w; if (g.measureText(t).width > max && cur) { out.push(cur); cur = w; } else cur = t; } if (cur) out.push(cur); if (out.length > lines) { out.length = lines; out[lines - 1] = out[lines - 1].replace(/\s*\S*$/, '') + '…'; } return out; };
+            g.fillStyle = ink;
+            let y = 680;
+            wrap(name, '700 78px ' + family, 900, 2).forEach(l => { g.font = '700 78px ' + family; g.fillText(l, cx, y); y += 92; });
+            y += 10;
+            g.globalAlpha = 0.85;
+            wrap(line, '400 40px ' + family, 860, 3).forEach(l => { g.font = '400 40px ' + family; g.fillText(l, cx, y); y += 54; });
+            g.globalAlpha = 1;
+            // QR on a white card
+            const qr = new QRCodeStyling({ width: 560, height: 560, type: 'canvas', data: shareUrl('qr'), margin: 0, dotsOptions: { color: '#111827', type: qrDotStyle }, backgroundOptions: { color: '#ffffff' }, cornersSquareOptions: { color: '#111827', type: qrCornerSquareType }, cornersDotOptions: { color: '#111827', type: qrCornerDotType }, qrOptions: { errorCorrectionLevel: 'M' } });
+            const blob = await qr.getRawData('png');
+            const qimg = await createImageBitmap(blob);
+            const cardY = 1020, pad = 50, size = 560 + pad * 2;
+            g.fillStyle = '#ffffff';
+            g.beginPath(); (g.roundRect ? g.roundRect(cx - size / 2, cardY, size, size, 48) : g.rect(cx - size / 2, cardY, size, size)); g.fill();
+            g.drawImage(qimg, cx - 280, cardY + pad, 560, 560);
+            g.fillStyle = ink;
+            g.font = '600 44px ' + family;
+            g.fillText(shown, cx, cardY + size + 90);
+            g.globalAlpha = 0.7; g.font = '400 34px ' + family;
+            g.fillText(@js(__('Scan to open')), cx, cardY + size + 145);
+            g.globalAlpha = 1;
+            c.toBlob((b) => { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = @js($bioPage->slug).concat('-story.png'); document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }, 'image/png');
+        }
         async function downloadShareQR() {
             if (!shareQrInstance) {
                 await initShareQR();
@@ -1261,7 +1474,7 @@ END:VCARD`;
                 width: qrSize,
                 height: qrSize,
                 type: 'canvas',
-                data: window.location.href,
+                data: shareUrl('qr'),
                 dotsOptions: {
                     color: qrColor,
                     type: qrDotStyle
@@ -1342,7 +1555,7 @@ END:VCARD`;
             const theme = document.body.dataset.theme;
             const container = document.getElementById('bg-animation');
             if (!container) return;
-            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.classList.contains('lite')) return;
             if ((theme === 'neon' || theme === 'matrix') && bgAnim === 'matrix') {
                 initMatrixEffect(container);
                 return; // Matrix is the only animation
@@ -1674,6 +1887,33 @@ END:VCARD`;
             }
         })();
     </script>
+    <script nonce="{{ Vite::cspNonce() }}">
+        // A tap on a player placeholder swaps it for the real iframe; modified clicks (new tab) keep the plain link.
+        document.addEventListener('click', function (e) {
+            var a = e.target.closest && e.target.closest('.bio-facade');
+            if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+            e.preventDefault();
+            var src = a.dataset.embedSrc, kind = a.dataset.embedKind, f = document.createElement('iframe');
+            if (kind === 'video' && src.indexOf('youtube.com') > -1) src += (src.indexOf('?') > -1 ? '&' : '?') + 'autoplay=1';
+            f.src = src;
+            f.title = a.dataset.embedTitle || '';
+            f.setAttribute('allow', kind === 'video' || kind === 'tiktok' ? 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen' : 'autoplay *; clipboard-write; encrypted-media *; fullscreen *; picture-in-picture');
+            if (a.dataset.embedSandbox) f.setAttribute('sandbox', a.dataset.embedSandbox);
+            f.style.border = '0';
+            f.style.width = '100%';
+            if (kind === 'video') { f.style.height = '100%'; }
+            else { f.style.height = (a.dataset.embedHeight || 200) + 'px'; if (kind === 'tiktok') { f.style.maxWidth = '325px'; f.style.margin = '0 auto'; } else { f.style.borderRadius = '8px'; } }
+            a.replaceWith(f);
+            f.focus();
+        });
+    </script>
+    @if($fab = $bioPage->fabHref())
+        <div aria-hidden="true" style="height: 72px"></div>
+        <a href="{{ $fab }}" target="_blank" rel="nofollow noopener" class="bio-fab {{ $bioPage->fab_type }}" aria-label="{{ $bioPage->fab_label ?: ($bioPage->fab_type === 'whatsapp' ? __('Chat on WhatsApp') : __('Open')) }}">
+            @if($bioPage->fab_type === 'whatsapp')<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 01-12.4 7.4L3 21l2.1-5.4A8.4 8.4 0 1121 11.5z"/></svg>@endif
+            <span>{{ $bioPage->fab_label ?: ($bioPage->fab_type === 'whatsapp' ? __('Chat') : __('Open')) }}</span>
+        </a>
+    @endif
     @include('bio::partials.trackers')
 </body>
 </html>

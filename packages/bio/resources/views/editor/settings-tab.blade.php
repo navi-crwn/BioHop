@@ -36,6 +36,34 @@
         </div>
     </div>
 </div>
+<!-- Sharing: picture and favicon -->
+<div class="editor-card">
+    <div class="editor-card-header">
+        <h3 class="editor-card-title">Sharing</h3>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+            <label class="form-label">Share picture (Open Graph)</label>
+            <p class="text-xs editor-text-muted mb-2">Shown when the page is shared on WhatsApp, Telegram, X or Facebook. 1200×630 works best; without one the profile picture is used.</p>
+            <input aria-label="Upload share picture" type="file" accept="image/*" class="hidden" x-ref="ogInput" @change="uploadPageImage('og_image', $event)">
+            <div class="flex items-center gap-2">
+                <button type="button" @click="$refs.ogInput.click()" class="btn btn-secondary text-sm py-2 flex-1">Upload picture</button>
+                <button type="button" x-show="bioPage.og_image" @click="bioPage.og_image = ''" class="btn btn-secondary text-sm py-2">Remove</button>
+            </div>
+            <template x-if="bioPage.og_image"><img :src="pageImageUrl(bioPage.og_image)" alt="Share picture" class="mt-2 w-full h-24 object-cover rounded-lg"></template>
+        </div>
+        <div>
+            <label class="form-label">Favicon</label>
+            <p class="text-xs editor-text-muted mb-2">The small icon in the browser tab. A square PNG, 64×64 or larger.</p>
+            <input aria-label="Upload favicon" type="file" accept="image/png,image/x-icon,image/svg+xml,image/webp" class="hidden" x-ref="favInput" @change="uploadPageImage('favicon', $event)">
+            <div class="flex items-center gap-2">
+                <button type="button" @click="$refs.favInput.click()" class="btn btn-secondary text-sm py-2 flex-1">Upload favicon</button>
+                <button type="button" x-show="bioPage.favicon" @click="bioPage.favicon = ''" class="btn btn-secondary text-sm py-2">Remove</button>
+            </div>
+            <template x-if="bioPage.favicon"><img :src="pageImageUrl(bioPage.favicon)" alt="Favicon" class="mt-2 w-10 h-10 rounded-md object-contain" style="background: var(--editor-input-bg)"></template>
+        </div>
+    </div>
+</div>
 <!-- Privacy & Visibility -->
 <div class="editor-card">
     <div class="editor-card-header">
@@ -61,6 +89,34 @@
                 <input type="checkbox" x-model="bioPage.allow_indexing" aria-label="Search engine indexing">
                 <span class="toggle-slider"></span>
             </label>
+        </div>
+        <!-- Unlisted: not in search engines, not in the directory; the address still works -->
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="font-medium text-slate-900 dark:text-white">Unlisted</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Only people with the address find the page: no search engines, not in the directory.</p>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" :checked="!bioPage.allow_indexing && !bioPage.show_in_directory" @change="bioPage.allow_indexing = !$event.target.checked; bioPage.show_in_directory = !$event.target.checked" aria-label="Unlisted">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        <!-- Privacy mode: no counting at all -->
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="font-medium text-slate-900 dark:text-white">Privacy mode</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Stops counting views and clicks for this page. Analytics stay as they are and stop growing.</p>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" x-model="bioPage.privacy_mode" aria-label="Privacy mode">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        <!-- Fallback address while unpublished -->
+        <div x-show="!bioPage.is_published" x-transition>
+            <label for="bfsettin-fb" class="form-label">While unpublished, send visitors to</label>
+            <input id="bfsettin-fb" type="url" x-model="bioPage.fallback_url" class="form-input" placeholder="https://your-site.example" autocomplete="off">
+            <p class="text-xs editor-text-muted mt-1">Leave empty to show the usual "not found" page.</p>
         </div>
         <!-- UTM on outgoing links -->
         <div class="flex items-center justify-between">
@@ -182,7 +238,115 @@
             <input id="bfsettin-6" type="text" x-model="bioPage.tiktok_pixel_id" class="form-input" placeholder="CXXXXXXXXXXXXXXXXXX" pattern="[A-Z0-9]{20,30}" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-form-type="other" inputmode="text">
             <p class="text-xs editor-text-muted mt-1">Format: 20-30 character ID (e.g., C123ABC456DEF789GHI)</p>
         </div>
+        <div class="form-group">
+            <label for="bfsettin-7" class="form-label">Google Tag Manager</label>
+            <input id="bfsettin-7" type="text" x-model="bioPage.gtm_id" class="form-input" placeholder="GTM-XXXXXXX" pattern="GTM-[A-Z0-9]{4,12}" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-form-type="other">
+            <p class="text-xs editor-text-muted mt-1">Like the pixels, it loads only after the visitor agrees in the consent banner.</p>
+        </div>
     </div>
+</div>
+<!-- Webhook -->
+<div class="editor-card" x-data="{ info: null, show: false, busy: false, msg: '',
+        csrf() { return document.head.querySelector('meta[name=csrf-token]')?.content || ''; },
+        async load() { try { const r = await fetch(bioEditorUrl('/webhook'), { headers: { 'Accept': 'application/json' } }); this.info = r.ok ? await r.json() : null; } catch (e) { this.info = null; } },
+        when(iso) { return iso ? new Date(iso).toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''; },
+        async post(path, okMsg) { this.busy = true; this.msg = ''; try { const r = await fetch(bioEditorUrl('/webhook' + path), { method: 'POST', headers: { 'X-CSRF-TOKEN': this.csrf(), 'Accept': 'application/json' } }); this.msg = r.ok ? okMsg : 'Save the address first (it must be https).'; } catch (e) { this.msg = 'Something went wrong.'; } this.busy = false; await this.load(); } }"
+     x-init="$watch('activeTab', t => { if (t === 'settings') load(); }); if (activeTab === 'settings') load();">
+    <div class="editor-card-header">
+        <h3 class="editor-card-title">Webhook</h3>
+    </div>
+    <p class="text-xs editor-text-muted mb-3">Send each new entry of your sign-up forms to an address of yours (Zapier, Make, n8n, your own server) as soon as it arrives. It is signed so you can check it came from BioHop. Entries contain what visitors typed, so only send them to a service you trust.</p>
+    <div class="form-group">
+        <label for="bfsettin-wh" class="form-label">Address (https)</label>
+        <input id="bfsettin-wh" type="url" x-model="bioPage.webhook_url" class="form-input" placeholder="https://hooks.example.com/bio" autocomplete="off">
+        <p class="text-xs editor-text-muted mt-1">Save the page first, then send a test. Leave empty to turn it off.</p>
+    </div>
+    <template x-if="info && info.url">
+        <div class="mt-3 space-y-3">
+            <div class="flex items-center gap-2">
+                <input :type="show ? 'text' : 'password'" readonly class="form-input text-xs font-mono" :value="info.secret || ''" aria-label="Signing secret">
+                <button type="button" class="btn btn-secondary text-xs py-1.5 px-2" @click="show = !show" x-text="show ? 'Hide' : 'Show'"></button>
+                <button type="button" class="btn btn-secondary text-xs py-1.5 px-2" :disabled="busy" @click="if (confirm('Make a new secret? The old one stops working.')) post('/secret', 'New secret made.')">New secret</button>
+            </div>
+            <p class="text-xs editor-text-muted">Check each request: <code>X-BioHop-Signature</code> is <code>sha256=</code> and the HMAC-SHA256 of <code>timestamp.body</code> with this secret (the timestamp is in <code>X-BioHop-Timestamp</code>; ignore requests older than five minutes).</p>
+            <div class="flex items-center gap-2">
+                <button type="button" class="btn btn-secondary text-sm py-1.5" :disabled="busy" @click="post('/test', 'Test sent. It shows below in a moment.')">Send a test</button>
+                <span class="text-xs editor-text-muted" x-text="msg" role="status"></span>
+            </div>
+            <ul class="be-versions" x-show="info.deliveries.length">
+                <template x-for="d in info.deliveries" :key="d.id">
+                    <li>
+                        <span><b x-text="d.event + ' · ' + (d.status === 'sent' ? 'delivered' : d.status === 'pending' ? 'will try again' : 'failed')"></b><small x-text="when(d.created_at) + ' · ' + d.attempts + (d.attempts === 1 ? ' try' : ' tries') + (d.http_code ? ' · HTTP ' + d.http_code : '') + (d.error ? ' · ' + d.error : '')"></small></span>
+                        <button type="button" class="btn btn-secondary text-xs py-1 px-2" :disabled="busy" x-show="d.status !== 'sent'" @click="busy = true; fetch(bioEditorUrl('/webhook/' + d.id + '/resend'), { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf(), 'Accept': 'application/json' } }).then(() => load()).finally(() => busy = false)">Send again</button>
+                    </li>
+                </template>
+            </ul>
+        </div>
+    </template>
+</div>
+<!-- Versions -->
+<div class="editor-card" x-data="{ versions: [], loaded: false, label: '', busy: false,
+        async load() { try { const r = await fetch(bioEditorUrl('/revisions'), { headers: { 'Accept': 'application/json' } }); this.versions = r.ok ? await r.json() : []; } catch (e) { this.versions = []; } this.loaded = true; },
+        when(iso) { return new Date(iso).toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); },
+        async save() { this.busy = true; await fetch(bioEditorUrl('/revisions'), { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.head.querySelector('meta[name=csrf-token]')?.content || '', 'Accept': 'application/json' }, body: JSON.stringify({ label: this.label }) }); this.label = ''; this.busy = false; await this.load(); },
+        async restore(v) { if (!confirm('Bring back the version from ' + this.when(v.created_at) + '? Your page as it is now is saved as a version first, so you can undo this.')) return; this.busy = true; const r = await fetch(bioEditorUrl('/revisions/' + v.id + '/restore'), { method: 'POST', headers: { 'X-CSRF-TOKEN': document.head.querySelector('meta[name=csrf-token]')?.content || '', 'Accept': 'application/json' } }); if (r.ok) { window.location.reload(); } else { this.busy = false; alert('Could not restore this version.'); } } }" x-init="$watch('activeTab', t => { if (t === 'settings' && !loaded) load(); }); if (activeTab === 'settings') load();">
+    <div class="editor-card-header">
+        <h3 class="editor-card-title">Versions</h3>
+    </div>
+    <p class="text-xs editor-text-muted mb-3">BioHop keeps a version before each editing session, and you can save one by name before a big change (a campaign, a redesign). Restoring brings back the design, text and blocks; the address, publishing, password, tracking and click counts stay as they are. Blocks added after a version are archived, not deleted. The last 30 are kept.</p>
+    <div class="flex gap-2 mb-3">
+        <input type="text" maxlength="60" x-model="label" class="form-input text-sm" placeholder="Name this version, e.g. Before the sale" aria-label="Version name" autocomplete="off">
+        <button type="button" class="btn btn-secondary text-sm py-2 shrink-0" :disabled="busy" @click="save()">Save a version</button>
+    </div>
+    <p class="text-xs editor-text-muted" x-show="loaded && !versions.length">No versions yet. The first one is taken when you next change something.</p>
+    <ul class="be-versions" x-show="versions.length">
+        <template x-for="v in versions" :key="v.id">
+            <li>
+                <span><b x-text="v.label || 'Automatic version'"></b><small x-text="when(v.created_at) + ' · ' + v.blocks_count + ' blocks'"></small></span>
+                <button type="button" class="btn btn-secondary text-xs py-1 px-2" :disabled="busy" @click="restore(v)">Restore</button>
+            </li>
+        </template>
+    </ul>
+</div>
+<!-- Floating button -->
+<div class="editor-card">
+    <div class="editor-card-header">
+        <h3 class="editor-card-title">Floating button</h3>
+    </div>
+    <p class="text-xs editor-text-muted mb-3">One button that stays in the corner while visitors scroll: chat with you on WhatsApp, or open any address.</p>
+    <div class="flex gap-2 mb-3" role="radiogroup" aria-label="Floating button">
+        <template x-for="t in [['none','Off'],['whatsapp','WhatsApp'],['custom','Link']]" :key="t[0]">
+            <button type="button" role="radio" :aria-checked="(bioPage.fab_type || 'none') === t[0]" @click="bioPage.fab_type = t[0]" class="btn btn-secondary text-sm py-1.5 flex-1" :class="{ 'ring-2 ring-blue-500': (bioPage.fab_type || 'none') === t[0] }" x-text="t[1]"></button>
+        </template>
+    </div>
+    <div class="grid gap-3 sm:grid-cols-2" x-show="(bioPage.fab_type || 'none') !== 'none'" x-transition>
+        <div class="form-group">
+            <label for="bfsettin-f1" class="form-label" x-text="bioPage.fab_type === 'whatsapp' ? 'WhatsApp number' : 'Address'"></label>
+            <input id="bfsettin-f1" type="text" maxlength="500" x-model="bioPage.fab_url" class="form-input" :placeholder="bioPage.fab_type === 'whatsapp' ? '+62 812 3456 7890' : 'https://…'" autocomplete="off">
+        </div>
+        <div class="form-group">
+            <label for="bfsettin-f2" class="form-label">Button text <span class="editor-text-muted font-normal">(optional)</span></label>
+            <input id="bfsettin-f2" type="text" maxlength="30" x-model="bioPage.fab_label" class="form-input" :placeholder="bioPage.fab_type === 'whatsapp' ? 'Chat' : 'Open'" autocomplete="off">
+        </div>
+    </div>
+</div>
+<!-- Footer line -->
+<div class="editor-card">
+    <div class="editor-card-header">
+        <h3 class="editor-card-title">Footer</h3>
+    </div>
+    <div class="grid gap-3 sm:grid-cols-2">
+        <div class="form-group">
+            <label for="bfsettin-8" class="form-label">Footer line</label>
+            <input id="bfsettin-8" type="text" maxlength="200" x-model="bioPage.footer_note" class="form-input" placeholder="Prices in IDR · Affiliate links marked" autocomplete="off">
+            <p class="text-xs editor-text-muted mt-1">A short disclaimer, imprint or thank-you under the blocks.</p>
+        </div>
+        <div class="form-group">
+            <label for="bfsettin-9" class="form-label">Footer link <span class="editor-text-muted font-normal">(optional)</span></label>
+            <input id="bfsettin-9" type="url" x-model="bioPage.footer_url" class="form-input" placeholder="https://your-site.example/terms" autocomplete="off">
+        </div>
+    </div>
+    <p class="text-xs editor-text-muted mt-2">The "Powered by" line is in Design → Footer.</p>
 </div>
 <!-- Danger Zone -->
 <div class="editor-card border-red-200 dark:border-red-900">

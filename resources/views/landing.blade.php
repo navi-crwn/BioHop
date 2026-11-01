@@ -19,11 +19,11 @@
     <link rel="icon" type="image/svg+xml" href="{{ route('brand.favicon', ['v' => 'b10b1000']) }}">
     <x-hop::fonts />
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/home.css', 'resources/js/home.js'])
-    <link rel="stylesheet" href="{{ asset('hop-home/hop-home.css') }}">
-    <script src="{{ asset('hop-home/hop-hero3d.js') }}" defer></script>
-    <script src="{{ asset('hop-home/hop-motion.js') }}" defer></script>
-    <script src="{{ asset('hop-home/hop-home.js') }}" defer></script>
-    <script src="{{ asset('hop-home/hop-scenes.js') }}" defer></script>
+    <link rel="stylesheet" href="{{ asset('hop-home/hop-home.css') }}?v={{ substr(md5_file(public_path('hop-home/hop-home.css')), 0, 8) }}">
+    <script src="{{ asset('hop-home/hop-hero3d.js') }}?v={{ substr(md5_file(public_path('hop-home/hop-hero3d.js')), 0, 8) }}" defer></script>
+    <script src="{{ asset('hop-home/hop-motion.js') }}?v={{ substr(md5_file(public_path('hop-home/hop-motion.js')), 0, 8) }}" defer></script>
+    <script src="{{ asset('hop-home/hop-home.js') }}?v={{ substr(md5_file(public_path('hop-home/hop-home.js')), 0, 8) }}" defer></script>
+    <script src="{{ asset('hop-home/hop-scenes.js') }}?v={{ substr(md5_file(public_path('hop-home/hop-scenes.js')), 0, 8) }}" defer></script>
     <script nonce="{{ Vite::cspNonce() }}">
         try { const t = localStorage.getItem('helink-theme'); if (t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches)) document.documentElement.classList.add('dark'); } catch (e) {}
     </script>

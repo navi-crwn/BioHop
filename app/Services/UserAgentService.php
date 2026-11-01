@@ -4,6 +4,7 @@ namespace App\Services;
 
 use DeviceDetector\DeviceDetector;
 use Hop\Bio\Contracts\UserAgentParser;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * User-agent parsing via matomo/device-detector (browsers, OS, device types, bots).
@@ -18,7 +19,9 @@ class UserAgentService implements UserAgentParser
             return ['device' => 'Unknown', 'browser' => 'Unknown', 'os' => 'Unknown', 'bot' => false];
         }
 
-        return $this->memo[$userAgent] ??= $this->detect($userAgent);
+        // A cold parse takes a few hundred milliseconds and every request starts cold, which a visitor feels as a slow
+        // redirect on a link click. The same browsers come back all day, so the result is kept in the cache.
+        return $this->memo[$userAgent] ??= Cache::remember('ua:'.sha1($userAgent), now()->addDays(7), fn () => $this->detect($userAgent));
     }
 
     private function detect(string $userAgent): array

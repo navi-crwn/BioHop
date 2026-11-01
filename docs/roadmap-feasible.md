@@ -10,7 +10,7 @@ Page-level: SEO title/description, noindex, pixels (GA, Meta, TikTok), age gate 
 
 ## Feasible, in the order I would do them
 
-### Page settings (small)
+### Page settings (small) — done 2026-11-01 evening on `feat/page-settings` (items 1–8; GTM shares the existing consent banner)
 1. **Custom OG image** upload (falls back to the avatar) and **favicon per page**.
 2. **Google Tag Manager id** next to the pixels.
 3. **Cookie consent banner** shown only when a third-party pixel is on; HOP's own counting needs no cookie.
@@ -20,7 +20,7 @@ Page-level: SEO title/description, noindex, pixels (GA, Meta, TikTok), age gate 
 7. **Unlisted switch** that sets noindex + hidden from directory together (Singlelink study).
 8. **Privacy mode**: stop counting views and clicks for a page.
 
-### Blocks and links (small to medium)
+### Blocks and links (small to medium) — also done 2026-11-01 night on `feat/page-settings`: 18 routing rules, 19 RSS block, 21 polls (not the guestbook), 22 sign-up form with CSV (not subscribe-to-unlock or RSVP yet) — items 9–14 done 2026-11-01 evening on `feat/page-settings`: status chip, floating button, app-store redirect, goal bar, audio clip (no track list yet), image carousel, PDF
 9. **Status chip** under the name ("Open for commissions"), optional expiry.
 10. **Floating action button** (sticky WhatsApp / shop / custom), reduced-motion safe.
 11. **App-store redirect** block (App Store / Play / web by device).
@@ -37,6 +37,8 @@ Page-level: SEO title/description, noindex, pixels (GA, Meta, TikTok), age gate 
 22. **Lead-capture form** block (name, e-mail, WhatsApp) with CSV export, stored in HOP, retention setting, Turnstile; then **subscribe-to-unlock** and **RSVP with .ics**.
 23. **Webhooks** per page (https URL + secret, signed payloads, retries, a retry button) for form entries and daily stats.
 24. **A/B titles** on a link (two titles, bucket by keyed hash, clicks per variant).
+
+### Also done 2026-11-01 late night (feat/page-settings): 20 product details from a shop address (2.5 s guard, own copy of the picture), 23 webhooks for form entries (signed, retried, delivery log, test, resend), 34 story image from the share dialog, 35 installable web app manifest per page and `?src=qr|nfc|pwa` sources with analytics cards for sources and referring sites, 36 page cache groundwork (session-free reading)
 
 ### Dashboard and editor (small to medium)
 25. **Bento block picker**: the add-block modal grouped as Essentials · Media · Shop · Smart (same blocks, better found).
