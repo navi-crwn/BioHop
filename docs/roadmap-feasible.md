@@ -10,7 +10,7 @@ Page-level: SEO title/description, noindex, pixels (GA, Meta, TikTok), age gate 
 
 ## Feasible, in the order I would do them
 
-### Page settings (small)
+### Page settings (small) — done 2026-11-01 evening on `feat/page-settings` (items 1–8; GTM shares the existing consent banner)
 1. **Custom OG image** upload (falls back to the avatar) and **favicon per page**.
 2. **Google Tag Manager id** next to the pixels.
 3. **Cookie consent banner** shown only when a third-party pixel is on; HOP's own counting needs no cookie.
