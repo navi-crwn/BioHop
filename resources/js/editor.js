@@ -1427,7 +1427,7 @@ window.bioEditorV2 = function() {
                 const failedDeletes = await this.processDeletions();
                 await this.saveBlocks();
                 if (failedDeletes > 0) {
-                    throw new Error(`${failedDeletes} deleted block(s) could not be removed. Save again to retry.`);
+                    throw new Error(`${failedDeletes} deleted ${failedDeletes === 1 ? 'block' : 'blocks'} could not be removed. Save again to retry.`);
                 }
             } catch (error) {
                 failed = true;
@@ -1831,7 +1831,7 @@ window.bioEditorV2 = function() {
             this.selectedIds = [];
         },
         bulkDelete() {
-            if (!confirm('Delete ' + this.selectedIds.length + ' block(s)? Archive keeps their clicks; delete does not.')) return;
+            if (!confirm('Delete ' + this.selectedIds.length + (this.selectedIds.length === 1 ? ' block' : ' blocks') + '? Archive keeps their clicks; delete does not.')) return;
             [...this.selectedIds].forEach(id => { const i = this.blocks.findIndex(b => b.id === id); if (i >= 0) this.removeBlock(i); });
             this.selectedIds = [];
         },

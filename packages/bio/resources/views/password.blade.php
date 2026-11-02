@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinkHop - Password Protected</title>
+    <title>BioHop - Password Protected</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="icon" href="{{ route('brand.favicon') }}">
     <x-hop::fonts />
@@ -228,7 +228,7 @@
         <div class="card">
             <div class="logo-container">
                 <a href="{{ url('/') }}" class="logo">
-                    <img src="{{ route('brand.logo') }}" alt="LinkHop">
+                    <img src="{{ route('brand.logo') }}" alt="BioHop">
                     HEL<span class="logo-dot">.</span>ink
                 </a>
             </div>
@@ -284,7 +284,7 @@
             </div>
         </div>
         <div class="branding">
-            <p>Powered by <a href="{{ url('/') }}">LinkHop</a></p>
+            <p>Powered by <a href="{{ url('/') }}">BioHop</a></p>
         </div>
     </div>
     <script nonce="{{ Vite::cspNonce() }}">

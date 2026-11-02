@@ -139,7 +139,7 @@
                                 </div>
                                 <template x-if="!hasSlug">
                                     <div class="absolute inset-0 flex items-center justify-center rounded-lg bg-slate-900/50 backdrop-blur-xs">
-                                        <p class="text-xs font-medium text-white">Enter a slug</p>
+                                        <p class="text-xs font-medium text-white">Enter an address</p>
                                     </div>
                                 </template>
                                 <template x-if="generating">

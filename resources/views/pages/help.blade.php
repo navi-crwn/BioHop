@@ -19,7 +19,7 @@
 
             <section class="rounded-3xl border border-slate-200/80 bg-white/70 p-6 dark:border-white/10 dark:bg-white/[0.03]">
                 <h2 id="stats" class="text-lg font-bold">{{ __('See views and clicks') }}</h2>
-                <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">{{ __('The editor\'s stats tab shows page views and clicks per block.') }}</p>
+                <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">{{ __('Open Analytics on your pages list to see page views and clicks per block.') }}</p>
             </section>
 
             <section class="rounded-3xl border border-slate-200/80 bg-white/70 p-6 dark:border-white/10 dark:bg-white/[0.03]">

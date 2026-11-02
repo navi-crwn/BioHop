@@ -11,16 +11,16 @@
             <div class="space-y-1">
                 <p class="text-sm text-blue-700 dark:text-blue-400 truncate" x-text="'{{ public_url('b') }}/' + bioPage.slug"></p>
                 <h4 class="text-lg text-blue-800 dark:text-blue-300 font-medium truncate hover:underline cursor-pointer" 
-                    x-text="(bioPage.seo_title || bioPage.title || 'Your Page Title') + ' | By LinkHop'"></h4>
+                    x-text="(bioPage.seo_title || bioPage.title || 'Your Page Title') + ' | BioHop'"></h4>
                 <p class="text-sm text-slate-600 dark:text-slate-400 line-clamp-2" 
-                   x-text="bioPage.seo_description || bioPage.bio || 'Your page description will appear here. Write a compelling description to improve click-through rates from search results.'"></p>
+                   x-text="bioPage.seo_description || bioPage.bio || 'Your page description appears here, under the title, in search results.'"></p>
             </div>
         </div>
         <div class="form-group">
             <label for="bfsettin-1" class="form-label">Page Title</label>
             <input id="bfsettin-1" type="text" x-model="bioPage.seo_title" class="form-input" placeholder="Leave empty to use display name" maxlength="60" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-form-type="other">
             <div class="flex justify-between mt-1">
-                <p class="text-xs editor-text-muted">Appears in browser tab and search results (+ " | By LinkHop")</p>
+                <p class="text-xs editor-text-muted">Appears in browser tab and search results (+ " | BioHop")</p>
                 <p class="text-xs" :class="(bioPage.seo_title || '').length > 52 ? 'text-orange-500' : 'editor-text-muted'" x-text="(bioPage.seo_title || '').length + '/60'"></p>
             </div>
             <p class="be-field-error" x-show="fieldErrors.seo_title" x-cloak x-text="fieldErrors.seo_title"></p>
@@ -94,7 +94,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <p class="font-medium text-slate-900 dark:text-white">Unlisted</p>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Only people with the address find the page: no search engines, not in the directory.</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Only people who have the address can find the page. Search engines do not index it and it is not listed in the directory.</p>
             </div>
             <label class="toggle-switch">
                 <input type="checkbox" :checked="!bioPage.allow_indexing && !bioPage.show_in_directory" @change="bioPage.allow_indexing = !$event.target.checked; bioPage.show_in_directory = !$event.target.checked" aria-label="Unlisted">
