@@ -30,6 +30,9 @@ curl -fsSL https://raw.githubusercontent.com/navi-crwn/BioHop/main/install.sh | 
 
 From a clone: `./install.sh` · update: `./update.sh` · remove: `./uninstall.sh`. Add `--yes` to take every default; `--help` lists the options.
 
+> [!NOTE]
+> BioHop keeps its accounts in a HOP ID hub ([HEL.ink](https://github.com/navi-crwn/HEL.ink)); there is no hub-free mode. The installer sets up a hub next to BioHop for you (the default, about a minute), or connects to one you already run. To get the hub and several apps in one go, use `install-family.sh` from the HEL.ink repository.
+
 ## What is BioHop?
 
 BioHop is a link-in-bio app: you build one page with your links, images, embeds and socials, pick a theme, and publish it at `hel.ink/b/{slug}` — with a QR code ready to share.
