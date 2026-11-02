@@ -11,6 +11,14 @@ return [
     // Pages per account.
     'max_pages' => (int) env('BIO_MAX_PAGES', 3),
 
+    // Blocks per page.
+    'max_blocks' => (int) env('BIO_MAX_BLOCKS', 100),
+
+    // Custom CSS on a page. Off: new CSS is refused and what pages already have is not sent to visitors.
+    'allow_custom_css' => (bool) env('BIO_ALLOW_CUSTOM_CSS', true),
+
+    // The admin panel can change these four at run time (App\Support\BioLimits); these are the defaults.
+
     'upload_min_free_mb' => (int) env('BIO_UPLOAD_MIN_FREE_MB', 1024),
     'upload_min_free_percent' => (int) env('BIO_UPLOAD_MIN_FREE_PERCENT', 5),
 

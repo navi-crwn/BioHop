@@ -8,6 +8,7 @@ use App\Models\AbuseFlag;
 use App\Models\HopApp;
 use App\Models\HopAudit;
 use App\Models\User;
+use App\Support\BioLimits;
 use App\Support\HopSignature;
 use Carbon\CarbonImmutable;
 use Hop\Bio\Models\BioClick;
@@ -439,13 +440,12 @@ class HopBioController extends Controller
     /** GET /api/hop/settings */
     public function settings(): JsonResponse
     {
-        $stored = (array) Cache::get('biohop:settings', []);
         $rows = [
             [
                 'key' => 'bio.slug_min_length',
                 'type' => 'int',
-                'value' => (int) ($stored['bio.slug_min_length'] ?? config('bio.slug_min_length', 3)),
-                'default' => 3,
+                'value' => BioLimits::get('bio.slug_min_length'),
+                'default' => BioLimits::default('bio.slug_min_length'),
                 'description' => 'Panjang minimum slug halaman bio',
                 'restart_required' => false,
                 'readonly' => false,
@@ -453,8 +453,8 @@ class HopBioController extends Controller
             [
                 'key' => 'bio.max_pages_per_user',
                 'type' => 'int',
-                'value' => (int) ($stored['bio.max_pages_per_user'] ?? config('bio.max_pages_per_user', 5)),
-                'default' => 5,
+                'value' => BioLimits::get('bio.max_pages_per_user'),
+                'default' => BioLimits::default('bio.max_pages_per_user'),
                 'description' => 'Batas maksimum halaman bio per akun',
                 'restart_required' => false,
                 'readonly' => false,
@@ -462,8 +462,8 @@ class HopBioController extends Controller
             [
                 'key' => 'bio.max_blocks_per_page',
                 'type' => 'int',
-                'value' => (int) ($stored['bio.max_blocks_per_page'] ?? config('bio.max_blocks_per_page', 50)),
-                'default' => 50,
+                'value' => BioLimits::get('bio.max_blocks_per_page'),
+                'default' => BioLimits::default('bio.max_blocks_per_page'),
                 'description' => 'Batas maksimum blok per halaman bio',
                 'restart_required' => false,
                 'readonly' => false,
@@ -471,8 +471,8 @@ class HopBioController extends Controller
             [
                 'key' => 'bio.allow_custom_css',
                 'type' => 'bool',
-                'value' => (bool) ($stored['bio.allow_custom_css'] ?? config('bio.allow_custom_css', true)),
-                'default' => true,
+                'value' => BioLimits::get('bio.allow_custom_css'),
+                'default' => BioLimits::default('bio.allow_custom_css'),
                 'description' => 'Izinkan CSS kustom pada halaman bio',
                 'restart_required' => false,
                 'readonly' => false,
@@ -491,22 +491,35 @@ class HopBioController extends Controller
         return response()->json(['ok' => true, 'data' => $rows]);
     }
 
-    /** PUT /api/hop/settings */
+    /**
+     * PUT /api/hop/settings. Every editable key is enforced by the app (App\Support\BioLimits).
+     * A value outside the allowed range is refused with 422 and nothing is saved.
+     */
     public function saveSettings(Request $request): JsonResponse
     {
-        $allowed = ['bio.slug_min_length', 'bio.max_pages_per_user', 'bio.max_blocks_per_page', 'bio.allow_custom_css'];
-        $stored = (array) Cache::get('biohop:settings', []);
         $changes = [];
         foreach ((array) $request->all() as $k => $v) {
-            if (in_array($k, $allowed, true)) {
-                $changes[$k] = $k === 'bio.allow_custom_css' ? (bool) $v : max(1, (int) $v);
-                $stored[$k] = $changes[$k];
+            if (! is_string($k) || ! isset(BioLimits::KEYS[$k])) {
+                continue;
             }
+            [, $type, $min, $max] = BioLimits::KEYS[$k];
+            if ($type === 'bool') {
+                $value = filter_var($v, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+                if ($value === null) {
+                    return $this->fail('bad_params', "{$k} must be true or false", 422);
+                }
+            } else {
+                $value = filter_var($v, FILTER_VALIDATE_INT, ['options' => ['min_range' => $min, 'max_range' => $max]]);
+                if ($value === false) {
+                    return $this->fail('bad_params', "{$k} must be a whole number from {$min} to {$max}", 422);
+                }
+            }
+            $changes[$k] = $value;
         }
         if (! $changes) {
             return $this->fail('bad_params', 'nothing editable in the body', 422);
         }
-        Cache::forever('biohop:settings', $stored);
+        BioLimits::save($changes);
         $this->recordAudit($this->auditBase($request, 'settings.update', 'settings', 'bio', null) + ['params' => $changes]);
 
         return $this->settings();

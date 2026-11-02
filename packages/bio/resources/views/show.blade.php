@@ -706,7 +706,7 @@
             opacity: 0.9;
         }
     </style>
-    @if($bioPage->custom_css)
+    @if($bioPage->custom_css && \App\Support\BioLimits::allowCustomCss())
         <style>{!! \Hop\Safety\SafeContent::css($bioPage->custom_css) !!}</style>
     @endif
 </head>

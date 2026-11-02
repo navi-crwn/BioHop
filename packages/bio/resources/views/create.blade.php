@@ -38,14 +38,14 @@
                                         value="{{ old('slug') }}"
                                         placeholder="yourname"
                                         pattern="[a-zA-Z0-9]+"
-                                        minlength="{{ auth()->user()->isAdmin() ? 3 : config('bio.slug_min_length', 5) }}"
+                                        minlength="{{ \App\Support\BioLimits::slugMin(auth()->user()) }}"
                                         maxlength="20"
                                         x-model="slug"
                                         @input.debounce.500ms="checkSlug()"
                                         class="input flex-1"
                                     >
                                 </div>
-                                <p class="mt-1 text-xs text-muted">Only letters and numbers ({{ auth()->user()->isAdmin() ? 3 : config('bio.slug_min_length', 5) }}-20 characters)</p>
+                                <p class="mt-1 text-xs text-muted">Only letters and numbers ({{ \App\Support\BioLimits::slugMin(auth()->user()) }}-20 characters)</p>
                                 <div class="mt-2 text-sm" x-show="checking">
                                     <span class="text-muted">Checking availability…</span>
                                 </div>
@@ -317,7 +317,7 @@
                 available: null,
                 message: '',
                 checkSlug() {
-                    if (this.slug.length < {{ auth()->user()->isAdmin() ? 3 : (int) config('bio.slug_min_length', 5) }}) {
+                    if (this.slug.length < {{ \App\Support\BioLimits::slugMin(auth()->user()) }}) {
                         this.available = null;
                         return;
                     }
