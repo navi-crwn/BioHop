@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\User;
-use Hop\Bio\Http\Controllers\BioPageController;
+use App\Support\BioLimits;
 use Hop\Bio\Models\BioPage;
 
 test('no editor class defined twice with and without the editor prefix (a picker once restyled the header this way)', function () {
@@ -46,7 +46,7 @@ test('a very long page title wraps inside the phone screen', function () {
 
 test('someone who has used all their pages is told so on the create screen, before filling in the wizard', function () {
     $user = User::factory()->create();
-    foreach (range(1, BioPageController::MAX_PAGES) as $i) {
+    foreach (range(1, BioLimits::maxPages()) as $i) {
         BioPage::create(['user_id' => $user->id, 'slug' => 'full'.$i, 'title' => 'Full '.$i, 'is_published' => true]);
     }
     $this->actingAs($user)->get(route('bio.create'))->assertOk()->assertSee('Your pages are full')->assertDontSee('Pick your address');

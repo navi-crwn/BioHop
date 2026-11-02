@@ -5,6 +5,7 @@ namespace Hop\Bio\Http\Controllers;
 use App\Helpers\SocialUrlHelper;
 use App\Http\Controllers\Controller;
 use App\Models\AbuseFlag;
+use App\Support\BioLimits;
 use App\Support\CssValue;
 use App\Support\ReservedSlugs;
 use Carbon\Carbon;
@@ -30,8 +31,6 @@ use Illuminate\Validation\ValidationException;
 class BioPageController extends Controller
 {
     private const ANALYTICS_RANGES = [7, 30];
-
-    public const MAX_PAGES = 3;
 
     public function index()
     {
@@ -114,9 +113,9 @@ class BioPageController extends Controller
         return view('bio::create-wizard', [
             'platforms' => collect(config('brands.platforms', []))->only(self::WIZARD_PLATFORMS)->map(fn ($p, $id) => ['id' => $id, 'name' => $p['name'], 'color' => $p['color'] ?? '#6b7280', 'placeholder' => $p['placeholder'] ?? ''])->values(),
             'palettes' => self::WIZARD_PALETTES,
-            'slugMin' => auth()->user()?->isAdmin() ? 3 : (int) config('bio.slug_min_length', 5),
-            'atLimit' => auth()->user()->bioPages()->count() >= self::MAX_PAGES,
-            'max' => self::MAX_PAGES,
+            'slugMin' => BioLimits::slugMin(auth()->user()),
+            'atLimit' => auth()->user()->bioPages()->count() >= BioLimits::maxPages(),
+            'max' => BioLimits::maxPages(),
         ]);
     }
 
@@ -133,8 +132,8 @@ class BioPageController extends Controller
     /** One request from the wizard: a page with its socials, first links, profile and colours. */
     public function storeWizard(Request $request)
     {
-        if (auth()->user()->bioPages()->count() >= self::MAX_PAGES) {
-            return response()->json(['message' => 'You have reached the maximum limit of '.self::MAX_PAGES.' bio pages.'], 422);
+        if (auth()->user()->bioPages()->count() >= BioLimits::maxPages()) {
+            return response()->json(['message' => 'You have reached the maximum limit of '.BioLimits::maxPages().' bio pages.'], 422);
         }
         $request->merge(['slug' => strtolower((string) $request->slug)]);
         $validated = $request->validate([
@@ -214,14 +213,14 @@ class BioPageController extends Controller
 
     public function importForm()
     {
-        return view('bio::import', ['slugMin' => auth()->user()?->isAdmin() ? 3 : (int) config('bio.slug_min_length', 5)]);
+        return view('bio::import', ['slugMin' => BioLimits::slugMin(auth()->user())]);
     }
 
     /** Reads a public Linktree page into a new draft page: title, bio, picture, links, groups, headers and social icons. */
     public function import(Request $request)
     {
-        if (auth()->user()->bioPages()->count() >= self::MAX_PAGES) {
-            return back()->withInput()->withErrors(['linktree' => 'You have reached the maximum limit of '.self::MAX_PAGES.' bio pages.']);
+        if (auth()->user()->bioPages()->count() >= BioLimits::maxPages()) {
+            return back()->withInput()->withErrors(['linktree' => 'You have reached the maximum limit of '.BioLimits::maxPages().' bio pages.']);
         }
         $request->merge(['slug' => strtolower((string) $request->slug)]);
         $validated = $request->validate([
@@ -356,7 +355,7 @@ class BioPageController extends Controller
      */
     private function slugRules(?BioPage $current = null): array
     {
-        $min = auth()->user()?->isAdmin() ? 3 : (int) config('bio.slug_min_length', 5);
+        $min = BioLimits::slugMin(auth()->user());
 
         return [
             'required',
@@ -455,8 +454,8 @@ class BioPageController extends Controller
 
     public function store(Request $request)
     {
-        if (auth()->user()->bioPages()->count() >= self::MAX_PAGES) {
-            return back()->withErrors(['slug' => 'You have reached the maximum limit of '.self::MAX_PAGES.' bio pages.']);
+        if (auth()->user()->bioPages()->count() >= BioLimits::maxPages()) {
+            return back()->withErrors(['slug' => 'You have reached the maximum limit of '.BioLimits::maxPages().' bio pages.']);
         }
         $request->merge(['slug' => strtolower($request->slug)]);
         $validated = $request->validate([
@@ -591,6 +590,10 @@ class BioPageController extends Controller
             'background_animation' => CssValue::keyword(30),
         ]);
         $this->assertSafeContent($validated);
+        // With custom CSS switched off, a page keeps what it has (it is not sent to visitors) but takes no new CSS.
+        if (! empty($validated['custom_css']) && $validated['custom_css'] !== $bioPage->custom_css && ! BioLimits::allowCustomCss()) {
+            throw ValidationException::withMessages(['custom_css' => __('Custom CSS is turned off on this site.')]);
+        }
         if (! empty($validated['is_published']) && ! $bioPage->is_published && AbuseFlag::locks('bio_page', $bioPage->id)) {
             throw ValidationException::withMessages(['is_published' => 'This page was disabled by moderation. Contact support to appeal.']);
         }
@@ -776,8 +779,8 @@ class BioPageController extends Controller
     public function duplicate(BioPage $bioPage)
     {
         $this->authorize('view', $bioPage);
-        if (auth()->user()->bioPages()->count() >= self::MAX_PAGES) {
-            return back()->withErrors(['slug' => 'You have reached the maximum limit of '.self::MAX_PAGES.' bio pages.']);
+        if (auth()->user()->bioPages()->count() >= BioLimits::maxPages()) {
+            return back()->withErrors(['slug' => 'You have reached the maximum limit of '.BioLimits::maxPages().' bio pages.']);
         }
         // Slugs are alphanumeric only (max 20), so no "-copy" suffix.
         // Trim the base so the suffix always fits; truncating the suffix instead

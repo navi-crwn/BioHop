@@ -4,6 +4,7 @@ namespace Hop\Bio\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\AbuseFlag;
+use App\Support\BioLimits;
 use App\Support\CssValue;
 use Hop\Bio\Contracts\UrlSafety;
 use Hop\Bio\Models\BioLink;
@@ -20,8 +21,6 @@ use Illuminate\Validation\ValidationException;
 
 class BioLinkController extends Controller
 {
-    private const MAX_BLOCKS = 100;
-
     /**
      * Reject unsafe URL schemes, blacklisted or abusive destinations.
      */
@@ -224,8 +223,8 @@ class BioLinkController extends Controller
             'entrance_animation' => 'nullable|in:none,fade,slide-up,slide-down,pop,bounce,flip,stagger',
             'attention_animation' => 'nullable|in:none,pulse,bounce,shake,wiggle,glow,heartbeat,rainbow',
         ]);
-        if ($bioPage->links()->count() >= self::MAX_BLOCKS) {
-            throw ValidationException::withMessages(['type' => 'A bio page can have at most '.self::MAX_BLOCKS.' blocks.']);
+        if ($bioPage->links()->count() >= BioLimits::maxBlocks()) {
+            throw ValidationException::withMessages(['type' => 'A bio page can have at most '.BioLimits::maxBlocks().' blocks.']);
         }
         $this->assertSafe($validated);
         $this->assertOwnMedia($validated);

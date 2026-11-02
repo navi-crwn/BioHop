@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="pageTitle">LinkHop - Link in bio</x-slot>
-    @php $max = \Hop\Bio\Http\Controllers\BioPageController::MAX_PAGES; @endphp
+    @php $max = \App\Support\BioLimits::maxPages(); @endphp
     @php
         $hour = (int) now(auth()->user()->timezone ?: config('app.timezone'))->format('G');
         $greeting = $hour < 11 ? __('Good morning') : ($hour < 15 ? __('Good afternoon') : ($hour < 19 ? __('Good evening') : __('Good night')));

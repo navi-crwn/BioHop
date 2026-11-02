@@ -7,6 +7,7 @@ use App\Jobs\QueueHeartbeat;
 use App\Models\AbuseFlag;
 use App\Models\HopApp;
 use App\Models\User;
+use App\Support\BioLimits;
 use App\Support\HopSignature;
 use Carbon\CarbonImmutable;
 use Hop\Bio\Models\BioClick;
@@ -302,6 +303,31 @@ class HopBioApiTest extends TestCase
         $this->signed('GET', '/api/hop/audit')
             ->assertOk()
             ->assertJsonPath('data.0.action', 'restore');
+    }
+
+    public function test_settings_are_saved_enforced_and_out_of_range_values_are_refused(): void
+    {
+        $rows = fn () => collect($this->signed('GET', '/api/hop/settings')->assertOk()->json('data'))->keyBy('key');
+
+        $this->assertSame(3, $rows()['bio.max_pages_per_user']['value']);
+        $this->assertSame(3, $rows()['bio.max_pages_per_user']['default']);
+        $this->assertSame(100, $rows()['bio.max_blocks_per_page']['value']);
+
+        $this->signed('PUT', '/api/hop/settings', ['bio.max_pages_per_user' => 6, 'bio.allow_custom_css' => false])
+            ->assertOk()
+            ->assertJsonPath('ok', true);
+        $this->assertSame(6, $rows()['bio.max_pages_per_user']['value']);
+        $this->assertFalse($rows()['bio.allow_custom_css']['value']);
+        $this->assertSame(6, BioLimits::maxPages());
+        $this->assertFalse(BioLimits::allowCustomCss());
+
+        // refused as a whole: nothing is saved and the panel never sees a success
+        $this->signed('PUT', '/api/hop/settings', ['bio.max_pages_per_user' => 9, 'bio.slug_min_length' => 1])
+            ->assertStatus(422)->assertJsonPath('ok', false);
+        $this->signed('PUT', '/api/hop/settings', ['bio.max_pages_per_user' => 'many'])->assertStatus(422);
+        $this->signed('PUT', '/api/hop/settings', ['bio.allow_custom_css' => 'maybe'])->assertStatus(422);
+        $this->signed('PUT', '/api/hop/settings', ['unknown.key' => 1])->assertStatus(422);
+        $this->assertSame(6, $rows()['bio.max_pages_per_user']['value']);
     }
 
     public function test_account_deleted_event_and_internal_purge_clean_up_bio_uploads(): void
