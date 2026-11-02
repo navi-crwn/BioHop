@@ -55,7 +55,7 @@
     "Everything is included for every account. No premium tier, no locked features.": "Semua fitur tersedia untuk setiap akun. Tanpa paket premium, tanpa fitur terkunci.",
     "Everything you need, nothing you pay for": "Semua yang kamu butuhkan, tanpa bayar",
     "Export your page from BioHop's settings, and download or delete your account at <a href=\":url\">HOP ID</a>. Deleting the account deletes your pages too.": "Ekspor halaman Anda dari pengaturan BioHop, serta unduh atau hapus akun Anda di <a href=\":url\">HOP ID</a>. Menghapus akun akan menghapus halaman bio Anda juga.",
-    "FAQ": "FAQ",
+    "FAQ": "Tanya Jawab",
     "Features": "Fitur",
     "Free and open source (MIT), part of the HOP family.": "Gratis dan open source (MIT), bagian dari keluarga HOP.",
     "Free forever with your HOP ID · No ads, no trackers": "Gratis selamanya dengan HOP ID · Tanpa iklan, tanpa pelacak",
@@ -394,7 +394,6 @@
     "Analytics without tracking": "Analitik tanpa pelacakan",
     "Password and 18+ gate": "Kata sandi dan gerbang 18+",
     "Your own CSS": "CSS Anda sendiri",
-    "8 languages": "8 bahasa",
     "themes": "tema",
     "languages": "bahasa",
     "ads and trackers": "iklan dan pelacak",
@@ -559,7 +558,7 @@
     "Your browser cannot play this clip.": "Browser kamu tidak bisa memutar klip ini.",
     "Document": "Dokumen",
     "Pictures": "Gambar",
-    "Chat": "Chat",
+    "Chat": "Obrolan",
     "Open": "Buka",
     "Chat on WhatsApp": "Chat lewat WhatsApp",
     "I agree that :name keeps these details to get back to me.": "Saya setuju :name menyimpan data ini untuk menghubungi saya kembali.",
@@ -583,5 +582,6 @@
     "You are using all :max of your bio pages. Delete one you no longer need to make room for a new page.": "Anda memakai semua :max halaman bio. Hapus satu yang tidak dipakai untuk memberi ruang bagi halaman baru.",
     "Go to my pages": "Ke halaman saya",
     "Choose a free address to continue.": "Pilih alamat yang masih bebas untuk lanjut.",
-    "Add a display name to continue.": "Isi nama tampilan untuk lanjut."
+    "Add a display name to continue.": "Isi nama tampilan untuk lanjut.",
+    "9 languages": "9 bahasa"
 }

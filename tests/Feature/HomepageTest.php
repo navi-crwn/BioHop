@@ -14,8 +14,15 @@ test('?lang= switches the language and remembers it in a cookie', function () {
     $this->withUnencryptedCookie('hop_lang', 'ja')->get('/')->assertOk()->assertSee('ページを取得');
 });
 
-test('Arabic is right to left', function () {
-    $this->get('/?lang=ar')->assertOk()->assertSee('dir="rtl"', false)->assertSee('احجز صفحتي');
+test('a retired language is English, left to right, and sets no cookie', function () {
+    $this->get('/?lang=ar')->assertOk()->assertSee('dir="ltr"', false)->assertSee('Claim my page')->assertCookieMissing('hop_lang');
+});
+
+test('German and Russian have their own home pages, and the old short codes still work', function () {
+    $this->get('/?lang=de')->assertOk()->assertSee('lang="de"', false)->assertCookie('hop_lang', 'de', false);
+    $this->get('/?lang=ru')->assertOk()->assertSee('lang="ru"', false)->assertCookie('hop_lang', 'ru', false);
+    $this->get('/?lang=zh')->assertOk()->assertSee('lang="zh-CN"', false)->assertCookie('hop_lang', 'zh-CN', false);
+    $this->get('/?lang=pt')->assertOk()->assertSee('lang="pt-BR"', false)->assertCookie('hop_lang', 'pt-BR', false);
 });
 
 test('an unknown language falls back to English', function () {
@@ -24,7 +31,7 @@ test('an unknown language falls back to English', function () {
 
 test('every language file has every home page string', function () {
     $en = json_decode(file_get_contents(lang_path('id.json')), true);
-    foreach (['zh', 'es', 'ar', 'pt', 'fr', 'ja'] as $locale) {
+    foreach (['zh-CN', 'de', 'es', 'pt-BR', 'fr', 'ja', 'ru'] as $locale) {
         $other = json_decode(file_get_contents(lang_path($locale.'.json')), true);
         expect(array_keys($other))->toEqual(array_keys($en));
         expect(array_filter($other, fn ($v) => trim((string) $v) === ''))->toBeEmpty();

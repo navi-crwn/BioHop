@@ -34,7 +34,7 @@
                         <span class="max-[440px]:hidden">{{ app()->getLocale() }}</span>
                     </summary>
                     <ul class="absolute start-0 z-50 mt-2 w-44 rounded-2xl border border-slate-200/80 bg-white p-1.5 text-sm shadow-lg dark:border-white/10 dark:bg-slate-900">
-                        @foreach (\App\Http\Middleware\SetLocale::LOCALES as $code => $name)
+                        @foreach (\Hop\Ui\Locales::names() as $code => $name)
                             <li><a href="?lang={{ $code }}" lang="{{ $code }}" @class(['block rounded-xl px-3 py-2 hover:bg-slate-100 dark:hover:bg-white/5', 'font-bold text-violet-600 dark:text-violet-400' => app()->getLocale() === $code])>{{ $name }}</a></li>
                         @endforeach
                     </ul>
