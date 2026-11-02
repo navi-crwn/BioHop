@@ -6,7 +6,7 @@
     <title>{{ __('PIN required') }} · {{ $bioLink->title }}</title>
     <meta name="robots" content="noindex, nofollow">
     @if(! empty($unlocked))
-        <meta http-equiv="refresh" content="0;url={{ route('bio.public.click', $bioLink->public_id) }}">
+        <meta http-equiv="refresh" content="0;url={{ route('bio.public.click', $bioLink->public_id, false) }}">
     @endif
     <link rel="icon" href="{{ route('brand.favicon') }}">
     <x-hop::fonts />
@@ -33,19 +33,19 @@
         <p>{{ __('The owner protected this link with a PIN.') }}</p>
         <span class="title">{{ $bioLink->title }}</span>
         @if(! empty($unlocked))
-            <form method="GET" action="{{ route('bio.public.click', $bioLink->public_id) }}">
+            <form method="GET" action="{{ route('bio.public.click', $bioLink->public_id, false) }}">
                 <p>{{ __('PIN accepted.') }}</p>
                 <button type="submit" autofocus>{{ __('Continue') }}</button>
             </form>
         @else
-        <form method="POST" action="{{ route('bio.public.click.pin', $bioLink->public_id) }}">
+        <form method="POST" action="{{ route('bio.public.click.pin', $bioLink->public_id, false) }}">
             @csrf
             <input type="text" name="pin" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{4,8}" maxlength="8" required autofocus aria-label="{{ __('PIN') }}" placeholder="••••">
             @error('pin')<span class="err">{{ $message }}</span>@enderror
             <button type="submit">{{ __('Open link') }}</button>
         </form>
         @endif
-        <a class="back" href="{{ route('bio.public.show', $bioLink->bioPage->slug) }}">← {{ __('Back to the page') }}</a>
+        <a class="back" href="{{ route('bio.public.show', $bioLink->bioPage->slug, false) }}">← {{ __('Back to the page') }}</a>
     </main>
 </body>
 </html>
