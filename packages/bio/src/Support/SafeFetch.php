@@ -22,10 +22,13 @@ class SafeFetch
     {
         $guard = app(UrlGuard::class);
         for ($hop = 0; $hop <= self::MAX_REDIRECTS; $hop++) {
-            if (! $guard->isSafe($url)) {
+            // resolve once and connect to exactly the addresses that were checked, so a second DNS answer cannot swap in a private one
+            $target = $guard->resolve($url);
+            if ($target === null) {
                 throw new \RuntimeException('Address not allowed');
             }
-            $response = Http::timeout($timeout)->connectTimeout(min(2.0, $timeout))->withOptions(['allow_redirects' => false])
+            $response = Http::timeout($timeout)->connectTimeout(min(2.0, $timeout))
+                ->withOptions(['allow_redirects' => false, 'curl' => [CURLOPT_RESOLVE => $guard->curlResolve($target)]])
                 ->withHeaders(['User-Agent' => 'Mozilla/5.0 (compatible; BioHop fetch)', 'Accept' => $accept, 'Accept-Language' => 'en'])
                 ->get($url);
             if (in_array($response->status(), [301, 302, 303, 307, 308], true) && ($next = $response->header('Location'))) {

@@ -70,12 +70,14 @@ class Webhooks
         $d->attempts++;
         $url = (string) $page?->webhook_url;
         try {
-            if (! $page || ! preg_match('#^https://#i', $url) || ! app(UrlGuard::class)->isSafe($url)) {
+            $guard = app(UrlGuard::class);
+            $target = $page && preg_match('#^https://#i', $url) ? $guard->resolve($url) : null;
+            if ($target === null) {
                 throw new \RuntimeException('Address not allowed');
             }
             $ts = (string) time();
             $sig = hash_hmac('sha256', $ts.'.'.$d->payload, (string) $page->webhook_secret);
-            $res = Http::timeout(5)->connectTimeout(3)->withOptions(['allow_redirects' => false])->withBody($d->payload, 'application/json')
+            $res = Http::timeout(5)->connectTimeout(3)->withOptions(['allow_redirects' => false, 'curl' => [CURLOPT_RESOLVE => $guard->curlResolve($target)]])->withBody($d->payload, 'application/json')
                 ->withHeaders(['User-Agent' => 'BioHop-Webhook/1', 'X-BioHop-Event' => $d->event, 'X-BioHop-Delivery' => $d->uuid, 'X-BioHop-Timestamp' => $ts, 'X-BioHop-Signature' => 'sha256='.$sig])
                 ->post($url);
             $d->http_code = $res->status();

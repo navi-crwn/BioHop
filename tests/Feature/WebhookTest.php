@@ -106,3 +106,18 @@ test('the secret is made when the address is saved, stays out of the page data, 
     $this->actingAs($other)->getJson('/bio/hooks/webhook')->assertForbidden();
     $this->postJson('/bio/hooks/webhook/secret')->assertForbidden();
 });
+
+test('the connection is pinned to the addresses that were checked', function () {
+    $seen = new ArrayObject;
+    Http::fake(function ($request, $options) use ($seen) {
+        $seen['resolve'] = $options['curl'][CURLOPT_RESOLVE] ?? null;
+
+        return Http::response('ok', 200);
+    });
+    [, $page, $form] = hookPage('hookpin');
+    $this->post(route('bio.public.form', $form->public_id), ['name' => 'Rina', 'email' => 'rina@example.com', 'consent' => '1'])->assertRedirect();
+    runDeferred();
+
+    expect($seen['resolve'])->toBe(['hooks.example:443:93.184.216.34']);
+    expect($page->webhookDeliveries()->first()->status)->toBe('sent');
+});
