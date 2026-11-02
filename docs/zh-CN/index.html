@@ -83,10 +83,10 @@
         <li><strong>/bio 上的完整编辑器</strong><p>管理页面和链接，上传图片、头像、图标和二维码 logo，实时预览，复制页面，查看每页分析。</p></li>
         <li><strong>主题预设</strong><p>浅色、深色、极简、霓虹等许多预设，由编辑器、预览和公开页面共用。</p></li>
         <li><strong>一次登录，全家族通用：HOP ID</strong><p>这里没有本地注册或密码。你在 hub 用 HOP ID 登录一次即可。登录前需配置 HOP_HUB_URL、HOP_APP 和 SSO 密钥。</p></li>
-        <li><strong>点击分析</strong><p>每次点击都有国家/地区（GeoIP）以及设备、浏览器和机器人识别。</p></li>
+        <li><strong>点击分析</strong><p>每次被计入的点击都有国家/地区（GeoIP）、设备和浏览器。机器人点击不计入。</p></li>
         <li><strong>用 LinkHop 缩短链接</strong><p>区块中的“缩短此网址”会使用你自己的服务令牌调用 LinkHop 的 API。若 LinkHop 不可用，区块保留原始网址。</p></li>
         <li><strong>网址与内容安全</strong><p>abuse:scan 命令按小时计划，依据 hop/safety 的共享 domain_blacklist 检查页面和区块。</p></li>
-        <li><strong>每日隐私清理</strong><p>privacy:prune 命令每天删除 bio 点击数据，分析数据不会无限堆积。</p></li>
+        <li><strong>每日隐私清理</strong><p>privacy:prune 命令会在 30 天后删除 bio 点击日志，分析数据不会无限堆积。</p></li>
       </ul>
     </section>
 
@@ -104,7 +104,7 @@
       <h2 id="faq-h">常见问题</h2>
       <details>
         <summary>一次点击会记录什么数据？</summary>
-        <p>一次点击会记录时间、链接，以及推导出的国家/地区、设备和浏览器信息。BioHop 每天用 privacy:prune 清理 bio 点击数据。</p>
+        <p>一次点击会记录时间、链接、国家/地区、设备类型、浏览器和来源网站，以及访客 IP 地址的带密钥哈希，不会保存地址本身。BioHop 用 privacy:prune 在 30 天后删除点击日志。</p>
       </details>
       <details>
         <summary>我需要注册账号吗？</summary>

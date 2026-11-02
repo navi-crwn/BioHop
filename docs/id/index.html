@@ -83,10 +83,10 @@
         <li><strong>Editor lengkap di /bio</strong><p>Kelola halaman dan tautan, unggah gambar, avatar, ikon, dan logo QR, lihat pratinjau langsung, duplikasi halaman, dan baca analitik per halaman.</p></li>
         <li><strong>Preset tema</strong><p>Preset terang, gelap, minimal, neon, dan banyak lagi — dipakai bersama oleh editor, pratinjau, dan halaman publiknya.</p></li>
         <li><strong>Satu kali masuk untuk semua aplikasi: HOP ID</strong><p>Tidak ada pendaftaran lokal atau kata sandi di sini. Anda masuk sekali dengan HOP ID di hub. Atur HOP_HUB_URL, HOP_APP, dan secret SSO sebelum masuk.</p></li>
-        <li><strong>Analitik klik</strong><p>Negara (GeoIP) plus deteksi perangkat, browser, dan bot untuk setiap klik.</p></li>
+        <li><strong>Analitik klik</strong><p>Negara (GeoIP), perangkat, dan browser untuk setiap klik yang dihitung. Bot tidak dihitung.</p></li>
         <li><strong>Perpendek tautan dengan LinkHop</strong><p>“Shorten this URL” di blok memanggil API LinkHop dengan token layanan milik Anda sendiri. Jika LinkHop mati, blok tetap memakai URL aslinya.</p></li>
         <li><strong>Keamanan URL dan konten</strong><p>Perintah abuse:scan memeriksa halaman dan blok terhadap domain_blacklist bersama dari hop/safety, terjadwal setiap jam.</p></li>
-        <li><strong>Pembersihan privasi harian</strong><p>Perintah privacy:prune menghapus data klik bio setiap hari, sehingga analitik tidak menumpuk selamanya.</p></li>
+        <li><strong>Pembersihan privasi harian</strong><p>Perintah privacy:prune menghapus log klik bio setelah 30 hari, sehingga analitik tidak menumpuk selamanya.</p></li>
       </ul>
     </section>
 
@@ -104,7 +104,7 @@
       <h2 id="faq-h">FAQ</h2>
       <details>
         <summary>Data apa yang dicatat dari satu klik?</summary>
-        <p>Satu klik mencatat waktu, tautan, serta detail negara, perangkat, dan browser yang diturunkan. BioHop membersihkan data klik bio setiap hari dengan privacy:prune.</p>
+        <p>Sebuah klik mencatat waktu, tautan, negara, jenis perangkat, browser, dan situs perujuk, serta hash berkunci dari alamat IP pengunjung, bukan alamatnya sendiri. BioHop menghapus log klik setelah 30 hari dengan privacy:prune.</p>
       </details>
       <details>
         <summary>Apakah saya perlu mendaftar akun?</summary>

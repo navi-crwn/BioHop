@@ -4,134 +4,254 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="Licencia MIT"></a>
-  <a href="https://github.com/navi-crwn/BioHop/actions/workflows/tests.yml"><img src="https://github.com/navi-crwn/BioHop/actions/workflows/tests.yml/badge.svg?branch=main" alt="flujo de trabajo tests"></a>
+  <a href="https://github.com/navi-crwn/BioHop/actions/workflows/tests.yml"><img src="https://github.com/navi-crwn/BioHop/actions/workflows/tests.yml/badge.svg?branch=main" alt="workflow de pruebas"></a>
 </p>
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/readme/hero-en-dark.webp"><img src="docs/readme/hero-en-light.webp" alt="BioHop: one page with your links, embeds, socials and a QR code" width="100%"></picture></p>
+<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/readme/dashboard-dark.webp"><img src="docs/readme/dashboard-light.webp" alt="El panel de BioHop: clics de esta semana frente a la anterior, una lista de configuración y una tarjeta por cada página bio" width="100%"></picture></p>
 
-<p align="center"><b>Una página con tus enlaces, contenido incrustado, redes sociales y un código QR — publicada en <code>hel.ink/b/{slug}</code>.</b></p>
+<p align="center">Una página para tus enlaces, incrustaciones, redes sociales y un código QR. En el servicio alojado se publica en <code>hel.ink/b/{slug}</code>.</p>
 
 <p align="center">
   <a href="https://bio.hel.ink">bio.hel.ink</a> ·
-  <a href="#ejecutarlo-tú-mismo">Ejecútalo tú mismo</a> ·
-  <a href="#funciones">Funciones</a> ·
-  <a href="#preguntas-frecuentes">Preguntas frecuentes</a> ·
-  <a href="#seguridad">Seguridad</a> ·
-  <a href="#licencia">Licencia</a>
+  <a href="#install">Instalación</a> ·
+  <a href="#features">Funciones</a> ·
+  <a href="#run-your-own">Ejecútalo tú mismo</a> ·
+  <a href="#privacy">Privacidad</a> ·
+  <a href="#faq">Preguntas frecuentes</a> ·
+  <a href="#security">Seguridad</a> ·
+  <a href="#license">Licencia</a>
 </p>
 
 ---
 
-Instala con un solo comando (primero revisa tu equipo, hace unas pocas preguntas y puede instalar el hub HOP ID por ti):
+<a id="install"></a>
+
+## Instalación
+
+Un solo comando. Primero revisa tu equipo, te hace unas preguntas y puede configurar por ti el hub de HOP ID:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/navi-crwn/BioHop/main/install.sh | bash
 ```
 
-Desde un clon: `./install.sh` · actualizar: `./update.sh` · quitar: `./uninstall.sh`. Con `--yes` se usan todos los valores por defecto; `--help` lista las opciones.
+Desde un clon: `./install.sh`. Actualiza con `./update.sh` y elimina con `./uninstall.sh`. Añade `--yes` para aceptar todos los valores por defecto; `--help` muestra las opciones. El instalador necesita PHP 8.3 o superior, Composer, Node 20 o superior y cerca de 1 GB de espacio libre en disco. `--dry-run` muestra los pasos sin ejecutarlos.
 
-## ¿Qué es BioHop?
+> [!NOTE]
+> BioHop guarda sus cuentas en un hub de HOP ID ([HEL.ink](https://github.com/navi-crwn/HEL.ink)). No existe un modo sin hub. El instalador configura un hub junto a BioHop (lo predeterminado, alrededor de un minuto) o se conecta a uno que ya tengas. Para instalar el hub y varias apps de una vez, usa `install-family.sh` del repositorio HEL.ink.
 
-BioHop es una aplicación de link-in-bio: montas una sola página con tus enlaces, imágenes, contenido incrustado y redes sociales, eliges un tema y la publicas en `hel.ink/b/{slug}` — con un código QR listo para compartir.
+## Qué es BioHop
 
-Es la mitad de bio de lo que antes era una sola aplicación (ahora [LinkHop](https://github.com/navi-crwn/LinkHop), el acortador de URL). Las cuentas viven en el hub ([HEL.ink](https://github.com/navi-crwn/HEL.ink)): aquí no hay registro ni contraseñas — inicias sesión una vez con tu **HOP ID** y la aplicación ya te reconoce. El plan detrás de la división está documentado en [`docs/planning/PLAN-pemisahan-aplikasi.md`](docs/planning/PLAN-pemisahan-aplikasi.md) (la fase D es este repositorio).
+BioHop es una app de enlace en la bio. Montas una página con enlaces, imágenes, incrustaciones e iconos de redes sociales, eliges un tema y la publicas. El servicio alojado en [bio.hel.ink](https://bio.hel.ink) es el panel, y las páginas públicas están en `hel.ink/b/{slug}`. En tu propio servidor, una página se sirve en `{PUBLIC_URL}/b/{slug}`.
 
-<a id="funciones"></a>
+En BioHop no hay registro ni contraseña. Inicias sesión una vez con tu HOP ID en el hub y la app te reconoce. BioHop empezó como la mitad "bio" de una app cuya otra mitad es hoy [LinkHop](https://github.com/navi-crwn/LinkHop), el acortador de URL. El plan de esa separación está en [`docs/planning/PLAN-pemisahan-aplikasi.md`](docs/planning/PLAN-pemisahan-aplikasi.md) (la Fase D es este repositorio).
+
+Las capturas de abajo salen de una instalación local con datos de ejemplo inventados (la página de un estudio de cerámica). No muestran personas ni cuentas reales.
+
+<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/readme/editor-dark.webp"><img src="docs/readme/editor-light.webp" alt="El editor de páginas: la lista de bloques con un panel Quick Add a la izquierda y una vista previa en vivo de la página en un móvil a la derecha" width="100%"></picture></p>
+
+<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/readme/analytics-dark.webp"><img src="docs/readme/analytics-light.webp" alt="Analítica de la página durante 30 días: visitas, clics en enlaces, tasa de clics, clics a lo largo del tiempo, dispositivos, enlaces más clicados, países y cómo llegaron los visitantes" width="100%"></picture></p>
+
+<p align="center">
+  <img src="docs/readme/public-page.webp" alt="Una página bio pública en un móvil: perfil, un chip de estado, una barra de pestañas Links y Shop, tres botones y unas preguntas frecuentes" width="32%">
+  &nbsp;
+  <img src="docs/readme/public-shop.webp" alt="La pestaña Shop de la misma página: dos productos en una cuadrícula de dos columnas, uno de ellos marcado como Sold out" width="32%">
+</p>
+
+<a id="features"></a>
 
 ## Funciones
 
-- **Páginas de bio públicas en `hel.ink/b/{slug}`, cada una con código QR y seguimiento de clics.**
-- **Un editor en `/bio` para páginas, enlaces, subida de imágenes/avatar/iconos/logotipo del QR, vista previa en vivo, duplicación y analíticas por página.**
-- **Temas predefinidos (light, dark, minimal, neon y muchos más) compartidos por el editor, su vista previa y la página pública.**
-- **Sin registro local ni contraseñas: inicias sesión una vez con tu HOP ID en el hub.**
-- **Analíticas de clics con país (GeoIP) además de detección de dispositivo, navegador y bots.**
-- **"Shorten this URL" en los bloques mediante la API de LinkHop con el token de servicio del propio miembro; si LinkHop no responde, el bloque conserva su URL original.**
-- **Seguridad de URL/contenido: `abuse:scan` con la `domain_blacklist` compartida (hop/safety), programado cada hora.**
-- **Poda diaria de los datos de clics (`privacy:prune`).**
+### Páginas y editor
 
-<a id="ejecutarlo-tú-mismo"></a>
+- Una página pública en `/b/{slug}` con código QR (`/b/{slug}/qr` descarga un PNG) y un manifiesto de app web instalable.
+- Un asistente de seis pasos para una página nueva: dirección, objetivo, plataformas, primeros enlaces, perfil y colores, con un móvil en vivo. El formulario sencillo sigue disponible en `?classic=1`.
+- Importación de una página pública de Linktree como borrador.
+- El editor en `/bio` es una página que se desplaza con normalidad, con una vista previa en vivo al lado. Se guarda solo alrededor de un segundo después de que dejas de escribir y envía únicamente lo que cambió. `Ctrl/Cmd+S` guarda al instante y `Ctrl/Cmd+K` abre una paleta de comandos.
+- Arrastra para reordenar. Un modo de selección muestra, oculta, archiva o elimina varios bloques a la vez. Un bloque archivado sale de la página pero conserva sus clics.
+- Versiones: el editor guarda una versión antes de cada sesión de edición. También puedes ponerle nombre a una versión y restaurar cualquiera.
+- Las páginas se pueden duplicar. Por defecto, una cuenta tiene 3 páginas y una página tiene 100 bloques (consulta los ajustes más abajo).
+- Diseño: cuatro disposiciones de cabecera (clásica, hero, banner con imagen de portada, cutout), 17 temas en el selector, fondo en color, degradado o imagen, estilos de botones y bloques, tipografías servidas por la propia app, CSS propio por página y un interruptor para la línea "Powered by".
+- La interfaz está disponible en English, 简体中文, Deutsch, Bahasa Indonesia, 日本語, Português (Brasil), Español, Français y Русский.
+
+### Bloques
+
+BioHop tiene 29 tipos de bloque: enlace, texto, encabezado, separador, espaciador, imagen, carrusel, PDF, audio, vídeo, YouTube, Spotify, SoundCloud, música, mapa, cuenta atrás, preguntas frecuentes, HTML, código, tarjeta de contacto, correo electrónico, WhatsApp, enlace a tienda de apps, barra de objetivo, producto, colección, formulario de registro, encuesta y feed RSS o Atom.
+
+- Un bloque de WhatsApp rota entre hasta 10 números, por turno o por peso.
+- Un bloque de app lleva al visitante a la tienda que corresponde a su sistema.
+- Cualquier bloque puede tener una hora de publicación y otra de caducidad.
+- Un enlace puede enviar a los visitantes a otro sitio según país, dispositivo, sistema u hora del día, y puede tener su propio PIN.
+- Una colección agrupa los bloques que hay debajo, apilados o en una cuadrícula de dos columnas.
+- Los reproductores y mapas de YouTube, Spotify y los demás servicios solo se cargan cuando el visitante los toca.
+
+### Tienda
+
+Un bloque de producto tiene imagen, nombre, precio con moneda, precio anterior, variantes con precio y existencias propios, un recuento de existencias y un interruptor de agotado. Puede rellenar sus datos a partir de la dirección de la tienda. Cuando una página tiene un producto, la página pública muestra una barra de pestañas Links y Shop, y la tienda tiene su propia dirección en `/b/shop/{slug}`. BioHop no procesa pagos: un producto abre su propia dirección en una pestaña nueva y cuenta como un clic.
+
+### Ajustes de la página
+
+Contraseña, aviso de contenido (ninguno, sensible o adulto 18+), no listada, modo de privacidad (sin ningún recuento), una dirección a la que enviar a los visitantes mientras la página no esté publicada, un chip de estado, un botón flotante, una línea de pie de página, una imagen para compartir, un favicon, título y descripción SEO, parámetros UTM opcionales en los enlaces salientes y el píxel propio del dueño de la página de Google Analytics, Tag Manager, Facebook o TikTok (consulta [Privacidad](#privacy)).
+
+### Formularios y webhooks
+
+Un bloque de formulario de registro recoge un nombre, una dirección de correo electrónico y un número de teléfono, y el visitante debe marcar una casilla de consentimiento que nombra la página. El dueño descarga las entradas como CSV, las elimina y fija durante cuántos días se conservan (de 1 a 365, 90 por defecto). Una página también puede enviar cada entrada nueva, como JSON firmado, a una dirección que elige el dueño. El programador de tareas reintenta las entregas fallidas, y el editor muestra un registro de entregas con un botón de prueba y otro de reenvío.
+
+### Analítica
+
+Por página: visitas, clics en enlaces, tasa de clics, clics a lo largo del tiempo, dispositivos, países, enlaces más clicados, sitios de referencia, clics recientes y cómo llegaron los visitantes (por el propio enlace, el código QR, una etiqueta NFC con `?src=nfc` o la app web instalada). Los clics de bots no cuentan, un nuevo clic del mismo visitante en menos de 10 minutos no cuenta, y una dirección cuenta como máximo 20 clics por bloque en 10 minutos. Lo que guarda el registro de clics está en [Privacidad](#privacy).
+
+### Enlaces cortos
+
+"Shorten this URL" en un bloque llama a la API de LinkHop con el token de servicio del propio miembro (ámbito `link:create`, creado en el primer uso y guardado en `bio_linkhop_tokens`). Si no se puede contactar con LinkHop, el bloque conserva su dirección original y el editor lo indica. Un enlace a hel.ink o a una app HOP se conserva tal como se escribió.
+
+### Seguridad y operación
+
+- `abuse:scan` revisa las páginas bio y los bloques con las reglas y la `domain_blacklist` compartida de `hop/safety`. Se ejecuta cada hora sobre lo que cambió y una vez al día sobre todo. Las consultas a Google Safe Browsing, abuse.ch URLhaus y Spamhaus DBL son opcionales.
+- Los visitantes pueden denunciar una página en `/report-abuse` (Cloudflare Turnstile protege el formulario cuando se configuran sus claves).
+- El trabajo de administración se hace en Imperium, el panel de control de HOP. BioHop responde a sus peticiones firmadas `/api/hop/*`, y `/admin` envía allí a los administradores.
+- Las subidas se rechazan con un 507 cuando el disco está casi lleno (consulta [`docs/UPLOAD-STORAGE.md`](docs/UPLOAD-STORAGE.md)). Las imágenes subidas se reducen a WebP, y los archivos SVG se reconstruyen a partir de una lista de permitidos antes de guardarse.
+- El lector de feeds y el emisor de webhooks se conectan a las direcciones que comprobaron, de modo que un nombre no pueda resolverse a otra dirección entre la comprobación y la petición.
+- La política de seguridad de contenido no nombra ningún host de CDN, de tipografías ni de iconos. Las bibliotecas van incluidas en la app.
+- La página de inicio de bio.hel.ink es un recorrido interactivo con la página oficial de HEL.ink dentro de un móvil. Con "reducir movimiento" activado, cada escena muestra su estado final.
+
+<a id="run-your-own"></a>
 
 ## Ejecútalo tú mismo
 
-Necesitas PHP 8.3, Composer y Node 20+. Los paquetes compartidos `hop/auth`, `hop/ui` y `hop/safety` vienen de sus repositorios de GitHub (`navi-crwn/hop-auth`, `hop-ui`, `hop-safety`, rama `main`, listados como repositorios `vcs` en `composer.json`).
+Necesitas PHP 8.3 o superior, Composer y Node 20 o superior. Los paquetes compartidos `hop/auth`, `hop/ui` y `hop/safety` vienen de sus repositorios de GitHub (`navi-crwn/hop-auth`, `hop-ui` y `hop-safety`, listados como repositorios `vcs` en `composer.json`). El instalador de arriba hace todo esto por ti. Para hacerlo a mano:
 
 ```bash
-git clone git@github.com:navi-crwn/BioHop.git
+git clone https://github.com/navi-crwn/BioHop.git
 cd BioHop
 composer install
 cp .env.example .env && php artisan key:generate
 ```
 
-**Configura antes de migrar.** Abre `.env` (`.env.example` documenta todas las claves; sus comentarios son la referencia) y define al menos:
+Abre `.env` antes de migrar. `.env.example` documenta cada clave. Define al menos estas:
 
 | Clave | Qué es |
 |---|---|
-| `APP_URL` / `PUBLIC_URL` | La dirección de esta aplicación y la dirección pública donde se sirven las páginas |
-| `HOP_HUB_URL` | La dirección de tu hub (el inicio de sesión con HOP ID va allí) |
-| `HOP_APP` | El identificador de esta aplicación en el hub: `biohop` |
-| `HOP_SSO_SECRET` o `HOP_SSO_SECRET_BIOHOP` | El secreto SSO compartido con el hub, 32 caracteres o más |
-| `LINKHOP_URL` | La dirección de tu LinkHop (activa "shorten this URL" en los bloques) |
-| `DB_CONNECTION`, `DB_*`, `DB_MIGRATIONS_TABLE` | Ajustes de base de datos; `DB_MIGRATIONS_TABLE=migrations_bio` mantiene separado el registro de migraciones de esta aplicación |
+| `APP_URL`, `PUBLIC_URL` | La dirección del panel y la dirección en la que se sirven las páginas públicas |
+| `ASSET_URL` | Dónde se sirven las subidas y los archivos compilados; vacío significa `APP_URL` |
+| `HOP_HUB_URL` | La dirección de tu hub (el inicio de sesión con HOP ID se hace allí) |
+| `HOP_APP` | El slug de esta app en el hub: `biohop` |
+| `HOP_SSO_SECRET` o `HOP_SSO_SECRET_BIOHOP` | El secreto SSO compartido con el hub, de 32 caracteres o más |
+| `LINKHOP_URL` | Tu LinkHop, para "shorten this URL" (`LINKHOP_ENABLED=false` lo desactiva) |
+| `DB_CONNECTION`, `DB_*`, `DB_MIGRATIONS_TABLE` | Ajustes de la base de datos. `DB_MIGRATIONS_TABLE=migrations_bio` mantiene el registro de migraciones de esta app separado del del hub |
+| `TRUSTED_PROXIES` | `cloudflare`, `*` o una lista de direcciones de proxy, cuando funcionas detrás de un proxy |
+| `BIO_MAX_PAGES`, `BIO_MAX_BLOCKS`, `BIO_SLUG_MIN_LENGTH` | Páginas por cuenta (3), bloques por página (100) y la dirección más corta que puede reclamar un miembro (5) |
+| `BIO_ALLOW_CUSTOM_CSS` | Ponlo en `false` para rechazar CSS propio y dejar de enviar a los visitantes el CSS que ya existe |
+| `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile para el formulario de denuncia. En producción, si falta el secret, el formulario rechaza los envíos |
+
+Las claves opcionales cubren GeoIP (`GEOLITE_CITY_DB`, `GEOLITE_ASN_DB`, `IPINFO_API_KEY`, `ABSTRACTAPI_KEY`), las consultas de reputación de enlaces (`SAFE_BROWSING_KEY`, `URLHAUS_AUTH_KEY`, `SPAMHAUS_DBL`), el margen de espacio para subidas (`BIO_UPLOAD_MIN_FREE_MB`, `BIO_UPLOAD_MIN_FREE_PERCENT`) y la página oficial que muestra la página de inicio (`HOP_OFFICIAL_BIO`, `HOP_OFFICIAL_VIDEO`, `HOP_OFFICIAL_MUSIC`, `HOP_OFFICIAL_CONTACT`). Un operador también puede cambiar en tiempo de ejecución, desde Imperium, la dirección más corta, las páginas por cuenta, los bloques por página y el interruptor del CSS propio.
 
 ```bash
-php artisan migrate      # registra solo en migrations_bio
+php artisan migrate
 php artisan storage:link
 npm install && npm run build
 php artisan serve        # http://localhost:8000
 ```
 
-**Base de datos.** BioHop está diseñado para compartir una única base de datos MySQL con el hub y LinkHop (cada aplicación lleva su propio registro de migraciones: `migrations_bio` aquí). Ejecuta primero las migraciones del hub, para que existan tablas como `users`, `roles`, `api_tokens` y `domain_blacklist`. Este es el diseño documentado; la compatibilidad de migraciones entre las versiones de las aplicaciones no está verificada en este README, así que compruébalo antes de apuntar BioHop a una base de datos que te importe.
+### Mantenerlo en marcha
 
-**Las pruebas** se ejecutan sobre sqlite en memoria; las tablas que pertenecen a otras aplicaciones las crea `database/migrations/testing/` (solo para pruebas).
+BioHop necesita un worker de colas y el programador de tareas. En producción, ejecuta `php artisan queue:work --tries=3` y `php artisan schedule:work` bajo systemd o supervisor, o usa una sola línea de cron: `* * * * * cd /path/to/BioHop && php artisan schedule:run`. El `start.sh` del instalador arranca juntos el servidor web, el worker y el programador, para una prueba en una sola máquina.
+
+El programador ejecuta estos comandos:
+
+| Comando | Cuándo | Qué hace |
+|---|---|---|
+| `abuse:scan --since=2h` | cada hora | Revisa las páginas y bloques que cambiaron |
+| `abuse:scan --full --purge` | a diario, 04:10 | Revisa todo y elimina los elementos desactivados por abuso desde hace más que el plazo de limpieza |
+| `abuse:feeds` | a diario, 02:15 | Actualiza los feeds de amenazas de `hop/safety` |
+| `privacy:prune` | a diario, 03:30 | Elimina los registros de clics de más de 30 días, las entradas de formulario que superaron su plazo de conservación y las entregas de webhook de más de 7 días |
+| `bio:webhooks:retry` | cada minuto | Envía los webhooks cuyo próximo intento ha llegado |
+
+Otros comandos, que se ejecutan a mano: `bio:official-page` rellena la página oficial de HEL.ink a partir del manifiesto compartido, `bio:optimize-images` convierte las subidas antiguas a WebP y `bio:unwrap-family-links` restaura los enlaces a sitios HOP que habían quedado envueltos en enlaces cortos. Los tres solo informan, salvo que pases `--apply`.
+
+### Base de datos
+
+BioHop está pensado para compartir una base de datos con el hub y LinkHop. Cada app lleva su propio registro de migraciones, aquí `migrations_bio`. Ejecuta primero las migraciones del hub, para que existan las tablas que pertenecen a las otras apps (entre ellas `users`, `roles`, `api_tokens`, `ip_bans`, `domain_blacklist` y `abuse_flags`). Cuando instalas con `--hub new` sobre SQLite, BioHop usa el archivo de base de datos del hub. Este diseño está documentado, pero aquí no se comprueba la compatibilidad entre las versiones de las apps, así que pruébalo antes de apuntar BioHop a una base de datos que te importe.
+
+### Actualizar y eliminar
+
+`./update.sh` primero copia la base de datos a `backups/` (SQLite con `sqlite3 .backup`, MySQL con `mysqldump`; la copia solo puede leerla tu usuario). Después pone el sitio en modo de mantenimiento, descarga el código nuevo, instala los paquetes, compila el front end, migra y avisa a los workers de colas de que se reinicien. Si un paso falla antes de la migración, restaura el código anterior. Si falla durante o después de la migración, deja el sitio en modo de mantenimiento e imprime los pasos manuales. `--no-backup` omite la copia y `--force` actualiza aunque hayas cambiado archivos rastreados. `./uninstall.sh` conserva tus datos; `--purge` borra además `.env`, `storage/` y `backups/`, después de que escribas el nombre del sitio.
+
+### Pruebas
+
+Las pruebas se ejecutan sobre SQLite en memoria. Las tablas que pertenecen a otras apps las crea `database/migrations/testing/`, y solo cuando se ejecuta la batería de pruebas. La CI ejecuta `composer audit`, Pint y las pruebas con PHP 8.3.
 
 ```bash
 php artisan test
 vendor/bin/pint --test
 ```
 
-## Inicio de sesión (HOP ID)
+## Inicio de sesión
 
-Inicia sesión con tu HOP ID en el hub — aquí no hay registro ni contraseñas. El inicio de sesión y el editor usan SSO estándar, que requiere que los ajustes `HOP_HUB_URL`, `HOP_APP=biohop` y el secreto SSO de arriba estén listos antes de iniciar sesión. Abrir `/bio` te lleva al hub y de vuelta. Cerrar sesión termina tu sesión aquí y redirige al cierre de sesión del HOP ID.
+Inicia sesión con tu HOP ID en el hub. Abrir `/bio` te envía al hub y de vuelta, lo que exige que `HOP_HUB_URL`, `HOP_APP=biohop` y el secreto SSO estén definidos de antemano. Cerrar sesión termina tu sesión aquí y luego en el hub. La verificación del correo y los ajustes de la cuenta se gestionan en el hub. Las páginas bio públicas en `/b/{slug}` no requieren iniciar sesión, pero BioHop está hecho para funcionar junto con el hub y no es una app independiente.
 
-Las páginas de bio públicas (`/b/{slug}`) no requieren inicio de sesión. BioHop está diseñado para funcionar junto con el hub — no es una aplicación independiente.
+<a id="privacy"></a>
 
-<a id="preguntas-frecuentes"></a>
+## Privacidad
+
+Esto es lo que hace el código hoy.
+
+- El registro de clics guarda la hora, el bloque, el país, el tipo de dispositivo, el navegador, el sitio de referencia y cómo llegó el visitante. Guarda un hash con clave de la dirección IP del visitante (HMAC-SHA256 con `APP_KEY`, acortado a 40 caracteres), nunca la dirección en sí. `privacy:prune` elimina los registros de clics a los 30 días. Los votos de encuesta y las entradas de formulario también guardan solo un hash con clave de la dirección.
+- Para averiguar el país, la dirección del visitante se busca en una base de datos GeoIP local, si has instalado una, y si no se envía al primer servicio web de geolocalización que responda (consulta [`CREDITS.md`](CREDITS.md)). Esa consulta usa la dirección en claro, antes de aplicarle el hash.
+- Para contar una visita a la página una sola vez al día y limitar los clics por dirección, la app guarda la dirección en claro dentro de claves de caché hasta 24 horas (visitas) y 10 minutos (clics). Con la caché en base de datos por defecto, esas claves son filas de la tabla `cache`.
+- Una cookie aleatoria, `hel_vid`, dura un año y se establece en un clic. Solo sirve para eliminar duplicados en el recuento de clics. Quien lee por primera vez una página pública sencilla no recibe sesión ni cookies. Los miembros con sesión iniciada tienen filas de sesión que incluyen su dirección, como en cualquier sesión de base de datos de Laravel.
+- El modo de privacidad de una página detiene el recuento de visitas y clics de esa página.
+- Las denuncias de abuso guardan la dirección de correo de quien denuncia, el motivo y su dirección IP en la tabla compartida `abuse_reports`. Este repositorio no depura esa tabla.
+- BioHop no añade scripts propios de publicidad ni de analítica. Las tipografías, los iconos y las banderas los sirve la app, así que el visitante no contacta con Google ni con una CDN.
+- El dueño de una página puede añadir Google Analytics, Google Tag Manager, un píxel de Facebook o un píxel de TikTok a su página. El dueño de la página decide añadirlos y es responsable de ellos; BioHop solo ofrece la plataforma. Se cargan únicamente después de que el visitante acepte en un aviso de la página, y su elección se recuerda en ese navegador. Cuando se cargan, el navegador del visitante envía datos a esos servicios, conforme a sus propias políticas de privacidad. BioHop no recibe esos datos.
+- El visitante debe marcar una casilla de consentimiento para enviar un formulario de registro. Las entradas se guardan para el dueño de la página, que fija el plazo de conservación, puede exportarlas como CSV y puede eliminarlas. Se eliminan junto con la página o la cuenta.
+
+<a id="faq"></a>
 
 ## Preguntas frecuentes
 
-**¿Qué pasa con mis datos de clics?** El seguimiento de clics existe para mostrarte el rendimiento de tu página, y el comando `privacy:prune` elimina los datos de clics a diario. No se conserva a propósito ningún archivo histórico de clics a largo plazo.
+**¿Puedo usar BioHop sin el hub?** No. Para editar hace falta un HOP ID en el hub, y no hay registro ni contraseña locales. Las páginas públicas no requieren iniciar sesión, pero la app está hecha para funcionar junto con el hub.
 
-**¿El análisis de seguridad se ejecuta solo?** Sí. `abuse:scan` está programado cada hora y revisa las páginas y bloques de bio contra la `domain_blacklist` compartida de hop/safety. Son mecanismos, no garantías: ningún análisis automatizado promete detectarlo todo.
+**¿Qué pasa con mis datos de clics?** Se conservan 30 días y luego se eliminan. El registro de clics guarda un hash con clave de la dirección, no la dirección. Consulta [Privacidad](#privacy) para los detalles.
 
-**¿Puedo usar BioHop sin el hub?** No. Editar requiere un HOP ID en el hub, y no hay registro local ni contraseñas. Las páginas de bio públicas no requieren inicio de sesión, pero la aplicación está diseñada para funcionar junto con el hub, y BioHop no puede garantizar que las rutas públicas nunca contacten al hub.
+**¿El análisis de seguridad se ejecuta solo?** Sí, mientras el programador esté en marcha. Usa reglas compartidas y una lista negra compartida. Ningún análisis automático lo detecta todo.
 
-**¿Puedo autoalojarlo?** Sí — con licencia MIT, y la sección de arriba es toda la guía de inicio rápido. Tú aportas tu propio hub, LinkHop y base de datos.
+**¿Puedo exportar mis páginas?** Sí. `/settings/export` devuelve tus páginas y bloques como JSON. No incluye los registros de clics ni las entradas de formulario; las entradas de formulario tienen su propia descarga en CSV.
 
-<a id="familia"></a>
+**¿Puedo alojarlo yo mismo?** Sí, con la licencia MIT. Pones tu propio hub, un LinkHop si quieres enlaces cortos y una base de datos. Consulta [Ejecútalo tú mismo](#run-your-own).
+
+<a id="family"></a>
 
 ## La familia HOP
 
-BioHop forma parte de la familia **HOP** de aplicaciones de código abierto autoalojables detrás de [hel.ink](https://hel.ink).
+BioHop forma parte de la familia **HOP** de apps de código abierto que se pueden alojar por cuenta propia, detrás de [hel.ink](https://hel.ink).
 
-| Aplicación | Qué hace | Dirección | Código |
-|---|---|---|---|
-| **Hub** | Portal de cuentas, inicio de sesión con HOP ID | `hel.ink` · `hub.hel.ink` | [navi-crwn/HEL.ink](https://github.com/navi-crwn/HEL.ink) |
-| **LinkHop** | Acortador de URL | `link.hel.ink` · `hel.ink/l/{slug}` | [navi-crwn/LinkHop](https://github.com/navi-crwn/LinkHop) |
-| **BioHop** | Páginas link-in-bio | `bio.hel.ink` · `hel.ink/b/{slug}` | este repositorio |
-| **PixelHop** | Alojamiento de imágenes y multimedia | `pixel.hel.ink` · `p.hel.ink` | [navi-crwn/PixelHop](https://github.com/navi-crwn/PixelHop) |
-| **NoteHop** | Notas y documentos privados | `note.hel.ink` · `n.hel.ink` | [navi-crwn/NoteHop](https://github.com/navi-crwn/NoteHop) |
+<!-- hop-family:start -->
+<!-- Generated from HEL.ink resources/hop-assets/apps.source.json; edit there, then run scripts/hop_assets.py build. -->
+| App | Address | Repository | What it does |
+| --- | --- | --- | --- |
+| **HOP ID** | [hel.ink](https://hel.ink) · accounts at `hub.hel.ink` | [navi-crwn/HEL.ink](https://github.com/navi-crwn/HEL.ink) | One account for every HOP app. |
+| **LinkHop** | [link.hel.ink](https://link.hel.ink) · `hel.ink/l/…` | [navi-crwn/LinkHop](https://github.com/navi-crwn/LinkHop) | Short links, QR codes and click analytics. |
+| **BioHop** | [bio.hel.ink](https://bio.hel.ink) · `hel.ink/b/…` | [navi-crwn/BioHop](https://github.com/navi-crwn/BioHop) | One link-in-bio page for everything you do. |
+| **PixelHop** | [pixel.hel.ink](https://pixel.hel.ink) · `p.hel.ink/…` | [navi-crwn/PixelHop](https://github.com/navi-crwn/PixelHop) | Image hosting with albums and direct links. |
+| **NoteHop** | [note.hel.ink](https://note.hel.ink) · `n.hel.ink/…` | [navi-crwn/NoteHop](https://github.com/navi-crwn/NoteHop) | Encrypted notes you share with a link. |
+| **Imperium** | private (owner only) | private | The HOP control panel. |
+<!-- hop-family:end -->
 
-<a id="seguridad"></a>
+<a id="security"></a>
 
 ## Seguridad
 
-¿Encontraste una vulnerabilidad? Repórtala de forma privada a través de los security advisories de GitHub de este repositorio: [github.com/navi-crwn/BioHop/security/advisories](https://github.com/navi-crwn/BioHop/security/advisories). No abras issues públicas para informes de seguridad, ni publiques secretos, tokens o detalles de explotación en lugares públicos. Consulta [SECURITY.md](SECURITY.md) para más detalles.
+¿Encontraste una vulnerabilidad? Infórmala en privado mediante los avisos de seguridad de GitHub de este repositorio: [github.com/navi-crwn/BioHop/security/advisories](https://github.com/navi-crwn/BioHop/security/advisories). No abras issues públicos para informes de seguridad y no publiques secretos, tokens ni detalles de exploits en lugares públicos. [SECURITY.md](SECURITY.md) tiene los detalles.
 
-<a id="licencia"></a>
+## Registro de cambios y créditos
+
+Los cambios están en [CHANGELOG.md](CHANGELOG.md). El software de terceros, las tipografías, los iconos y los servicios que BioHop usa o incluye, con sus licencias, están en [CREDITS.md](CREDITS.md).
+
+<a id="license"></a>
 
 ## Licencia
 
-[MIT](LICENSE) — como el resto de la familia HOP. Las licencias de terceros están listadas en el archivo [LICENSE](LICENSE).
+[MIT](LICENSE), como el resto de la familia HOP. Las licencias de terceros están en [CREDITS.md](CREDITS.md).
 
 ---
 

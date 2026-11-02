@@ -83,10 +83,10 @@
         <li><strong>A full editor at /bio</strong><p>Manage pages and links, upload images, avatars, icons and QR logos, watch a live preview, duplicate pages and read per-page analytics.</p></li>
         <li><strong>Theme presets</strong><p>Light, dark, minimal, neon and many more presets, shared by the editor, its preview and the public page.</p></li>
         <li><strong>One sign-in for every app: HOP ID</strong><p>No local sign-up or passwords here. You sign in once with your HOP ID at the hub. Configure HOP_HUB_URL, HOP_APP and the SSO secret before sign-in.</p></li>
-        <li><strong>Click analytics</strong><p>Country (GeoIP) plus device, browser and bot detection for every click.</p></li>
+        <li><strong>Click analytics</strong><p>Country (GeoIP), device and browser for every counted click. Bots are not counted.</p></li>
         <li><strong>Shorten links with LinkHop</strong><p>“Shorten this URL” in blocks calls LinkHop’s API with your own service token. If LinkHop is down, the block keeps its original URL.</p></li>
         <li><strong>URL and content safety</strong><p>The abuse:scan command checks pages and blocks against the shared domain_blacklist from hop/safety, on an hourly schedule.</p></li>
-        <li><strong>Daily privacy pruning</strong><p>The privacy:prune command deletes bio click data every day, so analytics don’t pile up forever.</p></li>
+        <li><strong>Daily privacy pruning</strong><p>The privacy:prune command deletes bio click logs after 30 days, so analytics don’t pile up forever.</p></li>
       </ul>
     </section>
 
@@ -104,7 +104,7 @@
       <h2 id="faq-h">FAQ</h2>
       <details>
         <summary>What data does a click record?</summary>
-        <p>A click records timing, the link, and derived country, device and browser details. BioHop prunes bio click data daily with privacy:prune.</p>
+        <p>A click records the time, the link, the country, device type, browser and referrer, and a keyed hash of the visitor’s IP address, never the address itself. BioHop deletes click logs after 30 days with privacy:prune.</p>
       </details>
       <details>
         <summary>Do I need to register an account?</summary>

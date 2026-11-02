@@ -1,15 +1,1239 @@
 {
   "schema": 1,
   "sources": {
-    "BioHop": "1d3f492f6509f49f9de6258e1ba839f188280664"
+    "BioHop": "d9cda2ed6db8c7e0c4d9baac28e24e1311ce3396"
   },
   "entries": [
     {
       "kind": "commit",
+      "date": "2026-11-02T22:53:56+07:00",
+      "title": "Merge pull request #44: Fix wrong product name and unsupported claims in user-facing copy",
+      "url": "https://github.com/navi-crwn/BioHop/commit/d9cda2ed6db8c7e0c4d9baac28e24e1311ce3396",
+      "id": "d9cda2ed",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "pr",
+      "date": "2026-11-02T15:53:56Z",
+      "title": "Fix wrong product name and unsupported claims in user-facing copy",
+      "url": "https://github.com/navi-crwn/BioHop/pull/44",
+      "id": "#44",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T22:50:47+07:00",
+      "title": "Require hop/auth 0.1.2",
+      "url": "https://github.com/navi-crwn/BioHop/commit/d6095961ba7810e4c9d53105fded2a7b94a3de53",
+      "id": "d6095961",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T22:40:30+07:00",
+      "title": "Fix wrong product name and unsupported claims in user-facing copy",
+      "url": "https://github.com/navi-crwn/BioHop/commit/14d6f40e2f6dada93f1a2c39b96dd1d86f19bd42",
+      "id": "14d6f40e",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "pr",
+      "date": "2026-11-02T15:34:18Z",
+      "title": "Pin the feed fetch and webhook delivery to the checked addresses",
+      "url": "https://github.com/navi-crwn/BioHop/pull/43",
+      "id": "#43",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T22:34:17+07:00",
+      "title": "Merge pull request #43: Pin the feed fetch and webhook delivery to the checked addresses",
+      "url": "https://github.com/navi-crwn/BioHop/commit/6daebe98f22fe5c953be8ab6986a1f9ee5d46cf2",
+      "id": "6daebe98",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T20:15:16+07:00",
+      "title": "Connect to the addresses that were checked: pin the feed fetch and webhook delivery to the resolved IPs",
+      "url": "https://github.com/navi-crwn/BioHop/commit/b7caaaf8e16a2e4f4599225dbd33245535d707d1",
+      "id": "b7caaaf8",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "pr",
+      "date": "2026-11-02T13:00:50Z",
+      "title": "Enforce admin bio settings, wire GeoIP config, harden installer scripts",
+      "url": "https://github.com/navi-crwn/BioHop/pull/42",
+      "id": "#42",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T20:00:49+07:00",
+      "title": "Merge pull request #42: Enforce admin bio settings, wire GeoIP config, harden installer scripts",
+      "url": "https://github.com/navi-crwn/BioHop/commit/485313c2ef4488faa14ee3ca837cd4d18b287b36",
+      "id": "485313c2",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T16:19:22+07:00",
+      "title": "Send the session cookie as Secure when APP_URL is https",
+      "url": "https://github.com/navi-crwn/BioHop/commit/be1a47f028a90c5f49293de5fc67d68e54499760",
+      "id": "be1a47f0",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T16:19:21+07:00",
+      "title": "Make install.sh, update.sh and uninstall.sh safer to run and to fail",
+      "url": "https://github.com/navi-crwn/BioHop/commit/4887c820ebcf8d632bdb1513be6b873b43d419a4",
+      "id": "4887c820",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T16:10:15+07:00",
+      "title": "Add CREDITS.md for the third-party software BioHop ships",
+      "url": "https://github.com/navi-crwn/BioHop/commit/3f9a30cce17a7cf2aaa99043d1aab42a57728cf2",
+      "id": "3f9a30cc",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T16:08:56+07:00",
+      "title": "Read the GeoIP settings from config",
+      "url": "https://github.com/navi-crwn/BioHop/commit/f3d37d48ffb156e440be0223521e8195059a9b33",
+      "id": "f3d37d48",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T16:08:18+07:00",
+      "title": "Enforce the bio limits the admin settings API accepts",
+      "url": "https://github.com/navi-crwn/BioHop/commit/8005d7235a60ce4235e814d0b299ef1630432c1f",
+      "id": "8005d723",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T12:34:40+07:00",
+      "title": "Merge pull request #41: Point composer.lock at the cleaned history of the shared packages",
+      "url": "https://github.com/navi-crwn/BioHop/commit/d2f3bad1ee478c63e2c4ff5a850641be11c5475e",
+      "id": "d2f3bad1",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "pr",
+      "date": "2026-11-02T05:34:40Z",
+      "title": "Point composer.lock at the cleaned history of the shared packages",
+      "url": "https://github.com/navi-crwn/BioHop/pull/41",
+      "id": "#41",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T12:29:34+07:00",
+      "title": "Point composer.lock at the rewritten history of hop-ui, hop-auth and hop-safety",
+      "url": "https://github.com/navi-crwn/BioHop/commit/7f7cf13b0fb1a9a0dfc4a4e2bf92f6dbff12f7b9",
+      "id": "7f7cf13b",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T11:05:12+07:00",
+      "title": "Merge pull request #40: Installers, READMEs and documentation site in the nine languages",
+      "url": "https://github.com/navi-crwn/BioHop/commit/1a69bdcc4e31bba2f6c7e6e35d63bb392e420bdb",
+      "id": "1a69bdcc",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "pr",
+      "date": "2026-11-02T04:05:12Z",
+      "title": "Installers, READMEs and documentation site in the nine languages",
+      "url": "https://github.com/navi-crwn/BioHop/pull/40",
+      "id": "#40",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "pr",
+      "date": "2026-11-02T04:05:07Z",
+      "title": "Nine languages: add de and ru, remove Arabic and RTL",
+      "url": "https://github.com/navi-crwn/BioHop/pull/39",
+      "id": "#39",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T11:05:06+07:00",
+      "title": "Merge pull request #39: Nine languages: add de and ru, remove Arabic and RTL",
+      "url": "https://github.com/navi-crwn/BioHop/commit/0225c761b1ac65faae690f93a7615623be93b934",
+      "id": "0225c761",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "pr",
+      "date": "2026-11-02T04:05:02Z",
+      "title": "Sync the shared home engine to HOP assets v2",
+      "url": "https://github.com/navi-crwn/BioHop/pull/38",
+      "id": "#38",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T11:05:01+07:00",
+      "title": "Merge pull request #38: Sync the shared home engine to HOP assets v2",
+      "url": "https://github.com/navi-crwn/BioHop/commit/966390548e0f7342a722c88d927cc2299b464b48",
+      "id": "96639054",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "pr",
+      "date": "2026-11-02T04:04:56Z",
+      "title": "Add a signed per-account summary endpoint for the hub",
+      "url": "https://github.com/navi-crwn/BioHop/pull/37",
+      "id": "#37",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T11:04:55+07:00",
+      "title": "Merge pull request #37: Add a signed per-account summary endpoint for the hub",
+      "url": "https://github.com/navi-crwn/BioHop/commit/27aa09642aa4528cc390f7b7094f72b506a627a0",
+      "id": "27aa0964",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "pr",
+      "date": "2026-11-02T04:04:52Z",
+      "title": "No CDN, font or icon host: policy, flags, icons and the error page",
+      "url": "https://github.com/navi-crwn/BioHop/pull/36",
+      "id": "#36",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T11:04:51+07:00",
+      "title": "Merge pull request #36: No CDN, font or icon host: policy, flags, icons and the error page",
+      "url": "https://github.com/navi-crwn/BioHop/commit/757527099441c7eea2f9670b57f812984ab3d9c7",
+      "id": "75752709",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T11:01:54+07:00",
+      "title": "Merge pull request #35: Public pages: the font, audio, PDF, carousel, manifest and forms work on the host that serves the page",
+      "url": "https://github.com/navi-crwn/BioHop/commit/9d385d06edd8bbd2b9416515543896944adcb4ed",
+      "id": "9d385d06",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "pr",
+      "date": "2026-11-02T04:01:54Z",
+      "title": "Public pages: the font, audio, PDF, carousel, manifest and forms work on the host that serves the page",
+      "url": "https://github.com/navi-crwn/BioHop/pull/35",
+      "id": "#35",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T09:28:34+07:00",
+      "title": "Documentation site in the nine languages: zh-CN, de, id, ja, pt-BR, es, fr, ru; Arabic removed",
+      "url": "https://github.com/navi-crwn/BioHop/commit/15b337dec8b882a8f746d2969a4640982f7f809c",
+      "id": "15b337de",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T09:25:28+07:00",
+      "title": "README: how the hub and the apps are installed together",
+      "url": "https://github.com/navi-crwn/BioHop/commit/f17b3381fd0601c38f135ff979a849bc27d0af11",
+      "id": "f17b3381",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T09:23:07+07:00",
+      "title": "Installer: hub-free mode explained; install-family.sh installs the hub and apps together",
+      "url": "https://github.com/navi-crwn/BioHop/commit/0035f5ecdbdb99cf5c3cdc5dcb300bddebe25263",
+      "id": "0035f5ec",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T03:47:54+07:00",
+      "title": "One-command installer, update and uninstall scripts; READMEs in the nine languages",
+      "url": "https://github.com/navi-crwn/BioHop/commit/ee1913bd09b5be429028ff7bd91981c89e87ecd9",
+      "id": "ee1913bd",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T03:20:07+07:00",
+      "title": "Nine languages: zh-CN, de, id, ja, pt-BR, es, fr, ru and English; Arabic and right-to-left removed",
+      "url": "https://github.com/navi-crwn/BioHop/commit/f0898f5a4d21bf58333859fa10ba86fa6c826ba0",
+      "id": "f0898f5a",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T02:54:02+07:00",
+      "title": "Merge remote-tracking branch 'origin/chore/hop-assets-v2' into feat/nine-languages",
+      "url": "https://github.com/navi-crwn/BioHop/commit/ca954947a5cb6833172839ac0c050e0991c0e9c3",
+      "id": "ca954947",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T02:54:00+07:00",
+      "title": "Merge remote-tracking branch 'origin/feat/hub-summary' into feat/nine-languages",
+      "url": "https://github.com/navi-crwn/BioHop/commit/f84ac0645b138ecde2ee6d30aab28879d935e8ef",
+      "id": "f84ac064",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T02:50:48+07:00",
+      "title": "Sync script follows HOP assets v2; engine comment now matches the shared file",
+      "url": "https://github.com/navi-crwn/BioHop/commit/a4561746311ffe297785a947137220aa72a81c0b",
+      "id": "a4561746",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T02:24:12+07:00",
+      "title": "Add a signed per-account summary endpoint for the hub dashboard",
+      "url": "https://github.com/navi-crwn/BioHop/commit/2787ac0f82aa8a741fe29aebc6dbd01abc7b817d",
+      "id": "2787ac0f",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T02:19:41+07:00",
+      "title": "No CDN, font or icon host: policy, flags, icons and the error page",
+      "url": "https://github.com/navi-crwn/BioHop/commit/82c99e393c17eaeb7e3a3459f0345f62008d0a9e",
+      "id": "82c99e39",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T02:05:31+07:00",
+      "title": "Public pages: forms post to the host that served the page, share links name the public host",
+      "url": "https://github.com/navi-crwn/BioHop/commit/e6bee8c60d5b01c870e462af0d52c37bbb8ae1ee",
+      "id": "e6bee8c6",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T02:05:31+07:00",
+      "title": "Address every file a public bio page uses on the asset host",
+      "url": "https://github.com/navi-crwn/BioHop/commit/cb187d79a8899314fadb9e46d7ebba76d07293b0",
+      "id": "cb187d79",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T01:35:35+07:00",
+      "title": "Merge pull request #34: Public pages: every file and form address works on the host that serves the page",
+      "url": "https://github.com/navi-crwn/BioHop/commit/0fbdc1d2c38fc1f1eba77bb528365db89f895c89",
+      "id": "0fbdc1d2",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "pr",
+      "date": "2026-11-01T18:35:35Z",
+      "title": "Public pages: every file and form address works on the host that serves the page",
+      "url": "https://github.com/navi-crwn/BioHop/pull/34",
+      "id": "#34",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T01:16:33+07:00",
+      "title": "Fix code style in helpers",
+      "url": "https://github.com/navi-crwn/BioHop/commit/4bde5efdd12267e5f7af20b69be249ac15f8fc36",
+      "id": "4bde5efd",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T01:16:08+07:00",
+      "title": "Public pages: icons, brand images and pictures use the asset host",
+      "url": "https://github.com/navi-crwn/BioHop/commit/fc4f99e8446a9e9125081970fe37f1fcbfed8043",
+      "id": "fc4f99e8",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T00:51:26+07:00",
+      "title": "Merge pull request #33: Let the sign-out chain reach every HOP subdomain",
+      "url": "https://github.com/navi-crwn/BioHop/commit/a037ebc83c3f778f60d4f1ffcd7cebf50f296276",
+      "id": "a037ebc8",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "pr",
+      "date": "2026-11-01T17:51:26Z",
+      "title": "Let the sign-out chain reach every HOP subdomain",
+      "url": "https://github.com/navi-crwn/BioHop/pull/33",
+      "id": "#33",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-02T00:49:17+07:00",
+      "title": "Let the sign-out chain reach every HOP subdomain (form-action)",
+      "url": "https://github.com/navi-crwn/BioHop/commit/4193cf0adeb857c1c2aefc86c705bb18b5ed31a8",
+      "id": "4193cf0a",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T23:41:17+07:00",
+      "title": "Merge pull request #32: Home claim box and site header: smaller box, one row, no wrapped buttons",
+      "url": "https://github.com/navi-crwn/BioHop/commit/f34f7bb12ca37b2aa22965bd3fb9446a15a7f400",
+      "id": "f34f7bb1",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "pr",
+      "date": "2026-11-01T16:41:17Z",
+      "title": "Home claim box and site header: smaller box, one row, no wrapped buttons",
+      "url": "https://github.com/navi-crwn/BioHop/pull/32",
+      "id": "#32",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T23:36:24+07:00",
+      "title": "Home claim box and site header: smaller box, one row, no wrapped buttons",
+      "url": "https://github.com/navi-crwn/BioHop/commit/05d1faf0d70dd5324756e972b1620cfe7d93beda",
+      "id": "05d1faf0",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T22:49:47+07:00",
+      "title": "Merge pull request #31: Page settings, new blocks, dashboard and editor polish, performance round",
+      "url": "https://github.com/navi-crwn/BioHop/commit/14a0e1ce9fa74aaf3db83b59a52e5348c538e983",
+      "id": "14a0e1ce",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "pr",
+      "date": "2026-11-01T15:49:47Z",
+      "title": "Page settings, new blocks, dashboard and editor polish, performance round",
+      "url": "https://github.com/navi-crwn/BioHop/pull/31",
+      "id": "#31",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T22:49:44+07:00",
+      "title": "Merge pull request #30: Home review round 8: shop, collections, wizard, header layouts, Design tab, dashboard home, Linktree import, scheduling",
+      "url": "https://github.com/navi-crwn/BioHop/commit/3860a5b37830ae78eb41c2e3d7e4360bdb03fb88",
+      "id": "3860a5b3",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "pr",
+      "date": "2026-11-01T15:49:44Z",
+      "title": "Home review round 8: shop, collections, wizard, header layouts, Design tab, dashboard home, Linktree import, scheduling",
+      "url": "https://github.com/navi-crwn/BioHop/pull/30",
+      "id": "#30",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T22:47:30+07:00",
+      "title": "Home engine files versioned by content; webhook deliveries pruned after a week; privacy wording proposal",
+      "url": "https://github.com/navi-crwn/BioHop/commit/3e50006b63832db03df9a42a5eb00714104287ee",
+      "id": "3e50006b",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T22:42:12+07:00",
+      "title": "Wizard: say why Continue is disabled; readable names for links without a known brand",
+      "url": "https://github.com/navi-crwn/BioHop/commit/ae2d662b12b4a15baf9f5d5bccef56be0ddf85a9",
+      "id": "ae2d662b",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T22:39:49+07:00",
+      "title": "Merge branch 'feat/home-p8' into feat/page-settings",
+      "url": "https://github.com/navi-crwn/BioHop/commit/ccf9846657aa645bc48164b316b1726fe9118679",
+      "id": "ccf98466",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T22:39:28+07:00",
+      "title": "Merge remote-tracking branch 'origin/main' into feat/home-p8",
+      "url": "https://github.com/navi-crwn/BioHop/commit/88b05cf7cc92070c44edb04f6bd8cd09d09f890b",
+      "id": "88b05cf7",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "pr",
+      "date": "2026-11-01T15:33:02Z",
+      "title": "Dashboard chrome: apps in the sidebar, settings in the top bar",
+      "url": "https://github.com/navi-crwn/BioHop/pull/29",
+      "id": "#29",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T22:33:01+07:00",
+      "title": "Merge pull request #29: Dashboard chrome: apps in the sidebar, settings in the top bar",
+      "url": "https://github.com/navi-crwn/BioHop/commit/ea47a7633663aa4c9257712c0de6266977cdf4a1",
+      "id": "ea47a763",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T22:32:58+07:00",
+      "title": "Merge pull request #28: Preview scrolls from the editor side; HOP family links are not shortened",
+      "url": "https://github.com/navi-crwn/BioHop/commit/5d940ce44dafc18f4eb10921b8b23db91b2538f9",
+      "id": "5d940ce4",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "pr",
+      "date": "2026-11-01T15:32:58Z",
+      "title": "Preview scrolls from the editor side; HOP family links are not shortened",
+      "url": "https://github.com/navi-crwn/BioHop/pull/28",
+      "id": "#28",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T22:28:14+07:00",
+      "title": "Merge branch 'feat/home-p8' into feat/page-settings",
+      "url": "https://github.com/navi-crwn/BioHop/commit/bb13040f46430a63368431b9d2994e24a18ae01f",
+      "id": "bb13040f",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T22:26:57+07:00",
+      "title": "Merge remote-tracking branch 'origin/fix/preview-scroll-family-links' into feat/home-p8",
+      "url": "https://github.com/navi-crwn/BioHop/commit/bd7e82ea3f476b7fddf5cbbf5239bb00eb26baf7",
+      "id": "bd7e82ea",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T22:26:57+07:00",
+      "title": "Merge remote-tracking branch 'origin/feat/dashboard-chrome' into feat/home-p8",
+      "url": "https://github.com/navi-crwn/BioHop/commit/0818730d8e68b99400120fa2deee5cfaac02e781",
+      "id": "0818730d",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T22:22:44+07:00",
+      "title": "Home: sample phones do not scroll, closing text centred, every app mark assembles",
+      "url": "https://github.com/navi-crwn/BioHop/commit/90a326ecd49141ef6c3d3b11589c7b2e88c6fa4b",
+      "id": "90a326ec",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T22:17:55+07:00",
+      "title": "Editor: design sub-tabs, opaque top bar, phone preview that fits",
+      "url": "https://github.com/navi-crwn/BioHop/commit/accb3140a114d68030d15ea6ddcaec1287c1ae73",
+      "id": "accb3140",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T22:12:30+07:00",
+      "title": "Dashboard home: the weekly bars fill their card",
+      "url": "https://github.com/navi-crwn/BioHop/commit/4a08407e280103c86fe1e294767a2f56088f4b53",
+      "id": "4a08407e",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T21:55:54+07:00",
+      "title": "Dashboard and visitor audit fixes",
+      "url": "https://github.com/navi-crwn/BioHop/commit/7069c2fa5885f3b7af7a31efa5a6b8c75a0a92cf",
+      "id": "7069c2fa",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T21:24:58+07:00",
+      "title": "Docs: performance round two, medium-blocks additions and the roadmap marked",
+      "url": "https://github.com/navi-crwn/BioHop/commit/2ebc5a360c85d6d2cb98b8e237edc2a68c2989d7",
+      "id": "2ebc5a36",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T21:24:18+07:00",
+      "title": "Webhook for form entries: signed JSON to the owner's address, retried by the scheduler, with a delivery log, test and resend",
+      "url": "https://github.com/navi-crwn/BioHop/commit/a5233361ebdcc1935a300829c371a3af69220b1a",
+      "id": "a5233361",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T21:21:29+07:00",
+      "title": "Product block: fill the details from the shop's address, with a 2.5 second limit, our own copy of the picture, and a soft failure",
+      "url": "https://github.com/navi-crwn/BioHop/commit/6700f95d9e20a2bfc159dd9a68befdf960d994bb",
+      "id": "6700f95d",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T21:19:58+07:00",
+      "title": "Visits by source (QR, NFC, home-screen app) and referring site in analytics, an installable web app manifest per page, and a story image from the share dialog",
+      "url": "https://github.com/navi-crwn/BioHop/commit/57408d27dfa15ed7a624c20f57c38aef623543d0",
+      "id": "57408d27",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T21:16:21+07:00",
+      "title": "Speed and privacy: a first-time reader of a plain public page gets no session row and no cookies",
+      "url": "https://github.com/navi-crwn/BioHop/commit/46a42242ee154ffd54fa8719ac254c30bc6dacca",
+      "id": "46a42242",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T21:13:49+07:00",
+      "title": "Speed: public pages get their own small script and stylesheet instead of the whole app bundle",
+      "url": "https://github.com/navi-crwn/BioHop/commit/9c21f2fdaaafd54736e900f4a29dcafc444cdbda",
+      "id": "9c21f2fd",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T21:09:42+07:00",
+      "title": "Docs: performance plan updated with what was built, the measurements, and what stays open",
+      "url": "https://github.com/navi-crwn/BioHop/commit/db765173e68771982be06731d87186a0c136c311",
+      "id": "db765173",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T21:09:02+07:00",
+      "title": "Speed: players and maps load on tap, off-screen cards are not painted, lite mode for weak phones and Save-Data, and a page speed pill in the editor",
+      "url": "https://github.com/navi-crwn/BioHop/commit/2390c214573fd042db4b23b6fa3d680b22ee91c0",
+      "id": "2390c214",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T21:06:05+07:00",
+      "title": "Speed: pictures are shrunk to WebP at upload, the page knows each picture's size and colour, and a command converts the old ones",
+      "url": "https://github.com/navi-crwn/BioHop/commit/0b73a13a8a1c1d84a959a3e1dcab2b11b5161a0c",
+      "id": "0b73a13a",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T21:03:12+07:00",
+      "title": "Speed and privacy: fonts for the public page and the editor preview are served from our own domain, no Google request",
+      "url": "https://github.com/navi-crwn/BioHop/commit/f4882cf07ae8a9b6164c74356dc28bd1b60eb3bc",
+      "id": "f4882cf0",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T20:59:25+07:00",
+      "title": "Docs: performance plan with what was measured, what exists, and the order to build",
+      "url": "https://github.com/navi-crwn/BioHop/commit/e6172837c5a7755ceae0362a57c6213b0f599aee",
+      "id": "e6172837",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T20:58:49+07:00",
+      "title": "Speed: keep the parsed user agent in the cache, so a link click no longer waits for a cold parse",
+      "url": "https://github.com/navi-crwn/BioHop/commit/fc712a3e736f9006665645c5cdcd7f6075ca9256",
+      "id": "fc712a3e",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T20:57:33+07:00",
+      "title": "Versions: an automatic version before each editing session, named versions, and one-click restore that can itself be undone",
+      "url": "https://github.com/navi-crwn/BioHop/commit/1d4eb079aab09682aa12a3bfdd5dd64ef051312f",
+      "id": "1d4eb079",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T20:55:37+07:00",
+      "title": "Editor: bento block picker, command palette (Ctrl/Cmd+K), page switcher, sort by clicks and bulk move to a collection",
+      "url": "https://github.com/navi-crwn/BioHop/commit/92ec24150d6f24612e623b23ed51163863f9d22d",
+      "id": "92ec2415",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T20:52:34+07:00",
+      "title": "Docs: how the medium blocks work, and what needs the owner's attention",
+      "url": "https://github.com/navi-crwn/BioHop/commit/cb515ad2090517dad0236315f109472fd32c1306",
+      "id": "cb515ad2",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T20:52:34+07:00",
+      "title": "Medium blocks: public strings in eight languages, roomier routing rule rows, vote wording",
+      "url": "https://github.com/navi-crwn/BioHop/commit/c403e5baa630eed1ec7a6b6487a775aa765315e4",
+      "id": "c403e5ba",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T20:51:22+07:00",
+      "title": "Poll block: one vote per device, results after voting, counts and reset for the owner",
+      "url": "https://github.com/navi-crwn/BioHop/commit/bdcf95901956de41a81c6f4e2577b05324a3950b",
+      "id": "bdcf9590",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T20:50:55+07:00",
+      "title": "Feed block: the latest posts of an RSS or Atom feed, fetched through a guarded, cached reader",
+      "url": "https://github.com/navi-crwn/BioHop/commit/e16bebfb1eb47c7a8e704a5b1d3238ac7f3c12f8",
+      "id": "e16bebfb",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T20:50:00+07:00",
+      "title": "Sign-up form block: entries with consent, CSV download, delete and retention days",
+      "url": "https://github.com/navi-crwn/BioHop/commit/14d0744e7947043f93acf3e8c504bc284c384305",
+      "id": "14d0744e",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T20:47:46+07:00",
+      "title": "Routing rules on links: send visitors elsewhere by country, device, system and hours of the day",
+      "url": "https://github.com/navi-crwn/BioHop/commit/1af5a6142991552eff15db4ce1d95c9b6b98b273",
+      "id": "1af5a614",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T20:45:54+07:00",
+      "title": "New blocks and page extras: status chip, floating button, app store redirect, goal bar, audio clip, picture carousel and PDF",
+      "url": "https://github.com/navi-crwn/BioHop/commit/8737f0418ac87652fbfbb1166dc17ede5696d10f",
+      "id": "8737f041",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T20:45:54+07:00",
+      "title": "Docs: block group of the feasible roadmap marked done where built",
+      "url": "https://github.com/navi-crwn/BioHop/commit/13cbac7a5e24dcd00d089d3147422a1f5f7bf334",
+      "id": "13cbac7a",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T20:39:32+07:00",
+      "title": "Page settings: share picture, favicon, Tag Manager, Unlisted and privacy mode switches, fallback address, footer line, and a PIN per link",
+      "url": "https://github.com/navi-crwn/BioHop/commit/c50f1cf70a9e7911be9cf5ee26eec10894b1cfca",
+      "id": "c50f1cf7",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T20:39:32+07:00",
+      "title": "Docs: page settings group marked done in the feasible roadmap",
+      "url": "https://github.com/navi-crwn/BioHop/commit/8072a72366295fe3a9cdcecf7cf5325346ba98aa",
+      "id": "8072a723",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T20:31:40+07:00",
+      "title": "Docs: what BioHop can still take on, without teams or custom domains",
+      "url": "https://github.com/navi-crwn/BioHop/commit/f0bceb50e6deba55b36633eab39d43733e8a1a0b",
+      "id": "f0bceb50",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T20:27:57+07:00",
+      "title": "Editor list: the Scheduled/Expired chip stays visible next to a long title",
+      "url": "https://github.com/navi-crwn/BioHop/commit/b3311a8193876036a81a5b028918399c1c037e63",
+      "id": "b3311a81",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T20:27:36+07:00",
+      "title": "Docs: feature map updated for scheduling, UTM, WhatsApp rotator and the existing attention animations",
+      "url": "https://github.com/navi-crwn/BioHop/commit/ff37d8bbd93e391199205b04b8405ed7b46dedcc",
+      "id": "ff37d8bb",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T20:27:35+07:00",
+      "title": "Link scheduling, UTM on outgoing links, and a WhatsApp rotator block; block edits merge as plain copies",
+      "url": "https://github.com/navi-crwn/BioHop/commit/da651603cc3fc469b1ce3b0050703abe1200be26",
+      "id": "da651603",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T20:20:52+07:00",
+      "title": "Docs: the 100-feature list mapped to what BioHop has, what fits HOP and what does not",
+      "url": "https://github.com/navi-crwn/BioHop/commit/f10e09c58e0f99385f0191db3225867a8476b111",
+      "id": "f10e09c5",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T20:20:37+07:00",
+      "title": "Editor: collection members shown nested, drop below a collection to add, move out and close group actions",
+      "url": "https://github.com/navi-crwn/BioHop/commit/bbc3e1ba8120c44fceb11e71d6d2d689425f6491",
+      "id": "bbc3e1ba",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T20:08:44+07:00",
+      "title": "Products: variants with their own price, stock and address, a stock count, a was-price, and sold out from stock",
+      "url": "https://github.com/navi-crwn/BioHop/commit/96304956fd0d6eeec86d35393f41ba4011ea46f5",
+      "id": "96304956",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T20:00:44+07:00",
+      "title": "Linktree import: a public linktr.ee page becomes a draft page with its picture, links, groups, headers and social icons",
+      "url": "https://github.com/navi-crwn/BioHop/commit/855a16269d43ba2059e042b011c397c497820bde",
+      "id": "855a1626",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T19:51:17+07:00",
+      "title": "Dashboard home: greeting, clicks this week against last week, a setup checklist and 7-day lines per page",
+      "url": "https://github.com/navi-crwn/BioHop/commit/449ad0021350fd5e1a6786707259dc627feaf75a",
+      "id": "449ad002",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T19:44:20+07:00",
+      "title": "Design tab: Header, Theme, Wallpaper, Text, Buttons and Footer sections with a jump bar; button colours and a Powered-by switch",
+      "url": "https://github.com/navi-crwn/BioHop/commit/f4e923f6435baef91d7b10f51c61b58d91d87de4",
+      "id": "f4e923f6",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T18:40:29+07:00",
+      "title": "Header layouts: classic, hero, banner with a cover picture, and cutout",
+      "url": "https://github.com/navi-crwn/BioHop/commit/571e9fe5600e8dd608f155ebb50ffe660697d06f",
+      "id": "571e9fe5",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T17:23:21+07:00",
+      "title": "New page wizard: address, goal, platforms, links, profile and colours with a live phone",
+      "url": "https://github.com/navi-crwn/BioHop/commit/2a91625e1a21fa5af616b38b44537e3593324eea",
+      "id": "2a91625e",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T17:17:43+07:00",
+      "title": "Shop address, collections, archive and select mode",
+      "url": "https://github.com/navi-crwn/BioHop/commit/a71f7fdd15bbc15ce19719c654089242f4cbf892",
+      "id": "a71f7fdd",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T16:46:26+07:00",
+      "title": "Shop: product blocks and a Links · Shop tab on the public page",
+      "url": "https://github.com/navi-crwn/BioHop/commit/c2ae7e1ef20f1f5ab0197dd265cfd4d997c6f3c8",
+      "id": "c2ae7e1e",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T16:42:37+07:00",
+      "title": "Docs: BioHop next to Linktree, with the order to build",
+      "url": "https://github.com/navi-crwn/BioHop/commit/d6d31db9de2255284c7c1500ec76897d69ed72ba",
+      "id": "d6d31db9",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T16:32:59+07:00",
+      "title": "Docs: BioHop next to Singlelink, with the gaps worth closing",
+      "url": "https://github.com/navi-crwn/BioHop/commit/162e2619394915a039e608fffa756a284134db2c",
+      "id": "162e2619",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T16:30:08+07:00",
+      "title": "Editor: an uploaded background picture saves and shows",
+      "url": "https://github.com/navi-crwn/BioHop/commit/d2df91e38474ba9500e370cf0809d6385681fcb0",
+      "id": "d2df91e3",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T16:26:28+07:00",
+      "title": "Home: deeper scenes, after Amnesia: particles, blocks that fly into the phone, a ring of themes, a 3D chart",
+      "url": "https://github.com/navi-crwn/BioHop/commit/3e0adce197ddff96e4df7a5cb057cc4916a281db",
+      "id": "3e0adce1",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T16:16:59+07:00",
+      "title": "Home: the sample phones keep a phone's proportions on every width",
+      "url": "https://github.com/navi-crwn/BioHop/commit/448ca420c56574a587d1314bfb8a257848848a2f",
+      "id": "448ca420",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T16:14:42+07:00",
+      "title": "Home: the live page stays in the hero, richer sample page, every block kind on the official page",
+      "url": "https://github.com/navi-crwn/BioHop/commit/a38386660ca35f0fa83d868ea258a16e59a5ff38",
+      "id": "a3838666",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T16:01:53+07:00",
+      "title": "Official page: the avatar is a file on the public disk, as the page expects",
+      "url": "https://github.com/navi-crwn/BioHop/commit/6249d3210a49c564e6db813874dec02f81323357",
+      "id": "6249d321",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T16:00:41+07:00",
+      "title": "Official page: every HOP app from the manifest, written by bio:official-page",
+      "url": "https://github.com/navi-crwn/BioHop/commit/d6eb0142b1f502766824fe19cc93a9064011d62f",
+      "id": "d6eb0142",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T15:56:33+07:00",
+      "title": "Home: the sample page is Helena's, after HEL.ink",
+      "url": "https://github.com/navi-crwn/BioHop/commit/f53557f3fad3696b008c4e8bd89235d716753503",
+      "id": "f53557f3",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T15:55:15+07:00",
+      "title": "Home: the hero phone stays inside its stage, the HOP family as 3D marks, LinkHop's rabbit head",
+      "url": "https://github.com/navi-crwn/BioHop/commit/1829bbfe32b27e98ac141125e10c7242913b0197",
+      "id": "1829bbfe",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T08:54:04+01:00",
+      "title": "Home: scroll scenes for every feature, live official page in the hero",
+      "url": "https://github.com/navi-crwn/BioHop/commit/c31047ca30df586d866e8b4358cfffab2e2fdf3e",
+      "id": "c31047ca",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T07:53:53+01:00",
+      "title": "Dashboard chrome: apps in the sidebar, settings in the top bar",
+      "url": "https://github.com/navi-crwn/BioHop/commit/34b8ac302675c33b6f4a49cdeabac8092487cb19",
+      "id": "34b8ac30",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T07:49:50+01:00",
+      "title": "Preview scrolls from the editor side; links to HOP sites are kept as typed",
+      "url": "https://github.com/navi-crwn/BioHop/commit/f7f4e400eca418ab31be05ac4be30d6bfb40b901",
+      "id": "f7f4e400",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "pr",
+      "date": "2026-11-01T06:37:06Z",
+      "title": "Editor overhaul: one scrolling page, autosave of changes only, SVG uploads, a faster page",
+      "url": "https://github.com/navi-crwn/BioHop/pull/27",
+      "id": "#27",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T13:37:05+07:00",
+      "title": "Merge pull request #27: Editor overhaul: one scrolling page, autosave of changes only, SVG uploads, a faster page",
+      "url": "https://github.com/navi-crwn/BioHop/commit/c548e6703e8f0ccc3c8fbb24e1e418c3aaa3b9b5",
+      "id": "c548e670",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T06:53:09+01:00",
+      "title": "Editor overhaul: one scrolling page, autosave of changes only, SVG uploads, a smaller and faster page",
+      "url": "https://github.com/navi-crwn/BioHop/commit/2945a3734878d86da2039eb4621b38a922e958ef",
+      "id": "2945a373",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "pr",
+      "date": "2026-11-01T04:50:54Z",
+      "title": "Homepage rebuilt as the long page: the logo assembles into the page",
+      "url": "https://github.com/navi-crwn/BioHop/pull/26",
+      "id": "#26",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T11:50:53+07:00",
+      "title": "Merge pull request #26: Homepage rebuilt as the long page: the logo assembles into the page",
+      "url": "https://github.com/navi-crwn/BioHop/commit/c14d2b6908aa84a25118b0be1e877e235be45647",
+      "id": "c14d2b69",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T05:44:29+01:00",
+      "title": "Homepage rebuilt as the long page: claim first, the logo assembles into the page",
+      "url": "https://github.com/navi-crwn/BioHop/commit/992e9cb8efb645c766fa721c2837a464e4fa3367",
+      "id": "992e9cb8",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "pr",
+      "date": "2026-11-01T03:47:34Z",
+      "title": "Homepage in the shared HOP home frame, full translations, editor and upload fixes",
+      "url": "https://github.com/navi-crwn/BioHop/pull/25",
+      "id": "#25",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T10:47:33+07:00",
+      "title": "Merge pull request #25: Homepage in the shared HOP home frame, full translations, editor and upload fixes",
+      "url": "https://github.com/navi-crwn/BioHop/commit/018e5b6c25690cc78197ab438f00b27fb1c0fe47",
+      "id": "018e5b6c",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-01T04:27:33+01:00",
+      "title": "Homepage in the shared HOP home frame, full translations, editor and upload fixes",
+      "url": "https://github.com/navi-crwn/BioHop/commit/1e4d10a243c40ca6dfe7a9029ad0314f608d3699",
+      "id": "1e4d10a2",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-10-31T23:16:33+07:00",
+      "title": "Merge pull request #24: feat: redesign homepage around an interactive HEL.ink profile",
+      "url": "https://github.com/navi-crwn/BioHop/commit/77dd95bf5b3a410603c2c017b746002f3603aaf2",
+      "id": "77dd95bf",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "pr",
+      "date": "2026-10-31T16:16:33Z",
+      "title": "feat: redesign homepage around an interactive HEL.ink profile",
+      "url": "https://github.com/navi-crwn/BioHop/pull/24",
+      "id": "#24",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-10-31T17:08:02+01:00",
+      "title": "feat: redesign homepage around an interactive HEL.ink profile",
+      "url": "https://github.com/navi-crwn/BioHop/commit/50355be930dca45b0eedc656b6aafb848720adf3",
+      "id": "50355be9",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-10-31T20:08:05+07:00",
+      "title": "Merge pull request #23: feat: complete P5 family experience and product history",
+      "url": "https://github.com/navi-crwn/BioHop/commit/ef03dbe44a81d19360ce1c844e365d32f950d7a8",
+      "id": "ef03dbe4",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "pr",
+      "date": "2026-10-31T13:08:05Z",
+      "title": "feat: complete P5 family experience and product history",
+      "url": "https://github.com/navi-crwn/BioHop/pull/23",
+      "id": "#23",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-10-31T13:53:47+01:00",
+      "title": "feat: refine family experience, typography and product history",
+      "url": "https://github.com/navi-crwn/BioHop/commit/82639f63cf3f3cc1c316b7c2ba39bc074fd80346",
+      "id": "82639f63",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
       "date": "2026-10-31T17:46:21+07:00",
       "title": "Merge pull request #22: feat: 3-level content warning gate, 24h cookie, and localized screen (4.0.14)",
-      "url": "https://github.com/navi-crwn/BioHop/commit/1d3f492f6509f49f9de6258e1ba839f188280664",
-      "id": "1d3f492f",
+      "url": "https://github.com/navi-crwn/BioHop/commit/50bea90f004566353459027b8da320987ed64654",
+      "id": "50bea90f",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -35,8 +1259,8 @@
       "kind": "commit",
       "date": "2026-10-31T17:44:38+07:00",
       "title": "Merge pull request #21: feat: theme gallery sticky ux, bento features, help, contact, and terms binding (4.0.9-4.0.14)",
-      "url": "https://github.com/navi-crwn/BioHop/commit/05e0b752faab279bc46ff8898d0f131a9aff91b9",
-      "id": "05e0b752",
+      "url": "https://github.com/navi-crwn/BioHop/commit/261167b961bb4d21e5c24cd2444ec3ad1c1db3f5",
+      "id": "261167b9",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -44,8 +1268,8 @@
       "kind": "commit",
       "date": "2026-10-31T11:40:29+01:00",
       "title": "Merge remote-tracking branch 'origin/main' into feat/theme-ux-bento-footer",
-      "url": "https://github.com/navi-crwn/BioHop/commit/328767b24d0ba2bf1332ad81aa10cf7beb0ceeaf",
-      "id": "328767b2",
+      "url": "https://github.com/navi-crwn/BioHop/commit/56e5116a16e316ebd112781891391af335c93693",
+      "id": "56e5116a",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -53,8 +1277,8 @@
       "kind": "commit",
       "date": "2026-10-31T17:37:15+07:00",
       "title": "Merge pull request #20: docs: standard 8-language READMEs and GitHub Pages documentation site",
-      "url": "https://github.com/navi-crwn/BioHop/commit/c906e6c4a592038755bc8cd215500c0bff1d328d",
-      "id": "c906e6c4",
+      "url": "https://github.com/navi-crwn/BioHop/commit/53e7c1f43d4258dc7998622882688d8f48ec0832",
+      "id": "53e7c1f4",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -71,8 +1295,8 @@
       "kind": "commit",
       "date": "2026-10-31T17:36:55+07:00",
       "title": "Merge pull request #19: feat(i18n): add 8-language localization for dedicated pages",
-      "url": "https://github.com/navi-crwn/BioHop/commit/0ea957ffb4b5b79e83beb4435c184d8c5f7fcc5a",
-      "id": "0ea957ff",
+      "url": "https://github.com/navi-crwn/BioHop/commit/f9da646b9da9fd82da219e7850130678bd0a22c8",
+      "id": "f9da646b",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -98,8 +1322,8 @@
       "kind": "commit",
       "date": "2026-10-31T17:36:35+07:00",
       "title": "Merge pull request #18: fix: fallback 301 redirect for /b and /b/ roots (U-05)",
-      "url": "https://github.com/navi-crwn/BioHop/commit/2ffa06cb0017a8f2178ab50e2ca531d10f106781",
-      "id": "2ffa06cb",
+      "url": "https://github.com/navi-crwn/BioHop/commit/024bbc109ddb62a8d1c4fe3f54a36810d7181b6c",
+      "id": "024bbc10",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -107,8 +1331,8 @@
       "kind": "commit",
       "date": "2026-10-31T08:45:56+01:00",
       "title": "feat: add product demos and responsive homepage and editor layout",
-      "url": "https://github.com/navi-crwn/BioHop/commit/606830836c6c6facf17018f7f9a50e1199418539",
-      "id": "60683083",
+      "url": "https://github.com/navi-crwn/BioHop/commit/abbf2d271cc6e3d8df4867782b9edd93d61f756e",
+      "id": "abbf2d27",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -116,8 +1340,8 @@
       "kind": "commit",
       "date": "2026-10-31T08:45:56+01:00",
       "title": "fix: classify bio pages before publication and expose moderation",
-      "url": "https://github.com/navi-crwn/BioHop/commit/0b0fbf502c4d54aeb612eb9386cb714b0012e428",
-      "id": "0b0fbf50",
+      "url": "https://github.com/navi-crwn/BioHop/commit/2e3e0483b8961774465bae8e8d0aa78f310219ee",
+      "id": "2e3e0483",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -125,8 +1349,8 @@
       "kind": "commit",
       "date": "2026-10-31T08:10:05+01:00",
       "title": "style: format content warning migration and tests",
-      "url": "https://github.com/navi-crwn/BioHop/commit/6b4e2b991392a47dfb3a2d1286a70b4e50a4f13d",
-      "id": "6b4e2b99",
+      "url": "https://github.com/navi-crwn/BioHop/commit/5592f7eccd2a822453e5c5e1de9381bac388a20f",
+      "id": "5592f7ec",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -134,8 +1358,8 @@
       "kind": "commit",
       "date": "2026-10-31T07:57:45+01:00",
       "title": "style: fix pint code styling in BioPage model",
-      "url": "https://github.com/navi-crwn/BioHop/commit/76a9b39350d717554cf2d60656ba3f90473c38ce",
-      "id": "76a9b393",
+      "url": "https://github.com/navi-crwn/BioHop/commit/687e9a6b1bca1a53aae1247c05ff61ad24fe9135",
+      "id": "687e9a6b",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -143,8 +1367,8 @@
       "kind": "commit",
       "date": "2026-10-31T07:20:14+01:00",
       "title": "feat: expand adult content flag to 3-level warning gate with 24h cookie and responsive screen",
-      "url": "https://github.com/navi-crwn/BioHop/commit/1d8c6ae8060ecc3995df28fb039f89bf4a6d7272",
-      "id": "1d8c6ae8",
+      "url": "https://github.com/navi-crwn/BioHop/commit/a881b7d6bcf01a3daa2bf65b139c31a06536532e",
+      "id": "a881b7d6",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -152,17 +1376,8 @@
       "kind": "commit",
       "date": "2026-10-31T06:56:03+01:00",
       "title": "feat(theme): theme switcher sticky ux, bento features, help, contact, and terms binding",
-      "url": "https://github.com/navi-crwn/BioHop/commit/f72d05e732ec42dcbdca97666c71722b9eec203c",
-      "id": "f72d05e7",
-      "app": "BioHop",
-      "repo": "BioHop"
-    },
-    {
-      "kind": "commit",
-      "date": "2026-10-31T06:47:02+01:00",
-      "title": "Merge remote-tracking branch 'origin/fix/u05-root-redirect-fallback' into feat/theme-ux-bento-footer",
-      "url": "https://github.com/navi-crwn/BioHop/commit/8712744edc1b91c32f7f5f15274a5f743f63026e",
-      "id": "8712744e",
+      "url": "https://github.com/navi-crwn/BioHop/commit/1541a2839c8610ace9b63abc3ea93a1b33fc4c5a",
+      "id": "1541a283",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -170,8 +1385,17 @@
       "kind": "commit",
       "date": "2026-10-31T06:47:02+01:00",
       "title": "Merge remote-tracking branch 'origin/feat/dedicated-pages-i18n' into feat/theme-ux-bento-footer",
-      "url": "https://github.com/navi-crwn/BioHop/commit/197577208910dfed6782dc0a3cf20a5ff6ce49a2",
-      "id": "19757720",
+      "url": "https://github.com/navi-crwn/BioHop/commit/bd8b121097d8567d9e73c83d62e7efbf3c0a9f07",
+      "id": "bd8b1210",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-10-31T06:47:02+01:00",
+      "title": "Merge remote-tracking branch 'origin/fix/u05-root-redirect-fallback' into feat/theme-ux-bento-footer",
+      "url": "https://github.com/navi-crwn/BioHop/commit/1800abd0f8f1f1ffbe53bca5d42007a05de5f66a",
+      "id": "1800abd0",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -179,8 +1403,8 @@
       "kind": "commit",
       "date": "2026-10-31T05:43:08+01:00",
       "title": "docs: add 8-language READMEs and GitHub Pages documentation site",
-      "url": "https://github.com/navi-crwn/BioHop/commit/f5f5dfb23c6efe76f517b22f15c46c026ff3da42",
-      "id": "f5f5dfb2",
+      "url": "https://github.com/navi-crwn/BioHop/commit/eedb811dd4ba3e356360eaa25db3ee1d248a13f9",
+      "id": "eedb811d",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -188,8 +1412,8 @@
       "kind": "commit",
       "date": "2026-10-31T05:24:41+01:00",
       "title": "feat(i18n): add 8-language localization for dedicated pages",
-      "url": "https://github.com/navi-crwn/BioHop/commit/c9d6411ff6b1b8ac6700c7c3b42fde7f7a85cd32",
-      "id": "c9d6411f",
+      "url": "https://github.com/navi-crwn/BioHop/commit/15714e7348677b9b39aee006d39d4ebfae7d8f0e",
+      "id": "15714e73",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -197,8 +1421,8 @@
       "kind": "commit",
       "date": "2026-10-31T04:39:40+01:00",
       "title": "fix: fallback 301 redirect for /b and /b/ roots (U-05)",
-      "url": "https://github.com/navi-crwn/BioHop/commit/7eb9f468f5edb82076a3c0dc89fd8e5c0ec0fe18",
-      "id": "7eb9f468",
+      "url": "https://github.com/navi-crwn/BioHop/commit/2ec12e454dd36ef52a652f14d2b39dc44eabcb30",
+      "id": "2ec12e45",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -215,8 +1439,8 @@
       "kind": "commit",
       "date": "2026-10-31T10:12:49+07:00",
       "title": "Merge pull request #17: chore: PixelHop at pixel.hel.ink in the family table",
-      "url": "https://github.com/navi-crwn/BioHop/commit/133f5e8b792151fa10c72035bfaab62a99e496c5",
-      "id": "133f5e8b",
+      "url": "https://github.com/navi-crwn/BioHop/commit/88eaec4f4ddd5057de16f3866299876c2a78688a",
+      "id": "88eaec4f",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -224,8 +1448,8 @@
       "kind": "commit",
       "date": "2026-10-31T03:55:18+01:00",
       "title": "chore: PixelHop at pixel.hel.ink in the family table",
-      "url": "https://github.com/navi-crwn/BioHop/commit/a0c5f8844b9202a04d2963861a3bd20d288f026e",
-      "id": "a0c5f884",
+      "url": "https://github.com/navi-crwn/BioHop/commit/b28cb3faa63ea3ed98cbd7fa97bf7d7afeb85cf0",
+      "id": "b28cb3fa",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -233,8 +1457,8 @@
       "kind": "commit",
       "date": "2026-10-31T09:12:20+07:00",
       "title": "Merge pull request #14: docs: canonical HOP family table with a CI check",
-      "url": "https://github.com/navi-crwn/BioHop/commit/3d5a5a6c87c6ed181d4bbdd073c9d57496255fe5",
-      "id": "3d5a5a6c",
+      "url": "https://github.com/navi-crwn/BioHop/commit/c1dfb387280fe68e3d8140bfaf32de6038e7568e",
+      "id": "c1dfb387",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -251,8 +1475,8 @@
       "kind": "commit",
       "date": "2026-10-31T09:12:07+07:00",
       "title": "Merge pull request #16: feat: bio.hel.ink home page in eight languages with a live theme gallery",
-      "url": "https://github.com/navi-crwn/BioHop/commit/2f59064ad5b37204fe8449a322042cd26bdfe97f",
-      "id": "2f59064a",
+      "url": "https://github.com/navi-crwn/BioHop/commit/5fa1f177b84a193ead3fdbfc49d289ff85796122",
+      "id": "5fa1f177",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -269,8 +1493,8 @@
       "kind": "commit",
       "date": "2026-10-31T09:11:54+07:00",
       "title": "Merge pull request #15: feat: dedicated pages on bio.hel.ink",
-      "url": "https://github.com/navi-crwn/BioHop/commit/0a2bba505ebcd3ba286e5f010a20be1e7172cea1",
-      "id": "0a2bba50",
+      "url": "https://github.com/navi-crwn/BioHop/commit/956f459564ceac2bcea0a01c8b51692357b512dd",
+      "id": "956f4595",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -287,8 +1511,8 @@
       "kind": "commit",
       "date": "2026-10-31T09:11:23+07:00",
       "title": "Merge pull request #13: feat: HOP family typography, purple identity and family list",
-      "url": "https://github.com/navi-crwn/BioHop/commit/6ffec9db68bae639a3b5775e90ac05bb30ac5183",
-      "id": "6ffec9db",
+      "url": "https://github.com/navi-crwn/BioHop/commit/51bb7fa0bf921e56f7b7240e6d8d217a617a8bea",
+      "id": "51bb7fa0",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -314,8 +1538,8 @@
       "kind": "commit",
       "date": "2026-10-31T09:11:01+07:00",
       "title": "Merge pull request #12: feat: BioHop has its own abuse report page",
-      "url": "https://github.com/navi-crwn/BioHop/commit/0ff66de2826f33a9afea41f2d38f89c0b766c6c0",
-      "id": "0ff66de2",
+      "url": "https://github.com/navi-crwn/BioHop/commit/4281f965843ad5f2dcea1b4fdf1df85fd539a2c6",
+      "id": "4281f965",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -323,8 +1547,8 @@
       "kind": "commit",
       "date": "2026-10-31T09:10:45+07:00",
       "title": "Merge pull request #11: docs: add SECURITY.md and issue templates",
-      "url": "https://github.com/navi-crwn/BioHop/commit/5a4abe26f82b839107a72cd14c2d77a6f7608c48",
-      "id": "5a4abe26",
+      "url": "https://github.com/navi-crwn/BioHop/commit/408925e0ed27528941018f9054deaae12e99168f",
+      "id": "408925e0",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -341,8 +1565,8 @@
       "kind": "commit",
       "date": "2026-10-30T19:22:12+01:00",
       "title": "style: no purple pills or backgrounds next to the purple mark",
-      "url": "https://github.com/navi-crwn/BioHop/commit/54acce3d2e5d6c9cf196f4063b3de17fe2293283",
-      "id": "54acce3d",
+      "url": "https://github.com/navi-crwn/BioHop/commit/2cdf4d5d24571e0acda800dc14b913cff3ee60e2",
+      "id": "2cdf4d5d",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -350,8 +1574,8 @@
       "kind": "commit",
       "date": "2026-10-30T19:10:31+01:00",
       "title": "feat: bio.hel.ink home page in eight languages with a live theme gallery (U-01)",
-      "url": "https://github.com/navi-crwn/BioHop/commit/5d09a6e2107a2d1612d4efcbded86ada295a4b66",
-      "id": "5d09a6e2",
+      "url": "https://github.com/navi-crwn/BioHop/commit/47d22380a134c860107acb202a12553caff0a187",
+      "id": "47d22380",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -359,8 +1583,8 @@
       "kind": "commit",
       "date": "2026-10-30T19:01:43+01:00",
       "title": "feat: dedicated pages on bio.hel.ink (U-07, U-06, U-10)",
-      "url": "https://github.com/navi-crwn/BioHop/commit/f1f7ca0c5e8d253956371955dc127e4d2eb2c7b1",
-      "id": "f1f7ca0c",
+      "url": "https://github.com/navi-crwn/BioHop/commit/ea0e7aaee1125995dea75de6508a3c46f719b8a6",
+      "id": "ea0e7aae",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -368,8 +1592,8 @@
       "kind": "commit",
       "date": "2026-10-30T18:33:55+01:00",
       "title": "docs: canonical HOP family table with a CI check (U-08)",
-      "url": "https://github.com/navi-crwn/BioHop/commit/22b704380fef1debe6522687c434c8761d65d38d",
-      "id": "22b70438",
+      "url": "https://github.com/navi-crwn/BioHop/commit/b6563811f954747c56882e15dc102eafb6112e79",
+      "id": "b6563811",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -377,8 +1601,8 @@
       "kind": "commit",
       "date": "2026-10-30T18:16:01+01:00",
       "title": "feat: family fonts on the report-abuse page",
-      "url": "https://github.com/navi-crwn/BioHop/commit/fb80fa54b766b959093295b75f901b2c3b6ec7aa",
-      "id": "fb80fa54",
+      "url": "https://github.com/navi-crwn/BioHop/commit/30e1274786661fa8972cc7d0e34d2c8af12595cb",
+      "id": "30e12747",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -386,8 +1610,8 @@
       "kind": "commit",
       "date": "2026-10-30T18:15:44+01:00",
       "title": "Merge remote-tracking branch 'origin/fix/biohop-report-abuse' into feat/family-typography",
-      "url": "https://github.com/navi-crwn/BioHop/commit/deb1e7035e0fe04495f682109a45fb654833874e",
-      "id": "deb1e703",
+      "url": "https://github.com/navi-crwn/BioHop/commit/c02ed8c58887afe42e1abafc97a3950c0f49a58e",
+      "id": "c02ed8c5",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -395,8 +1619,8 @@
       "kind": "commit",
       "date": "2026-10-30T18:15:27+01:00",
       "title": "feat: HOP family typography, purple identity and family list from hel.ink",
-      "url": "https://github.com/navi-crwn/BioHop/commit/006c6b271be4c7248c39d38d7e3d9e08be10c124",
-      "id": "006c6b27",
+      "url": "https://github.com/navi-crwn/BioHop/commit/ae4776033fea5496f3f392256a4a705b35cbdd6d",
+      "id": "ae477603",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -404,8 +1628,8 @@
       "kind": "commit",
       "date": "2026-10-30T17:45:29+01:00",
       "title": "feat: BioHop has its own abuse report page",
-      "url": "https://github.com/navi-crwn/BioHop/commit/cd102313f51a18583428bb1b0bbd765739898ca4",
-      "id": "cd102313",
+      "url": "https://github.com/navi-crwn/BioHop/commit/c3a825b5e2317a6e54750b5f4997b67674f4baab",
+      "id": "c3a825b5",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -413,8 +1637,8 @@
       "kind": "commit",
       "date": "2026-10-30T17:40:13+01:00",
       "title": "docs: add SECURITY.md and issue templates",
-      "url": "https://github.com/navi-crwn/BioHop/commit/993cb4862f085c152aecddb6447ef716e82245af",
-      "id": "993cb486",
+      "url": "https://github.com/navi-crwn/BioHop/commit/6605a8d8c7a0297829179d6040f1435c640e53bc",
+      "id": "6605a8d8",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -422,8 +1646,8 @@
       "kind": "commit",
       "date": "2026-10-30T11:15:43+07:00",
       "title": "Merge pull request #10: docs: add unified HOP family ecosystem reference table",
-      "url": "https://github.com/navi-crwn/BioHop/commit/356885d540ef00ef92c50c220864f91ec2d70c0a",
-      "id": "356885d5",
+      "url": "https://github.com/navi-crwn/BioHop/commit/410eb10e5414fe2dae8d9a35cb9ac62607ea5bfb",
+      "id": "410eb10e",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -449,8 +1673,8 @@
       "kind": "commit",
       "date": "2026-10-30T11:15:20+07:00",
       "title": "Merge pull request #9: feat: bangun beranda publik biohop dengan klaim slug interaktif dan pratinjau tema bio (C1)",
-      "url": "https://github.com/navi-crwn/BioHop/commit/b410c76737c0b65cb8e8c9f903f6ea7bf6eacea0",
-      "id": "b410c767",
+      "url": "https://github.com/navi-crwn/BioHop/commit/22f1ceb827b300cf3eb066d15c4bacd7be350933",
+      "id": "22f1ceb8",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -458,8 +1682,8 @@
       "kind": "commit",
       "date": "2026-10-30T11:14:45+07:00",
       "title": "Merge pull request #8: feat: dukung rotasi secret sso ganda di verify hub request dan events (F-08)",
-      "url": "https://github.com/navi-crwn/BioHop/commit/be2e1ace970184ef7ced7f60d7154f4005d54914",
-      "id": "be2e1ace",
+      "url": "https://github.com/navi-crwn/BioHop/commit/09f483e54fb154bf3fa33205b07412637f58bac9",
+      "id": "09f483e5",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -476,8 +1700,8 @@
       "kind": "commit",
       "date": "2026-10-30T11:14:08+07:00",
       "title": "Merge pull request #7: refactor: pensiunkan antarmuka admin internal dan arahkan ke imperium",
-      "url": "https://github.com/navi-crwn/BioHop/commit/62c25f549297934b22eb12e64873017d517775d8",
-      "id": "62c25f54",
+      "url": "https://github.com/navi-crwn/BioHop/commit/e5d5d04b73b071cb0d495d8535ad3681d783ba5b",
+      "id": "e5d5d04b",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -503,8 +1727,8 @@
       "kind": "commit",
       "date": "2026-10-30T11:13:50+07:00",
       "title": "Merge pull request #6: fix: tambah queue heartbeat berkala dan pembaruan health probe (F-15)",
-      "url": "https://github.com/navi-crwn/BioHop/commit/168795bb2be63642b940d2caae77e348c2b23c48",
-      "id": "168795bb",
+      "url": "https://github.com/navi-crwn/BioHop/commit/3304cbaaabfa5a3abb78150751966d11765feb60",
+      "id": "3304cbaa",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -512,8 +1736,8 @@
       "kind": "commit",
       "date": "2026-10-29T20:28:22+01:00",
       "title": "docs: add unified HOP family ecosystem reference table",
-      "url": "https://github.com/navi-crwn/BioHop/commit/f58cd64f27ec9ee118e505cef1518d712c23eb02",
-      "id": "f58cd64f",
+      "url": "https://github.com/navi-crwn/BioHop/commit/ae99c8608969cb7f8074340b8db98cb4a8e6c92a",
+      "id": "ae99c860",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -521,8 +1745,8 @@
       "kind": "commit",
       "date": "2026-10-29T20:16:48+01:00",
       "title": "fix: samakan kunci tema localstorage helink-theme pada landing page",
-      "url": "https://github.com/navi-crwn/BioHop/commit/6aae0163f8d4c209449b6d1de48bf698341c2230",
-      "id": "6aae0163",
+      "url": "https://github.com/navi-crwn/BioHop/commit/77e843c2adf5eb05029ba26908ca841e95ed816d",
+      "id": "77e843c2",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -530,8 +1754,8 @@
       "kind": "commit",
       "date": "2026-10-29T20:16:23+01:00",
       "title": "fix: tambahkan nonce csp pada inline script tema landing page",
-      "url": "https://github.com/navi-crwn/BioHop/commit/59204ac73b0a186d24aa82d49de150aab589b483",
-      "id": "59204ac7",
+      "url": "https://github.com/navi-crwn/BioHop/commit/ec5fd9caf75bee0885dcae6fc495bd1be8a5a89e",
+      "id": "ec5fd9ca",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -539,8 +1763,8 @@
       "kind": "commit",
       "date": "2026-10-29T20:14:43+01:00",
       "title": "feat: bangun beranda publik biohop dengan klaim slug interaktif dan pratinjau tema bio (C1)",
-      "url": "https://github.com/navi-crwn/BioHop/commit/033653d95d068a3a9ba10bcce35ebcb734fb3162",
-      "id": "033653d9",
+      "url": "https://github.com/navi-crwn/BioHop/commit/90ca81ff1ddc195bf787c977a98869d82ac5f447",
+      "id": "90ca81ff",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -548,8 +1772,8 @@
       "kind": "commit",
       "date": "2026-10-29T19:50:59+01:00",
       "title": "feat: dukung rotasi secret sso ganda di verify hub request dan events (F-08)",
-      "url": "https://github.com/navi-crwn/BioHop/commit/20093bb840ee7973199ea0b2fc6d3c137783ce85",
-      "id": "20093bb8",
+      "url": "https://github.com/navi-crwn/BioHop/commit/8b83e30f755954d5f45b7d50407ecba157035d83",
+      "id": "8b83e30f",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -557,8 +1781,8 @@
       "kind": "commit",
       "date": "2026-10-29T19:23:28+01:00",
       "title": "refactor: pensiunkan antarmuka admin internal dan arahkan ke imperium",
-      "url": "https://github.com/navi-crwn/BioHop/commit/92ebb1359bb92eb53df4abde83ef123d4ac61080",
-      "id": "92ebb135",
+      "url": "https://github.com/navi-crwn/BioHop/commit/1fe0ad46ff8fe6d28eea4506dc7d9bc84ffd2ccb",
+      "id": "1fe0ad46",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -566,8 +1790,8 @@
       "kind": "commit",
       "date": "2026-10-29T19:00:57+01:00",
       "title": "fix: tambah queue heartbeat berkala dan pembaruan health probe (F-15)",
-      "url": "https://github.com/navi-crwn/BioHop/commit/b58a69af1a226bf434283494cd2dddf0b6d896d5",
-      "id": "b58a69af",
+      "url": "https://github.com/navi-crwn/BioHop/commit/39c160a63d147970c2a775fbcf783de89981c81a",
+      "id": "39c160a6",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -575,8 +1799,8 @@
       "kind": "commit",
       "date": "2026-10-30T00:11:23+07:00",
       "title": "Merge pull request #5: feat: tambahkan endpoint admin /api/hop/*, pembersihan file bio, dan perbarui dependensi (F-01, F-05, F-09, F-10, F-14)",
-      "url": "https://github.com/navi-crwn/BioHop/commit/37db13cac3c051d4c71fa83b2852f144f58e5baf",
-      "id": "37db13ca",
+      "url": "https://github.com/navi-crwn/BioHop/commit/a6472d2af25eb9f7534660ac9e7b62922d487072",
+      "id": "a6472d2a",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -593,8 +1817,8 @@
       "kind": "commit",
       "date": "2026-10-29T18:06:24+01:00",
       "title": "fix: /hop/events hanya menerima event dari hub, app lain ditolak 403",
-      "url": "https://github.com/navi-crwn/BioHop/commit/ca4989d0ea844e2f927696bcb1681111e30ac49c",
-      "id": "ca4989d0",
+      "url": "https://github.com/navi-crwn/BioHop/commit/70c07313eb562fb3f497cf635e2c37d92c5715fa",
+      "id": "70c07313",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -602,8 +1826,8 @@
       "kind": "commit",
       "date": "2026-10-29T09:21:14+01:00",
       "title": "feat: sertakan field kpi pada respons /api/hop/stats",
-      "url": "https://github.com/navi-crwn/BioHop/commit/5b53794ab1a9d554b44116ee0f3eee6f2cf8c52d",
-      "id": "5b53794a",
+      "url": "https://github.com/navi-crwn/BioHop/commit/27b39a293c7b563b81cddd2d3f5c58ae641f930d",
+      "id": "27b39a29",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -611,8 +1835,8 @@
       "kind": "commit",
       "date": "2026-10-29T09:12:52+01:00",
       "title": "feat: tambahkan endpoint admin /api/hop/*, pembersihan file bio, dan perbarui dependensi",
-      "url": "https://github.com/navi-crwn/BioHop/commit/531a40368b39b7112afb604985570d5f2e989e44",
-      "id": "531a4036",
+      "url": "https://github.com/navi-crwn/BioHop/commit/9c5c2de580519aa6e8165dda0cc33ebbc87ec9d4",
+      "id": "9c5c2de5",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -620,8 +1844,8 @@
       "kind": "commit",
       "date": "2026-10-29T02:10:57+07:00",
       "title": "Merge pull request #4: Logout no longer stalls: form-action covers every HOP host",
-      "url": "https://github.com/navi-crwn/BioHop/commit/a855843a1c7c81c5d72b51f6a55a377980932e37",
-      "id": "a855843a",
+      "url": "https://github.com/navi-crwn/BioHop/commit/92437e716294a7f22e0270b4a97d4414408fbca0",
+      "id": "92437e71",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -638,8 +1862,8 @@
       "kind": "commit",
       "date": "2026-10-28T19:36:45+01:00",
       "title": "Logout no longer stalls: form-action covers every HOP host",
-      "url": "https://github.com/navi-crwn/BioHop/commit/bf9c3cb4542a4a9268d4997f0ded3847d1b1e65d",
-      "id": "bf9c3cb4",
+      "url": "https://github.com/navi-crwn/BioHop/commit/de46948725d8c6b390206411cec1ee44f0b36ab1",
+      "id": "de469487",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -656,8 +1880,8 @@
       "kind": "commit",
       "date": "2026-10-28T22:45:19+07:00",
       "title": "Merge pull request #3: CSP: allow the asset host next to 'self'",
-      "url": "https://github.com/navi-crwn/BioHop/commit/53ada6a66e6d2e164709172997bf32958393416b",
-      "id": "53ada6a6",
+      "url": "https://github.com/navi-crwn/BioHop/commit/67662a200e9e3314640ba5f28871612efc19ae89",
+      "id": "67662a20",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -665,8 +1889,8 @@
       "kind": "commit",
       "date": "2026-10-28T16:31:08+01:00",
       "title": "CSP: allow the asset host next to 'self'",
-      "url": "https://github.com/navi-crwn/BioHop/commit/f87a0fc6afda6567db5c277748bd76852bb24378",
-      "id": "f87a0fc6",
+      "url": "https://github.com/navi-crwn/BioHop/commit/c5f31ed34a52625fdca8dfed5b0787aea57b49ec",
+      "id": "c5f31ed3",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -674,8 +1898,8 @@
       "kind": "commit",
       "date": "2026-10-28T16:15:24+01:00",
       "title": "Shared packages from their GitHub repos instead of the hub checkout",
-      "url": "https://github.com/navi-crwn/BioHop/commit/7a5c142032573feeeafc993e6336c2b74535aecc",
-      "id": "7a5c1420",
+      "url": "https://github.com/navi-crwn/BioHop/commit/c10d3cfc4c720b2703efc910cda6f84d91b31cbe",
+      "id": "c10d3cfc",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -692,8 +1916,8 @@
       "kind": "commit",
       "date": "2026-10-28T12:59:06+01:00",
       "title": "Tests render views without the Vite manifest",
-      "url": "https://github.com/navi-crwn/BioHop/commit/1281ea651f95849ddd92070c9b05d8ad82d45cd6",
-      "id": "1281ea65",
+      "url": "https://github.com/navi-crwn/BioHop/commit/71d0007072d6640e05f1c4002ce78638e9ae58c8",
+      "id": "71d00070",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -701,8 +1925,8 @@
       "kind": "commit",
       "date": "2026-10-28T12:56:54+01:00",
       "title": "Unit tests for public_url and reserved slugs (tests/Unit was empty)",
-      "url": "https://github.com/navi-crwn/BioHop/commit/367ccbbbcf3b2afbbda8116b0076049fa1a3172d",
-      "id": "367ccbbb",
+      "url": "https://github.com/navi-crwn/BioHop/commit/6d3520aadb2a239f6a9913b30a3213aadadeb850",
+      "id": "6d3520aa",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -710,17 +1934,8 @@
       "kind": "commit",
       "date": "2026-10-28T12:54:53+01:00",
       "title": "CI: point composer.lock at the hub checkout too",
-      "url": "https://github.com/navi-crwn/BioHop/commit/1b29a04365674ce9573e579f7b8d308565c54368",
-      "id": "1b29a043",
-      "app": "BioHop",
-      "repo": "BioHop"
-    },
-    {
-      "kind": "commit",
-      "date": "2026-10-28T12:53:10+01:00",
-      "title": "Laravel 12 app shell for BioHop: shared packages, config, layout, User model",
-      "url": "https://github.com/navi-crwn/BioHop/commit/ea63b1ad40793aad28b24d031b9609107349d4a9",
-      "id": "ea63b1ad",
+      "url": "https://github.com/navi-crwn/BioHop/commit/20f0faa78b94d0e0f4225e75c82f6f77eb7967ce",
+      "id": "20f0faa7",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -728,17 +1943,17 @@
       "kind": "commit",
       "date": "2026-10-28T12:53:10+01:00",
       "title": "Initial commit: license and ignore rules",
-      "url": "https://github.com/navi-crwn/BioHop/commit/bc22e9041fe94ab309f99ae6836e94e8f5252a00",
-      "id": "bc22e904",
+      "url": "https://github.com/navi-crwn/BioHop/commit/f7c05b39801230b8a756d3a632d7fe961040c283",
+      "id": "f7c05b39",
       "app": "BioHop",
       "repo": "BioHop"
     },
     {
       "kind": "commit",
       "date": "2026-10-28T12:53:10+01:00",
-      "title": "Admin bio pages, abuse:scan, privacy:prune, sitemap, CSP, tests, CI and docs",
-      "url": "https://github.com/navi-crwn/BioHop/commit/12dca20d68520b3326b9e5162823526ec247aac7",
-      "id": "12dca20d",
+      "title": "Laravel 12 app shell for BioHop: shared packages, config, layout, User model",
+      "url": "https://github.com/navi-crwn/BioHop/commit/c15f38622a5608c6f85b75cf01f0671cb520b56a",
+      "id": "c15f3862",
       "app": "BioHop",
       "repo": "BioHop"
     },
@@ -746,8 +1961,17 @@
       "kind": "commit",
       "date": "2026-10-28T12:53:10+01:00",
       "title": "bio package, owned here: contracts bound to hop/safety, GeoIP, UA and LinkHop's API",
-      "url": "https://github.com/navi-crwn/BioHop/commit/07a2f31688f6a9f64a4c08219f8c30c19796b15b",
-      "id": "07a2f316",
+      "url": "https://github.com/navi-crwn/BioHop/commit/8e91a207f025a04de17fbdb4da941eaffa9d5ad8",
+      "id": "8e91a207",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-10-28T12:53:10+01:00",
+      "title": "Admin bio pages, abuse:scan, privacy:prune, sitemap, CSP, tests, CI and docs",
+      "url": "https://github.com/navi-crwn/BioHop/commit/5a40f3fdf1944f9c88ca46c52e7c48b2a862f18c",
+      "id": "5a40f3fd",
       "app": "BioHop",
       "repo": "BioHop"
     }
