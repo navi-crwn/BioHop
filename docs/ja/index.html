@@ -83,10 +83,10 @@
         <li><strong>/bio のフルエディター</strong><p>ページやリンクを管理し、画像・アバター・アイコン・QR ロゴをアップロード。ライブプレビュー、ページ複製、ページ別アナリティクスに対応。</p></li>
         <li><strong>テーマプリセット</strong><p>ライト、ダーク、ミニマル、ネオンなど多数のプリセットを、エディター・プレビュー・公開ページで共有。</p></li>
         <li><strong>すべてのアプリで一度のサインイン：HOP ID</strong><p>ローカル登録もパスワードもありません。ハブで HOP ID によるサインインを一度行うだけ。サインイン前に HOP_HUB_URL、HOP_APP、SSO シークレットを設定してください。</p></li>
-        <li><strong>クリックアナリティクス</strong><p>クリックごとに国（GeoIP）とデバイス・ブラウザー・ボット判定を記録。</p></li>
+        <li><strong>クリックアナリティクス</strong><p>カウントされたクリックごとに、国（GeoIP）、デバイス、ブラウザーを記録。ボットは数えません。</p></li>
         <li><strong>LinkHop でリンクを短縮</strong><p>ブロックの「この URL を短縮」は、あなた自身のサービストークンで LinkHop の API を呼び出します。LinkHop が停止していても、ブロックは元の URL を保持します。</p></li>
         <li><strong>URL とコンテンツの安全性</strong><p>abuse:scan コマンドが 1 時間ごとのスケジュールで、hop/safety の共有 domain_blacklist に基づきページとブロックを検査します。</p></li>
-        <li><strong>毎日のプライバシー削除</strong><p>privacy:prune コマンドが毎日 bio のクリックデータを削除するため、アナリティクスは無限に蓄積しません。</p></li>
+        <li><strong>毎日のプライバシー削除</strong><p>privacy:prune コマンドが 30 日後に bio のクリックログを削除するため、アナリティクスは無限に蓄積しません。</p></li>
       </ul>
     </section>
 
@@ -104,7 +104,7 @@
       <h2 id="faq-h">よくある質問</h2>
       <details>
         <summary>クリックでは何が記録されますか？</summary>
-        <p>クリックの日時、リンクに加え、国・デバイス・ブラウザーの判定結果が記録されます。BioHop は privacy:prune により bio のクリックデータを毎日削除します。</p>
+        <p>クリックでは、時刻、リンク、国、デバイスの種類、ブラウザー、参照元サイトと、訪問者の IP アドレスの鍵付きハッシュを記録します。アドレスそのものは保存しません。BioHop は privacy:prune で 30 日後にクリックログを削除します。</p>
       </details>
       <details>
         <summary>アカウント登録は必要ですか？</summary>

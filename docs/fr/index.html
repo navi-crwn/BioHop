@@ -83,10 +83,10 @@
         <li><strong>Un éditeur complet sur /bio</strong><p>Gérez pages et liens, téléversez images, avatars, icônes et logos QR, visualisez un aperçu en direct, dupliquez des pages et consultez des statistiques par page.</p></li>
         <li><strong>Thèmes prédéfinis</strong><p>Thèmes clair, sombre, minimal, néon et bien d’autres, partagés par l’éditeur, son aperçu et la page publique.</p></li>
         <li><strong>Une seule connexion pour toutes les applis : HOP ID</strong><p>Pas d’inscription locale ni de mot de passe ici. Vous vous connectez une fois avec votre HOP ID sur le hub. Configurez HOP_HUB_URL, HOP_APP et le secret SSO avant de vous connecter.</p></li>
-        <li><strong>Statistiques de clics</strong><p>Pays (GeoIP) plus détection de l’appareil, du navigateur et des robots pour chaque clic.</p></li>
+        <li><strong>Statistiques de clics</strong><p>Pays (GeoIP), appareil et navigateur pour chaque clic compté. Les robots ne sont pas comptés.</p></li>
         <li><strong>Raccourcir les liens avec LinkHop</strong><p>« Raccourcir cette URL » dans les blocs appelle l’API de LinkHop avec votre propre jeton de service. Si LinkHop est indisponible, le bloc conserve son URL d’origine.</p></li>
         <li><strong>Sécurité des URL et du contenu</strong><p>La commande abuse:scan vérifie pages et blocs contre la domain_blacklist partagée de hop/safety, selon un planning horaire.</p></li>
-        <li><strong>Purge quotidienne des données</strong><p>La commande privacy:prune supprime chaque jour les données de clics bio, pour que les statistiques ne s’accumulent pas indéfiniment.</p></li>
+        <li><strong>Purge quotidienne des données</strong><p>La commande privacy:prune supprime les journaux de clics bio au bout de 30 jours, pour que les statistiques ne s’accumulent pas indéfiniment.</p></li>
       </ul>
     </section>
 
@@ -104,7 +104,7 @@
       <h2 id="faq-h">FAQ</h2>
       <details>
         <summary>Quelles données un clic enregistre-t-il ?</summary>
-        <p>Un clic enregistre l’horodatage, le lien, ainsi que le pays, l’appareil et le navigateur déduits. BioHop purge chaque jour les données de clics bio avec privacy:prune.</p>
+        <p>Un clic enregistre l’heure, le lien, le pays, le type d’appareil, le navigateur et le site référent, ainsi qu’un hachage à clé de l’adresse IP du visiteur, jamais l’adresse elle-même. BioHop supprime les journaux de clics au bout de 30 jours avec privacy:prune.</p>
       </details>
       <details>
         <summary>Dois-je créer un compte ?</summary>

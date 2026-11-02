@@ -1,53 +1,106 @@
 # Changelog
 
-All notable changes to BioHop are listed here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+All notable changes to BioHop are listed here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). BioHop has no tagged release yet, so everything below is under Unreleased. The `/changelog` page of the app shows the merged pull requests and commits; it is generated from the git history by `scripts/build-changelog.py` into `resources/changelog.json`.
 
 ## [Unreleased]
 
-### Changed
-- **No CDN, font or icon host.** The content security policy no longer names jsdelivr, unpkg, Google Fonts, Bunny Fonts or flagcdn. Countries without a flag file show their code instead of a picture from flagcdn.com; the unused Simple Icons helper and the editor's Simple Icons requests are gone (the local brand icons are used); the error page no longer loads the Tailwind CDN. The only other hosts the policy names are those of a page owner's own optional, consent-gated Google, Meta and TikTok pixels.
-
 ### Added
-- **New page wizard.** "New bio page" is now six short steps with a live phone: address, what the page is for, the platforms you are on (with your handles), your first links (name and icon filled in from the address), profile (picture, name, bio, content warning) and colours (wallpaper and buttons). One request builds the finished page and opens the editor. The plain form stays at `?classic=1`.
-- **Collections.** A collection block groups everything placed under it, until the next collection or a divider, stacked or as a two-column grid; products under a collection are grouped on the Shop tab.
-- **Archive and select mode.** A block can be archived: it leaves the page and the list but keeps its clicks, and can be restored or deleted from the archived list. In the editor, Select ticks several blocks to show, hide, archive or delete them together.
-- The shop has its own address, `hel.ink/b/shop/{slug}`; a page that sells nothing shows no tab bar there and goes to its links. `shop` and `click` are reserved slugs.
-- **Shop.** A new block kind, Product: picture, name, price with currency, a short description, where to buy (your shop, a marketplace listing or an affiliate link) and a "sold out" switch. Once a page has a product, the public page shows a Links · Shop tab bar and the products in a two-column grid; a product opens its address in a new tab and counts as a click, like a link. Without script `?tab=shop` opens the shop.
-- The home page has a scroll scene for every feature, in the manner of the Amnesia and NoteHop sites: blocks that come to life, a pinned story from claiming a name to reading the numbers, themes that change as you scroll, analytics that draw themselves, a share map, the password and 18+ gates, CSS that types itself while the phone restyles, and a self-host terminal. GSAP and Lenis are bundled with the app (no CDN). With "reduce motion" on, every scene shows its finished state.
-- The hero: pixels assemble into the BioHop logo, then the word BIO, then a phone, and the phone shows the real hel.ink/b/hel page live (an iframe of `?embed=1`), so whatever changes on that page shows there. The page stays, to be scrolled and tapped (links open in a new tab); the sequence plays again when the hero has left the screen and comes back.
-- Deeper scenes, after the Amnesia site: the accent words of the hero break into particles as you scroll past; in "Blocks" a phone sticks beside the cards and every block flies into it as its card passes the middle of the screen; the themes stand in a ring around the phone that the scroll turns, the one in front dressing the phone; analytics gets an isometric 3D chart of clicks per day whose bars grow with the scroll.
-- The sample page in the scenes (Helena Studio) carries a picture, a video and a player under its links, like a real page; the phone in the "Your style" scene keeps a phone's proportions.
-- The HOP family section shows every other app as its own 3D mark (HOP ID, LinkHop, PixelHop, NoteHop), each one assembling from blocks and turning with a drag or the arrow keys; the flat mark stays without WebGL or with "reduce motion".
-- `php artisan bio:official-page --apply` fills the official HEL.ink page from the shared manifest: a "Hop in" list with every public HOP app (mark, name), then one of every kind of block a page can hold (text, picture, a YouTube video and a Spotify player from `HOP_OFFICIAL_VIDEO` / `HOP_OFFICIAL_MUSIC`, a map, a contact card), "Start here" links (HOP ID, GitHub, status) and a FAQ. Run it again after the manifest changes; blocks added by hand on that page stay. The static copy in the hero shows the same apps.
+
+Pages and blocks
+- New page wizard. "New bio page" is six short steps with a live phone: address, what the page is for, the platforms you are on (with your handles), your first links (name and icon filled in from the address), profile (picture, name, bio, content warning) and colours (wallpaper and buttons). One request builds the finished page and opens the editor. The plain form stays at `?classic=1`.
+- Import from Linktree: a public linktr.ee page becomes a draft page with its picture, links, groups, headers and social icons.
+- Shop. A Product block has a picture, name, price with currency, a short description, a was-price, variants with their own price, stock and address, a stock count and a sold-out switch. It can fill its details in from the shop's address (2.5 second limit, own copy of the picture, soft failure). Once a page has a product, the public page shows a Links and Shop tab bar with a two-column grid, and the shop has its own address, `hel.ink/b/shop/{slug}`. A product opens its address in a new tab and counts as a click. `shop` and `click` are reserved slugs.
+- Collections. A collection block groups everything under it, until the next collection or a divider, stacked or as a two-column grid.
+- Archive and select mode. An archived block leaves the page and the list but keeps its clicks, and can be restored or deleted. In the editor, Select ticks several blocks to show, hide, archive or delete them together.
+- More block kinds: status chip, floating button, app store redirect, goal bar, audio clip, picture carousel, PDF, WhatsApp rotator (up to 10 numbers, in turn or by weight), sign-up form, poll and RSS or Atom feed.
+- Publish and expiry times on every block, optional UTM parameters on outgoing links, and routing rules on links that send visitors elsewhere by country, device, system and hour of the day.
+- Sign-up form block with a consent box, entries stored for the page owner, CSV download, delete and a retention period in days (1 to 365, 90 by default).
+- Webhook for form entries: signed JSON to an address the owner chooses, retried by the scheduler (`bio:webhooks:retry`), with a delivery log, a test button and resend.
+- Poll block: one vote per device, results after voting, counts and reset for the owner.
+- Feed block: the latest posts of an RSS or Atom feed, fetched through a guarded, cached reader.
+- Page settings: share picture, favicon, Google Tag Manager, Unlisted and privacy mode switches, an address to send visitors to while the page is unpublished, a footer line and a PIN per link.
+- Header layouts (classic, hero, banner with a cover picture, cutout) and a Design tab with Header, Theme, Wallpaper, Text, Buttons and Footer sections, button colours and a "Powered by" switch.
+- A three-level content warning (none, sensitive, adult 18+) with a 24-hour cookie and a translated screen, and bio pages are classified before publication.
+
+Editor and dashboard
+- Versions: an automatic version before each editing session, named versions, and one-click restore that can itself be undone.
+- Bento block picker, command palette (`Ctrl/Cmd+K`), page switcher, sort by clicks and bulk move to a collection.
+- Dashboard home: a greeting, clicks this week against last week, a setup checklist and 7-day lines per page.
+- Analytics by source (QR code, NFC tag, installed web app) and by referring site, an installable web app manifest per page, and a story picture from the share dialog.
+- Dashboard chrome: the top bar holds settings-type controls only (primary action, language, theme and an account menu with your HOP ID, settings and sign out); the other HOP apps live in the sidebar with their marks.
+
+Home page
+- The home page is a long scroll tour. The hero shows the real hel.ink/b/hel page live in a phone (an iframe of `?embed=1`) while pixels assemble into the BioHop logo. Every feature has a scene: blocks that fly into the phone, a pinned story from claiming a name to reading the numbers, a ring of themes that dresses the phone, an isometric chart of clicks per day, a share map, the password and 18+ gates, CSS that types itself, and a self-host terminal. The HOP family appears as 3D marks. GSAP and Lenis are bundled with the app. With "reduce motion" on, or without WebGL, every scene shows its finished state.
+- `php artisan bio:official-page --apply` fills the official HEL.ink page from the shared manifest: a "Hop in" list of the public HOP apps, one of every kind of block, "Start here" links and a FAQ. Blocks added by hand stay when you run it again. The page's video and music come from `HOP_OFFICIAL_VIDEO` and `HOP_OFFICIAL_MUSIC`.
 - Only the official page (`HOP_OFFICIAL_BIO`, default `hel`), and only as `?embed=1`, may be framed by the HOP sites. An embedded view does not count as a visit, its links open in a new tab and it stays out of search. Every other page keeps `frame-ancestors 'none'`.
+- Dedicated pages on bio.hel.ink (features, about, help, FAQ, contact, terms and privacy), a theme gallery and a BioHop abuse report page.
+
+Languages and documentation
+- Nine languages: English, 简体中文, Deutsch, Bahasa Indonesia, 日本語, Português (Brasil), Español, Français and Русский. German and Russian are new, every catalog is translated, and Arabic and right-to-left layout are removed. An older stored `zh` or `pt` means `zh-CN` or `pt-BR`, and a retired language falls back to English.
+- READMEs and the documentation site in the nine languages.
+- `install.sh`, `update.sh` and `uninstall.sh`: a one-command installer that checks the computer, asks a few questions and can install the HOP ID hub next to BioHop; an updater that copies the database first; an uninstaller that keeps your data unless you pass `--purge`.
+- `CREDITS.md` for the third-party software, fonts, icons and services BioHop ships or calls, `SECURITY.md`, issue templates and a CI check that the README carries the canonical HOP family table.
+
+Integration with the HOP family
+- Signed per-account summary endpoint for the hub dashboard.
+- Admin API for Imperium (`/api/hop/*`), cleanup of a member's bio files when the account is deleted, KPI fields in `/api/hop/stats`, a periodic queue heartbeat, and `/hop/events` accepts events from the hub only.
+- Two SSO secrets at once (`HOP_SSO_SECRET_PREV`) for rotation without downtime.
+- Shared database with the hub and LinkHop: migrations are logged in `migrations_bio`, a baseline migration records the bio migrations LinkHop already ran, and every bio migration checks before it creates or adds anything.
+
+Core (first release of the split)
+- BioHop, the link-in-bio app of the HOP family, split out of LinkHop (plan: `docs/planning/PLAN-pemisahan-aplikasi.md`, Phase D).
+- The `hop/bio` package (now owned by this repository): public pages at `hel.ink/b/{slug}`, `/b/{slug}/qr` and `/b/click/{id}`, the editor at `bio.hel.ink/bio`, themes, brands, uploads and analytics.
+- Sign-in through HOP ID (`hop/auth`): no local login or registration. `/login` sends people to the hub and `/logout` ends the session here, then at the hub.
+- Short links for blocks through LinkHop's API (`App\Bio\LinkHopClient`), with a per-member service token (scope `link:create`) created on first use and kept in `bio_linkhop_tokens`. When LinkHop cannot be reached the block keeps its original URL and the editor says so.
+- URL and content safety through `hop/safety` (shared rules, shared domain blacklist), `abuse:scan` for bio pages and blocks, `privacy:prune` (bio click logs, 30 days), a sitemap of indexable pages and a content security policy with the bio embed hosts.
+- GitHub Actions: tests (Pest, sqlite), Pint and `composer audit`.
 
 ### Changed
-- The dashboard top bar holds settings-type controls only (primary action, language, theme, and an account menu with your HOP ID, settings and sign out); the other HOP apps live in the sidebar, with their marks, and no longer also in the top bar. The sidebar's user card became the account menu.
-- The editor is one page that scrolls normally, with the preview sticking beside it. It no longer sits in a fixed-height box that cut off its bottom and trapped the scroll wheel; on phones the preview is a full-screen sheet opened from a Preview button. The Save button and the tab bar no longer sit on top of each other.
-- Editing saves by itself, as in Linktree: about a second after you stop, only what changed is sent (one field, one block, the new order). A status next to the button says "All changes saved", "Saving…" or "Not saved", Ctrl/Cmd+S saves at once, and autosave can be switched off. A problem is shown where you are working, with the field's own message, a jump to the right tab and a Try again button, instead of a short toast.
-- The sidebar lists every public HOP app from the shared manifest, with the real marks: LinkHop, PixelHop and NoteHop (NoteHop was missing), and a single "Account (HOP ID)" entry.
-- The editor's data comes in as JSON and its code is a cached file instead of a 3,000-line inline script; modals are created when opened. The page is about half the size, with half as many elements.
-- Charts, the QR code library and the preview's Alpine are bundled with the app and loaded when needed, not from jsDelivr and unpkg (one of them blocked the page while it loaded).
-- Fewer blurred layers (the app chrome only) and a fixed background that is composited rather than repainted, so scrolling is smooth.
+
+- No CDN, font or icon host. The content security policy no longer names jsdelivr, unpkg, Google Fonts, Bunny Fonts or flagcdn. Countries without a flag file show their code instead of a picture from flagcdn.com, the unused Simple Icons helper and the editor's Simple Icons requests are gone (the local brand icons are used), and the error page no longer loads the Tailwind CDN. Fonts for the public page and the editor preview are served from the app. The only other hosts the policy names are those of a page owner's own optional pixels (Google, Meta and TikTok), which load only after the visitor agrees, and Cloudflare for the abuse form's bot check.
+- Editing saves by itself: about a second after you stop, only what changed is sent (one field, one block, the new order). A status next to the button says "All changes saved", "Saving…" or "Not saved", `Ctrl/Cmd+S` saves at once, and autosave can be switched off. A problem is shown where you are working, with the field's own message, a jump to the right tab and a Try again button.
+- The editor is one page that scrolls normally, with the preview sticking beside it, instead of a fixed-height box. On phones the preview is a full-screen sheet opened from a Preview button.
+- The editor's data comes in as JSON and its code is a cached file instead of a 3,000-line inline script. The page is about half the size, with half as many elements.
+- Charts, the QR code library and the preview's Alpine are bundled with the app and loaded when needed, not from jsDelivr and unpkg.
+- The sidebar lists every public HOP app from the shared manifest with the real marks (NoteHop was missing), and a single "Account (HOP ID)" entry.
+- Speed: public pages get their own small script and stylesheet instead of the whole app bundle, pictures are shrunk to WebP at upload (`bio:optimize-images` converts old ones), players and maps load on tap, off-screen cards are not painted, a lite mode serves weak phones and Save-Data, the parsed user agent is cached, and the editor shows a page speed pill.
+- Privacy and speed: a first-time reader of a plain public page gets no session row and no cookies.
+- Webhook deliveries are pruned after seven days by `privacy:prune`.
+- The session cookie is sent as Secure when `APP_URL` is https.
+- The admin settings API's four limits (shortest address, pages per account, blocks per page, custom CSS) are stored in a `bio_settings` table and enforced by the editor, with defaults unchanged (5, 3, 100, allowed). A value out of range or malformed is refused with 422.
+- GeoIP settings are read from config. Before, the local database was always reported unavailable and the web API keys in `.env` were ignored.
+- The feed reader and the webhook sender connect to the addresses that were checked, so a second DNS answer cannot swap in a private address between the check and the connection.
+- The installer, updater and uninstaller are safer. `set_env` writes a temporary file and renames it. `.env` is created private (0600) before any secret is written. `update.sh` restores the previous code when a step fails before the migration, and after the migration it keeps the site in maintenance mode and prints the way back. It copies the database consistently (`sqlite3 .backup`, or `mysqldump` with the password in a temporary 0600 option file), and `--yes` stops unless a copy exists or `--no-backup` is given. PHP, artisan and Composer run under `PHP_BIN`. Production installs get `LOG_LEVEL=warning`, and `TRUSTED_PROXIES=127.0.0.1` behind a local proxy.
+- `composer.lock` points at the rewritten history of `hop-ui`, `hop-auth` and `hop-safety`, and `hop/auth` 0.1.2 is required.
+- The admin pages moved to Imperium (the HOP control panel); `/admin` sends admins there.
+- Home engine files are versioned by content, and the sync script follows HOP assets v2.
+- User-facing copy: the public page, password gate and 404 page say BioHop instead of LinkHop; the 500 page no longer claims the team was notified; the help text points to Analytics on the pages list; the "counted without storing visitor IP addresses" text is removed, and so is the "compelling click-through" promise in the SEO preview. All nine language files follow.
+- Fewer blurred layers and a fixed background that is composited rather than repainted, so scrolling is smooth.
 
 ### Fixed
-- **Files on public pages.** A bio page is served from `hel.ink/b/{slug}` while uploads, built files and fonts live on the app host (`bio.hel.ink`), so every picture, icon, audio clip, PDF, carousel slide, cover, QR logo, share picture, Open Graph image, page font and web-app icon is now addressed in full on that host (`ASSET_URL`, default `APP_URL`). Stored paths stay as they are; the address is built when the page is shown. The web app manifest is linked on the page's own host, the share dialog uses the bundled QR library instead of a CDN, the security policy allows the asset host for fonts and audio and lets the BioHop home frame the official page, and the account picture from the hub is used as it is.
-- An uploaded background picture now saves. The upload worked, but the save then refused the file's own path as "a link type that is not allowed", so the page fell back to its theme; the check now applies only to outside addresses. A replaced background picture is deleted once nothing uses it.
-- The phone in the hero is sized by the stage's height, so it no longer spills over the buttons above it and the running line below it on phones, before the 3D scene starts, or without WebGL; the "Live" note sits under the stage instead of on the phone. On phones the 3D scene fills the stage instead of a 240 px box.
-- Counters never show a negative number for a frame (shared `hop-motion.js`).
-- The preview in the editor scrolls again on every browser and on touch: the editor now sizes the frame to the whole page and scrolls it, instead of relying on a scroll box inside a frame inside a scrolling page.
-- A link to hel.ink or a HOP app (note, pixel, link, bio ...) is kept as typed and no longer wrapped in a short link. `php artisan bio:unwrap-family-links` lists, and with `--apply` restores, blocks that were already wrapped.
-- SVG icons, QR logos and thumbnails now upload. Laravel's `image` rule refuses SVG, so every SVG failed. An SVG is rebuilt from an allowlist (no script, handlers, external files or entities) before it is stored, and an SVG that cannot be made safe is refused with the reason.
-- A block's custom icon was never saved for an existing block; edits are now detected by content, so no edit depends on a "mark as changed" call.
-- Saving the SEO section failed (and could fail any save) when an older, longer SEO title was stored: the whole page was sent and validated every time. Only changed fields are sent now; the SEO title accepts 60 characters and the description 160.
+
+- Files on public pages. A bio page is served from `hel.ink/b/{slug}` while uploads, built files and fonts live on the app host (`bio.hel.ink`), so every picture, icon, audio clip, PDF, carousel slide, cover, QR logo, share picture, Open Graph image, page font and web app icon is now addressed in full on that host (`ASSET_URL`, default `APP_URL`). Stored paths stay as they are; the address is built when the page is shown. Forms post to the host that served the page, the share dialog names the public host and uses the bundled QR library, and the web app manifest is linked on the page's own host.
+- The sign-out chain reaches every HOP subdomain (`form-action` in the content security policy), so logout no longer stalls.
+- An uploaded background picture now saves. The save used to refuse the file's own path as "a link type that is not allowed", so the page fell back to its theme. A replaced background picture is deleted once nothing uses it.
+- SVG icons, QR logos and thumbnails now upload. Laravel's `image` rule refuses SVG, so every SVG failed. An SVG is rebuilt from an allowlist (no script, handlers, external files or entities) before it is stored, and one that cannot be made safe is refused with the reason.
+- A link to hel.ink or a HOP app is kept as typed and no longer wrapped in a short link. `php artisan bio:unwrap-family-links` lists, and with `--apply` restores, blocks that were already wrapped.
+- A block's custom icon was never saved for an existing block. Edits are now detected by content.
+- Saving the SEO section failed (and could fail any save) when an older, longer SEO title was stored, because the whole page was sent and validated every time. Only changed fields are sent now; the SEO title accepts 60 characters and the description 160.
+- The preview in the editor scrolls on every browser and on touch.
+- The hero phone is sized by the stage's height, so it no longer spills over the buttons and the running line on phones or without WebGL. Counters never show a negative number for a frame.
+- The root addresses `/b` and `/b/` redirect to the home page.
 - The dashboard cards' title no longer straddles the gradient strip.
 
-### Added
-- BioHop, the link-in-bio app of the HOP family, split out of LinkHop (plan: `docs/planning/PLAN-pemisahan-aplikasi.md`, Fase D).
-- The `hop/bio` package (now owned by this repo): public pages at `hel.ink/b/{slug}`, `/b/{slug}/qr` and `/b/click/{id}`, the editor at `bio.hel.ink/bio`, themes, brands, uploads, analytics.
-- Sign-in through HOP ID (`hop/auth`): no local login or registration; `/login` sends people to the hub and `/logout` ends the session here, then at the hub.
-- Short links for blocks through LinkHop's API (`App\Bio\LinkHopClient`), with a per-member service token (scope `link:create`) created on first use and kept in `bio_linkhop_tokens`. When LinkHop cannot be reached the block keeps its original URL and the editor says so.
-- URL and content safety through `hop/safety` (shared rules, shared domain blacklist); `abuse:scan` for bio pages and blocks; `privacy:prune` (bio clicks, 30 days); sitemap of indexable bio pages; CSP with the bio embed hosts.
-- Admin pages for bio (list, inspect, monitor, export, unpublish, delete) for HOP admins.
-- Shared database with the hub and LinkHop: migrations logged in `migrations_bio`; a baseline migration records the bio migrations LinkHop already ran, and every bio migration checks before it creates or adds anything.
-- GitHub Actions: tests (Pest, sqlite) and Pint.
+### Security
+
+- Click logs keep a keyed hash of the visitor's IP address (HMAC-SHA256 with `APP_KEY`), never the address, and `privacy:prune` deletes them after 30 days.
+- Trackers a page owner adds (Google Analytics, Tag Manager, Facebook pixel, TikTok pixel) load only after the visitor agrees.
+- Session cookie is Secure on https, install scripts no longer leave a world-readable `.env`, and an interrupted `set_env` cannot cut `.env` short.
+- Outgoing fetches (feeds, webhooks) are pinned to the addresses that passed the safety check.
+- Third-party software and services are listed in `CREDITS.md`.
+
+### Removed
+
+- Arabic and right-to-left layout.
+- The internal admin pages, now in Imperium.
+- CDN requests for scripts, fonts and icons.

@@ -83,10 +83,10 @@
         <li><strong>Ein vollständiger Editor unter /bio</strong><p>Verwalte Seiten und Links, lade Bilder, Avatare, Symbole und QR-Logos hoch, sieh eine Live-Vorschau, dupliziere Seiten und lies die Statistik pro Seite.</p></li>
         <li><strong>Design-Vorlagen</strong><p>Hell, dunkel, minimal, Neon und viele weitere Vorlagen, gemeinsam genutzt von Editor, Vorschau und öffentlicher Seite.</p></li>
         <li><strong>Eine Anmeldung für alle Apps: HOP ID</strong><p>Hier gibt es keine lokale Registrierung und keine Passwörter. Du meldest dich einmal mit deiner HOP ID am Hub an. Lege HOP_HUB_URL, HOP_APP und das SSO-Geheimnis vor der Anmeldung fest.</p></li>
-        <li><strong>Klick-Statistiken</strong><p>Land (GeoIP) sowie Gerät, Browser und Bot-Erkennung für jeden Klick.</p></li>
+        <li><strong>Klick-Statistiken</strong><p>Land (GeoIP), Gerät und Browser für jeden gezählten Klick. Bots werden nicht gezählt.</p></li>
         <li><strong>Links mit LinkHop kürzen</strong><p>„Diese URL kürzen“ in Blöcken ruft die API von LinkHop mit deinem eigenen Dienst-Token auf. Ist LinkHop nicht erreichbar, behält der Block seine ursprüngliche URL.</p></li>
         <li><strong>Sicherheit von URLs und Inhalten</strong><p>Der Befehl abuse:scan prüft Seiten und Blöcke stündlich gegen die gemeinsame domain_blacklist aus hop/safety.</p></li>
-        <li><strong>Tägliches Löschen aus Datenschutzgründen</strong><p>Der Befehl privacy:prune löscht jeden Tag die Klickdaten der Bio-Seiten, damit sich Statistiken nicht endlos ansammeln.</p></li>
+        <li><strong>Tägliches Löschen aus Datenschutzgründen</strong><p>Der Befehl privacy:prune löscht die Klickprotokolle der Bio-Seiten nach 30 Tagen, damit sich Statistiken nicht endlos ansammeln.</p></li>
       </ul>
     </section>
 
@@ -104,7 +104,7 @@
       <h2 id="faq-h">FAQ</h2>
       <details>
         <summary>Welche Daten speichert ein Klick?</summary>
-        <p>Ein Klick speichert den Zeitpunkt, den Link sowie abgeleitete Angaben zu Land, Gerät und Browser. BioHop löscht die Klickdaten der Bio-Seiten täglich mit privacy:prune.</p>
+        <p>Ein Klick speichert die Zeit, den Link, das Land, die Geräteart, den Browser und die verweisende Seite sowie einen Hash der IP-Adresse des Besuchers mit Schlüssel, nie die Adresse selbst. BioHop löscht Klickprotokolle mit privacy:prune nach 30 Tagen.</p>
       </details>
       <details>
         <summary>Muss ich ein Konto anlegen?</summary>
