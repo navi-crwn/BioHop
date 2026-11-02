@@ -1,5 +1,5 @@
 <x-app-layout>
-    <x-slot name="pageTitle">LinkHop - Link in bio</x-slot>
+    <x-slot name="pageTitle">BioHop - Link in bio</x-slot>
     @php $max = \App\Support\BioLimits::maxPages(); @endphp
     @php
         $hour = (int) now(auth()->user()->timezone ?: config('app.timezone'))->format('G');

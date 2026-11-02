@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page Not Found - LinkHop</title>
+    <title>Page not found - BioHop</title>
     <meta name="robots" content="noindex, nofollow">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -31,7 +31,7 @@
             @if(isset($unpublished))
                 Page Not Available
             @else
-                Page Not Found
+                Page not found
             @endif
         </h2>
         <p class="text-slate-400 mb-8 max-w-md mx-auto">
@@ -67,8 +67,8 @@
             </form>
         </div>
         <div class="mt-8">
-            <img src="{{ asset('images/logo-light.svg') }}" alt="LinkHop" class="h-6 mx-auto opacity-50" data-fallback="hide">
-            <p class="text-slate-500 text-sm mt-2">Powered by LinkHop</p>
+            <img src="{{ asset('images/logo-light.svg') }}" alt="BioHop" class="h-6 mx-auto opacity-50" data-fallback="hide">
+            <p class="text-slate-500 text-sm mt-2">Powered by BioHop</p>
         </div>
     </div>
 </body>

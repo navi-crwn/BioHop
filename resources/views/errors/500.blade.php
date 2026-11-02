@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="{{ route('brand.favicon') }}" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="{{ route('brand.favicon') }}">
-    <title>Something Went Wrong - {{ config('app.name') }}</title>
+    <title>Something went wrong - {{ config('app.name') }}</title>
     {{-- Our own built CSS; the page still renders (with the small style block below) when the build is missing. --}}
     @if (file_exists(public_path('build/manifest.json')))
         @vite(['resources/css/app.css'])
@@ -30,13 +30,13 @@
                 </div>
                 <div class="text-center mb-8">
                     <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-3">
-                        Oops! Something Went Wrong
+                        Something went wrong
                     </h1>
                     <p class="text-lg text-gray-600 dark:text-gray-400 mb-2">
-                        We're sorry, but we encountered an unexpected error.
+                        The page could not be loaded.
                     </p>
                     <p class="text-sm text-gray-500 dark:text-gray-500">
-                        Our team has been notified and we're working on fixing this issue.
+                        Try again in a moment. If it keeps happening, send a message to the address below.
                     </p>
                 </div>
                 @if(config('app.debug'))
