@@ -7,7 +7,8 @@ use GeoIp2\Database\Reader;
 /**
  * Offline lookups from local .mmdb files (DB-IP Lite or MaxMind GeoLite2).
  * No quota, no latency, visitor IPs never leave the server.
- * Files are downloaded by `php artisan geolite:update`.
+ * The files are put in storage/app by the operator (see config/services.php); without them
+ * the provider reports itself unavailable and the web providers take over.
  */
 class LocalMmdbProvider extends BaseGeoIpProvider
 {

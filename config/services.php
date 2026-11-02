@@ -35,6 +35,21 @@ return [
         ],
     ],
 
+    // GeoIP for click analytics (country only). The local database is tried first, then the free web APIs.
+    // Put GeoLite2-City.mmdb (and optionally GeoLite2-ASN.mmdb) from MaxMind or DB-IP Lite in storage/app.
+    'geolite' => [
+        'city_db' => env('GEOLITE_CITY_DB') ?: storage_path('app/GeoLite2-City.mmdb'),
+        'asn_db' => env('GEOLITE_ASN_DB') ?: storage_path('app/GeoLite2-ASN.mmdb'),
+    ],
+
+    'ipinfo' => [
+        'api_key' => env('IPINFO_API_KEY'),
+    ],
+
+    'abstractapi' => [
+        'api_key' => env('ABSTRACTAPI_KEY'),
+    ],
+
     'turnstile' => [
         'site_key' => env('TURNSTILE_SITE_KEY'),
         'secret' => env('TURNSTILE_SECRET_KEY'),
