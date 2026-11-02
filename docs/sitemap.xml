@@ -2,11 +2,12 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://navi-crwn.github.io/BioHop/</loc></url>
   <url><loc>https://navi-crwn.github.io/BioHop/en/</loc></url>
+  <url><loc>https://navi-crwn.github.io/BioHop/zh-CN/</loc></url>
+  <url><loc>https://navi-crwn.github.io/BioHop/de/</loc></url>
   <url><loc>https://navi-crwn.github.io/BioHop/id/</loc></url>
-  <url><loc>https://navi-crwn.github.io/BioHop/zh/</loc></url>
-  <url><loc>https://navi-crwn.github.io/BioHop/es/</loc></url>
-  <url><loc>https://navi-crwn.github.io/BioHop/ar/</loc></url>
-  <url><loc>https://navi-crwn.github.io/BioHop/pt/</loc></url>
-  <url><loc>https://navi-crwn.github.io/BioHop/fr/</loc></url>
   <url><loc>https://navi-crwn.github.io/BioHop/ja/</loc></url>
+  <url><loc>https://navi-crwn.github.io/BioHop/pt-BR/</loc></url>
+  <url><loc>https://navi-crwn.github.io/BioHop/es/</loc></url>
+  <url><loc>https://navi-crwn.github.io/BioHop/fr/</loc></url>
+  <url><loc>https://navi-crwn.github.io/BioHop/ru/</loc></url>
 </urlset>
