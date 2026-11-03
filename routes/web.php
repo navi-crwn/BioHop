@@ -51,6 +51,16 @@ Route::get('/check-slug-public', [HomeController::class, 'checkSlug'])->middlewa
 Route::get('/dashboard', fn () => redirect()->away(User::hubUrl('dashboard').'#biohop'))->name('dashboard');
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
+// robots.txt is an answer, not a static file, so the Sitemap line carries this install's address. Public bio pages (/b/...) stay open;
+// the sign-in-only areas are kept out of search.
+Route::get('/robots.txt', fn () => response(
+    "User-agent: *\n"
+    ."Disallow: /bio/\nDisallow: /settings\nDisallow: /dashboard\nDisallow: /admin\nDisallow: /auth/\nDisallow: /login\nDisallow: /logout\nDisallow: /internal/\nDisallow: /hop/\nDisallow: /api/\n"
+    .'Sitemap: '.route('sitemap')."\n",
+    200,
+    ['Content-Type' => 'text/plain; charset=UTF-8'],
+))->name('robots');
+
 // Brand images from resources/brand (BrandAssetController); URLs carry a version that changes with the files.
 $brandFile = '[a-z0-9-]+\.(png|svg|ico)';
 Route::get('/brand/{v}/logo.svg', [BrandAssetController::class, 'show'])->defaults('file', 'logo.svg')->where('v', '[a-f0-9]{8}')->name('brand.logo');

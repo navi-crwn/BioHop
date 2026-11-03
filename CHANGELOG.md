@@ -99,6 +99,8 @@ Core (first release of the split)
 - Import from Linktree fetches the page and the picture through the guarded fetch, and reads unexpected page data as empty instead of failing. The list is capped at 200.
 - The editor's short-link picker uses the registered search route, and the automatic title lookup that called a missing route is gone.
 - `sitemap.xml` no longer lists pages of suspended owners, `/b` and `/b/` redirect to the configured app address, the public not-found page no longer asks for a missing logo, and `/up` is a plain answer without a CDN script or font.
+- The 404, 429 and 500 pages, and the public bio "not found / not available" page, are translated into the nine languages and follow `?lang=` or the language cookie without touching the database (they were English only).
+- `robots.txt` is now answered by the app (the static file is removed): it keeps `/bio/`, `/settings`, `/dashboard`, `/admin`, `/auth/`, `/login`, `/logout`, `/internal/`, `/hop/` and `/api/` out of search and carries a `Sitemap:` line with this install's address. Public bio pages stay open.
 - An array in `lang`, `slug`, `query`, `next` or `app` in the address no longer causes a server error.
 - A suspended member is sent to the hub's notice (`/suspended`) like in LinkHop; JSON callers still get 403.
 
