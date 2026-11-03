@@ -2,7 +2,6 @@
 
 namespace Hop\Bio\Support;
 
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -44,19 +43,13 @@ class LinktreeImport
     public static function fetch(string $username): array
     {
         try {
-            $response = Http::timeout(12)->withHeaders(['User-Agent' => 'Mozilla/5.0 (compatible; BioHop import)', 'Accept-Language' => 'en'])
-                ->get('https://'.self::HOST.'/'.rawurlencode($username));
+            // SafeFetch: private addresses refused (again on every redirect), connection pinned to the checked addresses
+            $response = SafeFetch::get('https://'.self::HOST.'/'.rawurlencode($username), 2_000_000, 12, 'text/html,application/xhtml+xml');
         } catch (\Throwable $e) {
-            throw new \RuntimeException(__('Linktree did not answer. Try again in a moment.'));
-        }
-        if ($response->status() === 404) {
-            throw new \RuntimeException(__('There is no Linktree page with that name.'));
-        }
-        if (! $response->ok()) {
-            throw new \RuntimeException(__('Linktree did not answer. Try again in a moment.'));
+            throw new \RuntimeException($e->getCode() === 404 ? __('There is no Linktree page with that name.') : __('Linktree did not answer. Try again in a moment.'));
         }
 
-        return self::parse($response->body(), $username);
+        return self::parse($response['body'], $username);
     }
 
     /** @return array<string, mixed> */
@@ -124,17 +117,16 @@ class LinktreeImport
             return null;
         }
         try {
-            $response = Http::timeout(12)->withHeaders(['User-Agent' => 'Mozilla/5.0 (compatible; BioHop import)'])->get($url);
+            $response = SafeFetch::get($url, self::MAX_PICTURE_BYTES, 12, 'image/*');
         } catch (\Throwable) {
             return null;
         }
-        $type = strtolower(strtok((string) $response->header('Content-Type'), ';'));
-        $ext = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif'][$type] ?? null;
-        if (! $response->ok() || ! $ext || strlen($response->body()) > self::MAX_PICTURE_BYTES || strlen($response->body()) === 0) {
+        $ext = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif'][$response['type']] ?? null;
+        if (! $ext || $response['body'] === '') {
             return null;
         }
         $path = 'avatars/'.Str::lower(Str::random(24)).'.'.$ext;
-        Storage::disk('public')->put($path, $response->body());
+        Storage::disk('public')->put($path, $response['body']);
 
         return $path;
     }
