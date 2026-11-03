@@ -15,7 +15,7 @@ class AbuseReportController extends Controller
 
     public function create(Request $request): View
     {
-        $slug = (string) $request->query('slug', '');
+        $slug = is_string($request->query('slug')) ? $request->query('slug') : '';
         $slug = preg_match('/^[A-Za-z0-9_-]{1,120}$/', $slug) ? $slug : '';
 
         return view('report-abuse', [

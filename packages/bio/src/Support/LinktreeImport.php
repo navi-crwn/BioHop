@@ -59,19 +59,20 @@ class LinktreeImport
             throw new \RuntimeException(__('That page could not be read. Linktree may have changed its layout, or the page is private.'));
         }
         $data = json_decode(html_entity_decode($m[1], ENT_QUOTES | ENT_HTML5), true);
-        $props = $data['props']['pageProps'] ?? [];
-        $account = $props['account'] ?? [];
+        // Linktree's page data is not ours: anything that is not the expected shape is treated as empty, never as a crash.
+        $props = is_array($data['props']['pageProps'] ?? null) ? $data['props']['pageProps'] : [];
+        $account = is_array($props['account'] ?? null) ? $props['account'] : [];
         if (($props['hasPagePassword'] ?? false) || ($props['pageLockType'] ?? null)) {
             throw new \RuntimeException(__('That Linktree page is locked, so nothing can be read from it.'));
         }
         $links = [];
-        foreach ($props['links'] ?? [] as $link) {
+        foreach (self::items($props['links'] ?? null) as $link) {
             if (! is_array($link) || ! empty($link['parent'])) {
                 continue;
             }
-            $type = strtoupper((string) ($link['type'] ?? 'CLASSIC'));
+            $type = strtoupper(self::scalar($link['type'] ?? 'CLASSIC'));
             $children = [];
-            foreach ($link['children'] ?? [] as $child) {
+            foreach (self::items($link['children'] ?? null) as $child) {
                 if (is_array($child) && self::address($child['url'] ?? null)) {
                     $children[] = ['title' => self::text($child['title'] ?? ''), 'url' => self::address($child['url']), 'thumbnail' => self::picture($child['thumbnail'] ?? null)];
                 }
@@ -85,8 +86,8 @@ class LinktreeImport
         }
         $socials = [];
         $brands = config('brands.platforms', []);
-        foreach ($props['socialLinks'] ?? [] as $social) {
-            $type = strtolower((string) ($social['type'] ?? ''));
+        foreach (self::items($props['socialLinks'] ?? null) as $social) {
+            $type = strtolower(self::scalar($social['type'] ?? ''));
             $platform = self::SOCIALS[$type] ?? str_replace('_', '-', $type);
             $url = self::address($social['url'] ?? null, true);
             if ($url && isset($brands[$platform])) {
@@ -95,7 +96,7 @@ class LinktreeImport
                 $links[] = ['type' => 'link', 'title' => ucfirst($type), 'url' => $url, 'thumbnail' => null, 'children' => []];
             }
         }
-        $username = (string) ($props['username'] ?? $account['username'] ?? $fallbackUsername);
+        $username = self::scalar($props['username'] ?? $account['username'] ?? $fallbackUsername);
         $title = self::text($props['pageTitle'] ?? $account['pageTitle'] ?? '') ?: ltrim($username, '@');
         $theme = $props['theme'] ?? null;
 
@@ -131,14 +132,26 @@ class LinktreeImport
         return $path;
     }
 
+    /** A scalar as a string; arrays and objects (a changed Linktree layout) become ''. */
+    private static function scalar(mixed $value): string
+    {
+        return is_scalar($value) ? (string) $value : '';
+    }
+
+    /** The entries of a list that really is a list, at most 200 (the import must not outgrow the block limit). */
+    private static function items(mixed $value): array
+    {
+        return is_array($value) ? array_slice($value, 0, 200) : [];
+    }
+
     private static function text(mixed $value): string
     {
-        return trim(preg_replace('/\s+/u', ' ', strip_tags((string) $value)) ?? '');
+        return trim(preg_replace('/\s+/u', ' ', strip_tags(self::scalar($value))) ?? '');
     }
 
     private static function address(mixed $url, bool $allowContact = false): ?string
     {
-        $url = trim((string) $url);
+        $url = trim(self::scalar($url));
         $schemes = $allowContact ? '(?:https?://|mailto:|tel:|sms:)' : 'https?://';
         if ($url === '' || ! preg_match('#^'.$schemes.'#i', $url) || strlen($url) > 500) {
             return null;
@@ -149,7 +162,7 @@ class LinktreeImport
 
     private static function picture(mixed $url): ?string
     {
-        $url = trim((string) $url);
+        $url = trim(self::scalar($url));
         $host = strtolower((string) parse_url($url, PHP_URL_HOST));
         if (! str_starts_with($url, 'https://') || $host === '') {
             return null;

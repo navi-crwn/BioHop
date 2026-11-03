@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Hop\Bio\Models\BioPage;
 use Illuminate\Http\Response;
 
@@ -12,6 +13,7 @@ class SitemapController extends Controller
     {
         $bioPages = BioPage::query()
             ->where('is_published', true)
+            ->whereHas('user', fn ($q) => $q->where('status', '!=', User::STATUS_SUSPENDED))
             ->where('allow_indexing', true)
             ->where('is_adult_content', false)
             ->where(function ($q) {

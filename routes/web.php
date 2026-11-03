@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Signing in happens at the hub. `login` is the name Laravel's auth middleware redirects to.
-Route::get('/login', fn (Request $r) => redirect()->to('/auth/sso'.($r->query('next') ? '?next='.rawurlencode($r->query('next')) : '')))->name('login');
+Route::get('/login', fn (Request $r) => redirect()->to('/auth/sso'.(is_string($r->query('next')) && $r->query('next') !== '' ? '?next='.rawurlencode($r->query('next')) : '')))->name('login');
 Route::get('/register', fn () => redirect()->away(User::hubUrl('register')))->name('register');
 // Email verification is done at the hub; `verified` routes send unverified members there.
 Route::get('/email/verify', fn () => redirect()->away(User::hubUrl('settings')))->name('verification.notice');
@@ -31,11 +31,14 @@ Route::post('/report-abuse', [AbuseReportController::class, 'store'])->middlewar
 
 // Root redirect fallback for hel.ink/b/ and /b when routed here (U-05).
 Route::match(['GET', 'HEAD'], '/b', function (Request $request) {
-    return redirect()->away('https://bio.hel.ink/'.($request->getQueryString() ? '?'.$request->getQueryString() : ''), 301);
+    return redirect()->away(rtrim((string) config('app.url'), '/').'/'.($request->getQueryString() ? '?'.$request->getQueryString() : ''), 301);
 });
 Route::match(['GET', 'HEAD'], '/b/', function (Request $request) {
-    return redirect()->away('https://bio.hel.ink/'.($request->getQueryString() ? '?'.$request->getQueryString() : ''), 301);
+    return redirect()->away(rtrim((string) config('app.url'), '/').'/'.($request->getQueryString() ? '?'.$request->getQueryString() : ''), 301);
 });
+
+// Health check for the watchdog: a plain answer (the framework's default /up page loads a CDN script and font).
+Route::get('/up', fn () => response('ok', 200, ['Content-Type' => 'text/plain; charset=UTF-8', 'Cache-Control' => 'no-store']));
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/changelog', ChangelogController::class)->name('changelog');

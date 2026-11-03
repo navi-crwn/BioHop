@@ -67,7 +67,6 @@
             </form>
         </div>
         <div class="mt-8">
-            <img src="{{ asset('images/logo-light.svg') }}" alt="BioHop" class="h-6 mx-auto opacity-50" data-fallback="hide">
             <p class="text-slate-500 text-sm mt-2">Powered by BioHop</p>
         </div>
     </div>
