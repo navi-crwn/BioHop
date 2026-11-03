@@ -583,5 +583,6 @@
     "Choose a free address to continue.": "Pilih alamat yang masih bebas untuk lanjut.",
     "Add a display name to continue.": "Isi nama tampilan untuk lanjut.",
     "9 languages": "9 bahasa",
-    "Custom CSS is turned off on this site.": "CSS kustom dimatikan di situs ini."
+    "Custom CSS is turned off on this site.": "CSS kustom dimatikan di situs ini.",
+    "This link opens an encrypted NoteHop note, and the part after the # is its key. Shortening it would store that key on this server. Share the NoteHop link as it is (its share button already gives a short address), or use a Basic note, which the server can read anyway.": "Tautan ini membuka catatan NoteHop terenkripsi, dan bagian setelah # adalah kuncinya. Jika dipendekkan, kunci itu akan tersimpan di server ini. Bagikan tautan NoteHop apa adanya (tombol bagikannya sudah memberi alamat pendek), atau pakai catatan Dasar, yang memang bisa dibaca server."
 }

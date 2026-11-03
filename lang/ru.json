@@ -583,5 +583,6 @@
     "Choose a free address to continue.": "Выберите свободный адрес, чтобы продолжить.",
     "Add a display name to continue.": "Введите отображаемое имя, чтобы продолжить.",
     "9 languages": "9 языков",
-    "Custom CSS is turned off on this site.": "Пользовательский CSS на этом сайте отключён."
+    "Custom CSS is turned off on this site.": "Пользовательский CSS на этом сайте отключён.",
+    "This link opens an encrypted NoteHop note, and the part after the # is its key. Shortening it would store that key on this server. Share the NoteHop link as it is (its share button already gives a short address), or use a Basic note, which the server can read anyway.": "Эта ссылка открывает зашифрованную заметку NoteHop, а часть после # — её ключ. Если сократить ссылку, ключ окажется на этом сервере. Делитесь ссылкой NoteHop как есть (кнопка «Поделиться» уже даёт короткий адрес) или используйте «Обычную» заметку, которую сервер и так может читать."
 }

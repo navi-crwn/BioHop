@@ -583,5 +583,6 @@
     "Choose a free address to continue.": "続けるには空いているアドレスを選んでください。",
     "Add a display name to continue.": "続けるには表示名を入力してください。",
     "9 languages": "9 言語",
-    "Custom CSS is turned off on this site.": "このサイトではカスタム CSS は無効になっています。"
+    "Custom CSS is turned off on this site.": "このサイトではカスタム CSS は無効になっています。",
+    "This link opens an encrypted NoteHop note, and the part after the # is its key. Shortening it would store that key on this server. Share the NoteHop link as it is (its share button already gives a short address), or use a Basic note, which the server can read anyway.": "このリンクは暗号化された NoteHop のノートを開き、# 以降の部分がその鍵です。短縮すると、その鍵がこのサーバーに保存されます。NoteHop のリンクはそのまま共有してください（共有ボタンで短いアドレスも得られます）。サーバーが読めてもよいなら、ベーシックのノートを使えます。"
 }

@@ -583,5 +583,6 @@
     "Choose a free address to continue.": "Escolha um endereço livre para continuar.",
     "Add a display name to continue.": "Adicione um nome de exibição para continuar.",
     "9 languages": "9 idiomas",
-    "Custom CSS is turned off on this site.": "O CSS personalizado está desativado neste site."
+    "Custom CSS is turned off on this site.": "O CSS personalizado está desativado neste site.",
+    "This link opens an encrypted NoteHop note, and the part after the # is its key. Shortening it would store that key on this server. Share the NoteHop link as it is (its share button already gives a short address), or use a Basic note, which the server can read anyway.": "Este link abre uma nota criptografada do NoteHop, e a parte depois do # é a chave dela. Encurtar o link guardaria essa chave neste servidor. Compartilhe o link do NoteHop do jeito que está (o botão de compartilhar já dá um endereço curto) ou use uma nota Básica, que o servidor já consegue ler."
 }
