@@ -90,6 +90,11 @@ Core (first release of the split)
 - The hero phone is sized by the stage's height, so it no longer spills over the buttons and the running line on phones or without WebGL. Counters never show a negative number for a frame.
 - The root addresses `/b` and `/b/` redirect to the home page.
 - The dashboard cards' title no longer straddles the gradient strip.
+- Import from Linktree fetches the page and the picture through the guarded fetch, and reads unexpected page data as empty instead of failing. The list is capped at 200.
+- The editor's short-link picker uses the registered search route, and the automatic title lookup that called a missing route is gone.
+- `sitemap.xml` no longer lists pages of suspended owners, `/b` and `/b/` redirect to the configured app address, the public not-found page no longer asks for a missing logo, and `/up` is a plain answer without a CDN script or font.
+- An array in `lang`, `slug`, `query`, `next` or `app` in the address no longer causes a server error.
+- A suspended member is sent to the hub's notice (`/suspended`) like in LinkHop; JSON callers still get 403.
 
 ### Security
 
@@ -98,6 +103,10 @@ Core (first release of the split)
 - Session cookie is Secure on https, install scripts no longer leave a world-readable `.env`, and an interrupted `set_env` cannot cut `.env` short.
 - Outgoing fetches (feeds, webhooks) are pinned to the addresses that passed the safety check.
 - Third-party software and services are listed in `CREDITS.md`.
+- Links to encrypted NoteHop notes (the key is in the `#` part) are refused in link blocks, fallback and footer addresses, social links, bio text and the short-link form, and the abuse report form cuts the key out. `php artisan bio:scrub-note-keys` finds (and with `--apply` removes) keys saved earlier. Needs hop/safety with `EncryptedNoteLink`.
+- Pages shown to a signed-in person are sent with `Cache-Control: no-store, private`, so Back after sign-out cannot show them again.
+- The visitor's address is no longer in any cache key (page views, click caps, password, form and PIN limits, bans, geolocation answers); the keys hold the same keyed hash as the click log.
+- `GEOIP_WEB_PROVIDERS=false` stops visitor addresses from going to web geolocation services. ip-api.com, which answered over plain http, is no longer used.
 
 ### Removed
 

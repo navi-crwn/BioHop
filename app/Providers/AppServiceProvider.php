@@ -7,6 +7,7 @@ use App\Bio\SafetyAdapter;
 use App\Http\Controllers\BrandAssetController;
 use App\Services\GeoIpService;
 use App\Services\UserAgentService;
+use App\Support\VisitorHash;
 use Hop\Bio\Contracts\GeoLookup;
 use Hop\Bio\Contracts\ShortlinkCreator;
 use Hop\Bio\Contracts\UrlSafety;
@@ -46,9 +47,9 @@ class AppServiceProvider extends ServiceProvider
         // Defined here (not in routes) so they exist when routes are cached.
         RateLimiter::for('shorten', fn (Request $request) => $request->user()
             ? Limit::perMinute(30)->by('user:'.$request->user()->id)
-            : Limit::perMinute(10)->by($request->ip()));
+            : Limit::perMinute(10)->by(VisitorHash::make($request->ip())));
         // Flood guard only: bio click limits normally just stop counting (see PublicBioController::click).
-        RateLimiter::for('bio-click', fn (Request $request) => Limit::perMinute(300)->by('bio-click:'.$request->ip()));
+        RateLimiter::for('bio-click', fn (Request $request) => Limit::perMinute(300)->by('bio-click:'.VisitorHash::make($request->ip())));
         // The shared tables the hub and LinkHop own exist in production; tests create them here.
         if ($this->app->runningUnitTests()) {
             $this->loadMigrationsFrom(database_path('migrations/testing'));

@@ -66,7 +66,7 @@ class PublicBioController extends Controller
         if ($this->needsPassword($bioPage)) {
             $sessionKey = "bio_unlocked_{$bioPage->id}";
             if ($request->isMethod('post') && $request->has('password')) {
-                $key = 'bio-password:'.$bioPage->id.':'.$request->ip();
+                $key = 'bio-password:'.$bioPage->id.':'.VisitorHash::make($request->ip());
                 if (RateLimiter::tooManyAttempts($key, 10)) {
                     return view('bio::password', compact('bioPage'))->withErrors(['password' => 'Too many attempts. Try again later.']);
                 }
@@ -152,8 +152,8 @@ class PublicBioController extends Controller
         // Visitors always reach the destination; limits only decide whether the click is counted.
         // Dedup by visitor cookie (people sharing one IP still count separately), falling back to IP + User-Agent.
         // At most 20 counted clicks per IP per block per 10 minutes, so clearing cookies cannot inflate counts.
-        $dedupKey = 'bio_click:'.$bioLink->id.':'.($visitorId ?? sha1($ipAddress.'|'.request()->userAgent()));
-        $ipKey = "bio_click_ip:{$bioLink->id}:{$ipAddress}";
+        $dedupKey = 'bio_click:'.$bioLink->id.':'.($visitorId ?? sha1(VisitorHash::make($ipAddress).'|'.request()->userAgent()));
+        $ipKey = "bio_click_ip:{$bioLink->id}:".VisitorHash::make($ipAddress);
         if (! $ua['bot'] && ! $bioPage->privacy_mode
             && ! RateLimiter::tooManyAttempts($ipKey, self::COUNTED_CLICKS_PER_IP)
             && Cache::add($dedupKey, true, now()->addMinutes(10))) {
@@ -317,7 +317,7 @@ class PublicBioController extends Controller
         if ($request->filled('website')) {
             return $back->with('form_sent', $bioLink->public_id);
         }
-        $key = 'bio-form:'.$bioLink->id.':'.$request->ip();
+        $key = 'bio-form:'.$bioLink->id.':'.VisitorHash::make($request->ip());
         if (RateLimiter::tooManyAttempts($key, 5)) {
             return $back->withErrors(['form' => __('Too many attempts. Try again later.')], 'form_'.$bioLink->public_id);
         }
@@ -365,7 +365,7 @@ class PublicBioController extends Controller
         if ($pin === '' || ! $bioLink->is_active || ! $this->isVisible($bioLink->bioPage)) {
             abort(404);
         }
-        $key = 'bio-link-pin:'.$bioLink->id.':'.$request->ip();
+        $key = 'bio-link-pin:'.$bioLink->id.':'.VisitorHash::make($request->ip());
         if (RateLimiter::tooManyAttempts($key, 10)) {
             return response()->view('bio::link-pin', compact('bioLink'))->withErrors(['pin' => __('Too many attempts. Try again later.')]);
         }
@@ -387,7 +387,7 @@ class PublicBioController extends Controller
             return;
         }
         $ipAddress = request()->ip();
-        $cacheKey = "bio_view:{$bioPage->id}:{$ipAddress}";
+        $cacheKey = "bio_view:{$bioPage->id}:".VisitorHash::make($ipAddress);
         if (! Cache::has($cacheKey)) {
             $bioPage->incrementViews();
             Cache::put($cacheKey, true, now()->addDay());

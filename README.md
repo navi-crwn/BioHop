@@ -143,7 +143,7 @@ Open `.env` before you migrate. `.env.example` documents every key. Set at least
 | `BIO_ALLOW_CUSTOM_CSS` | Set to `false` to refuse custom CSS and stop sending existing CSS to visitors |
 | `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile for the abuse report form. In production a missing secret makes the form refuse submissions |
 
-Optional keys cover GeoIP (`GEOLITE_CITY_DB`, `GEOLITE_ASN_DB`, `IPINFO_API_KEY`, `ABSTRACTAPI_KEY`), link reputation lookups (`SAFE_BROWSING_KEY`, `URLHAUS_AUTH_KEY`, `SPAMHAUS_DBL`), upload headroom (`BIO_UPLOAD_MIN_FREE_MB`, `BIO_UPLOAD_MIN_FREE_PERCENT`) and the official page the home page shows (`HOP_OFFICIAL_BIO`, `HOP_OFFICIAL_VIDEO`, `HOP_OFFICIAL_MUSIC`, `HOP_OFFICIAL_CONTACT`). An operator can also change the shortest address, the pages per account, the blocks per page and the custom CSS switch at run time from Imperium.
+Optional keys cover GeoIP (`GEOLITE_CITY_DB`, `GEOLITE_ASN_DB`, `GEOIP_WEB_PROVIDERS`, `IPINFO_API_KEY`, `ABSTRACTAPI_KEY`), link reputation lookups (`SAFE_BROWSING_KEY`, `URLHAUS_AUTH_KEY`, `SPAMHAUS_DBL`), upload headroom (`BIO_UPLOAD_MIN_FREE_MB`, `BIO_UPLOAD_MIN_FREE_PERCENT`) and the official page the home page shows (`HOP_OFFICIAL_BIO`, `HOP_OFFICIAL_VIDEO`, `HOP_OFFICIAL_MUSIC`, `HOP_OFFICIAL_CONTACT`). An operator can also change the shortest address, the pages per account, the blocks per page and the custom CSS switch at run time from Imperium.
 
 ```bash
 php artisan migrate
@@ -196,8 +196,8 @@ Sign in with your HOP ID at the hub. Opening `/bio` sends you to the hub and bac
 This is what the code does today.
 
 - The click log keeps the time, the block, the country, the device type, the browser, the referring site and how the visitor arrived. It keeps a keyed hash of the visitor's IP address (HMAC-SHA256 with `APP_KEY`, shortened to 40 characters), never the address itself. `privacy:prune` deletes click logs after 30 days. Poll votes and form entries also store only a keyed hash of the address.
-- To find the country, the visitor's address is looked up in a local GeoIP database if you have installed one, and otherwise sent to the first web geolocation service that answers (see [`CREDITS.md`](CREDITS.md)). That lookup uses the plain address before it is hashed.
-- To count a page view once a day and to cap clicks per address, the app keeps the plain address inside cache keys for up to 24 hours (views) and 10 minutes (clicks). With the default database cache these keys are rows in the `cache` table.
+- To find the country, the visitor's address is looked up in a local GeoIP database if you have installed one, and otherwise sent, as the plain address, to the first web geolocation service that answers (see [`CREDITS.md`](CREDITS.md)). Set `GEOIP_WEB_PROVIDERS=false` to stop that; the country then stays empty without the local database.
+- To count a page view once a day, to cap clicks per address and to remember a ban or a geolocation answer, the app uses cache keys that contain the same keyed hash of the address, never the address itself (24 hours for views and geolocation answers, up to 10 minutes for click and password limits).
 - A random cookie, `hel_vid`, lasts one year and is set on a click. It only helps de-duplicate click counts. A first-time reader of a plain public page gets no session and no cookies. Signed-in members have session rows that include their address, as with any Laravel database session.
 - Privacy mode on a page stops view and click counting for that page.
 - Abuse reports store the reporter's e-mail address, the reason and the reporter's IP address in the shared `abuse_reports` table. This repository does not prune that table.

@@ -70,8 +70,9 @@ the server.
 
 - Cloudflare Turnstile (https://www.cloudflare.com/website-terms/): bot check on public forms such as abuse reports, only when
   the Turnstile keys are set. The browser loads Cloudflare's script for it.
-- IP geolocation, tried after the local database (see `.env.example`): freeipapi.com, ip-api.com, ipapi.co, ipinfo.io and
-  abstractapi.com. Each has its own terms and free-tier limits. The visitor's address is sent to the one that answers.
+- IP geolocation, tried after the local database (see `.env.example`): freeipapi.com, ipapi.co, ipinfo.io and
+  abstractapi.com (all over https). Each has its own terms and free-tier limits. The visitor's address is sent to the one that
+  answers; `GEOIP_WEB_PROVIDERS=false` turns this off.
 - Google Safe Browsing, abuse.ch URLhaus and Spamhaus DBL: optional reputation checks of links, through hop/safety.
 - A page owner's own analytics pixels (Google Analytics, Meta, TikTok, Google Tag Manager) load only when the owner enters an ID
   and the visitor consents.
