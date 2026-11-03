@@ -4,10 +4,12 @@ namespace App\Providers;
 
 use App\Bio\LinkHopShortlinks;
 use App\Bio\SafetyAdapter;
+use App\Http\Controllers\Api\HopBioController;
 use App\Http\Controllers\BrandAssetController;
 use App\Services\GeoIpService;
 use App\Services\UserAgentService;
 use App\Support\VisitorHash;
+use Hop\Auth\HopEvents;
 use Hop\Bio\Contracts\GeoLookup;
 use Hop\Bio\Contracts\ShortlinkCreator;
 use Hop\Bio\Contracts\UrlSafety;
@@ -44,6 +46,12 @@ class AppServiceProvider extends ServiceProvider
                 default => array_map('trim', explode(',', $proxies)),
             });
         }
+        // Account events from the hub (POST /hop/events and /api/hop/events). hop/auth already ends the sessions and rotates
+        // the remember token on session.revoked and account.deleted; this is what BioHop adds. A suspension needs nothing
+        // more: CheckSuspended signs the account out on its next request (account.status has no handler here).
+        HopEvents::on('account.deleted', function (array $data): void {
+            app(HopBioController::class)->purgeAccountFiles((int) ($data['sub'] ?? $data['hop_id'] ?? 0), (array) ($data['bio_uploads'] ?? []));
+        });
         // Defined here (not in routes) so they exist when routes are cached.
         RateLimiter::for('shorten', fn (Request $request) => $request->user()
             ? Limit::perMinute(30)->by('user:'.$request->user()->id)

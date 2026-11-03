@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Support\BioLimits;
 use App\Support\HopSignature;
 use Carbon\CarbonImmutable;
+use Hop\Auth\Http\Controllers\EventController;
 use Hop\Bio\Models\BioClick;
 use Hop\Bio\Models\BioLink;
 use Hop\Bio\Models\BioPage;
@@ -571,14 +572,8 @@ class HopBioController extends Controller
         if ($caller !== 'ok') {
             return response()->json(['ok' => false, 'error' => 'unauthorized'], 401);
         }
-        $type = (string) $request->input('type', '');
-        $data = (array) $request->input('data', []);
-        if ($type === 'account.deleted') {
-            $userId = (int) ($data['sub'] ?? $data['hop_id'] ?? 0);
-            $this->purgeAccountFiles($userId, (array) ($data['bio_uploads'] ?? []));
-        }
 
-        return response()->json(['ok' => true]);
+        return app(EventController::class)($request);
     }
 
     /** GET /internal/accounts/{user}/summary: a few counts for the hub dashboard card (numbers only, no content). */
@@ -606,7 +601,7 @@ class HopBioController extends Controller
      * @param  array<int, string>  $explicitUploads
      * @return array{bio_pages: int}
      */
-    private function purgeAccountFiles(int $userId, array $explicitUploads = []): array
+    public function purgeAccountFiles(int $userId, array $explicitUploads = []): array
     {
         $files = $explicitUploads;
         $count = 0;
