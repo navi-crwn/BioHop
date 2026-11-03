@@ -4,6 +4,7 @@ use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\CheckIpBan;
 use App\Http\Middleware\CheckSuspended;
 use App\Http\Middleware\ContentSecurityPolicyMiddleware;
+use App\Http\Middleware\NoStoreWhenSignedIn;
 use App\Http\Middleware\OptionalSession;
 use App\Http\Middleware\RequireHopAdminClient;
 use App\Http\Middleware\SetLocale;
@@ -30,6 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
             SetLocale::class,
             CheckSuspended::class,
             ContentSecurityPolicyMiddleware::class,
+            NoStoreWhenSignedIn::class,
         ]);
         $middleware->validateCsrfTokens(except: ['internal/*', 'hop/events']);
         // The language cookie is plain text (en, id, …), read before decryption.
