@@ -20,8 +20,8 @@ class SetLocale
 
     public function handle(Request $request, Closure $next): Response
     {
-        $requested = Locales::resolve(is_string($request->query('lang')) ? $request->query('lang') : '');
-        $locale = $requested ?? Locales::normalize((string) $request->cookie(self::COOKIE, Locales::DEFAULT));
+        $requested = self::requested($request);
+        $locale = self::fromRequest($request);
         app()->setLocale($locale);
         $response = $next($request);
         if ($requested !== null) {
@@ -29,5 +29,20 @@ class SetLocale
         }
 
         return $response;
+    }
+
+    /** The language asked for in ?lang=, or null. */
+    private static function requested(Request $request): ?string
+    {
+        return Locales::resolve(is_string($request->query('lang')) ? $request->query('lang') : '');
+    }
+
+    /**
+     * The page language from the query and the cookie only (no database), so the error pages,
+     * which can render before this middleware ran or when the database is down, can use it too.
+     */
+    public static function fromRequest(Request $request): string
+    {
+        return self::requested($request) ?? Locales::normalize((string) $request->cookie(self::COOKIE, Locales::DEFAULT));
     }
 }
