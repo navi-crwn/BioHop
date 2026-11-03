@@ -808,7 +808,7 @@ window.bioEditorV2 = function() {
         },
         fetchLibraryLinks() {
             this.libraryLoading = true;
-            fetch('/api/links?query=' + encodeURIComponent(this.librarySearch), {
+            fetch('/bio/links/search?query=' + encodeURIComponent(this.librarySearch), {
                 headers: {
                     'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
@@ -2088,35 +2088,6 @@ window.bioEditorV2 = function() {
                 console.error(error);
             }
             event.target.value = '';
-        },
-        async fetchUrlTitle(block) {
-            // Debounced: the editor may already be closed (block is null)
-            if (!block || !block.url || (block.title && block.title.trim() !== '')) return;
-            let url = block.url.trim();
-            // Basic URL validation/normalization
-            if (!url.match(/^https?:\/\//i)) {
-                url = 'https://' + url;
-            }
-            try {
-                const response = await fetch('/api/utils/fetch-title', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrf(),
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({ url: url })
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    // Check again if title is still empty before setting it
-                    if (data.title && (!block.title || block.title.trim() === '')) {
-                        block.title = data.title;
-                    }
-                }
-            } catch (e) {
-                console.error('Error fetching title:', e);
-            }
         },
         // Expands handles/phone numbers into full URLs. Runs on blur and before
         // saving - never while typing, so the field doesn't change under the cursor.
