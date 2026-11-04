@@ -17,6 +17,7 @@ use Hop\Bio\Support\BioRevisions;
 use Hop\Bio\Support\BioUploads;
 use Hop\Bio\Support\ImageOptimizer;
 use Hop\Bio\Support\LinktreeImport;
+use Hop\Bio\Support\NoteKeys;
 use Hop\Bio\Support\SvgSanitizer;
 use Hop\Bio\Support\Webhooks;
 use Hop\Safety\UrlGuard;
@@ -403,8 +404,9 @@ class BioPageController extends Controller
     /**
      * Reject abusive page text and unsafe social link values.
      */
-    private function assertSafeContent(array $data): void
+    private function assertSafeContent(array $data, ?BioPage $page = null): void
     {
+        NoteKeys::assertNone($data);
         $safety = app(UrlSafety::class);
         $errors = [];
         $text = implode(' ', array_filter([$data['slug'] ?? null, $data['title'] ?? null, $data['bio'] ?? null, $data['seo_title'] ?? null, $data['seo_description'] ?? null]));
@@ -424,7 +426,12 @@ class BioPageController extends Controller
             }
         }
         // An uploaded background is a path on our own disk (bio-images/…); only an outside address is checked.
-        if (! empty($data['fab_url']) && ($data['fab_type'] ?? null) === 'custom' && ($reason = $safety->rejectionReason($data['fab_url'], '', UrlSafety::BIO_SCHEMES))) {
+        // The editor saves only what changed, so the type or the address can be the one already on the page. An
+        // address without a scheme is not published (BioPage::fabHref), and a WhatsApp number stays usable when switching.
+        $fabType = array_key_exists('fab_type', $data) ? $data['fab_type'] : $page?->fab_type;
+        $fabUrl = array_key_exists('fab_url', $data) ? $data['fab_url'] : $page?->fab_url;
+        if (! empty($fabUrl) && $fabType === 'custom' && (isset($data['fab_type'], $data['fab_url']) || $safety->scheme($fabUrl) !== null)
+            && ($reason = $safety->rejectionReason($fabUrl, '', UrlSafety::BIO_SCHEMES))) {
             $errors['fab_url'] = $reason;
         }
         if (! empty($data['webhook_url'])) {
@@ -589,7 +596,7 @@ class BioPageController extends Controller
             'hover_effect' => CssValue::keyword(30),
             'background_animation' => CssValue::keyword(30),
         ]);
-        $this->assertSafeContent($validated);
+        $this->assertSafeContent($validated, $bioPage);
         // With custom CSS switched off, a page keeps what it has (it is not sent to visitors) but takes no new CSS.
         if (! empty($validated['custom_css']) && $validated['custom_css'] !== $bioPage->custom_css && ! BioLimits::allowCustomCss()) {
             throw ValidationException::withMessages(['custom_css' => __('Custom CSS is turned off on this site.')]);
