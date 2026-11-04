@@ -6,9 +6,11 @@ use Hop\Bio\Contracts\ShortlinkCreator;
 use Hop\Bio\Models\BioLink;
 use Hop\Bio\Models\BioPage;
 use Hop\Safety\EncryptedNoteLink;
+use Hop\Safety\UrlGuard;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
 
 // An encrypted NoteHop link keeps the note key in its #fragment. BioHop stores destinations and redirects to them,
@@ -358,4 +360,108 @@ test('the fields that now look for a key still save everyday content', function 
     ])->assertOk();
     expect($page->fresh()->footer_note)->toBe('See '.plainNoteLink());
     $this->postJson('/bio/everyday/links', ['type' => 'link', 'title' => 'My note', 'url' => plainNoteLink(), 'settings' => ['text' => 'Open '.plainNoteLink()]])->assertOk();
+});
+
+test('bio:scrub-note-keys removes keys from every column the rule guards', function () {
+    [$user, $page] = notePage('scrubcols');
+    $text = 'read '.FAKE_NOTE_URL.' now';
+    DB::table('bio_pages')->where('id', $page->id)->update([
+        'fab_url' => FAKE_NOTE_URL, 'fab_label' => 'n.hel.ink/x#k='.FAKE_NOTE_KEY, 'footer_note' => $text, 'warning_reason' => $text, 'status_text' => $text,
+        'socials' => json_encode([['platform' => 'website', 'value' => FAKE_NOTE_URL]]),
+        'qr_settings' => json_encode(['url' => FAKE_NOTE_URL, 'nested' => ['a' => $text]]),
+        'social_links' => json_encode([['platform' => 'instagram', 'value' => 'note.hel.ink/AbC#k='.FAKE_NOTE_KEY, 'enabled' => true]]),
+        'cover_image' => FAKE_NOTE_URL, 'background_image' => FAKE_NOTE_URL, 'background_value' => 'url('.FAKE_NOTE_URL.')', 'og_image' => FAKE_NOTE_URL, 'favicon' => FAKE_NOTE_URL,
+    ]);
+    $block = BioLink::create(['bio_page_id' => $page->id, 'type' => 'html', 'title' => 'x', 'order' => 0, 'is_active' => true]);
+    DB::table('bio_links')->where('id', $block->id)->update([
+        'html_content' => '<p>keep</p><a href="'.FAKE_NOTE_URL.'">read</a>', 'map_address' => $text, 'countdown_label' => $text, 'vcard_name' => $text, 'vcard_company' => $text,
+        'custom_icon' => FAKE_NOTE_URL, 'faq_items' => json_encode([['question' => 'q', 'answer' => '<a href="'.FAKE_NOTE_URL.'">x</a>']]),
+        'content' => json_encode([['question' => 'q', 'answer' => $text]]),
+        'settings' => json_encode(['images' => [['url' => FAKE_NOTE_URL, 'caption' => $text]], 'thanks' => $text, 'price' => 1.5]),
+    ]);
+
+    $this->artisan('bio:scrub-note-keys', ['--apply' => true])->expectsOutputToContain('scrubbed rows: 2')->assertSuccessful();
+
+    foreach (['bio_pages', 'bio_links'] as $table) {
+        expect(json_encode(DB::table($table)->get()))->not->toContain(FAKE_NOTE_KEY)->not->toContain(substr(FAKE_NOTE_KEY, 0, 12));
+    }
+    expect($block->fresh()->html_content)->toBe('<p>keep</p><a href="https://note.hel.ink/AbC123xyz0">read</a>')
+        ->and($block->fresh()->settings['price'])->toBe(1.5)
+        ->and($page->fresh()->fab_url)->toBe('https://note.hel.ink/AbC123xyz0');
+    $this->artisan('bio:scrub-note-keys')->expectsOutputToContain('dry run, rows with a key: 0')->assertSuccessful();
+});
+
+test('bio:scrub-note-keys removes a key in any of its forms from the bio', function (string $text) {
+    [, $page] = notePage('scrubforms');
+    DB::table('bio_pages')->where('id', $page->id)->update(['bio' => $text]);
+    $this->artisan('bio:scrub-note-keys')->expectsOutputToContain('dry run, rows with a key: 1')->assertSuccessful();
+    $this->artisan('bio:scrub-note-keys', ['--apply' => true])->expectsOutputToContain('scrubbed rows: 1')->assertSuccessful();
+    $bio = (string) $page->fresh()->bio;
+    expect($bio)->not->toContain(substr(FAKE_NOTE_KEY, 0, 9))->not->toContain(substr(FAKE_NOTE_KEY, 9));
+    $this->artisan('bio:scrub-note-keys')->expectsOutputToContain('dry run, rows with a key: 0')->assertSuccessful();
+})->with(fn () => noteKeyTexts());
+
+test('bio:scrub-note-keys keeps what is around a key and leaves content without one alone', function () {
+    [, $page] = notePage('scrubkeep');
+    $html = '<p>Hi &amp; welcome</p><a href="https://note.hel.ink/AbC123xyz0">note</a> <a href="https://example.com/#k=abc">other</a>';
+    DB::table('bio_pages')->where('id', $page->id)->update([
+        'bio' => 'before https://note.hel.ink/AbC123xyz0#new=1&k='.FAKE_NOTE_KEY.' after',
+        'footer_note' => 'see note.hel.ink/AbC123xyz0 and https://example.com/#a=1',
+        // written the way Laravel and the versions write it: rewriting it would count as a change
+        'qr_settings' => json_encode(['url' => 'https://example.com/ünï', 'size' => 2.0], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+    ]);
+    $block = BioLink::create(['bio_page_id' => $page->id, 'type' => 'html', 'title' => 'x', 'order' => 0, 'is_active' => true]);
+    DB::table('bio_links')->where('id', $block->id)->update(['html_content' => $html]);
+    DB::table('bio_revisions')->insert(['bio_page_id' => $page->id, 'blocks_count' => 0, 'snapshot' => json_encode(['page' => ['title' => 'https://example.com/a']], JSON_UNESCAPED_SLASHES), 'created_at' => now()]);
+    $revision = DB::table('bio_revisions')->value('snapshot');
+
+    $this->artisan('bio:scrub-note-keys', ['--apply' => true])->expectsOutputToContain('scrubbed rows: 1')->assertSuccessful();
+
+    expect($page->fresh()->bio)->toBe('before https://note.hel.ink/AbC123xyz0#new=1 after')
+        ->and($page->fresh()->footer_note)->toBe('see note.hel.ink/AbC123xyz0 and https://example.com/#a=1')
+        ->and($block->fresh()->html_content)->toBe($html)
+        ->and(DB::table('bio_revisions')->value('snapshot'))->toBe($revision);
+});
+
+test('bio:scrub-note-keys counts an owner token in a stored session', function () {
+    DB::table('sessions')->insert(['id' => 'scrub-session', 'user_id' => null, 'ip_address' => null, 'user_agent' => null, 'last_activity' => time(),
+        'payload' => base64_encode(serialize(['_old_input' => ['url' => 'https://note.hel.ink/AbC#a='.FAKE_NOTE_KEY]]))]);
+    $this->artisan('bio:scrub-note-keys')->expectsOutputToContain('counted only (not edited): 1')->assertSuccessful();
+});
+
+test('bio:scrub-note-keys removes a key from an attribute with a line break in it', function () {
+    [, $page] = notePage('scrubbreak');
+    DB::table('bio_pages')->where('id', $page->id)->update(['bio' => '<a href="https://note.hel.ink/AbC'."\n".'#k='.FAKE_NOTE_KEY.'">x</a>']);
+    $this->artisan('bio:scrub-note-keys', ['--apply' => true]);
+    expect((string) $page->fresh()->bio)->not->toContain(FAKE_NOTE_KEY);
+});
+
+test('a Linktree page with a key in its title, bio or a block title is imported without the key', function () {
+    app()->bind(UrlGuard::class, fn () => new class extends UrlGuard
+    {
+        protected function resolveHost(string $host): array
+        {
+            return ['93.184.216.34'];
+        }
+    });
+    $bare = 'note.hel.ink/AbC#k='.FAKE_NOTE_KEY;
+    $html = '<script id="__NEXT_DATA__" type="application/json">'.json_encode(['props' => ['pageProps' => [
+        'username' => 'helena', 'pageTitle' => $bare, 'description' => 'read '.FAKE_NOTE_URL.' or note:'.$bare,
+        'links' => [
+            ['type' => 'CLASSIC', 'title' => 'open '.$bare, 'url' => 'https://example.com/'],
+            ['type' => 'CLASSIC', 'title' => 'My note', 'url' => 'https://note.hel.ink/AbC'],
+            ['type' => 'CLASSIC', 'title' => 'keyed', 'url' => FAKE_NOTE_URL],
+            ['type' => 'HEADER', 'title' => $bare],
+        ],
+        'socialLinks' => [['type' => 'INSTAGRAM', 'url' => 'https://instagram.com/helena'], ['type' => 'WEBSITE', 'url' => FAKE_NOTE_URL]],
+    ]]]).'</script>';
+    Http::fake(['linktr.ee/*' => Http::response($html)]);
+    $user = User::factory()->create();
+    $this->actingAs($user)->post('/bio/import', ['linktree' => 'linktr.ee/helena', 'slug' => 'keyimport'])->assertRedirect();
+    expect(storedAnywhere(FAKE_NOTE_KEY))->toBe([]);
+    $page = BioPage::where('slug', 'keyimport')->firstOrFail();
+    expect($page->bio)->toContain('read https://note.hel.ink/AbC123xyz0')
+        ->and($page->links()->pluck('title')->all())->toContain('My note')
+        ->and($page->links()->pluck('url')->all())->toContain('https://example.com/', 'https://note.hel.ink/AbC')
+        ->and(collect($page->social_links)->pluck('value')->all())->toContain('https://instagram.com/helena');
 });

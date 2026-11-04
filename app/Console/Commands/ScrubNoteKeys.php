@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use Hop\Safety\EncryptedNoteLink;
+use Hop\Bio\Support\NoteKeys;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -20,8 +20,8 @@ class ScrubNoteKeys extends Command
 
     /** table => string or JSON columns that can hold an address or free text. */
     private const COLUMNS = [
-        'bio_links' => ['url', 'embed_url', 'thumbnail_url', 'title', 'description', 'content', 'settings'],
-        'bio_pages' => ['bio', 'title', 'social_links', 'fallback_url', 'footer_url', 'webhook_url', 'seo_title', 'seo_description', 'custom_css'],
+        'bio_links' => ['url', 'embed_url', 'thumbnail_url', 'custom_icon', 'title', 'description', 'content', 'html_content', 'settings', 'faq_items', 'map_address', 'countdown_label', 'vcard_name', 'vcard_phone', 'vcard_email', 'vcard_company'],
+        'bio_pages' => ['bio', 'title', 'social_links', 'socials', 'qr_settings', 'fallback_url', 'footer_url', 'footer_note', 'fab_url', 'fab_label', 'webhook_url', 'seo_title', 'seo_description', 'custom_css', 'warning_reason', 'status_text', 'cover_image', 'background_image', 'background_value', 'og_image', 'favicon'],
         'bio_revisions' => ['snapshot'],
         'abuse_reports' => ['url', 'reason'],
         'bio_webhook_deliveries' => ['payload'],
@@ -29,7 +29,6 @@ class ScrubNoteKeys extends Command
 
     public function handle(): int
     {
-        $notes = new EncryptedNoteLink;
         $apply = (bool) $this->option('apply');
         $total = 0;
         foreach (self::COLUMNS as $table => $columns) {
@@ -42,12 +41,12 @@ class ScrubNoteKeys extends Command
             }
             $hits = 0;
             $ids = [];
-            DB::table($table)->select(['id', ...$columns])->orderBy('id')->chunkById(200, function ($rows) use ($notes, $table, $columns, $apply, &$hits, &$ids) {
+            DB::table($table)->select(['id', ...$columns])->orderBy('id')->chunkById(200, function ($rows) use ($table, $columns, $apply, &$hits, &$ids) {
                 foreach ($rows as $row) {
                     $changes = [];
                     foreach ($columns as $c) {
                         $v = $row->{$c};
-                        if (is_string($v) && $v !== '' && ($clean = $notes->scrubJson($v)) !== $v) {
+                        if (is_string($v) && $v !== '' && ($clean = NoteKeys::scrub($v)) !== $v) {
                             $changes[$c] = $clean;
                         }
                     }
@@ -66,13 +65,12 @@ class ScrubNoteKeys extends Command
         foreach (['sessions' => 'payload', 'jobs' => 'payload', 'failed_jobs' => 'payload'] as $table => $column) {
             if (Schema::hasTable($table) && Schema::hasColumn($table, $column)) {
                 $n = 0;
-                DB::table($table)->select([$column])->cursor()->each(function ($row) use ($notes, $table, $column, &$n) {
+                DB::table($table)->select([$column])->cursor()->each(function ($row) use ($table, $column, &$n) {
                     $v = (string) $row->{$column};
                     if ($table === 'sessions') {
                         $v = (string) base64_decode($v, true); // the database session driver stores base64 of the serialized data
                     }
-                    $v = str_replace('\\/', '/', $v);
-                    if (stripos($v, 'k=') !== false && $notes->scrub($v) !== $v) {
+                    if (NoteKeys::holds(str_replace('\\/', '/', $v))) {
                         $n++;
                     }
                 });

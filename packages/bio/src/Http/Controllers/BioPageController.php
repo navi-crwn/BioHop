@@ -242,14 +242,14 @@ class BioPageController extends Controller
         $socials = [];
         foreach ($page['socials'] as $social) {
             $url = SocialUrlHelper::buildUrl($social['platform'], $social['value']);
-            if ($safety->scheme($url) === null || ! $safety->rejectionReason($url, '', UrlSafety::BIO_SCHEMES)) {
+            if (! NoteKeys::holds($social['value']) && ($safety->scheme($url) === null || ! $safety->rejectionReason($url, '', UrlSafety::BIO_SCHEMES))) {
                 $socials[] = ['platform' => $social['platform'], 'value' => $social['value'], 'enabled' => true];
             }
         }
         $bioPage = auth()->user()->bioPages()->create([
             'slug' => $validated['slug'],
-            'title' => $page['title'],
-            'bio' => $page['bio'],
+            'title' => NoteKeys::scrub($page['title']),
+            'bio' => $page['bio'] === null ? null : NoteKeys::scrub($page['bio']),
             'theme' => 'default',
             'social_links' => $socials,
             'is_published' => false,
@@ -261,14 +261,14 @@ class BioPageController extends Controller
         $order = 0;
         $skipped = 0;
         $make = function (array $link, string $type) use ($bioPage, $safety, $brands, &$order, &$skipped) {
-            if ($link['url'] && $safety->rejectionReason($link['url'])) {
+            if ($link['url'] && (NoteKeys::holds($link['url']) || $safety->rejectionReason($link['url']))) {
                 $skipped++;
 
                 return;
             }
             $bioPage->links()->create([
                 'type' => $type,
-                'title' => Str::limit($link['title'] ?: ($link['url'] ? self::hostTitle($link['url']) : ''), 100, ''),
+                'title' => Str::limit(NoteKeys::scrub($link['title'] ?: ($link['url'] ? self::hostTitle($link['url']) : '')), 100, ''),
                 'url' => $link['url'],
                 'brand' => $link['url'] ? self::brandForUrl($link['url'], $brands) : null,
                 'thumbnail_url' => $link['thumbnail'] ?? null,
