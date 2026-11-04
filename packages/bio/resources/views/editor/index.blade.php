@@ -49,7 +49,7 @@
                                 </template>
                             </div>
                         </div>
-                        <a :href="'{{ public_url('b') }}/' + bioPage.slug" target="_blank" rel="noopener" class="be-url">
+                        <a :href="visitUrl()" target="_blank" rel="noopener" class="be-url">
                             <span x-text="'{{ public_host() }}/b/' + bioPage.slug"></span>
                             <svg class="h-3 w-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                         </a>
@@ -137,7 +137,7 @@
                     </span>
                 </span>
                 <span class="flex items-center gap-3">
-                    <a :href="'{{ public_url('b') }}/' + bioPage.slug" target="_blank" rel="noopener">Open in new tab
+                    <a x-show="bioPage.is_published" :href="visitUrl()" target="_blank" rel="noopener">Open in new tab
                         <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                     </a>
                     <button type="button" class="be-iconbtn be-preview-close" @click="previewOpen = false" aria-label="Close preview">

@@ -57,7 +57,6 @@ window.designTab = function() {
     return {
         sections,
         current: sections.some(s => s[0] === saved) ? saved : 'header',
-        publicUrl: CONFIG.publicBase + '/' + encodeURIComponent(CONFIG.bioPage.slug),
         select(key) {
             this.current = key;
             try { localStorage.setItem(KEY, key); } catch (e) {}
@@ -411,7 +410,7 @@ window.bioEditorV2 = function() {
             [['profile', 'Profile'], ['links', 'Build (your blocks)'], ['socials', 'Socials'], ['appearance', 'Design'], ['settings', 'Settings']].forEach(([id, name]) =>
                 cmds.push({ group: 'Go to', label: 'Open ' + name, hint: '', keys: id, run: () => { this.activeTab = id; } }));
             cmds.push({ group: 'Page', label: 'Copy the page link', hint: '', keys: 'share url', run: () => this.copyPageUrl() });
-            cmds.push({ group: 'Page', label: 'Open the page in a new tab', hint: '', keys: 'visit preview visitor', run: () => window.open(CONFIG.publicBase + '/' + this.bioPage.slug, '_blank', 'noopener') });
+            if (this.bioPage.is_published) cmds.push({ group: 'Page', label: 'Open the page in a new tab', hint: '', keys: 'visit preview visitor', run: () => window.open(this.visitUrl(), '_blank', 'noopener') });
             cmds.push({ group: 'Page', label: 'Save now', hint: '', keys: 'store', run: () => { this._autoBlocked = false; this.saveBioPage(); } });
             cmds.push({ group: 'Page', label: this.autosave ? 'Turn autosave off' : 'Turn autosave on', hint: '', keys: 'auto save', run: () => this.toggleAutosave() });
             cmds.push({ group: 'Page', label: 'Sort blocks by clicks', hint: 'Most clicked first, inside each group', keys: 'order popular', run: () => { this.activeTab = 'links'; this.sortByClicks(); } });
@@ -2724,6 +2723,10 @@ window.bioEditorV2 = function() {
             }
             block._urlError = null;
             return true;
+        },
+        // A draft answers 404 at its address, so while it is one there is nothing to link to.
+        visitUrl() {
+            return this.bioPage.is_published ? CONFIG.publicBase + '/' + encodeURIComponent(this.bioPage.slug) : null;
         },
         copyPageUrl() {
             navigator.clipboard.writeText(CONFIG.publicBase + '/' + this.bioPage.slug)
