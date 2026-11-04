@@ -1,8 +1,19 @@
 # Changelog
 
-All notable changes to BioHop are listed here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). BioHop has no tagged release yet, so everything below is under Unreleased. The `/changelog` page of the app shows the merged pull requests and commits; it is generated from the git history by `scripts/build-changelog.py` into `resources/changelog.json`.
+All notable changes to BioHop are listed here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The `/changelog` page of the app shows the merged pull requests and commits; it is generated from the git history by `scripts/build-changelog.py` into `resources/changelog.json`.
 
 ## [Unreleased]
+
+## [1.0.0] - 2026-11-04
+
+The first stable release. BioHop has been public since it was split out of LinkHop; 1.0.0 is the point where the feature set below is treated as the baseline that later releases build on. Everything under this heading is the full history to date.
+
+- Link-in-bio pages from many block kinds (links, shop products, sign-up forms, polls, feeds, embeds, media), with themes, a setup wizard, versions you can restore, and analytics by page, link, source and country.
+- No accounts of its own: people sign in with HOP ID at the hub. The hub tells BioHop about revoked sessions and deleted accounts (`POST /hop/events`), and BioHop acts on them even if it was down when the person signed out.
+- Privacy by default: no CDN, font or icon host, visitor addresses kept only as a keyed hash for 30 days, third-party trackers loaded only after consent, and signed-in pages sent with `Cache-Control: no-store`.
+- The interface, the READMEs and the documentation site are in nine languages: English, 简体中文, Deutsch, Bahasa Indonesia, 日本語, Português (Brasil), Español, Français and Русский.
+- Self-hosting with `install.sh`, `update.sh` and `uninstall.sh`; the admin pages live in Imperium, the HOP control panel.
+- The 2026-11-04 audit fixes are included, among them the refusal of links to encrypted NoteHop notes and the redirect of a suspended member to the hub's notice.
 
 ### Signing out at the hub now ends the session here too (even when BioHop was down)
 - Signing in through HOP ID uses `remember: true`, so the remember cookie (30 days) brought a person straight back in after their session rows were deleted, and the hub's "end sessions" action and its chained logout could not reach an app that was down at that moment. The hub now queues a signed `session.revoked` to every app; `POST /hop/events` (and `/api/hop/events`) handle it: the session rows of that account are deleted (database and file drivers) and its `remember_token` is rotated, so the cookie stops working. The hub retries for about 16 hours while BioHop is unreachable.
@@ -121,3 +132,6 @@ Core (first release of the split)
 - Arabic and right-to-left layout.
 - The internal admin pages, now in Imperium.
 - CDN requests for scripts, fonts and icons.
+
+[Unreleased]: https://github.com/navi-crwn/BioHop/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/navi-crwn/BioHop/releases/tag/v1.0.0
