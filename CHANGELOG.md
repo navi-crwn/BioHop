@@ -12,6 +12,7 @@ All notable changes to BioHop are listed here. The format follows [Keep a Change
 - Avatar and image uploads answer 422 instead of 500 to a picture that is too large. The QR logo, uploaded or sent inside the settings, has the same pixel limit as other pictures.
 - A draft no longer links to its public address or QR code, which answer 404: the page list shows the address as text, and the analytics and editor links appear once the page is published.
 - Public bio pages, the password page and the editor preview name the shown language in `<html lang>`.
+- `composer.json` pins `hop/ui` to the commit in the lock (`6b4210c`, same tree as before); the old pin was a commit outside its main history.
 - The brand link in the public header and the New bio button have an accessible name when their text is hidden on phones.
 
 ## [1.0.0] - 2026-11-04
