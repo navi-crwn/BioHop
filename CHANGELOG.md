@@ -8,7 +8,7 @@ All notable changes to BioHop are listed here. The format follows [Keep a Change
 - Signing in through HOP ID uses `remember: true`, so the remember cookie (30 days) brought a person straight back in after their session rows were deleted, and the hub's "end sessions" action and its chained logout could not reach an app that was down at that moment. The hub now queues a signed `session.revoked` to every app; `POST /hop/events` (and `/api/hop/events`) handle it: the session rows of that account are deleted (database and file drivers) and its `remember_token` is rotated, so the cookie stops working. The hub retries for about 16 hours while BioHop is unreachable.
 - `account.deleted` also ends the account's sessions, after the page and upload purge that was already there. An event the hub sends twice (a retry) is handled once; a type BioHop does not know gets a 200 so the hub stops retrying it. The 403 for other apps and the 401 for unsigned requests are unchanged.
 - A suspension needs nothing new: the next request of a suspended account is signed out and sent to the hub's `/suspended` notice, as before.
-- Needs `hop/auth` with the event receiver (the lock file points at the head of hop-auth PR #10 until it is tagged) and an `apps` row for `biohop` with the `events` capability at the hub.
+- Needs `hop/auth` with the event receiver (`^0.1.3`, the tag that holds it) and an `apps` row for `biohop` with the `events` capability at the hub.
 
 ### Added
 
