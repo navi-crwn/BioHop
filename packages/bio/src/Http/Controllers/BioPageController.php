@@ -379,8 +379,10 @@ class BioPageController extends Controller
                 $data = substr($base64Image, strpos($base64Image, ',') + 1);
                 $extension = strtolower($type[1]);
                 $data = base64_decode($data, true);
+                $size = $data === false ? false : @getimagesizefromstring($data);
+                ImageOptimizer::assertFits($size, 'qr_settings.image');
                 // Only store real images up to 1 MB.
-                if (in_array($extension, ['jpg', 'jpeg', 'gif', 'png']) && $data !== false && strlen($data) <= 1048576 && @getimagesizefromstring($data)) {
+                if (in_array($extension, ['jpg', 'jpeg', 'gif', 'png']) && $data !== false && strlen($data) <= 1048576 && $size) {
                     $filename = 'qr-logos/'.uniqid().'.'.$extension;
                     Storage::disk('public')->put($filename, $data);
                     $settings['image'] = '/storage/'.$filename;
@@ -830,6 +832,8 @@ class BioPageController extends Controller
                 'url' => '/storage/'.$path,
                 'image_url' => '/storage/'.$path,
             ]);
+        } catch (ValidationException $e) {
+            throw $e;
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -876,6 +880,8 @@ class BioPageController extends Controller
                 'full_url' => '/storage/'.$path,
                 'page_updated_at' => $bioPage->updated_at->toJSON(),
             ]);
+        } catch (ValidationException $e) {
+            throw $e;
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -928,7 +934,13 @@ class BioPageController extends Controller
         $request->validate([$field => 'required|image|max:'.($directory === 'avatars' ? 8192 : 4096)]);
 
         // the QR logo is read back by the QR generator as it is; everything else is shrunk (WebP, right size)
-        return $directory === 'qr-logos' ? $request->file($field)->store($directory, 'public') : ImageOptimizer::store($request->file($field), $directory, null, $field);
+        if ($directory === 'qr-logos') {
+            ImageOptimizer::assertFits(@getimagesize($request->file($field)->getRealPath()), $field);
+
+            return $request->file($field)->store($directory, 'public');
+        }
+
+        return ImageOptimizer::store($request->file($field), $directory, null, $field);
     }
 
     /**
