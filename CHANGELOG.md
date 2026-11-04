@@ -4,6 +4,12 @@ All notable changes to BioHop are listed here. The format follows [Keep a Change
 
 ## [Unreleased]
 
+### Signing out at the hub now ends the session here too (even when BioHop was down)
+- Signing in through HOP ID uses `remember: true`, so the remember cookie (30 days) brought a person straight back in after their session rows were deleted, and the hub's "end sessions" action and its chained logout could not reach an app that was down at that moment. The hub now queues a signed `session.revoked` to every app; `POST /hop/events` (and `/api/hop/events`) handle it: the session rows of that account are deleted (database and file drivers) and its `remember_token` is rotated, so the cookie stops working. The hub retries for about 16 hours while BioHop is unreachable.
+- `account.deleted` also ends the account's sessions, after the page and upload purge that was already there. An event the hub sends twice (a retry) is handled once; a type BioHop does not know gets a 200 so the hub stops retrying it. The 403 for other apps and the 401 for unsigned requests are unchanged.
+- A suspension needs nothing new: the next request of a suspended account is signed out and sent to the hub's `/suspended` notice, as before.
+- Needs `hop/auth` with the event receiver (the lock file points at the head of hop-auth PR #10 until it is tagged) and an `apps` row for `biohop` with the `events` capability at the hub.
+
 ### Added
 
 Pages and blocks
@@ -90,6 +96,13 @@ Core (first release of the split)
 - The hero phone is sized by the stage's height, so it no longer spills over the buttons and the running line on phones or without WebGL. Counters never show a negative number for a frame.
 - The root addresses `/b` and `/b/` redirect to the home page.
 - The dashboard cards' title no longer straddles the gradient strip.
+- Import from Linktree fetches the page and the picture through the guarded fetch, and reads unexpected page data as empty instead of failing. The list is capped at 200.
+- The editor's short-link picker uses the registered search route, and the automatic title lookup that called a missing route is gone.
+- `sitemap.xml` no longer lists pages of suspended owners, `/b` and `/b/` redirect to the configured app address, the public not-found page no longer asks for a missing logo, and `/up` is a plain answer without a CDN script or font.
+- The 404, 429 and 500 pages, and the public bio "not found / not available" page, are translated into the nine languages and follow `?lang=` or the language cookie without touching the database (they were English only).
+- `robots.txt` is now answered by the app (the static file is removed): it keeps `/bio/`, `/settings`, `/dashboard`, `/admin`, `/auth/`, `/login`, `/logout`, `/internal/`, `/hop/` and `/api/` out of search and carries a `Sitemap:` line with this install's address. Public bio pages stay open.
+- An array in `lang`, `slug`, `query`, `next` or `app` in the address no longer causes a server error.
+- A suspended member is sent to the hub's notice (`/suspended`) like in LinkHop; JSON callers still get 403.
 
 ### Security
 
@@ -98,6 +111,10 @@ Core (first release of the split)
 - Session cookie is Secure on https, install scripts no longer leave a world-readable `.env`, and an interrupted `set_env` cannot cut `.env` short.
 - Outgoing fetches (feeds, webhooks) are pinned to the addresses that passed the safety check.
 - Third-party software and services are listed in `CREDITS.md`.
+- Links to encrypted NoteHop notes (the key is in the `#` part) are refused in link blocks, fallback and footer addresses, social links, bio text and the short-link form, and the abuse report form cuts the key out. `php artisan bio:scrub-note-keys` finds (and with `--apply` removes) keys saved earlier. Needs hop/safety with `EncryptedNoteLink`.
+- Pages shown to a signed-in person are sent with `Cache-Control: no-store, private`, so Back after sign-out cannot show them again.
+- The visitor's address is no longer in any cache key (page views, click caps, password, form and PIN limits, bans, geolocation answers); the keys hold the same keyed hash as the click log.
+- `GEOIP_WEB_PROVIDERS=false` stops visitor addresses from going to web geolocation services. ip-api.com, which answered over plain http, is no longer used.
 
 ### Removed
 

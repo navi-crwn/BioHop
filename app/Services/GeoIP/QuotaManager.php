@@ -61,7 +61,7 @@ class QuotaManager
 
     public function getStats(): array
     {
-        $providers = ['FreeIpApi', 'IpApi', 'IpApiCo', 'IpInfo', 'AbstractApi'];
+        $providers = ['FreeIpApi', 'IpApiCo', 'IpInfo', 'AbstractApi'];
         $stats = [];
         foreach ($providers as $provider) {
             $stats[$provider] = [

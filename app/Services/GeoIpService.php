@@ -6,10 +6,10 @@ use App\Services\GeoIP\Providers\AbstractApiProvider;
 use App\Services\GeoIP\Providers\FreeIpApiProvider;
 use App\Services\GeoIP\Providers\GeoIpProviderInterface;
 use App\Services\GeoIP\Providers\IpApiCoProvider;
-use App\Services\GeoIP\Providers\IpApiProvider;
 use App\Services\GeoIP\Providers\IpInfoProvider;
 use App\Services\GeoIP\Providers\LocalMmdbProvider;
 use App\Services\GeoIP\QuotaManager;
+use App\Support\VisitorHash;
 use Hop\Bio\Contracts\GeoLookup;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -30,11 +30,14 @@ class GeoIpService implements GeoLookup
         $this->providers = [
             new LocalMmdbProvider,
             new FreeIpApiProvider,
-            new IpApiProvider,
             new IpApiCoProvider,
             new IpInfoProvider,
             new AbstractApiProvider,
         ];
+        // GEOIP_WEB_PROVIDERS=false: only the local database answers, no visitor address goes to an outside service.
+        if (! config('services.geolite.web_providers', true)) {
+            $this->providers = array_filter($this->providers, fn ($p) => $p instanceof LocalMmdbProvider);
+        }
         usort($this->providers, fn ($a, $b) => $a->getPriority() <=> $b->getPriority());
     }
 
@@ -59,7 +62,8 @@ class GeoIpService implements GeoLookup
 
     protected function lookup(string $ip): ?array
     {
-        $cacheKey = "geoip:data:{$ip}";
+        // The cache holds the answer, not the address it was asked about.
+        $cacheKey = 'geoip:data:'.VisitorHash::make($ip);
         $cached = Cache::get($cacheKey);
         if ($cached !== null) {
             return $cached ?: null; // false = looked up recently, nothing found

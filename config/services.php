@@ -38,6 +38,8 @@ return [
     // GeoIP for click analytics (country only). The local database is tried first, then the free web APIs.
     // Put GeoLite2-City.mmdb (and optionally GeoLite2-ASN.mmdb) from MaxMind or DB-IP Lite in storage/app.
     'geolite' => [
+        // false: never ask a web service; the country stays empty unless the local database answers.
+        'web_providers' => (bool) env('GEOIP_WEB_PROVIDERS', true),
         'city_db' => env('GEOLITE_CITY_DB') ?: storage_path('app/GeoLite2-City.mmdb'),
         'asn_db' => env('GEOLITE_ASN_DB') ?: storage_path('app/GeoLite2-ASN.mmdb'),
     ],

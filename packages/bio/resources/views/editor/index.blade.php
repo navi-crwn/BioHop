@@ -266,7 +266,6 @@
                                             <input id="bfindex-2" type="text" :value="editingBlock?.url ?? ''"
                                                 @input="if (editingBlock) { editingBlock.url = $event.target.value; validatePlatformUrl(editingBlock) }"
                                                 @blur="processUrl(editingBlock, true); validatePlatformUrl(editingBlock)"
-                                                @input.debounce.1000ms="fetchUrlTitle(editingBlock)"
                                                 class="form-input" 
                                                 :class="{ 'border-red-500 focus:ring-red-500 focus:border-red-500': editingBlock?._urlError }"
                                                 :placeholder="editingBlock?.brand ? brands[editingBlock?.brand]?.placeholder : 'ex. https://longurl.com'"

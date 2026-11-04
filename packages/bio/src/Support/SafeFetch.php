@@ -37,7 +37,7 @@ class SafeFetch
                 continue;
             }
             if (! $response->ok() || strlen($response->body()) > $maxBytes) {
-                throw new \RuntimeException('Not readable');
+                throw new \RuntimeException('Not readable', $response->status());
             }
 
             return ['body' => $response->body(), 'type' => strtolower(strtok((string) $response->header('Content-Type'), ';') ?: ''), 'url' => $url];

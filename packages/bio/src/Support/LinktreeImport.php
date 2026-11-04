@@ -2,7 +2,6 @@
 
 namespace Hop\Bio\Support;
 
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -44,19 +43,13 @@ class LinktreeImport
     public static function fetch(string $username): array
     {
         try {
-            $response = Http::timeout(12)->withHeaders(['User-Agent' => 'Mozilla/5.0 (compatible; BioHop import)', 'Accept-Language' => 'en'])
-                ->get('https://'.self::HOST.'/'.rawurlencode($username));
+            // SafeFetch: private addresses refused (again on every redirect), connection pinned to the checked addresses
+            $response = SafeFetch::get('https://'.self::HOST.'/'.rawurlencode($username), 2_000_000, 12, 'text/html,application/xhtml+xml');
         } catch (\Throwable $e) {
-            throw new \RuntimeException(__('Linktree did not answer. Try again in a moment.'));
-        }
-        if ($response->status() === 404) {
-            throw new \RuntimeException(__('There is no Linktree page with that name.'));
-        }
-        if (! $response->ok()) {
-            throw new \RuntimeException(__('Linktree did not answer. Try again in a moment.'));
+            throw new \RuntimeException($e->getCode() === 404 ? __('There is no Linktree page with that name.') : __('Linktree did not answer. Try again in a moment.'));
         }
 
-        return self::parse($response->body(), $username);
+        return self::parse($response['body'], $username);
     }
 
     /** @return array<string, mixed> */
@@ -66,19 +59,20 @@ class LinktreeImport
             throw new \RuntimeException(__('That page could not be read. Linktree may have changed its layout, or the page is private.'));
         }
         $data = json_decode(html_entity_decode($m[1], ENT_QUOTES | ENT_HTML5), true);
-        $props = $data['props']['pageProps'] ?? [];
-        $account = $props['account'] ?? [];
+        // Linktree's page data is not ours: anything that is not the expected shape is treated as empty, never as a crash.
+        $props = is_array($data['props']['pageProps'] ?? null) ? $data['props']['pageProps'] : [];
+        $account = is_array($props['account'] ?? null) ? $props['account'] : [];
         if (($props['hasPagePassword'] ?? false) || ($props['pageLockType'] ?? null)) {
             throw new \RuntimeException(__('That Linktree page is locked, so nothing can be read from it.'));
         }
         $links = [];
-        foreach ($props['links'] ?? [] as $link) {
+        foreach (self::items($props['links'] ?? null) as $link) {
             if (! is_array($link) || ! empty($link['parent'])) {
                 continue;
             }
-            $type = strtoupper((string) ($link['type'] ?? 'CLASSIC'));
+            $type = strtoupper(self::scalar($link['type'] ?? 'CLASSIC'));
             $children = [];
-            foreach ($link['children'] ?? [] as $child) {
+            foreach (self::items($link['children'] ?? null) as $child) {
                 if (is_array($child) && self::address($child['url'] ?? null)) {
                     $children[] = ['title' => self::text($child['title'] ?? ''), 'url' => self::address($child['url']), 'thumbnail' => self::picture($child['thumbnail'] ?? null)];
                 }
@@ -92,8 +86,8 @@ class LinktreeImport
         }
         $socials = [];
         $brands = config('brands.platforms', []);
-        foreach ($props['socialLinks'] ?? [] as $social) {
-            $type = strtolower((string) ($social['type'] ?? ''));
+        foreach (self::items($props['socialLinks'] ?? null) as $social) {
+            $type = strtolower(self::scalar($social['type'] ?? ''));
             $platform = self::SOCIALS[$type] ?? str_replace('_', '-', $type);
             $url = self::address($social['url'] ?? null, true);
             if ($url && isset($brands[$platform])) {
@@ -102,7 +96,7 @@ class LinktreeImport
                 $links[] = ['type' => 'link', 'title' => ucfirst($type), 'url' => $url, 'thumbnail' => null, 'children' => []];
             }
         }
-        $username = (string) ($props['username'] ?? $account['username'] ?? $fallbackUsername);
+        $username = self::scalar($props['username'] ?? $account['username'] ?? $fallbackUsername);
         $title = self::text($props['pageTitle'] ?? $account['pageTitle'] ?? '') ?: ltrim($username, '@');
         $theme = $props['theme'] ?? null;
 
@@ -124,29 +118,40 @@ class LinktreeImport
             return null;
         }
         try {
-            $response = Http::timeout(12)->withHeaders(['User-Agent' => 'Mozilla/5.0 (compatible; BioHop import)'])->get($url);
+            $response = SafeFetch::get($url, self::MAX_PICTURE_BYTES, 12, 'image/*');
         } catch (\Throwable) {
             return null;
         }
-        $type = strtolower(strtok((string) $response->header('Content-Type'), ';'));
-        $ext = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif'][$type] ?? null;
-        if (! $response->ok() || ! $ext || strlen($response->body()) > self::MAX_PICTURE_BYTES || strlen($response->body()) === 0) {
+        $ext = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif'][$response['type']] ?? null;
+        if (! $ext || $response['body'] === '') {
             return null;
         }
         $path = 'avatars/'.Str::lower(Str::random(24)).'.'.$ext;
-        Storage::disk('public')->put($path, $response->body());
+        Storage::disk('public')->put($path, $response['body']);
 
         return $path;
     }
 
+    /** A scalar as a string; arrays and objects (a changed Linktree layout) become ''. */
+    private static function scalar(mixed $value): string
+    {
+        return is_scalar($value) ? (string) $value : '';
+    }
+
+    /** The entries of a list that really is a list, at most 200 (the import must not outgrow the block limit). */
+    private static function items(mixed $value): array
+    {
+        return is_array($value) ? array_slice($value, 0, 200) : [];
+    }
+
     private static function text(mixed $value): string
     {
-        return trim(preg_replace('/\s+/u', ' ', strip_tags((string) $value)) ?? '');
+        return trim(preg_replace('/\s+/u', ' ', strip_tags(self::scalar($value))) ?? '');
     }
 
     private static function address(mixed $url, bool $allowContact = false): ?string
     {
-        $url = trim((string) $url);
+        $url = trim(self::scalar($url));
         $schemes = $allowContact ? '(?:https?://|mailto:|tel:|sms:)' : 'https?://';
         if ($url === '' || ! preg_match('#^'.$schemes.'#i', $url) || strlen($url) > 500) {
             return null;
@@ -157,7 +162,7 @@ class LinktreeImport
 
     private static function picture(mixed $url): ?string
     {
-        $url = trim((string) $url);
+        $url = trim(self::scalar($url));
         $host = strtolower((string) parse_url($url, PHP_URL_HOST));
         if (! str_starts_with($url, 'https://') || $host === '') {
             return null;

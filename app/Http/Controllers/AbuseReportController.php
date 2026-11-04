@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AbuseReport;
 use App\Services\TurnstileService;
+use Hop\Safety\EncryptedNoteLink;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -14,7 +15,7 @@ class AbuseReportController extends Controller
 
     public function create(Request $request): View
     {
-        $slug = (string) $request->query('slug', '');
+        $slug = is_string($request->query('slug')) ? $request->query('slug') : '';
         $slug = preg_match('/^[A-Za-z0-9_-]{1,120}$/', $slug) ? $slug : '';
 
         return view('report-abuse', [
@@ -25,6 +26,14 @@ class AbuseReportController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        // A reporter may paste the full address of an encrypted note. Its key is in the #fragment and nobody who
+        // reads reports needs it, so it is cut before the text is validated, stored or flashed back into the session.
+        $notes = new EncryptedNoteLink;
+        foreach (['url', 'reason'] as $field) {
+            if (is_string($request->input($field))) {
+                $request->merge([$field => $notes->scrub($request->input($field))]);
+            }
+        }
         if (! $this->turnstile->verify($request->input('cf-turnstile-response'), $request->ip())) {
             return back()
                 ->withErrors(['turnstile' => 'Security verification failed, please try again.'])

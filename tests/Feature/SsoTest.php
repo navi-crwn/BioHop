@@ -56,7 +56,7 @@ test('a suspended member is signed out on the next request', function () {
     $user = User::factory()->create();
     $this->actingAs($user)->get('/bio')->assertOk();
     $user->forceFill(['status' => User::STATUS_SUSPENDED])->save();
-    $this->actingAs($user->fresh())->get('/bio')->assertForbidden();
+    $this->actingAs($user->fresh())->get('/bio')->assertRedirect(rtrim(config('hop.hub_url'), '/').'/suspended');
 });
 
 test('there is no local registration or password login', function () {
