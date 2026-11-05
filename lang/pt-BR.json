@@ -608,5 +608,19 @@
     "Looking for something specific?": "Procurando algo específico?",
     "Search bio pages...": "Buscar páginas de bio...",
     "Search": "Buscar",
-    "Powered by BioHop": "Feito com BioHop"
+    "Powered by BioHop": "Feito com BioHop",
+    "Choose from PixelHop": "Escolher do PixelHop",
+    "No pictures in PixelHop yet. Upload one there, or upload a file here.": "Ainda não há imagens no PixelHop. Envie uma lá, ou envie um arquivo aqui.",
+    "No PDFs in PixelHop yet.": "Ainda não há PDFs no PixelHop.",
+    "PixelHop is not reachable right now. You can still upload a picture.": "O PixelHop não está acessível agora. Você ainda pode enviar uma imagem.",
+    "Picture added from PixelHop": "Imagem adicionada do PixelHop",
+    "In PixelHop you block showing your pictures on other websites, so they will not appear on this page. Change that in PixelHop settings first.": "No PixelHop você bloqueia a exibição das suas imagens em outros sites, por isso elas não aparecerão nesta página. Mude isso antes nas configurações do PixelHop.",
+    "The carousel already has 10 pictures.": "O carrossel já tem 10 imagens.",
+    "Sign in to PixelHop once with your HOP ID; your pictures will then show up here.": "Entre uma vez no PixelHop com seu HOP ID; suas imagens aparecerão aqui.",
+    "Close": "Fechar",
+    "Your pictures stay in PixelHop; this page only keeps their address. Private, password-protected and expiring pictures are not offered.": "Suas imagens ficam no PixelHop; esta página guarda apenas o endereço delas. Imagens privadas, com senha ou com validade não são oferecidas.",
+    "Loading…": "Carregando…",
+    "Load more": "Carregar mais",
+    "Done": "Concluído",
+    "Cancel": "Cancelar"
 }

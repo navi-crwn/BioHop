@@ -42,6 +42,9 @@
         <env name="HOP_HUB_URL" value="https://hub.test"/>
         <env name="HOP_SSO_SECRET" value="test-secret-test-secret-test-secret-1234"/>
         <env name="LINKHOP_URL" value="https://link.test"/>
+        <env name="BIO_PIXELHOP_PICKER" value="false"/>
+        <env name="BIO_PIXELHOP_URL" value=""/>
+        <env name="BIO_PIXELHOP_HOSTS" value="pixel.hel.ink,p.hel.ink"/>
         <env name="SPAMHAUS_DBL" value="false"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>

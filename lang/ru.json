@@ -608,5 +608,19 @@
     "Looking for something specific?": "Ищете что-то конкретное?",
     "Search bio pages...": "Поиск bio-страниц...",
     "Search": "Поиск",
-    "Powered by BioHop": "На платформе BioHop"
+    "Powered by BioHop": "На платформе BioHop",
+    "Choose from PixelHop": "Выбрать из PixelHop",
+    "No pictures in PixelHop yet. Upload one there, or upload a file here.": "В PixelHop пока нет изображений. Загрузите его там или загрузите файл здесь.",
+    "No PDFs in PixelHop yet.": "В PixelHop пока нет PDF.",
+    "PixelHop is not reachable right now. You can still upload a picture.": "PixelHop сейчас недоступен. Вы всё ещё можете загрузить изображение.",
+    "Picture added from PixelHop": "Изображение добавлено из PixelHop",
+    "In PixelHop you block showing your pictures on other websites, so they will not appear on this page. Change that in PixelHop settings first.": "В PixelHop вы запретили показ своих изображений на других сайтах, поэтому на этой странице они не появятся. Сначала измените это в настройках PixelHop.",
+    "The carousel already has 10 pictures.": "В карусели уже 10 изображений.",
+    "Sign in to PixelHop once with your HOP ID; your pictures will then show up here.": "Войдите один раз в PixelHop со своим HOP ID — после этого ваши изображения появятся здесь.",
+    "Close": "Закрыть",
+    "Your pictures stay in PixelHop; this page only keeps their address. Private, password-protected and expiring pictures are not offered.": "Ваши изображения остаются в PixelHop; эта страница хранит только их адрес. Приватные, защищённые паролем и истекающие изображения не предлагаются.",
+    "Loading…": "Загрузка…",
+    "Load more": "Загрузить ещё",
+    "Done": "Готово",
+    "Cancel": "Отмена"
 }

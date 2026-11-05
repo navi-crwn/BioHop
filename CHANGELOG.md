@@ -4,6 +4,9 @@ All notable changes to BioHop are listed here. The format follows [Keep a Change
 
 ## [Unreleased]
 
+### Added
+- "Choose from PixelHop" in the editor (`BIO_PIXELHOP_PICKER`, off by default): a picture the member already uploaded to PixelHop can be picked for the image block, the carousel, the avatar, the cover and the favicon. The editor asks `GET /bio/media/pixelhop`, which calls PixelHop's `GET /api/v1/me/media` server to server, signed like every HOP App Protocol call with the SSO secret this app already has and `X-HOP-Actor` set to the member's HOP ID; the browser never talks to PixelHop. The file stays in PixelHop and the page keeps its public address, which is accepted only from the hosts in `BIO_PIXELHOP_HOSTS` (default `pixel.hel.ink,p.hel.ink`). Private, password-protected, expiring and content-warning pictures are never offered. When PixelHop is unreachable the dialog says so and the upload stays; a member without a PixelHop account is told to sign in there once. Needs PixelHop with `PIXELHOP_MEDIA_CLIENTS=biohop` (navi-crwn/PixelHop#35). No new storage or image processing here; NoteHop notes stay out.
+
 ### Fixed
 - Encrypted NoteHop keys are refused in everything a page or block saves, not only in address fields: the floating button (also when only its address or only its type is saved), HTML and text blocks (anchors and entities included), social links on every platform, block settings, FAQ, map, countdown, contact card, footer note, warning reason, status, custom CSS and QR settings. The bio and other free text also refuse a key written with an entity, a tab or a label in front. A refused form no longer flashes the key into the session. A note link without a key and ordinary HTML are accepted as before.
 - A floating button already set to custom now gets the full address check when only its address is saved, and switching to custom checks the address already stored.

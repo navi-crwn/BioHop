@@ -608,5 +608,19 @@
     "Looking for something specific?": "Looking for something specific?",
     "Search bio pages...": "Search bio pages...",
     "Search": "Search",
-    "Powered by BioHop": "Powered by BioHop"
+    "Powered by BioHop": "Powered by BioHop",
+    "Choose from PixelHop": "Choose from PixelHop",
+    "No pictures in PixelHop yet. Upload one there, or upload a file here.": "No pictures in PixelHop yet. Upload one there, or upload a file here.",
+    "No PDFs in PixelHop yet.": "No PDFs in PixelHop yet.",
+    "PixelHop is not reachable right now. You can still upload a picture.": "PixelHop is not reachable right now. You can still upload a picture.",
+    "Picture added from PixelHop": "Picture added from PixelHop",
+    "In PixelHop you block showing your pictures on other websites, so they will not appear on this page. Change that in PixelHop settings first.": "In PixelHop you block showing your pictures on other websites, so they will not appear on this page. Change that in PixelHop settings first.",
+    "The carousel already has 10 pictures.": "The carousel already has 10 pictures.",
+    "Sign in to PixelHop once with your HOP ID; your pictures will then show up here.": "Sign in to PixelHop once with your HOP ID; your pictures will then show up here.",
+    "Close": "Close",
+    "Your pictures stay in PixelHop; this page only keeps their address. Private, password-protected and expiring pictures are not offered.": "Your pictures stay in PixelHop; this page only keeps their address. Private, password-protected and expiring pictures are not offered.",
+    "Loading…": "Loading…",
+    "Load more": "Load more",
+    "Done": "Done",
+    "Cancel": "Cancel"
 }

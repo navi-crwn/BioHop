@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Bio\OfficialPage;
 use Closure;
 use Hop\Bio\Support\BioEmbed;
+use Hop\Bio\Support\PixelHopMedia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Vite;
 use Symfony\Component\HttpFoundation\Response;
@@ -37,7 +38,7 @@ class ContentSecurityPolicyMiddleware
             "default-src 'self'",
             "script-src 'self'{$assets} https://hel.ink 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net https://analytics.tiktok.com",
             "style-src 'self'{$assets} https://hel.ink 'unsafe-inline'",
-            "img-src 'self' data: https: blob: https://www.google-analytics.com https://www.facebook.com",
+            "img-src 'self' data: https: blob: https://www.google-analytics.com https://www.facebook.com".self::plainHttpPixelHop(),
             "media-src 'self'{$assets}",
             "font-src 'self'{$assets} https://hel.ink data:",
             "connect-src 'self'{$assets} data: blob: https://challenges.cloudflare.com https://www.google-analytics.com https://analytics.google.com https://www.facebook.com https://analytics.tiktok.com",
@@ -81,6 +82,18 @@ class ContentSecurityPolicyMiddleware
     }
 
     /** scheme://host[:port] of an address (a source in a CSP list takes no path here). */
+
+    /**
+     * Pictures picked from a PixelHop on the developer's own machine (an "http://host:port" entry in
+     * BIO_PIXELHOP_HOSTS) are plain http, which "https:" does not cover. Production lists bare hosts: nothing is added.
+     */
+    private static function plainHttpPixelHop(): string
+    {
+        $origins = array_filter(PixelHopMedia::hosts(), fn (string $h) => str_starts_with($h, 'http://'));
+
+        return $origins === [] ? '' : ' '.implode(' ', $origins);
+    }
+
     private static function originOf(string $url): string
     {
         $parts = parse_url($url);
