@@ -1903,6 +1903,20 @@ END:VCARD`;
             <span>{{ $bioPage->fab_label ?: ($bioPage->fab_type === 'whatsapp' ? __('Chat') : __('Open')) }}</span>
         </a>
     @endif
+    @if(! empty($viewBeacon))
+    <script nonce="{{ Vite::cspNonce() }}">
+        // This copy of the page may come from a cache near the visitor, so the visit is counted by one small request
+        // instead of by the page itself (same rules as a click: once a day per visitor).
+        (function () {
+            var u = {{ Js::from('/b/'.$bioPage->slug.'/view') }};
+            function send() {
+                if (navigator.sendBeacon) { navigator.sendBeacon(u); }
+                else if (window.fetch) { fetch(u, { method: 'POST', keepalive: true, credentials: 'same-origin' }).catch(function () {}); }
+            }
+            if (document.prerendering) { document.addEventListener('prerenderingchange', send, { once: true }); } else { send(); }
+        })();
+    </script>
+    @endif
     @include('bio::partials.trackers')
 </body>
 </html>

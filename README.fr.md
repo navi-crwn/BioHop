@@ -168,6 +168,19 @@ Le planificateur exécute ces commandes :
 
 Autres commandes, lancées à la main : `bio:official-page` remplit la page officielle de HEL.ink à partir du manifeste partagé, `bio:optimize-images` convertit les anciens téléversements en WebP, et `bio:unwrap-family-links` rétablit les liens vers des sites HOP qui avaient été enveloppés dans des liens courts. Les trois se contentent de faire un rapport, sauf si vous ajoutez `--apply`.
 
+### Derrière Cloudflare : les pages publiques depuis la bordure
+
+Une page bio publique est construite à chaque requête. Servie depuis un seul endroit, c'est rapide près du serveur et lent loin de lui : mesurée depuis l'origine, la page répond en 36 à 175 ms, alors qu'un visiteur en Asie, dont la requête passe par une bordure Cloudflare jusqu'en Allemagne, attend de 0,3 à 3,2 s. BioHop laisse donc une bordure garder une page simple pendant une minute. Une page publiée sans mot de passe, avertissement de contenu, formulaire ni sondage, demandée par un visiteur sans session, sans connexion et sans langue choisie, est envoyée avec `Cache-Control: public, s-maxage=60, max-age=0, stale-while-revalidate=300` et `Vary: Cookie`, et sans cookie. Toute autre réponse reste `no-cache, private`. La visite est comptée par une petite requête depuis la page (`POST /b/{slug}/view`, sans framework JavaScript) avec les mêmes règles « une fois par visiteur » qu'un clic, si bien qu'une page venue de la bordure compte quand même ; une page que l'origine sert elle-même compte la visite comme avant.
+
+Cloudflare ne met le HTML en cache que si une Cache Rule le demande. Créez-en une pour la zone :
+
+- **Si** : le hostname est `hel.ink` ou `bio.hel.ink` (vos `PUBLIC_URL` et `APP_URL`), le chemin URI commence par `/b/`, et l'en-tête Cookie ne contient ni `biohop_session` (votre `SESSION_COOKIE`), ni `hop_lang`, ni `remember_web`.
+- **Alors** : cache eligibility *Eligible for cache* ; Edge TTL *Use cache-control header if present, bypass cache if not* ; Browser TTL *Respect origin*.
+
+Une règle qui contourne le cache dès qu'un cookie quelconque est présent est aussi correcte, seulement les visiteurs qui ont cliqué sur un bloc (`hel_vid`) ou choisi une langue contournent alors le cache eux aussi. Cloudflare n'honore pas `Vary: Cookie` ; c'est la condition sur le cookie dans la règle qui tient la page d'une personne connectée ou une page traduite à l'écart de la copie partagée.
+
+Pour qu'un changement apparaisse tout de suite et non au bout de la minute, renseignez `CLOUDFLARE_ZONE_ID` et `CLOUDFLARE_API_TOKEN` (un jeton d'API avec *Zone → Cache Purge* pour cette zone). Enregistrer une page, la publier ou la retirer, ajouter, modifier ou supprimer un bloc met alors en file un purge par URL de la page, de sa boutique et de ses entrées QR, NFC et application installée sur les deux hôtes (`PurgeEdgeCache`, un job par enregistrement ; il faut le worker de file). Un purge en échec est journalisé, rien de plus ; l'enregistrement n'attend jamais Cloudflare. Les deux clés vides, seuls les en-têtes sont envoyés et un changement apparaît à la fin de la minute.
+
 ### Base de données
 
 BioHop est conçu pour partager une base de données avec le hub et LinkHop. Chaque application tient son propre journal de migrations, ici `migrations_bio`. Exécutez d'abord les migrations du hub, pour que les tables qui appartiennent aux autres applications (dont `users`, `roles`, `api_tokens`, `ip_bans`, `domain_blacklist` et `abuse_flags`) existent. Quand vous installez avec `--hub new` sur SQLite, BioHop utilise le fichier de base de données du hub. Cette conception est documentée, mais la compatibilité entre les versions des applications n'est pas vérifiée ici ; testez donc avant de pointer BioHop vers une base à laquelle vous tenez.

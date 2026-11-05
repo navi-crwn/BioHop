@@ -9,6 +9,7 @@ use Hop\Bio\Http\Controllers\BioWebhookController;
 use Hop\Bio\Http\Controllers\PublicBioController;
 use Hop\Bio\Http\Middleware\UploadStorageGate;
 use Hop\Bio\Support\UploadStorage;
+use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Support\Facades\Route;
 
 // Public pages: hel.ink/b/{slug}. The host app's ip.ban middleware keeps banned visitors out.
@@ -22,6 +23,13 @@ Route::middleware(['web', 'ip.ban'])->prefix('b')->name('bio.public.')->group(fu
     Route::post('/form/{bioLink:public_id}', [PublicBioController::class, 'submitForm'])->middleware('throttle:20,10')->name('form');
     Route::post('/click/{bioLink:public_id}/pin', [PublicBioController::class, 'pin'])->middleware('throttle:bio-click')->name('click.pin');
 });
+
+// The view beacon of a page served from the edge cache. Outside the `web` group on purpose: no session, no CSRF token
+// (the page it comes from may be a cached copy) and no cookie on its answer, so the visitor stays anonymous and cacheable.
+// EncryptCookies alone, so the click de-duplication cookie can be read.
+Route::post('/b/{slug}/view', [PublicBioController::class, 'view'])
+    ->middleware([EncryptCookies::class, 'ip.ban', 'throttle:bio-click'])
+    ->name('bio.public.view');
 
 // The editor, for signed-in members. `hop.auth` (hop/auth) sends guests through the hub (HOP ID);
 // `verified` needs a verified email, which the hub handles (route verification.notice points there).

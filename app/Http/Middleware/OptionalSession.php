@@ -29,6 +29,8 @@ class OptionalSession extends StartSession
         $session = new Store((string) config('session.cookie'), new ArraySessionHandler(1));
         $session->start();
         $request->setLaravelSession($session);
+        // Tells the page controller that nothing about this visit is remembered, so the response may be cached at the edge.
+        $request->attributes->set('bio.stateless', true);
         $response = $next($request);
         // the CSRF middleware adds its token cookie to every response; a reader with no forms does not need it
         $response->headers->removeCookie('XSRF-TOKEN', config('session.path', '/'), config('session.domain'));
@@ -41,12 +43,24 @@ class OptionalSession extends StartSession
     {
         $name = $request->route()?->getName();
         if (! $request->isMethod('GET') || ! in_array($name, ['bio.public.show', 'bio.public.shop', 'bio.public.manifest', 'bio.public.qr'], true)
-            || $request->hasCookie((string) config('session.cookie'))) {
+            || $request->hasCookie((string) config('session.cookie')) || self::hasRememberCookie($request)) {
             return false;
         }
         $slug = strtolower((string) $request->route('slug'));
 
         return $slug !== '' && self::pageNeedsNoSession($slug);
+    }
+
+    /** A "remember me" cookie signs its owner back in without a session cookie, so that visit is not anonymous. */
+    private static function hasRememberCookie(Request $request): bool
+    {
+        foreach (array_keys($request->cookies->all()) as $name) {
+            if (str_starts_with((string) $name, 'remember_')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /** No password, no content warning, and no form or poll block (both need a CSRF token): a plain page. */

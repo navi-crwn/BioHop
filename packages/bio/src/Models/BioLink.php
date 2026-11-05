@@ -3,11 +3,13 @@
 namespace Hop\Bio\Models;
 
 use Carbon\CarbonInterface;
+use Hop\Bio\Support\EdgeCache;
 use Hop\Bio\Support\FeedReader;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
@@ -71,6 +73,13 @@ class BioLink extends Model
     {
         // Unguessable id for public click URLs (never expose the sequential id).
         static::creating(fn (BioLink $link) => $link->public_id ??= Str::random(12));
+        // A block that appears, changes (not its click counter) or goes purges its page at the edge.
+        static::saved(function (BioLink $link) {
+            if ($link->wasRecentlyCreated || Arr::except($link->getChanges(), ['click_count']) !== []) {
+                EdgeCache::purgePageId((int) $link->bio_page_id);
+            }
+        });
+        static::deleted(fn (BioLink $link) => EdgeCache::purgePageId((int) $link->bio_page_id));
     }
 
     public function bioPage(): BelongsTo

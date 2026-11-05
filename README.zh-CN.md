@@ -168,6 +168,19 @@ BioHop 需要一个队列 worker 和计划任务调度器。在生产环境中�
 
 其他命令需要手动运行：`bio:official-page` 根据共享清单填充官方 HEL.ink 页面，`bio:optimize-images` 把旧上传转换为 WebP，`bio:unwrap-family-links` 还原被包成短链接的 HOP 站点链接。这三个命令除非加上 `--apply`，否则只做报告。
 
+### 在 Cloudflare 之后：从边缘节点提供公开页面
+
+公开的 bio 页面在每次请求时生成。只从一个地方提供时，离服务器近就快，远就慢：从源站测得页面在 36 到 175 毫秒内响应，而亚洲访客的请求要经过 Cloudflare 边缘节点到德国，需等待 0.3 到 3.2 秒。因此 BioHop 允许边缘节点把普通页面保留一分钟。没有密码、内容警告、表单和投票的已发布页面，由没有会话、未登录、也未选择语言的访客打开时，带着 `Cache-Control: public, s-maxage=60, max-age=0, stale-while-revalidate=300` 和 `Vary: Cookie` 发送，且不设置 cookie。其他所有响应仍为 `no-cache, private`。访问由页面发出的一个小请求（`POST /b/{slug}/view`，不用 JavaScript 框架）按与点击相同的“每位访客一次”规则计数，因此来自边缘节点的页面也会被统计；由源站自己提供的页面则照旧当场计数。
+
+只有在 Cache Rule 要求时 Cloudflare 才缓存 HTML。请为该区域创建一条：
+
+- **条件**：主机名为 `hel.ink` 或 `bio.hel.ink`（你的 `PUBLIC_URL` 和 `APP_URL`），URI 路径以 `/b/` 开头，且 Cookie 头不包含 `biohop_session`（你的 `SESSION_COOKIE`）、`hop_lang` 或 `remember_web`。
+- **动作**：cache eligibility 选 *Eligible for cache*；Edge TTL 选 *Use cache-control header if present, bypass cache if not*；Browser TTL 选 *Respect origin*。
+
+只要有任何 cookie 就绕过缓存的规则同样正确，只是这样一来点过区块（`hel_vid`）或选过语言的访客也会绕过缓存。Cloudflare 不遵守 `Vary: Cookie`，所以把已登录者的页面或翻译后的页面与共享副本分开的，正是规则中的 cookie 条件。
+
+要让改动立刻可见而不是一分钟后，请设置 `CLOUDFLARE_ZONE_ID` 和 `CLOUDFLARE_API_TOKEN`（对该区域拥有 *Zone → Cache Purge* 权限的 API 令牌）。保存页面、发布或取消发布、添加、修改或删除区块时，会把两个主机上该页面、其商店以及 QR、NFC 和已安装应用入口的按 URL 清除任务放入队列（`PurgeEdgeCache`，每次保存一个任务；需要队列 worker）。清除失败只会写入日志，保存从不等待 Cloudflare。两个键都为空时只发送响应头，改动在一分钟结束后可见。
+
 ### 数据库
 
 BioHop 的设计是与枢纽和 LinkHop 共用一个数据库。每个应用有自己的迁移记录，这里是 `migrations_bio`。请先运行枢纽的迁移，让其他应用拥有的表（包括 `users`、`roles`、`api_tokens`、`ip_bans`、`domain_blacklist` 和 `abuse_flags`）存在。在 SQLite 上用 `--hub new` 安装时，BioHop 使用枢纽的数据库文件。这一设计有文档记录，但各应用版本之间的兼容性在这里没有检查，所以在把 BioHop 指向你在意的数据库之前，请先测试。

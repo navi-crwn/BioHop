@@ -3,11 +3,13 @@
 namespace Hop\Bio\Models;
 
 use App\Models\User;
+use Hop\Bio\Support\EdgeCache;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Support\Arr;
 
 class BioPage extends Model
 {
@@ -17,6 +19,24 @@ class BioPage extends Model
     public const BIO_MAX = 155;
 
     use HasFactory;
+
+    /** The address before the current save, so a renamed page leaves the edge cache under both. */
+    public ?string $slugBeforeSave = null;
+
+    protected static function booted(): void
+    {
+        static::updating(fn (BioPage $page) => $page->slugBeforeSave = $page->getOriginal('slug'));
+        // Any change but the view counter (saved content, publish state, a touch after a block change) purges the copies
+        // at the edge; a draft that stays a draft has none.
+        static::saved(function (BioPage $page) {
+            if ($page->wasRecentlyCreated || Arr::except($page->getChanges(), ['view_count']) === []
+                || (! $page->is_published && ! $page->wasChanged('is_published'))) {
+                return;
+            }
+            EdgeCache::purgeSlugs($page->slug, $page->slugBeforeSave ?? $page->slug);
+        });
+        static::deleted(fn (BioPage $page) => EdgeCache::purgeSlugs($page->slug));
+    }
 
     /** The four ways the top of a page can look; classic is the small centred avatar. */
     public const HEADER_LAYOUTS = ['classic', 'hero', 'banner', 'cutout'];

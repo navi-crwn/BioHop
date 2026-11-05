@@ -3,6 +3,7 @@
 namespace Hop\Bio\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\SetLocale;
 use App\Services\TurnstileService;
 use App\Support\QrPng;
 use App\Support\VisitorHash;
@@ -30,6 +31,14 @@ class PublicBioController extends Controller
     private const VISITOR_COOKIE = 'hel_vid';
 
     private const COUNTED_CLICKS_PER_IP = 20;
+
+    /** Counted views per address per page per day; like clicks, clearing cookies cannot inflate the number past this. */
+    private const COUNTED_VIEWS_PER_IP = 20;
+
+    /** How long an edge (Cloudflare) may serve a public page, and for how long after that a stale copy while it refreshes. */
+    public const EDGE_TTL = 60;
+
+    public const EDGE_STALE = 300;
 
     /** hel.ink/b/shop/{slug}: the same page with the Shop open; a page that sells nothing goes to its links. */
     public function shop(Request $request, string $slug)
@@ -100,12 +109,53 @@ class PublicBioController extends Controller
                 return view('bio::age-verify', compact('bioPage'));
             }
         }
+        $embed = (bool) $request->attributes->get('hop.embed');
+        // An anonymous visit to a plain page may be served from the edge for a minute. The visit is then counted by a
+        // beacon from the page (view()), because the server does not see the visitors a cache answers.
+        if ($this->edgeCacheable($request, $bioPage)) {
+            $response = response()->view('bio::show', ['bioPage' => $bioPage, 'viewBeacon' => ! $embed]);
+            $response->setCache(['public' => true, 'max_age' => 0, 's_maxage' => self::EDGE_TTL, 'stale_while_revalidate' => self::EDGE_STALE]);
+            $response->headers->set('Vary', 'Cookie');
+
+            return $response;
+        }
         // A copy of the page inside another page (the BioHop home) is not a visit.
-        if (! $request->attributes->get('hop.embed')) {
-            $this->trackView($bioPage);
+        if (! $embed) {
+            $this->countView($bioPage, $request);
         }
 
         return view('bio::show', compact('bioPage'));
+    }
+
+    /**
+     * POST /b/{slug}/view: a visit to a page that came from the edge cache. Counted once per visitor like a click
+     * (de-duplication cookie, else address and browser, at most 20 per address a day). Answers 204 and sets no cookie.
+     */
+    public function view(Request $request, string $slug)
+    {
+        $bioPage = BioPage::where('slug', $slug)->first();
+        abort_unless($this->isVisible($bioPage), 404);
+        // A gated page is never cached, so its visits are counted when the page itself is served; a beacon for it is noise.
+        if (! $bioPage->password_enabled && ! $bioPage->requiresContentWarning()) {
+            $this->countView($bioPage, $request);
+        }
+
+        return response()->noContent()->header('Cache-Control', 'no-store, private');
+    }
+
+    /**
+     * Whether this response is the same for every anonymous visitor, so an edge may keep it: nothing remembered about
+     * the visit (OptionalSession), nobody signed in, the default language, and a page without a password, content
+     * warning, form or poll (those render a visitor's own token, errors or vote).
+     */
+    protected function edgeCacheable(Request $request, BioPage $bioPage): bool
+    {
+        return $request->isMethod('GET')
+            && (bool) $request->attributes->get('bio.stateless')
+            && $request->user() === null
+            && ! $request->query->has('lang') && ! $request->hasCookie(SetLocale::COOKIE)
+            && ! $bioPage->password_enabled && ! $bioPage->requiresContentWarning()
+            && $bioPage->links->whereIn('type', ['form', 'poll'])->isEmpty();
     }
 
     public function click(BioLink $bioLink)
@@ -381,17 +431,24 @@ class PublicBioController extends Controller
         return response()->view('bio::link-pin', ['bioLink' => $bioLink, 'unlocked' => true]);
     }
 
-    protected function trackView(BioPage $bioPage): void
+    /**
+     * Counts a visit once a day per visitor, with the click rules: the de-duplication cookie when the visitor has one,
+     * else address and browser; crawlers and pages in privacy mode are not counted; at most 20 counted visits per address.
+     */
+    protected function countView(BioPage $bioPage, Request $request): void
     {
-        if ($bioPage->privacy_mode) {
+        if ($bioPage->privacy_mode || app(UserAgentParser::class)->parse($request->userAgent())['bot']) {
             return;
         }
-        $ipAddress = request()->ip();
-        $cacheKey = "bio_view:{$bioPage->id}:".VisitorHash::make($ipAddress);
-        if (! Cache::has($cacheKey)) {
-            $bioPage->incrementViews();
-            Cache::put($cacheKey, true, now()->addDay());
+        $ipAddress = $request->ip();
+        $visitorId = $this->visitorId();
+        $dedupKey = 'bio_view:'.$bioPage->id.':'.($visitorId ?? sha1(VisitorHash::make($ipAddress).'|'.$request->userAgent()));
+        $ipKey = "bio_view_ip:{$bioPage->id}:".VisitorHash::make($ipAddress);
+        if (RateLimiter::tooManyAttempts($ipKey, self::COUNTED_VIEWS_PER_IP) || ! Cache::add($dedupKey, true, now()->addDay())) {
+            return;
         }
+        RateLimiter::hit($ipKey, 86400);
+        $bioPage->incrementViews();
     }
 
     /**
