@@ -19,6 +19,19 @@
         'publicBase' => public_url('b'),
         'pages' => auth()->user()->bioPages()->orderBy('title')->get(['slug', 'title'])->map(fn ($p) => ['slug' => $p->slug, 'title' => $p->title])->values(),
         'familyHosts' => \App\Bio\FamilyUrls::hosts(),
+        // "Choose from PixelHop" (BIO_PIXELHOP_PICKER): the proxy route and the words the dialog needs; null = uploads only.
+        'pixelhop' => \Hop\Bio\Support\PixelHopMedia::enabled() ? [
+            'url' => route('bio.media.pixelhop'),
+            'hosts' => \Hop\Bio\Support\PixelHopMedia::hosts(),
+            'strings' => [
+                'empty' => __('No pictures in PixelHop yet. Upload one there, or upload a file here.'),
+                'emptyPdf' => __('No PDFs in PixelHop yet.'),
+                'failed' => __('PixelHop is not reachable right now. You can still upload a picture.'),
+                'picked' => __('Picture added from PixelHop'),
+                'hotlinks' => __('In PixelHop you block showing your pictures on other websites, so they will not appear on this page. Change that in PixelHop settings first.'),
+                'full' => __('The carousel already has 10 pictures.'),
+            ],
+        ] : null,
     ];
 @endphp
 <script type="application/json" id="bio-editor-config">{!! json_encode($editorConfig, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
@@ -526,6 +539,9 @@
                                             <input id="bfindex-5" type="url" :value="editingBlock?.content ?? ''" @input="editingBlock && (editingBlock.content = editingBlock.thumbnail_url = $event.target.value)" class="form-input flex-1" placeholder="https://example.com/image.jpg">
                                         </div>
                                         <div class="text-center editor-text-muted text-sm">or</div>
+                                        @if (\Hop\Bio\Support\PixelHopMedia::enabled())
+                                        <button type="button" class="btn btn-secondary text-sm py-2 w-full" x-show="pixelhopAvailable()" @click="openPixelHop('image-block')">{{ __('Choose from PixelHop') }}</button>
+                                        @endif
                                         <label class="block p-4 border-2 border-dashed border-(--editor-border) hover:border-indigo-500 rounded-lg cursor-pointer transition-colors text-center">
                                             <input aria-label="Upload image" type="file" class="hidden" accept="image/*" @change="uploadBlockImage($event, editingBlock)">
                                             <svg class="w-8 h-8 mx-auto editor-text-muted mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -713,6 +729,9 @@
                             <div class="space-y-3">
                                 <input aria-label="Upload pictures" type="file" accept="image/*" multiple class="hidden" x-ref="carouselInput" @change="uploadCarouselImage($event)">
                                 <button type="button" class="btn btn-secondary text-sm py-2 w-full" @click="$refs.carouselInput.click()" x-show="(editingBlock.settings?.images || []).length < 10">+ Add pictures (up to 10)</button>
+                                @if (\Hop\Bio\Support\PixelHopMedia::enabled())
+                                <button type="button" class="btn btn-secondary text-sm py-2 w-full" x-show="pixelhopAvailable() && (editingBlock.settings?.images || []).length < 10" @click="openPixelHop('carousel')">{{ __('Choose from PixelHop') }}</button>
+                                @endif
                                 <div class="space-y-2">
                                     <template x-for="(img, i) in (editingBlock.settings?.images || [])" :key="i">
                                         <div class="flex items-center gap-2">
@@ -1290,6 +1309,12 @@
                             class="flex-1 py-2 rounded-lg text-sm font-medium transition-colors">
                         From URL
                     </button>
+                    @if (\Hop\Bio\Support\PixelHopMedia::enabled())
+                    <button x-show="pixelhopAvailable()" @click="openPixelHop('image-new')"
+                            class="flex-1 py-2 rounded-lg text-sm font-medium transition-colors btn-secondary">
+                        {{ __('Choose from PixelHop') }}
+                    </button>
+                    @endif
                 </div>
                 <div x-show="imageUploadTab === 'upload'">
                     <div class="border-2 border-dashed border-(--editor-border) rounded-xl p-8 text-center">
@@ -1320,6 +1345,44 @@
         </div>
     </div>
     </template>
+    @if (\Hop\Bio\Support\PixelHopMedia::enabled())
+    {{-- "Choose from PixelHop": the member's own PixelHop pictures, listed through /bio/media/pixelhop. The file stays in PixelHop. --}}
+    <template x-if="pixelhop.open">
+    <div class="modal-overlay" @click.self="closePixelHop()">
+        <div class="modal-content pixelhop-picker" x-modal="pixelhop.open" data-modal-close="closePixelHop()" style="max-width: 640px;" @click.stop>
+            <div class="modal-header">
+                <h3 class="modal-title">{{ __('Choose from PixelHop') }}</h3>
+                <button type="button" @click="closePixelHop()" class="modal-close" aria-label="{{ __('Close') }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="text-xs editor-text-muted mb-3">{{ __('Your pictures stay in PixelHop; this page only keeps their address. Private, password-protected and expiring pictures are not offered.') }}</p>
+                <p x-show="pixelhop.hotlinksBlocked" x-cloak role="alert" class="mb-3 rounded-lg bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-300" x-text="pixelhopStrings().hotlinks"></p>
+                <p x-show="pixelhop.error" x-cloak role="alert" class="mb-3 rounded-lg bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300" x-text="pixelhop.error"></p>
+                <p x-show="!pixelhop.loading && !pixelhop.error && pixelhop.loaded && pixelhop.items.length === 0" x-cloak class="text-sm editor-text-muted" x-text="pixelhop.type === 'pdf' ? pixelhopStrings().emptyPdf : pixelhopStrings().empty"></p>
+                <ul class="pixelhop-grid" x-show="pixelhop.items.length" role="list">
+                    <template x-for="item in pixelhop.items" :key="item.id">
+                        <li>
+                            <button type="button" class="pixelhop-item" :class="{ 'is-picked': pixelhop.picked.includes(item.id) }" @click="pickPixelHop(item)"
+                                    :aria-label="(item.title || item.id) + (item.album ? ' · ' + item.album : '')" :aria-pressed="pixelhop.picked.includes(item.id) ? 'true' : 'false'">
+                                <img :src="item.thumb_url" alt="" loading="lazy" decoding="async" :width="item.width || null" :height="item.height || null">
+                                <span class="pixelhop-item-title" x-text="item.title || item.id"></span>
+                                <span class="pixelhop-item-meta" x-text="[item.album, item.width && item.height ? item.width + '×' + item.height : ''].filter(Boolean).join(' · ')"></span>
+                            </button>
+                        </li>
+                    </template>
+                </ul>
+                <p x-show="pixelhop.loading" x-cloak class="text-sm editor-text-muted mt-3" role="status">{{ __('Loading…') }}</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" x-show="pixelhop.next && !pixelhop.loading" x-cloak @click="loadPixelHop(true)" class="btn btn-secondary">{{ __('Load more') }}</button>
+                <button type="button" @click="closePixelHop()" class="btn btn-secondary" x-text="pixelhop.picked.length ? @js(__('Done')) : @js(__('Cancel'))"></button>
+            </div>
+        </div>
+    </div>
+    </template>
+    @endif
 </div>
 @endsection
 @push('scripts')

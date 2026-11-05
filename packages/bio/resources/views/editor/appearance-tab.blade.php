@@ -29,6 +29,9 @@
                     <input aria-label="Upload cover picture" type="file" accept="image/*" class="hidden" x-ref="coverInput" @change="uploadCoverImage($event)">
                     <div class="flex items-center gap-2">
                         <button type="button" @click="$refs.coverInput.click()" class="btn btn-secondary text-sm py-2 flex-1">Upload cover</button>
+                        @if (\Hop\Bio\Support\PixelHopMedia::enabled())
+                        <button type="button" x-show="pixelhopAvailable()" @click="openPixelHop('cover')" class="btn btn-secondary text-sm py-2 flex-1">{{ __('Choose from PixelHop') }}</button>
+                        @endif
                         <button type="button" x-show="bioPage.cover_image" @click="bioPage.cover_image = ''" class="btn btn-secondary text-sm py-2">Remove</button>
                     </div>
                     <template x-if="bioPage.cover_image">

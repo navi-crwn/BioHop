@@ -104,6 +104,8 @@ window.bioEditorV2 = function() {
         imageBlockUrl: '',
         imageBlockAlt: '',
         imageBlockLink: '',
+        // "Choose from PixelHop" (CONFIG.pixelhop is null while the picker is off): target says where a pick goes.
+        pixelhop: { open: false, target: null, type: 'image', items: [], next: '', total: 0, loading: false, loaded: false, error: '', hotlinksBlocked: false, picked: [], unavailable: false },
         textEditorBlock: null,
         iconPickerBlock: null,
         editingTextBlock: null,
@@ -296,7 +298,7 @@ window.bioEditorV2 = function() {
         isComposing() {
             return !!(this.editingBlock || this.showTextEditor || this.showImageUploader || this.showSocialEditor
                 || this.showIconPicker || this.showAddBlockModal || this.showLinkLibraryModal || this.showSocialPicker
-                || this.showDiscardModal || this.saving);
+                || this.showDiscardModal || this.pixelhop.open || this.saving);
         },
         scheduleAutosave() {
             clearTimeout(this._autoTimeout);
@@ -1989,6 +1991,106 @@ window.bioEditorV2 = function() {
             } finally {
                 this.saving = false;
             }
+        },
+        // ---- "Choose from PixelHop": pictures the member already uploaded there; the page keeps the address ----
+        pixelhopAvailable() {
+            return !!CONFIG.pixelhop && !this.pixelhop.unavailable;
+        },
+        pixelhopStrings() {
+            return (CONFIG.pixelhop && CONFIG.pixelhop.strings) || {};
+        },
+        openPixelHop(target) {
+            if (!this.pixelhopAvailable()) return;
+            Object.assign(this.pixelhop, { open: true, target, type: 'image', items: [], next: '', total: 0, loaded: false, error: '', hotlinksBlocked: false, picked: [] });
+            this.loadPixelHop();
+        },
+        closePixelHop() {
+            this.pixelhop.open = false;
+            this.pixelhop.target = null;
+        },
+        async loadPixelHop(more = false) {
+            if (this.pixelhop.loading) return;
+            this.pixelhop.loading = true;
+            this.pixelhop.error = '';
+            const params = new URLSearchParams({ type: this.pixelhop.type, limit: '40' });
+            if (more && this.pixelhop.next) params.set('cursor', this.pixelhop.next);
+            try {
+                const res = await fetch(CONFIG.pixelhop.url + '?' + params.toString(), { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    // 404 no_account: the member has no PixelHop account yet (message from the server). Anything
+                    // else: PixelHop is not reachable; the buttons go away for this editing session, uploads stay.
+                    this.pixelhop.error = data.message || this.pixelhopStrings().failed;
+                    if (res.status !== 404) this.pixelhop.unavailable = true;
+                    return;
+                }
+                this.pixelhop.items = more ? this.pixelhop.items.concat(data.items || []) : (data.items || []);
+                this.pixelhop.next = data.next || '';
+                this.pixelhop.total = data.total || this.pixelhop.items.length;
+                this.pixelhop.hotlinksBlocked = !!data.hotlinks_blocked;
+                this.pixelhop.loaded = true;
+            } catch (e) {
+                this.pixelhop.error = this.pixelhopStrings().failed;
+                this.pixelhop.unavailable = true;
+            } finally {
+                this.pixelhop.loading = false;
+            }
+        },
+        // Only an address on one of the allowed PixelHop origins is ever written into the page (the server checks again):
+        // https on a listed host, or plain http where the list says "http://host[:port]" (a developer's own PixelHop).
+        pixelhopUrlOk(url) {
+            try {
+                const u = new URL(url);
+                const hosts = CONFIG.pixelhop.hosts || [];
+                const origin = u.protocol === 'https:' ? (u.port ? null : u.hostname.toLowerCase()) : (u.protocol === 'http:' ? 'http://' + u.host.toLowerCase() : null);
+                return origin !== null && hosts.includes(origin) && /^\/i\/[A-Za-z0-9][A-Za-z0-9._-]*\.[a-z0-9]{1,5}$/.test(u.pathname);
+            } catch (e) {
+                return false;
+            }
+        },
+        pickPixelHop(item) {
+            if (!item || !this.pixelhopUrlOk(item.url)) return;
+            const url = item.url;
+            const alt = item.alt || item.title || '';
+            switch (this.pixelhop.target) {
+                case 'avatar':
+                    this.bioPage.avatar_url = url;
+                    break;
+                case 'cover':
+                    this.bioPage.cover_image = url;
+                    break;
+                case 'favicon':
+                    this.bioPage.favicon = url;
+                    break;
+                case 'image-block':
+                    if (!this.editingBlock) return;
+                    this.editingBlock.content = this.editingBlock.thumbnail_url = url;
+                    if (!this.editingBlock.title && alt) this.editingBlock.title = alt;
+                    this.markBlockDirty(this.editingBlock.id);
+                    break;
+                case 'image-new':
+                    this.blocks.push({ id: Date.now(), type: 'image', title: alt, url: '', content: url, thumbnail_url: url, is_active: true, order: this.blocks.length });
+                    this.showImageUploader = false;
+                    this.imageBlockUrl = '';
+                    this.imageBlockAlt = '';
+                    break;
+                case 'carousel': {
+                    if (!this.editingBlock) return;
+                    const images = this.editingBlock.settings?.images || [];
+                    if (images.length >= 10) { this.pixelhop.error = this.pixelhopStrings().full; return; }
+                    if (images.some(img => img.url === url)) return;
+                    this.setProductSetting('images', [...images, { url, caption: alt.slice(0, 100) }]);
+                    this.pixelhop.picked.push(item.id);
+                    this.showNotification(this.pixelhopStrings().picked, 'success');
+                    if (images.length + 1 >= 10) this.closePixelHop();
+                    return; // the carousel takes several pictures: the dialog stays open
+                }
+                default:
+                    return;
+            }
+            this.pixelhop.picked.push(item.id);
+            this.showNotification(this.pixelhopStrings().picked, 'success');
+            this.closePixelHop();
         },
         saveImageBlock() {
             if (this.imageBlockUrl) {

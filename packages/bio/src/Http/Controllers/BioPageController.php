@@ -18,6 +18,7 @@ use Hop\Bio\Support\BioUploads;
 use Hop\Bio\Support\ImageOptimizer;
 use Hop\Bio\Support\LinktreeImport;
 use Hop\Bio\Support\NoteKeys;
+use Hop\Bio\Support\PixelHopMedia;
 use Hop\Bio\Support\SvgSanitizer;
 use Hop\Bio\Support\Webhooks;
 use Hop\Safety\UrlGuard;
@@ -449,9 +450,11 @@ class BioPageController extends Controller
                 $errors[$field] = $reason;
             }
         }
+        // A picture picked from PixelHop is on a host the operator allowed (bio.pixelhop_hosts): not an outside address either.
         foreach (['background_image', 'cover_image', 'og_image', 'favicon'] as $field) {
             if (! empty($data[$field]) && ! str_starts_with($data[$field], '/')
                 && ! preg_match('#^bio-images/[A-Za-z0-9._-]+$#', $data[$field])
+                && ! (PixelHopMedia::enabled() && PixelHopMedia::isFileUrl($data[$field]))
                 && ($reason = $safety->rejectionReason($data[$field]))) {
                 $errors[$field] = $reason;
             }
@@ -522,6 +525,9 @@ class BioPageController extends Controller
         if ($request->has('slug')) {
             $request->merge(['slug' => strtolower($request->slug)]);
         }
+        // An uploaded file, an https picture address, or one of the member's own PixelHop pictures (the media picker).
+        $image = ['nullable', 'string', 'max:500', fn ($attribute, $value, $fail) => preg_match(CssValue::IMAGE, (string) $value)
+            || (PixelHopMedia::enabled() && PixelHopMedia::isFileUrl($value)) ? null : $fail('validation.regex')->translate()];
         $validated = $request->validate([
             'slug' => ['sometimes', ...$this->slugRules($bioPage)],
             'title' => 'sometimes|required|string|max:'.BioPage::TITLE_MAX,
@@ -529,12 +535,12 @@ class BioPageController extends Controller
             'theme' => CssValue::keyword(50),
             'layout' => CssValue::keyword(50),
             'header_layout' => 'nullable|in:'.implode(',', BioPage::HEADER_LAYOUTS),
-            'cover_image' => ['nullable', 'string', 'max:500', 'regex:'.CssValue::IMAGE],
+            'cover_image' => $image,
             'background_type' => 'nullable|in:color,gradient,image,solid',
             'background_value' => ['nullable', 'string', 'max:500', fn ($attribute, $value, $fail) => CssValue::isBackground($value) ? null : $fail('Use a colour, a gradient or an uploaded image.')],
             'background_color' => CssValue::color(20),
             'background_gradient' => ['nullable', 'string', 'max:255', 'regex:'.CssValue::GRADIENT],
-            'background_image' => ['nullable', 'string', 'max:500', 'regex:'.CssValue::IMAGE],
+            'background_image' => $image,
             'text_color' => CssValue::color(50),
             'title_color' => CssValue::color(50),
             'bio_color' => CssValue::color(50),
@@ -580,8 +586,8 @@ class BioPageController extends Controller
             'fab_type' => 'nullable|in:'.implode(',', BioPage::FAB_TYPES),
             'fab_label' => 'nullable|string|max:30',
             'fab_url' => 'nullable|string|max:500',
-            'og_image' => ['nullable', 'string', 'max:500', 'regex:'.CssValue::IMAGE],
-            'favicon' => ['nullable', 'string', 'max:500', 'regex:'.CssValue::IMAGE],
+            'og_image' => $image,
+            'favicon' => $image,
             'gtm_id' => ['nullable', 'regex:/^GTM-[A-Z0-9]{4,12}$/'],
             'fallback_url' => ['nullable', 'string', 'max:500', 'regex:#^https?://#i'],
             'footer_note' => 'nullable|string|max:200',
@@ -606,8 +612,10 @@ class BioPageController extends Controller
         if (! empty($validated['is_published']) && ! $bioPage->is_published && AbuseFlag::locks('bio_page', $bioPage->id)) {
             throw ValidationException::withMessages(['is_published' => 'This page was disabled by moderation. Contact support to appeal.']);
         }
-        // The avatar path is set by uploads only; clients may clear it but not point it elsewhere.
-        if (array_key_exists('avatar_url', $validated) && $validated['avatar_url'] !== null && $validated['avatar_url'] !== $bioPage->avatar_url) {
+        // The avatar path is set by uploads only; clients may clear it but not point it elsewhere, except at one of
+        // the member's own pictures in PixelHop (the media picker): an https address on an allowed PixelHop host.
+        if (array_key_exists('avatar_url', $validated) && $validated['avatar_url'] !== null && $validated['avatar_url'] !== $bioPage->avatar_url
+            && ! (PixelHopMedia::enabled() && PixelHopMedia::isFileUrl($validated['avatar_url']))) {
             unset($validated['avatar_url']);
         }
         $oldFiles = [$bioPage->avatar_url, $bioPage->background_image, $bioPage->cover_image, $bioPage->og_image, $bioPage->favicon, $bioPage->qr_settings['image'] ?? null, $bioPage->qr_settings['logo_url'] ?? null];

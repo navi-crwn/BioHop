@@ -608,5 +608,19 @@
     "Looking for something specific?": "お探しのものがありますか？",
     "Search bio pages...": "バイオページを検索…",
     "Search": "検索",
-    "Powered by BioHop": "BioHop 提供"
+    "Powered by BioHop": "BioHop 提供",
+    "Choose from PixelHop": "PixelHop から選ぶ",
+    "No pictures in PixelHop yet. Upload one there, or upload a file here.": "PixelHop にまだ画像がありません。そちらでアップロードするか、ここでファイルをアップロードしてください。",
+    "No PDFs in PixelHop yet.": "PixelHop にまだ PDF がありません。",
+    "PixelHop is not reachable right now. You can still upload a picture.": "現在 PixelHop に接続できません。画像のアップロードは引き続き利用できます。",
+    "Picture added from PixelHop": "PixelHop から画像を追加しました",
+    "In PixelHop you block showing your pictures on other websites, so they will not appear on this page. Change that in PixelHop settings first.": "PixelHop で他のサイトでの画像表示をブロックしているため、このページには表示されません。まず PixelHop の設定を変更してください。",
+    "The carousel already has 10 pictures.": "カルーセルにはすでに 10 枚の画像があります。",
+    "Sign in to PixelHop once with your HOP ID; your pictures will then show up here.": "HOP ID で一度 PixelHop にサインインすると、ここに画像が表示されます。",
+    "Close": "閉じる",
+    "Your pictures stay in PixelHop; this page only keeps their address. Private, password-protected and expiring pictures are not offered.": "画像は PixelHop に残り、このページはそのアドレスだけを保持します。非公開、パスワード付き、期限付きの画像は表示されません。",
+    "Loading…": "読み込み中…",
+    "Load more": "さらに読み込む",
+    "Done": "完了",
+    "Cancel": "キャンセル"
 }

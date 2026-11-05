@@ -608,5 +608,19 @@
     "Looking for something specific?": "Mencari sesuatu yang spesifik?",
     "Search bio pages...": "Cari halaman bio...",
     "Search": "Cari",
-    "Powered by BioHop": "Didukung oleh BioHop"
+    "Powered by BioHop": "Didukung oleh BioHop",
+    "Choose from PixelHop": "Pilih dari PixelHop",
+    "No pictures in PixelHop yet. Upload one there, or upload a file here.": "Belum ada gambar di PixelHop. Unggah di sana, atau unggah berkas di sini.",
+    "No PDFs in PixelHop yet.": "Belum ada PDF di PixelHop.",
+    "PixelHop is not reachable right now. You can still upload a picture.": "PixelHop tidak dapat dihubungi saat ini. Kamu tetap bisa mengunggah gambar.",
+    "Picture added from PixelHop": "Gambar ditambahkan dari PixelHop",
+    "In PixelHop you block showing your pictures on other websites, so they will not appear on this page. Change that in PixelHop settings first.": "Di PixelHop kamu memblokir penampilan gambarmu di situs lain, jadi gambar itu tidak akan muncul di halaman ini. Ubah dulu di pengaturan PixelHop.",
+    "The carousel already has 10 pictures.": "Karusel sudah berisi 10 gambar.",
+    "Sign in to PixelHop once with your HOP ID; your pictures will then show up here.": "Masuk sekali ke PixelHop dengan HOP ID-mu; setelah itu gambarmu akan muncul di sini.",
+    "Close": "Tutup",
+    "Your pictures stay in PixelHop; this page only keeps their address. Private, password-protected and expiring pictures are not offered.": "Gambarmu tetap di PixelHop; halaman ini hanya menyimpan alamatnya. Gambar privat, berkata sandi, dan yang kedaluwarsa tidak ditawarkan.",
+    "Loading…": "Memuat…",
+    "Load more": "Muat lebih banyak",
+    "Done": "Selesai",
+    "Cancel": "Batal"
 }

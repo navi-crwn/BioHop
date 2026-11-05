@@ -608,5 +608,19 @@
     "Looking for something specific?": "在找什么特定的内容吗？",
     "Search bio pages...": "搜索简介页面...",
     "Search": "搜索",
-    "Powered by BioHop": "由 BioHop 提供支持"
+    "Powered by BioHop": "由 BioHop 提供支持",
+    "Choose from PixelHop": "从 PixelHop 选择",
+    "No pictures in PixelHop yet. Upload one there, or upload a file here.": "PixelHop 里还没有图片。先在那里上传一张，或在这里上传文件。",
+    "No PDFs in PixelHop yet.": "PixelHop 里还没有 PDF。",
+    "PixelHop is not reachable right now. You can still upload a picture.": "PixelHop 暂时无法访问。你仍然可以上传图片。",
+    "Picture added from PixelHop": "已从 PixelHop 添加图片",
+    "In PixelHop you block showing your pictures on other websites, so they will not appear on this page. Change that in PixelHop settings first.": "你在 PixelHop 中禁止了在其他网站显示图片，因此它们不会出现在此页面。请先在 PixelHop 设置中更改。",
+    "The carousel already has 10 pictures.": "轮播已有 10 张图片。",
+    "Sign in to PixelHop once with your HOP ID; your pictures will then show up here.": "先用你的 HOP ID 登录一次 PixelHop，之后你的图片就会显示在这里。",
+    "Close": "关闭",
+    "Your pictures stay in PixelHop; this page only keeps their address. Private, password-protected and expiring pictures are not offered.": "你的图片保留在 PixelHop 中，本页面只保存其地址。私密、带密码和会过期的图片不会列出。",
+    "Loading…": "加载中…",
+    "Load more": "加载更多",
+    "Done": "完成",
+    "Cancel": "取消"
 }
