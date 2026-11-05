@@ -17,6 +17,7 @@ use Hop\Bio\Support\BioRevisions;
 use Hop\Bio\Support\BioUploads;
 use Hop\Bio\Support\ImageOptimizer;
 use Hop\Bio\Support\LinktreeImport;
+use Hop\Bio\Support\NoteKeys;
 use Hop\Bio\Support\SvgSanitizer;
 use Hop\Bio\Support\Webhooks;
 use Hop\Safety\UrlGuard;
@@ -241,14 +242,14 @@ class BioPageController extends Controller
         $socials = [];
         foreach ($page['socials'] as $social) {
             $url = SocialUrlHelper::buildUrl($social['platform'], $social['value']);
-            if ($safety->scheme($url) === null || ! $safety->rejectionReason($url, '', UrlSafety::BIO_SCHEMES)) {
+            if (! NoteKeys::holds($social['value']) && ($safety->scheme($url) === null || ! $safety->rejectionReason($url, '', UrlSafety::BIO_SCHEMES))) {
                 $socials[] = ['platform' => $social['platform'], 'value' => $social['value'], 'enabled' => true];
             }
         }
         $bioPage = auth()->user()->bioPages()->create([
             'slug' => $validated['slug'],
-            'title' => $page['title'],
-            'bio' => $page['bio'],
+            'title' => NoteKeys::scrub($page['title']),
+            'bio' => $page['bio'] === null ? null : NoteKeys::scrub($page['bio']),
             'theme' => 'default',
             'social_links' => $socials,
             'is_published' => false,
@@ -260,14 +261,14 @@ class BioPageController extends Controller
         $order = 0;
         $skipped = 0;
         $make = function (array $link, string $type) use ($bioPage, $safety, $brands, &$order, &$skipped) {
-            if ($link['url'] && $safety->rejectionReason($link['url'])) {
+            if ($link['url'] && (NoteKeys::holds($link['url']) || $safety->rejectionReason($link['url']))) {
                 $skipped++;
 
                 return;
             }
             $bioPage->links()->create([
                 'type' => $type,
-                'title' => Str::limit($link['title'] ?: ($link['url'] ? self::hostTitle($link['url']) : ''), 100, ''),
+                'title' => Str::limit(NoteKeys::scrub($link['title'] ?: ($link['url'] ? self::hostTitle($link['url']) : '')), 100, ''),
                 'url' => $link['url'],
                 'brand' => $link['url'] ? self::brandForUrl($link['url'], $brands) : null,
                 'thumbnail_url' => $link['thumbnail'] ?? null,
@@ -378,8 +379,10 @@ class BioPageController extends Controller
                 $data = substr($base64Image, strpos($base64Image, ',') + 1);
                 $extension = strtolower($type[1]);
                 $data = base64_decode($data, true);
+                $size = $data === false ? false : @getimagesizefromstring($data);
+                ImageOptimizer::assertFits($size, 'qr_settings.image');
                 // Only store real images up to 1 MB.
-                if (in_array($extension, ['jpg', 'jpeg', 'gif', 'png']) && $data !== false && strlen($data) <= 1048576 && @getimagesizefromstring($data)) {
+                if (in_array($extension, ['jpg', 'jpeg', 'gif', 'png']) && $data !== false && strlen($data) <= 1048576 && $size) {
                     $filename = 'qr-logos/'.uniqid().'.'.$extension;
                     Storage::disk('public')->put($filename, $data);
                     $settings['image'] = '/storage/'.$filename;
@@ -403,8 +406,9 @@ class BioPageController extends Controller
     /**
      * Reject abusive page text and unsafe social link values.
      */
-    private function assertSafeContent(array $data): void
+    private function assertSafeContent(array $data, ?BioPage $page = null): void
     {
+        NoteKeys::assertNone($data);
         $safety = app(UrlSafety::class);
         $errors = [];
         $text = implode(' ', array_filter([$data['slug'] ?? null, $data['title'] ?? null, $data['bio'] ?? null, $data['seo_title'] ?? null, $data['seo_description'] ?? null]));
@@ -424,7 +428,12 @@ class BioPageController extends Controller
             }
         }
         // An uploaded background is a path on our own disk (bio-images/…); only an outside address is checked.
-        if (! empty($data['fab_url']) && ($data['fab_type'] ?? null) === 'custom' && ($reason = $safety->rejectionReason($data['fab_url'], '', UrlSafety::BIO_SCHEMES))) {
+        // The editor saves only what changed, so the type or the address can be the one already on the page. An
+        // address without a scheme is not published (BioPage::fabHref), and a WhatsApp number stays usable when switching.
+        $fabType = array_key_exists('fab_type', $data) ? $data['fab_type'] : $page?->fab_type;
+        $fabUrl = array_key_exists('fab_url', $data) ? $data['fab_url'] : $page?->fab_url;
+        if (! empty($fabUrl) && $fabType === 'custom' && (isset($data['fab_type'], $data['fab_url']) || $safety->scheme($fabUrl) !== null)
+            && ($reason = $safety->rejectionReason($fabUrl, '', UrlSafety::BIO_SCHEMES))) {
             $errors['fab_url'] = $reason;
         }
         if (! empty($data['webhook_url'])) {
@@ -589,7 +598,7 @@ class BioPageController extends Controller
             'hover_effect' => CssValue::keyword(30),
             'background_animation' => CssValue::keyword(30),
         ]);
-        $this->assertSafeContent($validated);
+        $this->assertSafeContent($validated, $bioPage);
         // With custom CSS switched off, a page keeps what it has (it is not sent to visitors) but takes no new CSS.
         if (! empty($validated['custom_css']) && $validated['custom_css'] !== $bioPage->custom_css && ! BioLimits::allowCustomCss()) {
             throw ValidationException::withMessages(['custom_css' => __('Custom CSS is turned off on this site.')]);
@@ -823,6 +832,8 @@ class BioPageController extends Controller
                 'url' => '/storage/'.$path,
                 'image_url' => '/storage/'.$path,
             ]);
+        } catch (ValidationException $e) {
+            throw $e;
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -869,6 +880,8 @@ class BioPageController extends Controller
                 'full_url' => '/storage/'.$path,
                 'page_updated_at' => $bioPage->updated_at->toJSON(),
             ]);
+        } catch (ValidationException $e) {
+            throw $e;
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -921,7 +934,13 @@ class BioPageController extends Controller
         $request->validate([$field => 'required|image|max:'.($directory === 'avatars' ? 8192 : 4096)]);
 
         // the QR logo is read back by the QR generator as it is; everything else is shrunk (WebP, right size)
-        return $directory === 'qr-logos' ? $request->file($field)->store($directory, 'public') : ImageOptimizer::store($request->file($field), $directory, null, $field);
+        if ($directory === 'qr-logos') {
+            ImageOptimizer::assertFits(@getimagesize($request->file($field)->getRealPath()), $field);
+
+            return $request->file($field)->store($directory, 'public');
+        }
+
+        return ImageOptimizer::store($request->file($field), $directory, null, $field);
     }
 
     /**

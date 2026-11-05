@@ -11,6 +11,7 @@ use Hop\Bio\Models\BioLink;
 use Hop\Bio\Models\BioPage;
 use Hop\Bio\Support\BioRevisions;
 use Hop\Bio\Support\BioUploads;
+use Hop\Bio\Support\NoteKeys;
 use Hop\Bio\Support\ProductMeta;
 use Hop\Safety\SafeContent;
 use Illuminate\Http\Request;
@@ -26,6 +27,7 @@ class BioLinkController extends Controller
      */
     private function assertSafe(array $data): void
     {
+        NoteKeys::assertNone($data);
         $safety = app(UrlSafety::class);
         $text = implode(' ', array_filter([
             $data['title'] ?? null,

@@ -2,7 +2,7 @@
     use App\Helpers\SocialUrlHelper;
 @endphp
 <!DOCTYPE html>
-<html lang="en" @class(['lite' => request()->header('Save-Data') === 'on'])>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" @class(['lite' => request()->header('Save-Data') === 'on'])>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

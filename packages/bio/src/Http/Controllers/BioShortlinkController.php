@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Hop\Bio\Contracts\ShortlinkCreator;
 use Hop\Bio\Contracts\UrlSafety;
 use Hop\Bio\Exceptions\ShortlinkUnavailable;
+use Hop\Bio\Support\NoteKeys;
 use Illuminate\Http\Request;
 
 /**
@@ -36,6 +37,7 @@ class BioShortlinkController extends Controller
             'url' => ['required', 'string', 'max:2000'],
             'title' => ['nullable', 'string', 'max:255'],
         ]);
+        NoteKeys::assertNone($data);
         $url = self::normalizeUrl($data['url']);
         if ($reason = $this->safety->rejectionReason($url, (string) ($data['title'] ?? ''))) {
             return response()->json(['message' => $reason, 'errors' => ['url' => [$reason]]], 422);

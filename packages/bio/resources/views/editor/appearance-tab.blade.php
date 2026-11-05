@@ -4,7 +4,7 @@
         <template x-for="s in sections" :key="s[0]">
             <button type="button" role="tab" :id="'design-tab-' + s[0]" :aria-selected="String(current === s[0])" :aria-controls="'design-' + s[0]" :tabindex="current === s[0] ? 0 : -1" :class="{ 'is-active': current === s[0] }" @click="select(s[0])" x-text="s[1]"></button>
         </template>
-        <a :href="publicUrl" target="_blank" rel="noopener" class="be-design-visit">Preview as visitor ↗</a>
+        <a x-show="bioPage.is_published" :href="visitUrl()" target="_blank" rel="noopener" class="be-design-visit">Preview as visitor ↗</a>
     </nav>
     <section class="be-sec" id="design-header" role="tabpanel" :aria-labelledby="'design-tab-header'" x-show="current === 'header'" x-cloak>
         <div class="be-sec-head">

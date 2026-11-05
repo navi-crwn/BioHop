@@ -103,3 +103,64 @@ test('the backfill command shrinks old pictures, updates what points to them and
     Storage::disk('public')->assertExists($new);
     Storage::disk('public')->assertExists('bio-images/fav.png');
 });
+
+/** A small file that says it is a huge PNG: the header is all a size check reads. */
+function hugePng(int $w = 20000, int $h = 20000): UploadedFile
+{
+    $chunk = fn (string $type, string $data) => pack('N', strlen($data)).$type.$data.pack('N', crc32($type.$data));
+    $path = tempnam(sys_get_temp_dir(), 'hp').'.png';
+    file_put_contents($path, "\x89PNG\r\n\x1a\n".$chunk('IHDR', pack('NN', $w, $h)."\x08\x02\x00\x00\x00").$chunk('IDAT', gzcompress(str_repeat("\0", 64))).$chunk('IEND', ''));
+
+    return new UploadedFile($path, 'huge.png', 'image/png', null, true);
+}
+
+test('a picture with too many pixels gets a 422 on every upload, and nothing is stored', function (string $path, string $field) {
+    Storage::fake('public');
+    $user = User::factory()->create();
+    BioPage::create(['user_id' => $user->id, 'slug' => 'hugepx', 'title' => 'T']);
+    $this->actingAs($user)->postJson("/bio/hugepx/{$path}", [$field => hugePng()])
+        ->assertStatus(422)->assertJsonValidationErrors($field);
+    expect(Storage::disk('public')->allFiles())->toBe([]);
+})->with([
+    'avatar' => ['upload-avatar', 'avatar'],
+    'image' => ['upload-image', 'image'],
+    'thumbnail' => ['upload-thumbnail', 'thumbnail'],
+    'icon' => ['upload-icon', 'icon'],
+    'qr logo' => ['upload-qr-logo', 'logo'],
+]);
+
+test('a file over the size limit gets a 422 on every upload', function (string $path, string $field, int $kb) {
+    Storage::fake('public');
+    $user = User::factory()->create();
+    BioPage::create(['user_id' => $user->id, 'slug' => 'heavy', 'title' => 'T']);
+    $this->actingAs($user)->postJson("/bio/heavy/{$path}", [$field => UploadedFile::fake()->create('big.png', $kb, 'image/png')])
+        ->assertStatus(422)->assertJsonValidationErrors($field);
+})->with([
+    'avatar' => ['upload-avatar', 'avatar', 8193],
+    'image' => ['upload-image', 'image', 10241],
+    'qr logo' => ['upload-qr-logo', 'logo', 4097],
+]);
+
+test('a QR logo of a normal size is still stored as it was sent', function () {
+    Storage::fake('public');
+    $user = User::factory()->create();
+    $page = BioPage::create(['user_id' => $user->id, 'slug' => 'qrok', 'title' => 'T']);
+    $response = $this->actingAs($user)->postJson('/bio/qrok/upload-qr-logo', ['logo' => UploadedFile::fake()->image('logo.png', 200, 200)])->assertOk();
+    expect($response->json('logo_url'))->toStartWith('/storage/qr-logos/')
+        ->and($page->fresh()->qr_settings['logo_url'])->toBe($response->json('logo_url'));
+});
+
+test('a QR logo sent inside the settings has the same pixel limit', function () {
+    Storage::fake('public');
+    $user = User::factory()->create();
+    BioPage::create(['user_id' => $user->id, 'slug' => 'qrdata', 'title' => 'T']);
+    $data = 'data:image/png;base64,'.base64_encode(file_get_contents(hugePng()->getRealPath()));
+    $this->actingAs($user)->putJson('/bio/qrdata', ['qr_settings' => ['image' => $data]])->assertStatus(422)->assertJsonValidationErrors('qr_settings.image');
+    expect(Storage::disk('public')->allFiles())->toBe([]);
+    $small = imagecreatetruecolor(32, 32);
+    ob_start();
+    imagepng($small);
+    $png = 'data:image/png;base64,'.base64_encode((string) ob_get_clean());
+    $this->putJson('/bio/qrdata', ['qr_settings' => ['image' => $png]])->assertOk();
+    expect(Storage::disk('public')->allFiles())->toHaveCount(1);
+});

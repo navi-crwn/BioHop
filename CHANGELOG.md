@@ -4,6 +4,17 @@ All notable changes to BioHop are listed here. The format follows [Keep a Change
 
 ## [Unreleased]
 
+### Fixed
+- Encrypted NoteHop keys are refused in everything a page or block saves, not only in address fields: the floating button (also when only its address or only its type is saved), HTML and text blocks (anchors and entities included), social links on every platform, block settings, FAQ, map, countdown, contact card, footer note, warning reason, status, custom CSS and QR settings. The bio and other free text also refuse a key written with an entity, a tab or a label in front. A refused form no longer flashes the key into the session. A note link without a key and ordinary HTML are accepted as before.
+- A floating button already set to custom now gets the full address check when only its address is saved, and switching to custom checks the address already stored.
+- `bio:scrub-note-keys` covers every column the rule guards and the forms above, leaves rows without a key untouched (a JSON row was rewritten and counted before), and counts owner tokens in sessions. Run it again with `--apply` after this update.
+- The Linktree import stores a page's title, bio and block titles without a key, and leaves out a keyed social link or block.
+- Avatar and image uploads answer 422 instead of 500 to a picture that is too large. The QR logo, uploaded or sent inside the settings, has the same pixel limit as other pictures.
+- A draft no longer links to its public address or QR code, which answer 404: the page list shows the address as text, and the analytics and editor links appear once the page is published.
+- Public bio pages, the password page and the editor preview name the shown language in `<html lang>`.
+- `composer.json` pins `hop/ui` to the commit in the lock (`6b4210c`, same tree as before); the old pin was a commit outside its main history.
+- The brand link in the public header and the New bio button have an accessible name when their text is hidden on phones.
+
 ## [1.0.0] - 2026-11-04
 
 The first stable release. BioHop has been public since it was split out of LinkHop; 1.0.0 is the point where the feature set below is treated as the baseline that later releases build on. Everything under this heading is the full history to date.

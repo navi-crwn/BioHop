@@ -27,6 +27,14 @@ class ImageOptimizer
         return $w * $h * 6 + 16 * 1024 * 1024 < $limit - memory_get_usage(true);
     }
 
+    /** @param  array<int|string, mixed>|false  $size  What getimagesize() said; a file it cannot read is judged elsewhere. */
+    public static function assertFits(array|false $size, string $field): void
+    {
+        if ($size && ($size[0] * $size[1] > self::MAX_PIXELS || ! self::fitsInMemory($size[0], $size[1]))) {
+            throw ValidationException::withMessages([$field => 'This picture is too large to process. Resize it a little (under about 25 megapixels) and try again.']);
+        }
+    }
+
     public const ANIMATED_MAX_BYTES = 1_000_000;
 
     /** Longest edge per kind of picture, in pixels (a little over what a 2x phone screen shows). */
@@ -42,9 +50,7 @@ class ImageOptimizer
             return $file->store($directory, 'public');
         }
         [$w, $h, $type] = $info;
-        if ($w * $h > self::MAX_PIXELS || ! self::fitsInMemory($w, $h)) {
-            throw ValidationException::withMessages([$field => 'This picture is too large to process. Resize it a little (under about 25 megapixels) and try again.']);
-        }
+        self::assertFits($info, $field);
         if ($type === IMAGETYPE_GIF && self::isAnimatedGif($bytes)) {
             if (strlen($bytes) > self::ANIMATED_MAX_BYTES) {
                 throw ValidationException::withMessages([$field => 'This animated picture is too heavy (over 1 MB) for a page that has to load on a phone. Use a shorter animation, or a still picture.']);
