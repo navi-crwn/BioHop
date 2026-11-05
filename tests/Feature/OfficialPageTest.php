@@ -45,10 +45,14 @@ class OfficialPageTest extends TestCase
     {
         $page = $this->page('hel');
 
-        $this->get('/b/hel?embed=1')->assertOk();
+        // the embedded copy carries no view beacon and counts nothing itself
+        $embedded = $this->get('/b/hel?embed=1')->assertOk();
+        $this->assertStringNotContainsString('hel\\/view', $embedded->getContent());
         $this->assertSame(0, (int) $page->fresh()->view_count);
 
-        $this->get('/b/hel')->assertOk();
+        // the page itself carries the beacon, which counts the visit
+        $this->assertStringContainsString('hel\\/view', $this->get('/b/hel')->assertOk()->getContent());
+        $this->post('/b/hel/view')->assertNoContent();
         $this->assertSame(1, (int) $page->fresh()->view_count);
     }
 

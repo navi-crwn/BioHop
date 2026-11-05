@@ -57,4 +57,11 @@ return [
         'secret' => env('TURNSTILE_SECRET_KEY'),
     ],
 
+    // Purge-by-URL of public bio pages at Cloudflare's edge when a page changes (Hop\Bio\Support\EdgeCache).
+    // Both empty: pages still carry their cache headers and leave the edge when their TTL ends.
+    'cloudflare' => [
+        'zone_id' => env('CLOUDFLARE_ZONE_ID'),
+        'api_token' => env('CLOUDFLARE_API_TOKEN'),
+    ],
+
 ];

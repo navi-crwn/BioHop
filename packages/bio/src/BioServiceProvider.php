@@ -4,6 +4,7 @@ namespace Hop\Bio;
 
 use Hop\Bio\Models\BioPage;
 use Hop\Bio\Policies\BioPagePolicy;
+use Hop\Bio\Support\EdgeCache;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -21,6 +22,8 @@ class BioServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__.'/../config/bio.php', 'bio');
         $this->mergeConfigFrom(__DIR__.'/../config/bio-themes.php', 'bio-themes');
+        // One purge per request or job, however many pages and blocks it saves.
+        $this->app->scoped(EdgeCache::class);
     }
 
     public function boot(): void

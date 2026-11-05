@@ -38,11 +38,15 @@ test('privacy mode stops counting views and clicks', function () {
     [$user, $page] = settingsPage('ppriv', ['privacy_mode' => true]);
     $link = BioLink::create(['bio_page_id' => $page->id, 'type' => 'link', 'title' => 'Site', 'url' => 'https://example.com/', 'order' => 0, 'is_active' => true]);
     $this->get('/b/ppriv')->assertOk();
+    $this->post('/b/ppriv/view')->assertNoContent();
     $this->get(route('bio.public.click', $link->public_id))->assertRedirect('https://example.com/');
     expect($page->fresh()->view_count)->toBe(0)->and(BioClick::count())->toBe(0)->and($link->fresh()->click_count)->toBe(0);
     $page->update(['privacy_mode' => false]);
-    $this->get('/b/ppriv');
+    // a plain page is counted by its beacon (the page may come from a cache); a visitor with a session is counted by the page
+    $this->post('/b/ppriv/view')->assertNoContent();
     expect($page->fresh()->view_count)->toBe(1);
+    $this->withCookie(config('session.cookie'), 'abc')->withHeader('User-Agent', 'Mozilla/5.0 (X11; Linux x86_64) Firefox/130.0')->get('/b/ppriv')->assertOk();
+    expect($page->fresh()->view_count)->toBe(2);
 });
 
 test('a link with a PIN opens only after the right PIN, once per session', function () {

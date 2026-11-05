@@ -12,7 +12,9 @@ test('a public view counts without invalidating an open editor', function () {
     $base = $page->updated_at->toJSON();
 
     $this->travel(5)->seconds();
+    // an anonymous visit to a plain page may be cached, so the page itself does not count; its beacon does
     $this->get('/b/revision-view')->assertOk();
+    $this->post('/b/revision-view/view')->assertNoContent();
     expect($page->fresh()->view_count)->toBe(1);
     $this->actingAs($owner)->putJson('/bio/revision-view', ['title' => 'After', 'base_updated_at' => $base])->assertOk();
     expect($page->fresh()->title)->toBe('After');

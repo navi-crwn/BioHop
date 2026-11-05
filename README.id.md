@@ -168,6 +168,19 @@ Penjadwal menjalankan perintah-perintah ini:
 
 Perintah lain, dijalankan manual: `bio:official-page` mengisi halaman resmi HEL.ink dari manifes bersama, `bio:optimize-images` mengubah unggahan lama menjadi WebP, dan `bio:unwrap-family-links` mengembalikan tautan ke situs HOP yang sempat dibungkus menjadi tautan pendek. Ketiganya hanya melaporkan kecuali Anda menambahkan `--apply`.
 
+### Di balik Cloudflare: halaman publik dari edge
+
+Halaman bio publik dibangun pada setiap permintaan. Dilayani dari satu tempat, itu cepat di dekat server dan lambat jauh darinya: diukur dari origin halaman menjawab dalam 36 sampai 175 ms, sementara pengunjung di Asia, yang permintaannya lewat edge Cloudflare ke Jerman, menunggu 0,3 sampai 3,2 detik. Karena itu BioHop membiarkan edge menyimpan halaman biasa selama satu menit. Halaman terbit tanpa kata sandi, peringatan konten, formulir atau jajak pendapat, yang diminta pengunjung tanpa sesi, tanpa login dan tanpa bahasa pilihan, dikirim dengan `Cache-Control: public, s-maxage=60, max-age=0, stale-while-revalidate=300` dan `Vary: Cookie`, tanpa cookie. Respons lainnya tetap `no-cache, private`. Kunjungan dihitung lewat permintaan kecil dari halaman (`POST /b/{slug}/view`, tanpa kerangka kerja JavaScript) dengan aturan sekali-per-pengunjung yang sama seperti klik, sehingga halaman yang datang dari edge tetap terhitung; halaman yang dilayani origin sendiri menghitung kunjungan seperti sebelumnya.
+
+Cloudflare hanya menyimpan HTML bila sebuah Cache Rule memintanya. Buat satu untuk zona tersebut:
+
+- **Jika**: hostname adalah `hel.ink` atau `bio.hel.ink` (`PUBLIC_URL` dan `APP_URL` Anda), path URI diawali `/b/`, dan header Cookie tidak mengandung `biohop_session` (`SESSION_COOKIE` Anda), `hop_lang` atau `remember_web`.
+- **Maka**: cache eligibility *Eligible for cache*; Edge TTL *Use cache-control header if present, bypass cache if not*; Browser TTL *Respect origin*.
+
+Aturan yang melewati cache setiap kali ada cookie apa pun juga benar, hanya saja pengunjung yang pernah mengklik blok (`hel_vid`) atau memilih bahasa ikut melewati cache. Cloudflare tidak menghormati `Vary: Cookie`, jadi syarat cookie dalam aturan itulah yang memisahkan halaman orang yang login atau halaman terjemahan dari salinan bersama.
+
+Agar perubahan tampil seketika dan bukan setelah satu menit, isi `CLOUDFLARE_ZONE_ID` dan `CLOUDFLARE_API_TOKEN` (token API dengan *Zone → Cache Purge* untuk zona itu). Menyimpan halaman, menerbitkan atau menariknya, atau menambah, mengubah atau menghapus blok lalu mengantrekan purge per URL untuk halaman, tokonya dan pintu masuk QR, NFC dan aplikasi terpasang di kedua host (`PurgeEdgeCache`, satu job per simpan; butuh worker antrean). Purge yang gagal hanya dicatat di log; penyimpanan tidak pernah menunggu Cloudflare. Dengan kedua kunci kosong hanya header yang dikirim dan perubahan tampil setelah menitnya habis.
+
 ### Basis data
 
 BioHop dirancang untuk berbagi satu basis data dengan hub dan LinkHop. Setiap aplikasi menyimpan log migrasinya sendiri, di sini `migrations_bio`. Jalankan migrasi hub lebih dulu agar tabel milik aplikasi lain (antara lain `users`, `roles`, `api_tokens`, `ip_bans`, `domain_blacklist`, dan `abuse_flags`) sudah ada. Bila Anda memasang dengan `--hub new` di SQLite, BioHop memakai berkas basis data milik hub. Rancangan ini terdokumentasi, tetapi kompatibilitas antarrilis aplikasi tidak diperiksa di sini, jadi ujilah sebelum Anda mengarahkan BioHop ke basis data yang penting bagi Anda.

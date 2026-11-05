@@ -143,7 +143,7 @@ Open `.env` before you migrate. `.env.example` documents every key. Set at least
 | `BIO_ALLOW_CUSTOM_CSS` | Set to `false` to refuse custom CSS and stop sending existing CSS to visitors |
 | `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile for the abuse report form. In production a missing secret makes the form refuse submissions |
 
-Optional keys cover GeoIP (`GEOLITE_CITY_DB`, `GEOLITE_ASN_DB`, `GEOIP_WEB_PROVIDERS`, `IPINFO_API_KEY`, `ABSTRACTAPI_KEY`), link reputation lookups (`SAFE_BROWSING_KEY`, `URLHAUS_AUTH_KEY`, `SPAMHAUS_DBL`), upload headroom (`BIO_UPLOAD_MIN_FREE_MB`, `BIO_UPLOAD_MIN_FREE_PERCENT`) and the official page the home page shows (`HOP_OFFICIAL_BIO`, `HOP_OFFICIAL_VIDEO`, `HOP_OFFICIAL_MUSIC`, `HOP_OFFICIAL_CONTACT`). An operator can also change the shortest address, the pages per account, the blocks per page and the custom CSS switch at run time from Imperium.
+Optional keys cover GeoIP (`GEOLITE_CITY_DB`, `GEOLITE_ASN_DB`, `GEOIP_WEB_PROVIDERS`, `IPINFO_API_KEY`, `ABSTRACTAPI_KEY`), link reputation lookups (`SAFE_BROWSING_KEY`, `URLHAUS_AUTH_KEY`, `SPAMHAUS_DBL`), upload headroom (`BIO_UPLOAD_MIN_FREE_MB`, `BIO_UPLOAD_MIN_FREE_PERCENT`), the edge cache purge (`CLOUDFLARE_ZONE_ID`, `CLOUDFLARE_API_TOKEN`, see below) and the official page the home page shows (`HOP_OFFICIAL_BIO`, `HOP_OFFICIAL_VIDEO`, `HOP_OFFICIAL_MUSIC`, `HOP_OFFICIAL_CONTACT`). An operator can also change the shortest address, the pages per account, the blocks per page and the custom CSS switch at run time from Imperium.
 
 ```bash
 php artisan migrate
@@ -167,6 +167,19 @@ The scheduler runs these commands:
 | `bio:webhooks:retry` | every minute | Sends webhooks whose next try is due |
 
 Other commands, run by hand: `bio:official-page` fills the official HEL.ink page from the shared manifest, `bio:optimize-images` converts old uploads to WebP, and `bio:unwrap-family-links` restores links to HOP sites that were wrapped in short links. Each of the three only reports unless you pass `--apply`.
+
+### Behind Cloudflare: public pages from the edge
+
+A public bio page is built for every request. Served from one place, that is fast near the server and slow far from it: measured from the origin the page answers in 36 to 175 ms, while a visitor in Asia, whose request travels through a Cloudflare edge to Germany, waits 0.3 to 3.2 s. BioHop therefore lets an edge keep a plain page for a minute. A published page without a password, content warning, form or poll, asked for by a visitor with no session, no sign-in and no chosen language, is sent with `Cache-Control: public, s-maxage=60, max-age=0, stale-while-revalidate=300` and `Vary: Cookie`, and with no cookie. Every other response stays `no-cache, private`. The visit is counted by a small request from the page (`POST /b/{slug}/view`, no JavaScript framework) with the same once-per-visitor rules as a click, so a page that came from the edge still counts; a page the origin serves itself counts the visit as before.
+
+Cloudflare caches HTML only when a Cache Rule says so. Create one for the zone:
+
+- **If**: hostname is `hel.ink` or `bio.hel.ink` (your `PUBLIC_URL` and `APP_URL`), URI path starts with `/b/`, and the Cookie header does not contain `biohop_session` (your `SESSION_COOKIE`), `hop_lang` or `remember_web`.
+- **Then**: cache eligibility *Eligible for cache*; Edge TTL *Use cache-control header if present, bypass cache if not*; Browser TTL *Respect origin*.
+
+A rule that bypasses the cache whenever any cookie is present is also correct, only visitors who have clicked a block (`hel_vid`) or picked a language then skip the cache too. Cloudflare does not honour `Vary: Cookie`, so the cookie condition in the rule is what keeps a signed-in person's or a translated page apart from the shared copy.
+
+So that a change shows at once and not after the minute, set `CLOUDFLARE_ZONE_ID` and `CLOUDFLARE_API_TOKEN` (an API token with *Zone → Cache Purge* for that zone). Saving a page, publishing or unpublishing it, or adding, changing or removing a block then queues a purge by URL of the page, its shop and its QR, NFC and installed-app entries on both hosts (`PurgeEdgeCache`, one job per save; needs the queue worker). A failed purge is logged and nothing else; the save never waits for Cloudflare. With the two keys empty only the headers are sent and a change shows when the minute is over.
 
 ### Database
 

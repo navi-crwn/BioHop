@@ -168,6 +168,19 @@ BioHop にはキューワーカーとスケジューラーが必要です。本�
 
 その他のコマンドは手動で実行します。`bio:official-page` は共有マニフェストから公式 HEL.ink ページを埋め、`bio:optimize-images` は古いアップロードを WebP に変換し、`bio:unwrap-family-links` は短縮リンクで包まれていた HOP サイトへのリンクを元に戻します。この 3 つは `--apply` を付けない限り、報告するだけです。
 
+### Cloudflare の背後で: エッジから公開ページを配信
+
+公開バイオページはリクエストごとに生成されます。1 か所から配信すると、サーバーの近くでは速く、遠くでは遅くなります。オリジンで計測するとページは 36〜175 ms で応答しますが、アジアの訪問者のリクエストは Cloudflare のエッジを経てドイツまで届くため、0.3〜3.2 秒待つことになります。そこで BioHop は、シンプルなページをエッジに 1 分間保持させます。パスワード、コンテンツ警告、フォーム、投票のない公開済みページを、セッションもサインインも言語選択もない訪問者が開くと、`Cache-Control: public, s-maxage=60, max-age=0, stale-while-revalidate=300` と `Vary: Cookie` を付け、Cookie なしで送ります。それ以外の応答は `no-cache, private` のままです。訪問はページからの小さなリクエスト（`POST /b/{slug}/view`、JavaScript フレームワーク不使用）で、クリックと同じ「訪問者ごとに 1 回」のルールで数えるため、エッジから届いたページも集計されます。オリジン自身が配信したページは従来どおりその場で数えます。
+
+Cloudflare は Cache Rule で指示したときだけ HTML をキャッシュします。ゾーンに 1 つ作成してください:
+
+- **条件**: ホスト名が `hel.ink` または `bio.hel.ink`（あなたの `PUBLIC_URL` と `APP_URL`）、URI パスが `/b/` で始まり、Cookie ヘッダーに `biohop_session`（あなたの `SESSION_COOKIE`）、`hop_lang`、`remember_web` のいずれも含まれない。
+- **動作**: cache eligibility は *Eligible for cache*、Edge TTL は *Use cache-control header if present, bypass cache if not*、Browser TTL は *Respect origin*。
+
+Cookie が 1 つでもあればキャッシュを回避するルールでも正しく動きますが、その場合ブロックをクリックした訪問者（`hel_vid`）や言語を選んだ訪問者もキャッシュを使いません。Cloudflare は `Vary: Cookie` を尊重しないので、サインイン中の人のページや翻訳されたページを共有コピーから分けているのは、ルール内の Cookie 条件です。
+
+変更を 1 分後ではなく即時に反映させるには、`CLOUDFLARE_ZONE_ID` と `CLOUDFLARE_API_TOKEN`（そのゾーンの *Zone → Cache Purge* 権限を持つ API トークン）を設定します。ページの保存、公開・非公開の切り替え、ブロックの追加・変更・削除で、両ホストのページ、ショップ、QR・NFC・インストール済みアプリの入口を URL 指定でパージするジョブがキューに入ります（`PurgeEdgeCache`、保存ごとに 1 ジョブ。キューワーカーが必要）。パージの失敗はログに記録されるだけで、保存が Cloudflare を待つことはありません。2 つのキーが空ならヘッダーだけが送られ、変更は 1 分が過ぎると反映されます。
+
 ### データベース
 
 BioHop は、ハブおよび LinkHop と 1 つのデータベースを共有する設計です。各アプリは自分のマイグレーションログを持ち、ここでは `migrations_bio` です。他のアプリが持つテーブル（`users`、`roles`、`api_tokens`、`ip_bans`、`domain_blacklist`、`abuse_flags` など）が存在するよう、先にハブのマイグレーションを実行してください。SQLite で `--hub new` を指定してインストールすると、BioHop はハブのデータベースファイルを使います。この設計は文書化されていますが、各アプリのリリース間の互換性はここでは確認していません。大切なデータベースに BioHop を向ける前に、必ず試してください。

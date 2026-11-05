@@ -42,6 +42,7 @@ test('counting a page view keeps no plain address in the cache', function () {
     $page = visitorPage();
 
     $this->withServerVariables(['REMOTE_ADDR' => VISITOR_IP])->get('/b/visitor-ip')->assertOk();
+    $this->withServerVariables(['REMOTE_ADDR' => VISITOR_IP])->post('/b/visitor-ip/view')->assertNoContent();
 
     expect(keysWithIp())->toBe([]);
     expect($page->fresh()->view_count)->toBe(1);
@@ -50,11 +51,11 @@ test('counting a page view keeps no plain address in the cache', function () {
 test('a visitor still counts once a day and two visitors count twice', function () {
     $page = visitorPage();
 
-    $this->withServerVariables(['REMOTE_ADDR' => VISITOR_IP])->get('/b/visitor-ip')->assertOk();
-    $this->withServerVariables(['REMOTE_ADDR' => VISITOR_IP])->get('/b/visitor-ip')->assertOk();
+    $this->withServerVariables(['REMOTE_ADDR' => VISITOR_IP])->post('/b/visitor-ip/view')->assertNoContent();
+    $this->withServerVariables(['REMOTE_ADDR' => VISITOR_IP])->post('/b/visitor-ip/view')->assertNoContent();
     expect($page->fresh()->view_count)->toBe(1);
 
-    $this->withServerVariables(['REMOTE_ADDR' => '198.51.100.9'])->get('/b/visitor-ip')->assertOk();
+    $this->withServerVariables(['REMOTE_ADDR' => '198.51.100.9'])->post('/b/visitor-ip/view')->assertNoContent();
     expect($page->fresh()->view_count)->toBe(2);
 });
 
