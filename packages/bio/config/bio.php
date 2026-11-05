@@ -25,6 +25,18 @@ return [
     // Seconds to wait for LinkHop's API when a block asks for a short link.
     'linkhop_timeout' => (int) env('BIO_LINKHOP_TIMEOUT', 8),
 
+    // "Choose from PixelHop" in the editor: a picture the member already uploaded to PixelHop, for the image block,
+    // the carousel, the avatar, the cover and the favicon. The file stays in PixelHop; the page keeps its public
+    // address. Off until PixelHop's GET /api/v1/me/media is deployed; off, the editor offers uploads only.
+    'pixelhop_picker' => (bool) env('BIO_PIXELHOP_PICKER', false),
+    // Where the server-to-server call goes (empty: hop.apps.pixelhop.url). The browser never talks to PixelHop.
+    'pixelhop_url' => env('BIO_PIXELHOP_URL'),
+    // Hosts a PixelHop file address may use (https). A picked address on any other host is refused when saving.
+    // For a PixelHop on your own machine, write the origin in full: http://localhost:8090.
+    'pixelhop_hosts' => array_values(array_filter(array_map('trim', explode(',', (string) env('BIO_PIXELHOP_HOSTS', 'pixel.hel.ink,p.hel.ink'))))),
+    // Seconds to wait for PixelHop's list before the editor is told to upload instead.
+    'pixelhop_timeout' => (int) env('BIO_PIXELHOP_TIMEOUT', 6),
+
     // Bio slugs nobody can take (lowercase): the HOP family's own words, staff-looking names, brands.
     // The path prefixes l, b and api are always reserved (App\Support\ReservedSlugs).
     'reserved_slugs' => [

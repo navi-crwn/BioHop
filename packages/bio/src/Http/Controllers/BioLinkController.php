@@ -12,6 +12,7 @@ use Hop\Bio\Models\BioPage;
 use Hop\Bio\Support\BioRevisions;
 use Hop\Bio\Support\BioUploads;
 use Hop\Bio\Support\NoteKeys;
+use Hop\Bio\Support\PixelHopMedia;
 use Hop\Bio\Support\ProductMeta;
 use Hop\Safety\SafeContent;
 use Illuminate\Http\Request;
@@ -84,6 +85,13 @@ class BioLinkController extends Controller
     /**
      * Block changes count as a page change, so another editor tab sees a conflict (L2).
      */
+    /** A carousel picture: an upload here, an https picture address, or one of the member's own PixelHop pictures. */
+    private static function carouselImageRule(): array
+    {
+        return ['required_with:settings.images', 'string', 'max:500', fn ($attribute, $value, $fail) => preg_match('#^(/?storage/bio-images/[A-Za-z0-9._-]+|https://[^\s\'"()<>]+)$#', (string) $value)
+            || (PixelHopMedia::enabled() && PixelHopMedia::isFileUrl($value)) ? null : $fail('validation.regex')->translate()];
+    }
+
     private function touchPage(BioPage $bioPage): string
     {
         $bioPage->touch();
@@ -193,7 +201,7 @@ class BioLinkController extends Controller
             'settings.current' => 'nullable|numeric|min:0|max:999999999999',
             'settings.unit' => 'nullable|string|max:20',
             'settings.images' => 'nullable|array|max:10',
-            'settings.images.*.url' => ['required_with:settings.images', 'string', 'max:500', 'regex:#^(/?storage/bio-images/[A-Za-z0-9._-]+|https://[^\s\'"()<>]+)$#'],
+            'settings.images.*.url' => self::carouselImageRule(),
             'settings.images.*.caption' => 'nullable|string|max:100',
             'settings.mode' => 'nullable|in:'.implode(',', BioLink::WHATSAPP_MODES),
             'settings.numbers' => 'nullable|array|max:10',
@@ -340,7 +348,7 @@ class BioLinkController extends Controller
             'settings.current' => 'nullable|numeric|min:0|max:999999999999',
             'settings.unit' => 'nullable|string|max:20',
             'settings.images' => 'nullable|array|max:10',
-            'settings.images.*.url' => ['required_with:settings.images', 'string', 'max:500', 'regex:#^(/?storage/bio-images/[A-Za-z0-9._-]+|https://[^\s\'"()<>]+)$#'],
+            'settings.images.*.url' => self::carouselImageRule(),
             'settings.images.*.caption' => 'nullable|string|max:100',
             'settings.mode' => 'nullable|in:'.implode(',', BioLink::WHATSAPP_MODES),
             'settings.numbers' => 'nullable|array|max:10',

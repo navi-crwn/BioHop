@@ -32,6 +32,9 @@
                             </svg>
                         </button>
                     </div>
+                    @if (\Hop\Bio\Support\PixelHopMedia::enabled())
+                    <button type="button" class="btn btn-secondary text-xs py-1.5 px-3" x-show="pixelhopAvailable()" @click="openPixelHop('avatar')">{{ __('Choose from PixelHop') }}</button>
+                    @endif
                     <!-- Avatar Shape buttons - horizontal below avatar -->
                     <div class="flex flex-col items-center gap-1 mt-1">
                         <span class="text-xs editor-text-muted">Shape</span>

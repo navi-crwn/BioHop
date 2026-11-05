@@ -58,6 +58,9 @@
             <input aria-label="Upload favicon" type="file" accept="image/png,image/x-icon,image/svg+xml,image/webp" class="hidden" x-ref="favInput" @change="uploadPageImage('favicon', $event)">
             <div class="flex items-center gap-2">
                 <button type="button" @click="$refs.favInput.click()" class="btn btn-secondary text-sm py-2 flex-1">Upload favicon</button>
+                @if (\Hop\Bio\Support\PixelHopMedia::enabled())
+                <button type="button" x-show="pixelhopAvailable()" @click="openPixelHop('favicon')" class="btn btn-secondary text-sm py-2 flex-1">{{ __('Choose from PixelHop') }}</button>
+                @endif
                 <button type="button" x-show="bioPage.favicon" @click="bioPage.favicon = ''" class="btn btn-secondary text-sm py-2">Remove</button>
             </div>
             <template x-if="bioPage.favicon"><img :src="pageImageUrl(bioPage.favicon)" alt="Favicon" class="mt-2 w-10 h-10 rounded-md object-contain" style="background: var(--editor-input-bg)"></template>
