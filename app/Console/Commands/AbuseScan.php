@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Bio\SafetyAdapter;
 use App\Helpers\SocialUrlHelper;
 use App\Models\AbuseFlag;
 use App\Models\User;
 use Hop\Bio\Models\BioLink;
 use Hop\Bio\Models\BioPage;
-use Hop\Safety\LinkSafety;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Cache;
@@ -15,7 +15,8 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * The bio half of LinkHop's abuse:scan: bio pages and blocks are scored with
- * hop/safety (same rules, same shared domain blacklist), offenders are
+ * hop/safety (same rules, same shared domain blacklist) plus BioHop's own shape
+ * rules (App\Support\PhishingShape, through the UrlSafety adapter), offenders are
  * unpublished and repeat offenders suspended, findings go to the shared
  * abuse_flags table (LinkHop's; both apps and the hub read it).
  */
@@ -45,7 +46,7 @@ class AbuseScan extends Command
     /** @var array<int, string> */
     private array $notable = [];
 
-    public function __construct(private readonly LinkSafety $safety)
+    public function __construct(private readonly SafetyAdapter $safety)
     {
         parent::__construct();
     }
