@@ -129,6 +129,7 @@ window.bioEditorV2 = function() {
         libraryTurn: 0,
         libraryLoading: false,
         linkInputMode: 'create', // 'create' or 'existing'
+        shortening: false, // "Shorten this URL" is waiting for LinkHop
         dirtyBlockIds: new Set(), // Track which blocks have been modified
         // Data
         platforms: PLATFORMS,
@@ -737,7 +738,7 @@ window.bioEditorV2 = function() {
                 vcard_phone: '',
                 vcard_email: '',
                 vcard_company: '',
-                faq_items: [],
+                faq_items: type === 'faq' ? [{ question: '', answer: '' }] : [],
                 html_content: '',
                 description: '',
                 settings: type === 'product' ? { price: '', currency: 'IDR', sold_out: false } : (type === 'collection' ? { layout: 'stack' } : (type === 'whatsapp' ? { text: '', mode: 'round_robin', numbers: [{ number: '', label: '', weight: 1 }] } : (type === 'goal' ? { target: '', current: '', unit: '' } : (type === 'poll' ? { options: [{ text: '' }, { text: '' }] } : type === 'rss' ? { count: 5 } : type === 'form' ? { ask_name: true, ask_email: true, ask_phone: false, button: '', thanks: '', consent: '', retention_days: 90 } : type === 'app' ? { ios: '', android: '', web: '' } : (type === 'carousel' ? { images: [] } : null)))))
@@ -849,6 +850,58 @@ window.bioEditorV2 = function() {
             }
             this.showLinkLibraryModal = false;
         },
+        // "Shorten this URL" can be offered: a plain web address that is not a brand link, not ours and not a HOP app.
+        canShortenEditing() {
+            const b = this.editingBlock;
+            if (!b || b.type !== 'link' || b.brand || b._shortened) return false;
+            const url = String(b.url || '').trim();
+            if (!/^https?:\/\//i.test(url)) return false;
+            try {
+                const host = new URL(url).hostname.toLowerCase();
+                return host !== window.location.host.toLowerCase() && !this.isFamilyUrl(url);
+            } catch (e) {
+                return false;
+            }
+        },
+        // Asks LinkHop for a short link of the address in the form, on request only; Undo brings the long address back.
+        async shortenEditingUrl() {
+            if (!this.editingBlock || this.shortening) return;
+            let url = String(this.editingBlock.url || '').trim();
+            if (!/^[a-z][a-z0-9+.\-]*:/i.test(url)) url = 'https://' + url;
+            this.shortening = true;
+            try {
+                const response = await fetch('/api/bio/shorten', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf(), 'Accept': 'application/json' },
+                    body: JSON.stringify({ url, title: this.editingBlock.title })
+                });
+                const data = await response.json().catch(() => ({}));
+                if (response.ok && data.short_url) {
+                    this.editingBlock._longUrl = url;
+                    this.editingBlock._shortened = true;
+                    this.editingBlock.url = data.short_url;
+                    this.editingBlock._urlError = null;
+                    this.showNotification(`Short link ready: ${data.short_url}`, 'success');
+                } else if (response.status === 422) {
+                    this.editingBlock._urlError = data.message || 'This URL is not allowed.';
+                    this.showNotification(this.editingBlock._urlError, 'error');
+                } else if (response.status === 429) {
+                    this.showNotification('Too many links created. Please wait a moment.', 'error');
+                } else {
+                    this.showNotification(data.message || 'The shortener could not make a short link right now. Your original URL was kept.', 'info');
+                }
+            } catch (e) {
+                this.showNotification('The shortener could not be reached. Your original URL was kept.', 'info');
+            } finally {
+                this.shortening = false;
+            }
+        },
+        undoShortenEditing() {
+            if (!this.editingBlock || !this.editingBlock._longUrl) return;
+            this.editingBlock.url = this.editingBlock._longUrl;
+            delete this.editingBlock._longUrl;
+            this.editingBlock._shortened = false;
+        },
         closeBlockEditor() {
             if (this.editingBlock) {
                 const index = this.blocks.findIndex(b => b.id === this.editingBlock.id);
@@ -878,43 +931,9 @@ window.bioEditorV2 = function() {
                     urlToCheck = 'https://' + urlToCheck;
                 }
                 this.editingBlock.url = urlToCheck;
-                // Auto-shorten custom web links (not brand/mailto/tel links, not our own short links)
-                const isWeb = /^https?:\/\//i.test(urlToCheck);
-                if (isWeb && !this.editingBlock.brand && !urlToCheck.includes(window.location.host) && !this.isFamilyUrl(urlToCheck)) {
-                    this.saving = true;
-                    try {
-                        const response = await fetch('/api/bio/shorten', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': csrf(),
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                url: urlToCheck,
-                                title: this.editingBlock.title
-                            })
-                        });
-                        const data = await response.json().catch(() => ({}));
-                        if (response.ok && data.short_url) {
-                            this.editingBlock.url = data.short_url;
-                        } else if (response.status === 422) {
-                            this.editingBlock._urlError = data.message || 'This URL is not allowed.';
-                            this.showNotification(this.editingBlock._urlError, 'error');
-                            return;
-                        } else if (response.status === 429) {
-                            this.showNotification('Too many links created. Please wait a moment.', 'error');
-                            return;
-                        } else if (response.status === 503 && data.message) {
-                            this.showNotification(data.message, 'info');
-                        }
-                        // Other failures: keep the long URL, the block still saves.
-                    } catch (e) {
-                        console.error('Auto-shorten failed:', e);
-                    } finally {
-                        this.saving = false;
-                    }
-                }
+                // The address is saved as typed. A short link is made only by the "Shorten this URL" button
+                // (shortenEditingUrl): saving used to shorten every edit, even a title change, and that made a
+                // new LinkHop link each time without asking.
                 if (this.editingBlock.brand && !this.validateBrandUrl(this.editingBlock)) {
                     const brandName = this.brands[this.editingBlock.brand]?.name || this.editingBlock.brand;
                     this.showNotification(`URL doesn't match ${brandName}. Please enter a valid ${brandName} URL.`, 'error');
@@ -966,6 +985,17 @@ window.bioEditorV2 = function() {
             if (this.editingBlock.type === 'header' && (!this.editingBlock.title || !this.editingBlock.title.trim())) {
                 this.showNotification('Header title is required', 'error');
                 return;
+            }
+            if (this.editingBlock.type === 'faq') {
+                // Rows without a question are dropped; the block needs at least one to show anything.
+                const items = (this.editingBlock.faq_items || [])
+                    .map(it => ({ question: String(it.question || '').trim(), answer: String(it.answer || '').trim() }))
+                    .filter(it => it.question);
+                if (!items.length) {
+                    this.showNotification('Add at least one question', 'error');
+                    return;
+                }
+                this.editingBlock.faq_items = items;
             }
             const index = this.blocks.findIndex(b => b.id === this.editingBlock.id);
             if (index !== -1) {
@@ -1178,6 +1208,16 @@ window.bioEditorV2 = function() {
         },
         setRule(i, key, value) {
             this.setProductSetting('rules', (this.editingBlock.settings?.rules || []).map((r, k) => k === i ? Object.assign({}, r, { [key]: value }) : r));
+        },
+        // FAQ block: a list of question/answer pairs, edited as plain copies like the WhatsApp numbers.
+        addFaqItem() {
+            this.editingBlock.faq_items = [...(this.editingBlock.faq_items || []), { question: '', answer: '' }];
+        },
+        removeFaqItem(i) {
+            this.editingBlock.faq_items = (this.editingBlock.faq_items || []).filter((_, k) => k !== i);
+        },
+        setFaqItem(i, key, value) {
+            this.editingBlock.faq_items = (this.editingBlock.faq_items || []).map((item, k) => k === i ? Object.assign({}, item, { [key]: value }) : item);
         },
         addWaNumber() {
             this.setProductSetting('numbers', [...(this.editingBlock.settings?.numbers || []), { number: '', label: '', weight: 1 }]);

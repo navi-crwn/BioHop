@@ -260,7 +260,7 @@
                                 </template>
                             </div>
                             <div>
-                                <div class="text-sm font-medium editor-text" x-text="editingBlock?.brand ? brands[editingBlock?.brand]?.name : 'Custom Link'"></div>
+                                <div class="text-sm font-medium editor-text" x-text="editingBlock?.brand ? brands[editingBlock?.brand]?.name : (editingBlock?.type === 'link' ? 'Custom Link' : (getDefaultBlockTitle(editingBlock?.type) || editingBlock?.type))"></div>
                                 <div class="text-xs editor-text-muted" x-text="editingBlock?.type"></div>
                             </div>
                         </div>
@@ -301,10 +301,16 @@
                                                 <template x-if="editingBlock?._urlError">
                                                     <span x-text="editingBlock?._urlError"></span>
                                                 </template>
-                                                <template x-if="!editingBlock?._urlError && !editingBlock?.brand">
-                                                    <span>Enter a long URL to automatically shorten it</span>
+                                                <template x-if="!editingBlock?._urlError && !editingBlock?.brand && !editingBlock?._shortened">
+                                                    <span>{{ __('Saved as typed. A short link is made only when you ask for one.') }}</span>
+                                                </template>
+                                                <template x-if="!editingBlock?._urlError && editingBlock?._shortened">
+                                                    <span>{{ __('Short link in place of the long address.') }} <button type="button" class="underline" @click="undoShortenEditing()">{{ __('Undo') }}</button></span>
                                                 </template>
                                             </p>
+                                            <button type="button" class="btn btn-secondary text-sm py-2 w-full mt-2" x-show="canShortenEditing()" :disabled="shortening" @click="shortenEditingUrl()" data-shorten-url>
+                                                <span x-text="shortening ? @js(__('Asking LinkHop…')) : @js(__('Shorten this URL'))"></span>
+                                            </button>
                                             @if (\Hop\Bio\Support\NoteHopNotes::enabled())
                                             <button type="button" class="btn btn-secondary text-sm py-2 w-full mt-2" x-show="notehopAvailable() && !editingBlock?.brand" @click="openNoteHop()">{{ __('Choose from NoteHop') }}</button>
                                             @endif
@@ -919,6 +925,25 @@
                                     <label for="bfindex-25" class="form-label">Company (Optional)</label>
                                     <input maxlength="100" id="bfindex-25" type="text" x-model="editingBlock.vcard_company" class="form-input" placeholder="Company Name">
                                 </div>
+                            </div>
+                        </template>
+                        <template x-if="editingBlock?.type === 'faq'">
+                            <div class="space-y-3" data-faq-form>
+                                <p class="text-xs editor-text-muted">{{ __('Each question opens to its answer when a visitor taps it. The title above is optional.') }}</p>
+                                <template x-for="(item, i) in (editingBlock.faq_items || [])" :key="'faq' + i">
+                                    <div class="be-faq-item">
+                                        <div class="be-faq-head">
+                                            <span class="text-xs font-semibold editor-text-muted tabular-nums" x-text="(i + 1) + '.'"></span>
+                                            <button type="button" class="block-action-btn delete" @click="removeFaqItem(i)" :aria-label="@js(__('Remove question')) + ' ' + (i + 1)" :title="@js(__('Remove question'))">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                            </button>
+                                        </div>
+                                        <input type="text" maxlength="500" class="form-input" :value="item.question ?? ''" @input="setFaqItem(i, 'question', $event.target.value)" :aria-label="@js(__('Question')) + ' ' + (i + 1)" placeholder="{{ __('Question') }}" autocomplete="off">
+                                        <textarea maxlength="2000" rows="3" class="form-input form-textarea" :value="item.answer ?? ''" @input="setFaqItem(i, 'answer', $event.target.value)" :aria-label="@js(__('Answer')) + ' ' + (i + 1)" placeholder="{{ __('Answer') }}"></textarea>
+                                    </div>
+                                </template>
+                                <button type="button" class="btn btn-secondary text-sm py-2 w-full" @click="addFaqItem()" x-show="(editingBlock.faq_items || []).length < 20">+ {{ __('Add question') }}</button>
+                                <p class="text-xs editor-text-muted" x-show="(editingBlock.faq_items || []).length >= 20">{{ __('A FAQ block holds up to 20 questions.') }}</p>
                             </div>
                         </template>
                         <template x-if="editingBlock?.type === 'html'">

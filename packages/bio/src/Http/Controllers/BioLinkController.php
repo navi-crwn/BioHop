@@ -131,6 +131,20 @@ class BioLinkController extends Controller
         }
     }
 
+    /** FAQ rows without a question are dropped and the texts trimmed; an empty list is stored as null. */
+    private function normalizeFaq(array $data): array
+    {
+        if (array_key_exists('faq_items', $data)) {
+            $items = array_values(array_filter(array_map(fn ($it) => [
+                'question' => trim((string) ($it['question'] ?? '')),
+                'answer' => trim((string) ($it['answer'] ?? '')),
+            ], is_array($data['faq_items']) ? $data['faq_items'] : []), fn ($it) => $it['question'] !== ''));
+            $data['faq_items'] = $items ?: null;
+        }
+
+        return $data;
+    }
+
     private function normalizeCountdown(array $data): array
     {
         foreach (['countdown_date', 'publish_at', 'expire_at'] as $field) {
@@ -238,7 +252,7 @@ class BioLinkController extends Controller
         }
         $this->assertSafe($validated);
         $this->assertOwnMedia($validated);
-        $validated = $this->normalizeCountdown($validated);
+        $validated = $this->normalizeFaq($this->normalizeCountdown($validated));
         $maxOrder = $bioPage->links()->max('order') ?? 0;
         // Provide default titles for block types that don't require user-entered titles
         $defaultTitles = [
@@ -382,7 +396,7 @@ class BioLinkController extends Controller
         ]);
         $this->assertSafe($validated);
         $this->assertOwnMedia($validated, $bioLink);
-        $validated = $this->normalizeCountdown($validated);
+        $validated = $this->normalizeFaq($this->normalizeCountdown($validated));
         if (! empty($validated['is_active']) && ! $bioLink->is_active && AbuseFlag::locks('bio_link', $bioLink->id)) {
             throw ValidationException::withMessages(['is_active' => 'This block was disabled by moderation.']);
         }
