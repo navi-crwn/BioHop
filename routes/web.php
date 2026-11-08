@@ -48,7 +48,9 @@ foreach (PageController::PAGES as $page) {
 }
 Route::get('/status', [PageController::class, 'status'])->name('pages.status');
 Route::get('/check-slug-public', [HomeController::class, 'checkSlug'])->middleware('throttle:60,1')->name('bio.check-slug.public');
-Route::get('/dashboard', fn () => redirect()->away(User::hubUrl('dashboard').'#biohop'))->name('dashboard');
+// The hub launcher (hub.hel.ink/apps/biohop) and the other apps' HOP family links land here after
+// sign-in. Send people to BioHop's own dashboard; sending them back to the hub left them stuck there.
+Route::get('/dashboard', fn () => redirect()->route('bio.index'))->name('dashboard');
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 // robots.txt is an answer, not a static file, so the Sitemap line carries this install's address. Public bio pages (/b/...) stay open;
