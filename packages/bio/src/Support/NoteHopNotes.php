@@ -2,7 +2,6 @@
 
 namespace Hop\Bio\Support;
 
-use Hop\Auth\Ticket;
 use Hop\Bio\Exceptions\NoteHopUnavailable;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Client\ConnectionException;
@@ -11,7 +10,7 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * "Choose from NoteHop": the member's public NoteHop notes, listed server to server for the link block's picker
- * (BIO_NOTEHOP_PICKER). Signed like every HOP App Protocol call (hop1 HMAC with the SSO secret hop/auth holds,
+ * (BIO_NOTEHOP_PICKER). Signed like every HOP App Protocol call (hop1 HMAC with HOP_PICKER_SECRET, or else the SSO secret hop/auth holds,
  * X-HOP-App = this app, X-HOP-Actor = the member's HOP ID); NoteHop answers with that member's notes only.
  *
  * NoteHop lists public notes that have a read-only link and nothing else: an encrypted note opens only with the key
@@ -56,15 +55,15 @@ class NoteHopNotes
      */
     public function list(Authenticatable $user, string $query = '', string $cursor = '', int $limit = 20): array
     {
-        $secrets = Ticket::resolveSecrets();
-        if ($secrets === []) {
-            throw new NoteHopUnavailable('HOP_SSO_SECRET is not set, so the call to NoteHop cannot be signed.');
+        $secret = PickerSecret::signing();
+        if ($secret === null) {
+            throw new NoteHopUnavailable('Neither HOP_PICKER_SECRET nor HOP_SSO_SECRET is set, so the call to NoteHop cannot be signed.');
         }
         $path = self::PATH.'?'.http_build_query(array_filter(['q' => $query, 'cursor' => $cursor, 'limit' => $limit], fn ($v) => $v !== '' && $v !== null));
         $timeout = max(1, (int) config('bio.notehop_timeout', 6));
         try {
             $response = Http::timeout($timeout)->connectTimeout(min(3, $timeout))->acceptJson()->withoutRedirecting()
-                ->withHeaders(PixelHopMedia::headers((string) config('hop-auth.app'), $secrets[0], (string) $user->getAuthIdentifier(), $path))
+                ->withHeaders(PixelHopMedia::headers((string) config('hop-auth.app'), $secret, (string) $user->getAuthIdentifier(), $path))
                 ->get(self::baseUrl().$path);
         } catch (ConnectionException $e) {
             throw new NoteHopUnavailable('NoteHop did not answer.', 'unavailable', $e);

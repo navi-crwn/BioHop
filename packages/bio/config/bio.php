@@ -43,6 +43,9 @@ return [
     // NoteHop's address: the server-to-server call goes there and a picked note must be on it.
     'notehop_url' => env('BIO_NOTEHOP_URL', 'https://note.hel.ink'),
     'notehop_timeout' => (int) env('BIO_NOTEHOP_TIMEOUT', 6),
+    // Signs the picker calls to PixelHop and NoteHop (32+ characters). A secret of their own: those apps hold it
+    // instead of this app's SSO secret, so a leak there cannot forge a sign-in here. Empty: the SSO secret signs.
+    'picker_secret' => env('HOP_PICKER_SECRET'),
 
     // Bio slugs nobody can take (lowercase): the HOP family's own words, staff-looking names, brands.
     // The path prefixes l, b and api are always reserved (App\Support\ReservedSlugs).
