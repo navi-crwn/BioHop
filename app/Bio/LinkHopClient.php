@@ -13,13 +13,13 @@ use Illuminate\Support\Facades\Http;
  * final shape of LinkHop's API (Fase C) is a one-file change:
  *
  *   POST {url}/api/shorten   body {url, title}   → {short_url, slug?, id?, title?, url?}
- *   GET  {url}/api/links?search=…&limit=…        → {data: [{id, title, url, short_url}]} or a plain list
+ *   GET  {url}/api/me/links?search=…&limit=…     → {data: [{id, slug, title, url, short_url}], next}  (scope link:read)
  */
 class LinkHopClient
 {
     public const SHORTEN_PATH = '/api/shorten';
 
-    public const LINKS_PATH = '/api/links';
+    public const LINKS_PATH = '/api/me/links';
 
     public function baseUrl(): string
     {
@@ -99,8 +99,10 @@ class LinkHopClient
         } catch (\Throwable $e) {
             throw new LinkHopUnavailable('LinkHop could not be reached: '.$e->getMessage(), 0, $e);
         }
-        if ($response->status() === 401) {
-            throw new LinkHopTokenRejected('LinkHop rejected the API token.', 401);
+        // 401: revoked or unknown token. 403 naming a scope: a token made before BioHop asked for that scope.
+        if ($response->status() === 401
+            || ($response->status() === 403 && str_contains((string) $response->json('message'), 'scope'))) {
+            throw new LinkHopTokenRejected('LinkHop rejected the API token.', $response->status());
         }
         if ($response->failed()) {
             $message = (string) ($response->json('message') ?? $response->json('error') ?? 'LinkHop answered '.$response->status());

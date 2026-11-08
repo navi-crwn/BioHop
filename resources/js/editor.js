@@ -123,6 +123,8 @@ window.bioEditorV2 = function() {
         showLinkLibraryModal: false,
         librarySearch: '',
         libraryLinks: [],
+        libraryError: '',
+        libraryTurn: 0,
         libraryLoading: false,
         linkInputMode: 'create', // 'create' or 'existing'
         dirtyBlockIds: new Set(), // Track which blocks have been modified
@@ -807,23 +809,32 @@ window.bioEditorV2 = function() {
             this.showLinkLibraryModal = true;
             this.fetchLibraryLinks();
         },
-        fetchLibraryLinks() {
+        async fetchLibraryLinks() {
+            const asked = this.librarySearch;
+            const turn = ++this.libraryTurn;
             this.libraryLoading = true;
-            fetch('/bio/links/search?query=' + encodeURIComponent(this.librarySearch), {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
+            this.libraryError = '';
+            try {
+                const res = await fetch('/bio/links/search?query=' + encodeURIComponent(asked), {
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    cache: 'no-store',
+                });
+                const data = await res.json().catch(() => ({}));
+                if (turn !== this.libraryTurn) return; // a newer search is on its way
+                if (!res.ok) {
+                    this.libraryLinks = [];
+                    this.libraryError = data.message || (CONFIG.linkhop && CONFIG.linkhop.failed) || '';
+                    return;
                 }
-            })
-            .then(res => res.json())
-            .then(data => {
-                this.libraryLinks = data.data || data;
-                this.libraryLoading = false;
-            })
-            .catch(err => {
-                console.error('Error fetching links:', err);
-                this.libraryLoading = false;
-            });
+                const rows = Array.isArray(data) ? data : (data.data || []);
+                this.libraryLinks = rows;
+            } catch (err) {
+                if (turn !== this.libraryTurn) return;
+                this.libraryLinks = [];
+                this.libraryError = (CONFIG.linkhop && CONFIG.linkhop.failed) || '';
+            } finally {
+                if (turn === this.libraryTurn) this.libraryLoading = false;
+            }
         },
         selectLibraryLink(link) {
             if (this.editingBlock) {
@@ -892,6 +903,8 @@ window.bioEditorV2 = function() {
                         } else if (response.status === 429) {
                             this.showNotification('Too many links created. Please wait a moment.', 'error');
                             return;
+                        } else if (response.status === 503 && data.message) {
+                            this.showNotification(data.message, 'info');
                         }
                         // Other failures: keep the long URL, the block still saves.
                     } catch (e) {

@@ -2,6 +2,7 @@
 
 namespace Hop\Bio\Contracts;
 
+use Hop\Bio\Exceptions\ShortlinkUnavailable;
 use Illuminate\Contracts\Auth\Authenticatable;
 
 /**
@@ -21,6 +22,8 @@ interface ShortlinkCreator
      * The user's short links matching $query (title, target or slug), newest first.
      *
      * @return list<array{id: int|string, title: string, url: string, short_url: string}>
+     *
+     * @throws ShortlinkUnavailable when the shortener cannot be asked right now
      */
     public function search(Authenticatable $user, string $query = '', int $limit = 10): array;
 }

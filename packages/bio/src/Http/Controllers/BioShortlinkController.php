@@ -24,7 +24,18 @@ class BioShortlinkController extends Controller
             return response()->json([], 200);
         }
 
-        return response()->json($this->shortlinks->search($user, trim(is_string($request->get('query')) ? $request->get('query') : '')));
+        $raw = $request->query('query');
+        if ($raw !== null && ! is_string($raw)) {
+            return response()->json(['message' => 'query must be text'], 422);
+        }
+        $query = trim(mb_substr((string) $raw, 0, 100));
+        try {
+            return response()->json($this->shortlinks->search($user, $query, 20))->header('Cache-Control', 'no-store');
+        } catch (ShortlinkUnavailable $e) {
+            report($e);
+
+            return response()->json(['message' => __('LinkHop is not reachable right now. You can still paste any URL.')], 503, ['Retry-After' => '60']);
+        }
     }
 
     public function store(Request $request)
@@ -48,7 +59,7 @@ class BioShortlinkController extends Controller
             report($e);
 
             // The block is saved with its original URL; the member can shorten it later.
-            return response()->json(['message' => 'The shortener could not make a short link right now ('.$e->getMessage().'). Your original URL was kept.'], 503);
+            return response()->json(['message' => __('The shortener could not make a short link right now. Your original URL was kept.')], 503);
         } catch (\Throwable $e) {
             report($e);
 

@@ -622,5 +622,17 @@
     "Loading…": "加载中…",
     "Load more": "加载更多",
     "Done": "完成",
-    "Cancel": "取消"
+    "Cancel": "取消",
+    "Select a link": "选择链接",
+    "Selected link": "已选链接",
+    "Clear selected link": "清除已选链接",
+    "Search your links": "搜索你的链接",
+    "Type to search your short links…": "输入以搜索你的短链接…",
+    "No links found": "没有找到链接",
+    "Short link": "短链接",
+    "Link library": "链接库",
+    "Create short links in LinkHop to see them here.": "在 LinkHop 中创建短链接后会显示在这里。",
+    "Untitled": "无标题",
+    "LinkHop is not reachable right now. You can still paste any URL.": "LinkHop 暂时无法访问。你仍然可以粘贴任何网址。",
+    "The shortener could not make a short link right now. Your original URL was kept.": "短链接服务暂时无法生成短链接。已保留你的原始网址。"
 }

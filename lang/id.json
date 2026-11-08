@@ -622,5 +622,17 @@
     "Loading…": "Memuat…",
     "Load more": "Muat lebih banyak",
     "Done": "Selesai",
-    "Cancel": "Batal"
+    "Cancel": "Batal",
+    "Select a link": "Pilih link",
+    "Selected link": "Link terpilih",
+    "Clear selected link": "Hapus link terpilih",
+    "Search your links": "Cari link kamu",
+    "Type to search your short links…": "Ketik untuk mencari link pendek kamu…",
+    "No links found": "Tidak ada link yang cocok",
+    "Short link": "Link pendek",
+    "Link library": "Pustaka link",
+    "Create short links in LinkHop to see them here.": "Buat link pendek di LinkHop agar muncul di sini.",
+    "Untitled": "Tanpa judul",
+    "LinkHop is not reachable right now. You can still paste any URL.": "LinkHop tidak dapat dihubungi saat ini. Kamu tetap bisa menempelkan URL apa pun.",
+    "The shortener could not make a short link right now. Your original URL was kept.": "Penyingkat link sedang tidak bisa membuat link pendek. URL asli kamu tetap disimpan."
 }

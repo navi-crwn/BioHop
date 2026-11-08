@@ -622,5 +622,17 @@
     "Loading…": "Wird geladen…",
     "Load more": "Mehr laden",
     "Done": "Fertig",
-    "Cancel": "Abbrechen"
+    "Cancel": "Abbrechen",
+    "Select a link": "Link auswählen",
+    "Selected link": "Ausgewählter Link",
+    "Clear selected link": "Ausgewählten Link entfernen",
+    "Search your links": "Deine Links durchsuchen",
+    "Type to search your short links…": "Tippe, um deine Kurzlinks zu suchen…",
+    "No links found": "Keine Links gefunden",
+    "Short link": "Kurzlink",
+    "Link library": "Link-Bibliothek",
+    "Create short links in LinkHop to see them here.": "Erstelle Kurzlinks in LinkHop, dann erscheinen sie hier.",
+    "Untitled": "Ohne Titel",
+    "LinkHop is not reachable right now. You can still paste any URL.": "LinkHop ist gerade nicht erreichbar. Du kannst trotzdem jede URL einfügen.",
+    "The shortener could not make a short link right now. Your original URL was kept.": "Der Kürzer konnte gerade keinen Kurzlink erstellen. Deine ursprüngliche URL bleibt erhalten."
 }

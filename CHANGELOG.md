@@ -4,6 +4,11 @@ All notable changes to BioHop are listed here. The format follows [Keep a Change
 
 ## [Unreleased]
 
+### Fixed
+- "Select existing link" in the block editor now lists the member's short links. It asked LinkHop's `GET /api/links`, which only knows a web session, so the list was always empty, and each search replaced the member's "BioHop" service token without deleting the old one, leaving one more token in their list per keystroke. It now asks `GET /api/me/links` (scope `link:read`, navi-crwn/LinkHop: needs that route deployed first), with the words typed and a limit of 20. A token LinkHop refuses (401, or 403 for a missing scope) is deleted from `api_tokens` before a new one is made, and only BioHop's own token; a suspended account (403 without a scope) does not get a new token per search.
+- When LinkHop cannot be reached the picker says so ("LinkHop is not reachable right now. You can still paste any URL.") instead of "No links found", and the short-link message no longer shows the upstream error text (it could name an internal address). Both are translated.
+- The link picker and the Link library dialog are translated into the nine languages (12 new strings), their buttons are real buttons for the keyboard, results are announced to screen readers, and the spinner stands still with reduced motion. A search sent with an array as `query` is a 422.
+
 ### Changed
 - `composer.lock` moves `hop/safety` from `12d72dd` to `df5e938` (navi-crwn/hop-safety#9): the bundled domain blacklist (`fnjphdp.com` and its subdomains, the Telegram account-takeover kit of 2026-11-05), the kit's phrases as phishing keywords matched in the address too, and the `random_subdomain` signal (weight 30, never blocking on its own). No code change here; link blocks, the short-link form and `abuse:scan` pick the rules up at once.
 
