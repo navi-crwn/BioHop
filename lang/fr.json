@@ -634,5 +634,13 @@
     "Create short links in LinkHop to see them here.": "Créez des liens courts dans LinkHop pour les voir ici.",
     "Untitled": "Sans titre",
     "LinkHop is not reachable right now. You can still paste any URL.": "LinkHop est injoignable pour le moment. Vous pouvez toujours coller n’importe quelle URL.",
-    "The shortener could not make a short link right now. Your original URL was kept.": "Le raccourcisseur n’a pas pu créer de lien court pour le moment. Votre URL d’origine a été conservée."
+    "The shortener could not make a short link right now. Your original URL was kept.": "Le raccourcisseur n’a pas pu créer de lien court pour le moment. Votre URL d’origine a été conservée.",
+    "Choose from NoteHop": "Choisir dans NoteHop",
+    "Only your public notes with a read-only link are listed. Encrypted notes are never offered: their key stays with you.": "Seules vos notes publiques avec un lien en lecture seule sont listées. Les notes chiffrées ne sont jamais proposées : leur clé reste chez vous.",
+    "Search your notes": "Rechercher dans vos notes",
+    "No public notes in NoteHop yet. Share one there with a read-only link.": "Aucune note publique dans NoteHop pour l’instant. Partagez-en une là-bas avec un lien en lecture seule.",
+    "No notes match your search.": "Aucune note ne correspond à votre recherche.",
+    "NoteHop is not reachable right now. You can still paste a note address.": "NoteHop est injoignable pour le moment. Vous pouvez toujours coller l’adresse d’une note.",
+    "Sign in to NoteHop once with your HOP ID; your public notes will then show up here.": "Connectez-vous une fois à NoteHop avec votre HOP ID ; vos notes publiques apparaîtront ensuite ici.",
+    "Note added from NoteHop": "Note ajoutée depuis NoteHop"
 }
