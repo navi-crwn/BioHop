@@ -248,7 +248,7 @@ O BioHop faz parte da família **HOP** de apps de código aberto que você mesmo
 | **PixelHop** | [pixel.hel.ink](https://pixel.hel.ink) · `p.hel.ink/…` | [navi-crwn/PixelHop](https://github.com/navi-crwn/PixelHop) | Image hosting with albums and direct links. |
 | **NoteHop** | [note.hel.ink](https://note.hel.ink) · `n.hel.ink/…` | [navi-crwn/NoteHop](https://github.com/navi-crwn/NoteHop) | Encrypted notes you share with a link. |
 | **FileHop** | [file.hel.ink](https://file.hel.ink) | [navi-crwn/FileHop](https://github.com/navi-crwn/FileHop) | Convert files in your browser; nothing is uploaded. |
-| **Imperium** | private (owner only) | private | The HOP control panel. |
+| **Imperium** | not public-facing: optional, for admins | [navi-crwn/Imperium](https://github.com/navi-crwn/Imperium) | The HOP control panel. |
 <!-- hop-family:end -->
 
 <a id="security"></a>
@@ -262,6 +262,24 @@ Encontrou uma vulnerabilidade? Relate em particular pelos security advisories do
 As mudanças estão listadas em [CHANGELOG.md](CHANGELOG.md). Os softwares de terceiros, fontes, ícones e serviços que o BioHop usa ou distribui, com suas licenças, estão listados em [CREDITS.md](CREDITS.md).
 
 <a id="license"></a>
+
+## Hospedagem própria
+
+<!-- self-hosting:start -->
+Tudo o que o BioHop precisa está em repositórios públicos: nenhum repositório privado, nenhum token e nenhuma conta no hel.ink. Os detalhes estão no guia da família: [docs/self-hosting.md](https://github.com/navi-crwn/HEL.ink/blob/main/docs/self-hosting.md) (em inglês).
+
+| Peça | Para o BioHop | O que faz |
+| --- | --- | --- |
+| [HEL.ink](https://github.com/navi-crwn/HEL.ink) (hub, HOP ID) | **Obrigatório**: as contas ficam lá, no mesmo banco de dados | Contas e login para todos os apps |
+| [hop/auth](https://github.com/navi-crwn/hop-auth), [hop/ui](https://github.com/navi-crwn/hop-ui), [hop/safety](https://github.com/navi-crwn/hop-safety) | Instalados pelo `composer install` a partir do GitHub público | Código PHP compartilhado: login, interface, segurança de links |
+| [Imperium](https://github.com/navi-crwn/Imperium) | Opcional, mas as páginas de administração do BioHop ficam lá | Painel de administração de toda a família; precisa do hub |
+| Fontes e blocos da família | Nada a instalar: carregados de `hel.ink/hop-assets` | Sem hel.ink: fontes do sistema, sem blocos flutuantes |
+
+- **Ordem de instalação**: primeiro o [hub](https://github.com/navi-crwn/HEL.ink), depois o BioHop. `./install.sh --hub new` instala os dois.
+- **Configuração mínima**: `APP_URL`, `PUBLIC_URL`, `HOP_APP=biohop`, `HOP_HUB_URL`, `HOP_SSO_SECRET` (o mesmo do hub), `DB_*` (o banco de dados do hub), `HOP_TRUSTED_HOSTS` (seus nomes de host); com o Imperium: `HOP_CONTROL_URL`.
+- **Sozinho ou na família**: o BioHop não funciona sem um hub. Na família, ele compartilha o banco de dados e o `HOP_SSO_SECRET` do hub.
+- **Sem o Imperium**: `/admin` mostra um aviso. Gerencie as contas nas páginas de administração do próprio hub e use a API assinada `/api/hop/*` e os comandos artisan.
+<!-- self-hosting:end -->
 
 ## Licença
 

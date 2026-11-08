@@ -234,6 +234,24 @@ Berikut yang dilakukan kode saat ini.
 
 <a id="family"></a>
 
+## Hosting sendiri
+
+<!-- self-hosting:start -->
+Semua yang dibutuhkan BioHop ada di repositori publik: tanpa repositori privat, tanpa token, dan tanpa akun hel.ink. Rinciannya ada di panduan keluarga: [docs/self-hosting.md](https://github.com/navi-crwn/HEL.ink/blob/main/docs/self-hosting.md) (bahasa Inggris).
+
+| Komponen | Untuk BioHop | Fungsinya |
+| --- | --- | --- |
+| [HEL.ink](https://github.com/navi-crwn/HEL.ink) (hub, HOP ID) | **Wajib**: akun disimpan di sana, dalam database yang sama | Akun dan proses masuk untuk semua aplikasi |
+| [hop/auth](https://github.com/navi-crwn/hop-auth), [hop/ui](https://github.com/navi-crwn/hop-ui), [hop/safety](https://github.com/navi-crwn/hop-safety) | Dipasang oleh `composer install` dari GitHub publik | Kode PHP bersama: proses masuk, antarmuka, keamanan tautan |
+| [Imperium](https://github.com/navi-crwn/Imperium) | Opsional, tetapi halaman admin BioHop ada di sana | Panel admin untuk seluruh keluarga; butuh hub |
+| Font dan ubin keluarga | Tidak perlu dipasang: dimuat dari `hel.ink/hop-assets` | Tanpa hel.ink: font sistem, tanpa ubin melayang |
+
+- **Urutan pemasangan**: [hub](https://github.com/navi-crwn/HEL.ink) dulu, lalu BioHop. `./install.sh --hub new` memasang keduanya.
+- **Pengaturan minimum**: `APP_URL`, `PUBLIC_URL`, `HOP_APP=biohop`, `HOP_HUB_URL`, `HOP_SSO_SECRET` (sama dengan hub), `DB_*` (database hub), `HOP_TRUSTED_HOSTS` (nama host Anda); dengan Imperium: `HOP_CONTROL_URL`.
+- **Sendiri atau dalam keluarga**: BioHop tidak berjalan tanpa hub. Dalam keluarga, ia berbagi database dan `HOP_SSO_SECRET` dengan hub.
+- **Tanpa Imperium**: `/admin` hanya menampilkan pemberitahuan. Kelola akun di halaman admin milik hub, dan gunakan API bertanda tangan `/api/hop/*` dan perintah artisan.
+<!-- self-hosting:end -->
+
 ## Keluarga HOP
 
 BioHop adalah bagian dari keluarga **HOP**, aplikasi sumber terbuka yang dapat di-host sendiri di balik [hel.ink](https://hel.ink).
@@ -248,7 +266,7 @@ BioHop adalah bagian dari keluarga **HOP**, aplikasi sumber terbuka yang dapat d
 | **PixelHop** | [pixel.hel.ink](https://pixel.hel.ink) · `p.hel.ink/…` | [navi-crwn/PixelHop](https://github.com/navi-crwn/PixelHop) | Image hosting with albums and direct links. |
 | **NoteHop** | [note.hel.ink](https://note.hel.ink) · `n.hel.ink/…` | [navi-crwn/NoteHop](https://github.com/navi-crwn/NoteHop) | Encrypted notes you share with a link. |
 | **FileHop** | [file.hel.ink](https://file.hel.ink) | [navi-crwn/FileHop](https://github.com/navi-crwn/FileHop) | Convert files in your browser; nothing is uploaded. |
-| **Imperium** | private (owner only) | private | The HOP control panel. |
+| **Imperium** | not public-facing: optional, for admins | [navi-crwn/Imperium](https://github.com/navi-crwn/Imperium) | The HOP control panel. |
 <!-- hop-family:end -->
 
 <a id="security"></a>
