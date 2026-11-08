@@ -234,6 +234,24 @@ vendor/bin/pint --test
 
 <a id="family"></a>
 
+## セルフホスティング
+
+<!-- self-hosting:start -->
+BioHop に必要なものはすべて公開リポジトリにあります。非公開リポジトリ、トークン、hel.ink のアカウントは不要です。詳しくはファミリーガイド [docs/self-hosting.md](https://github.com/navi-crwn/HEL.ink/blob/main/docs/self-hosting.md)（英語）を参照してください。
+
+| 構成要素 | BioHop にとって | 役割 |
+| --- | --- | --- |
+| [HEL.ink](https://github.com/navi-crwn/HEL.ink) (ハブ、HOP ID) | **必須**：アカウントはそこにあり、同じデータベースを使います | すべてのアプリのアカウントとサインイン |
+| [hop/auth](https://github.com/navi-crwn/hop-auth), [hop/ui](https://github.com/navi-crwn/hop-ui), [hop/safety](https://github.com/navi-crwn/hop-safety) | `composer install` が公開 GitHub から取得 | 共有 PHP コード：サインイン、UI、リンクの安全性 |
+| [Imperium](https://github.com/navi-crwn/Imperium) | 任意。ただし BioHop の管理ページはそこにあります | ファミリー全体の管理パネル。ハブが必要 |
+| ファミリーのフォントとタイル | インストール不要：`hel.ink/hop-assets` から読み込み | hel.ink がなければシステムフォント、浮遊タイルなし |
+
+- **インストール順**：まず[ハブ](https://github.com/navi-crwn/HEL.ink)、次に BioHop。`./install.sh --hub new` で両方をインストールします。
+- **最小限の設定**：`APP_URL`, `PUBLIC_URL`, `HOP_APP=biohop`, `HOP_HUB_URL`, `HOP_SSO_SECRET` (ハブと同じ), `DB_*` (ハブのデータベース), `HOP_TRUSTED_HOSTS` (自分のホスト名); Imperium 利用時: `HOP_CONTROL_URL`。
+- **単体かファミリーか**：BioHop はハブなしでは動きません。ファミリーではハブとデータベースおよび `HOP_SSO_SECRET` を共有します。
+- **Imperium なしの場合**：`/admin` には案内が表示されるだけです。アカウントはハブ自身の管理ページで管理し、署名付き `/api/hop/*` API と artisan コマンド を使えます。
+<!-- self-hosting:end -->
+
 ## HOP ファミリー
 
 BioHop は、[hel.ink](https://hel.ink) を支える、セルフホスト可能なオープンソースアプリ群 **HOP** ファミリーの一員です。
@@ -248,7 +266,7 @@ BioHop は、[hel.ink](https://hel.ink) を支える、セルフホスト可能�
 | **PixelHop** | [pixel.hel.ink](https://pixel.hel.ink) · `p.hel.ink/…` | [navi-crwn/PixelHop](https://github.com/navi-crwn/PixelHop) | Image hosting with albums and direct links. |
 | **NoteHop** | [note.hel.ink](https://note.hel.ink) · `n.hel.ink/…` | [navi-crwn/NoteHop](https://github.com/navi-crwn/NoteHop) | Encrypted notes you share with a link. |
 | **FileHop** | [file.hel.ink](https://file.hel.ink) | [navi-crwn/FileHop](https://github.com/navi-crwn/FileHop) | Convert files in your browser; nothing is uploaded. |
-| **Imperium** | private (owner only) | private | The HOP control panel. |
+| **Imperium** | not public-facing: optional, for admins | [navi-crwn/Imperium](https://github.com/navi-crwn/Imperium) | The HOP control panel. |
 <!-- hop-family:end -->
 
 <a id="security"></a>

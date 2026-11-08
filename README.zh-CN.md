@@ -234,6 +234,24 @@ vendor/bin/pint --test
 
 <a id="family"></a>
 
+## 自行托管
+
+<!-- self-hosting:start -->
+BioHop 所需的一切都在公开仓库中：不需要私有仓库、令牌或 hel.ink 账户。详细说明见家族指南：[docs/self-hosting.md](https://github.com/navi-crwn/HEL.ink/blob/main/docs/self-hosting.md)（英文）。
+
+| 组件 | 对 BioHop 而言 | 作用 |
+| --- | --- | --- |
+| [HEL.ink](https://github.com/navi-crwn/HEL.ink) (中心，HOP ID) | **必需**：账户保存在那里，使用同一个数据库 | 所有应用的账户与登录 |
+| [hop/auth](https://github.com/navi-crwn/hop-auth), [hop/ui](https://github.com/navi-crwn/hop-ui), [hop/safety](https://github.com/navi-crwn/hop-safety) | 由 `composer install` 从公开的 GitHub 安装 | 共享 PHP 代码：登录、界面、链接安全 |
+| [Imperium](https://github.com/navi-crwn/Imperium) | 可选，但 BioHop 的管理页面在那里 | 整个家族的管理面板；需要中心 |
+| 家族字体与浮动图块 | 无需安装：从 `hel.ink/hop-assets` 加载 | 无法访问 hel.ink 时：使用系统字体，没有浮动图块 |
+
+- **安装顺序**：先装[中心](https://github.com/navi-crwn/HEL.ink)，再装 BioHop。`./install.sh --hub new` 会同时安装两者。
+- **最少设置**：`APP_URL`, `PUBLIC_URL`, `HOP_APP=biohop`, `HOP_HUB_URL`, `HOP_SSO_SECRET` (与中心相同), `DB_*` (中心的数据库), `HOP_TRUSTED_HOSTS` (你自己的主机名); 使用 Imperium 时: `HOP_CONTROL_URL`。
+- **单独运行或加入家族**：BioHop 不能脱离中心运行。在家族中，它与中心共用数据库和 `HOP_SSO_SECRET`。
+- **没有 Imperium 时**：`/admin` 只显示一条说明。账户可在中心自己的管理页面中管理，另可使用 签名的 `/api/hop/*` API 和 artisan 命令。
+<!-- self-hosting:end -->
+
 ## HOP 家族
 
 BioHop 属于 **HOP** 家族，这是 [hel.ink](https://hel.ink) 背后一组可自托管的开源应用。
@@ -248,7 +266,7 @@ BioHop 属于 **HOP** 家族，这是 [hel.ink](https://hel.ink) 背后一组可
 | **PixelHop** | [pixel.hel.ink](https://pixel.hel.ink) · `p.hel.ink/…` | [navi-crwn/PixelHop](https://github.com/navi-crwn/PixelHop) | Image hosting with albums and direct links. |
 | **NoteHop** | [note.hel.ink](https://note.hel.ink) · `n.hel.ink/…` | [navi-crwn/NoteHop](https://github.com/navi-crwn/NoteHop) | Encrypted notes you share with a link. |
 | **FileHop** | [file.hel.ink](https://file.hel.ink) | [navi-crwn/FileHop](https://github.com/navi-crwn/FileHop) | Convert files in your browser; nothing is uploaded. |
-| **Imperium** | private (owner only) | private | The HOP control panel. |
+| **Imperium** | not public-facing: optional, for admins | [navi-crwn/Imperium](https://github.com/navi-crwn/Imperium) | The HOP control panel. |
 <!-- hop-family:end -->
 
 <a id="security"></a>
