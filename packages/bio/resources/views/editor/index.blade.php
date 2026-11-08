@@ -19,6 +19,8 @@
         'publicBase' => public_url('b'),
         'pages' => auth()->user()->bioPages()->orderBy('title')->get(['slug', 'title'])->map(fn ($p) => ['slug' => $p->slug, 'title' => $p->title])->values(),
         'familyHosts' => \App\Bio\FamilyUrls::hosts(),
+        // The link picker (LinkHop): what to say when the list cannot be loaded.
+        'linkhop' => ['failed' => __('LinkHop is not reachable right now. You can still paste any URL.')],
         // "Choose from PixelHop" (BIO_PIXELHOP_PICKER): the proxy route and the words the dialog needs; null = uploads only.
         'pixelhop' => \Hop\Bio\Support\PixelHopMedia::enabled() ? [
             'url' => route('bio.media.pixelhop'),
@@ -296,16 +298,16 @@
                                     <!-- Select Existing Mode -->
                                     <template x-if="!editingBlock?.brand && linkInputMode === 'existing'">
                                         <div class="relative" @click.outside="libraryLinks = []; librarySearch = ''">
-                                            <label class="form-label">Select a link</label>
+                                            <label class="form-label" for="link-library-inline">{{ __('Select a link') }}</label>
                                             <!-- Selected Link Display -->
                                             <template x-if="editingBlock?.url && !librarySearch">
                                                 <div class="mb-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg flex items-center justify-between group">
                                                     <div class="overflow-hidden">
-                                                        <div class="text-xs text-blue-600 dark:text-blue-400 font-medium mb-0.5">Selected Link</div>
-                                                        <div class="text-sm font-medium truncate" x-text="editingBlock?.title || 'Untitled'"></div>
+                                                        <div class="text-xs text-blue-600 dark:text-blue-400 font-medium mb-0.5">{{ __('Selected link') }}</div>
+                                                        <div class="text-sm font-medium truncate" x-text="editingBlock?.title || @js(__('Untitled'))"></div>
                                                         <div class="text-xs text-slate-500 truncate" x-text="editingBlock?.url"></div>
                                                     </div>
-                                                    <button aria-label="Clear selected link" @click="editingBlock.url = ''; editingBlock.title = '';" class="p-1 hover:bg-blue-100 dark:hover:bg-blue-800 rounded-sm text-blue-600 dark:text-blue-400">
+                                                    <button type="button" aria-label="{{ __('Clear selected link') }}" @click="editingBlock.url = ''; editingBlock.title = '';" class="p-1 hover:bg-blue-100 dark:hover:bg-blue-800 rounded-sm text-blue-600 dark:text-blue-400">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                                         </svg>
@@ -318,29 +320,35 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                                                     </svg>
                                                 </div>
-                                                <input aria-label="Search your links" type="text" 
-                                                    x-model="librarySearch" 
+                                                <input id="link-library-inline" type="search" autocomplete="off"
+                                                    x-model="librarySearch"  
                                                     @input.debounce.300ms="librarySearch ? fetchLibraryLinks() : (libraryLinks = [])"
                                                     @focus="librarySearch ? fetchLibraryLinks() : null"
                                                     class="form-input pl-10" 
-                                                    placeholder="Type to search existing URL...">
+                                                    placeholder="{{ __('Type to search your short links…') }}">
                                             </div>
                                             <!-- Inline Results Dropdown -->
                                             <div x-show="librarySearch.length > 0 || (libraryLinks.length > 0 && !editingBlock?.url)" 
                                                  class="absolute z-60 w-full mt-1 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 max-h-60 overflow-y-auto custom-scrollbar">
-                                                <template x-if="libraryLoading">
-                                                    <div class="p-4 text-center text-sm text-slate-500">Loading...</div>
-                                                </template>
-                                                <template x-if="!libraryLoading && libraryLinks.length === 0">
-                                                    <div class="p-4 text-center text-sm text-slate-500">No links found</div>
-                                                </template>
+                                                <div role="status" aria-live="polite">
+                                                    <template x-if="libraryLoading">
+                                                        <div class="p-4 text-center text-sm text-slate-500">{{ __('Loading…') }}</div>
+                                                    </template>
+                                                    <template x-if="!libraryLoading && libraryError">
+                                                        <div class="p-4 text-center text-sm text-red-700 dark:text-red-300" x-text="libraryError"></div>
+                                                    </template>
+                                                    <template x-if="!libraryLoading && !libraryError && libraryLinks.length === 0">
+                                                        <div class="p-4 text-center text-sm text-slate-500">{{ __('No links found') }}</div>
+                                                    </template>
+                                                </div>
                                                 <template x-for="link in libraryLinks" :key="link.id">
-                                                    <button @click="selectLibraryLink(link)" 
-                                                            class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group">
+                                                    <button type="button" @click="selectLibraryLink(link)"
+                                                            class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 focus-visible:bg-slate-50 dark:focus-visible:bg-slate-700/50 transition-colors group">
                                                         <div class="flex justify-between items-start mb-1">
-                                                            <span class="font-medium text-sm text-slate-900 dark:text-white group-hover:text-blue-600" x-text="link.title || 'Untitled'"></span>
-                                                            <span class="text-[10px] px-1.5 py-0.5 rounded-sm bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 font-mono">Short</span>
+                                                            <span class="font-medium text-sm text-slate-900 dark:text-white group-hover:text-blue-600" x-text="link.title || @js(__('Untitled'))"></span>
+                                                            <span class="text-[10px] px-1.5 py-0.5 rounded-sm bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 font-mono">{{ __('Short link') }}</span>
                                                         </div>
+                                                        <div class="text-xs text-blue-700 dark:text-blue-300 font-mono truncate" x-text="link.short_url"></div>
                                                         <div class="text-xs text-slate-500 truncate" x-text="link.url"></div>
                                                     </button>
                                                 </template>
@@ -1082,8 +1090,8 @@
     <div class="modal-overlay" @click.self="showLinkLibraryModal = false" style="z-index: 10000;">
         <div class="modal-content" x-modal="showLinkLibraryModal" style="max-width: 500px;" @click.stop>
             <div class="modal-header">
-                <h3 class="modal-title">Link Library</h3>
-                <button @click="showLinkLibraryModal = false" class="modal-close" aria-label="Close">
+                <h3 class="modal-title">{{ __('Link library') }}</h3>
+                <button type="button" @click="showLinkLibraryModal = false" class="modal-close" aria-label="{{ __('Close') }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
@@ -1091,29 +1099,32 @@
             </div>
             <div class="modal-body">
                 <div class="mb-4">
-                    <input aria-label="Search your links" type="text" x-model="librarySearch" @input.debounce.300ms="fetchLibraryLinks()" placeholder="Search your links..." class="form-input w-full">
+                    <input aria-label="{{ __('Search your links') }}" type="search" autocomplete="off" x-model="librarySearch" @input.debounce.300ms="fetchLibraryLinks()" placeholder="{{ __('Type to search your short links…') }}" class="form-input w-full">
                 </div>
                 <div class="space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar">
                     <template x-if="libraryLoading">
                         <div class="text-center py-8 text-slate-500">
-                            <svg class="animate-spin h-6 w-6 mx-auto mb-2 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <svg aria-hidden="true" class="animate-spin motion-reduce:animate-none h-6 w-6 mx-auto mb-2 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                            Loading links...
+                            {{ __('Loading…') }}
                         </div>
                     </template>
-                    <template x-if="!libraryLoading && libraryLinks.length === 0">
+                    <template x-if="!libraryLoading && libraryError">
+                        <p role="alert" class="rounded-lg bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300" x-text="libraryError"></p>
+                    </template>
+                    <template x-if="!libraryLoading && !libraryError && libraryLinks.length === 0">
                         <div class="text-center py-8 text-slate-500">
-                            <p>No links found.</p>
-                            <p class="text-xs mt-1">Create short links in your dashboard to see them here.</p>
+                            <p>{{ __('No links found') }}</p>
+                            <p class="text-xs mt-1">{{ __('Create short links in LinkHop to see them here.') }}</p>
                         </div>
                     </template>
                     <template x-for="link in libraryLinks" :key="link.id">
-                        <button @click="selectLibraryLink(link)" class="w-full text-left p-3 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700 group">
+                        <button type="button" @click="selectLibraryLink(link)" class="w-full text-left p-3 rounded-lg hover:bg-slate-100 focus-visible:bg-slate-100 dark:focus-visible:bg-slate-800 dark:hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700 group">
                             <div class="flex justify-between items-start">
-                                <div class="font-medium text-sm text-slate-900 dark:text-white group-hover:text-blue-600 transition-colors" x-text="link.title || 'Untitled Link'"></div>
-                                <span class="text-[10px] px-1.5 py-0.5 rounded-sm bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 font-mono">Short</span>
+                                <div class="font-medium text-sm text-slate-900 dark:text-white group-hover:text-blue-600 transition-colors" x-text="link.title || @js(__('Untitled'))"></div>
+                                <span class="text-[10px] px-1.5 py-0.5 rounded-sm bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 font-mono">{{ __('Short link') }}</span>
                             </div>
                             <div class="text-xs text-blue-600 dark:text-blue-400 font-mono mt-1" x-text="link.short_url"></div>
                             <div class="text-xs text-slate-400 truncate mt-0.5" x-text="link.url"></div>

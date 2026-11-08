@@ -4,7 +4,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Http;
 
 test('the existing-link picker asks the registered search route, which answers a list', function () {
-    Http::fake(['https://link.test/api/links*' => Http::response(['data' => [
+    Http::fake(['https://link.test/api/me/links*' => Http::response(['data' => [
         ['id' => 1, 'title' => 'Demo', 'url' => 'https://example.com/page', 'short_url' => 'https://link.test/l/demo'],
     ]])]);
 
@@ -14,7 +14,7 @@ test('the existing-link picker asks the registered search route, which answers a
         ->assertJsonPath('0.short_url', 'https://link.test/l/demo');
 
     expect(file_get_contents(base_path('resources/js/editor.js')))
-        ->toContain("fetch('/bio/links/search?query=' + encodeURIComponent(this.librarySearch)")
+        ->toContain("fetch('/bio/links/search?query=' + encodeURIComponent(asked)")
         ->not->toContain("fetch('/api/links?query=");
 });
 

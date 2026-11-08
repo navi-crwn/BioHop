@@ -622,5 +622,17 @@
     "Loading…": "Загрузка…",
     "Load more": "Загрузить ещё",
     "Done": "Готово",
-    "Cancel": "Отмена"
+    "Cancel": "Отмена",
+    "Select a link": "Выберите ссылку",
+    "Selected link": "Выбранная ссылка",
+    "Clear selected link": "Убрать выбранную ссылку",
+    "Search your links": "Поиск по вашим ссылкам",
+    "Type to search your short links…": "Начните вводить, чтобы найти короткую ссылку…",
+    "No links found": "Ссылки не найдены",
+    "Short link": "Короткая ссылка",
+    "Link library": "Библиотека ссылок",
+    "Create short links in LinkHop to see them here.": "Создайте короткие ссылки в LinkHop, и они появятся здесь.",
+    "Untitled": "Без названия",
+    "LinkHop is not reachable right now. You can still paste any URL.": "LinkHop сейчас недоступен. Вы всё ещё можете вставить любой URL.",
+    "The shortener could not make a short link right now. Your original URL was kept.": "Сейчас не удалось создать короткую ссылку. Исходный URL сохранён."
 }

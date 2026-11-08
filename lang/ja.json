@@ -622,5 +622,17 @@
     "Loading…": "読み込み中…",
     "Load more": "さらに読み込む",
     "Done": "完了",
-    "Cancel": "キャンセル"
+    "Cancel": "キャンセル",
+    "Select a link": "リンクを選択",
+    "Selected link": "選択したリンク",
+    "Clear selected link": "選択したリンクを解除",
+    "Search your links": "自分のリンクを検索",
+    "Type to search your short links…": "入力して短縮リンクを検索…",
+    "No links found": "リンクが見つかりません",
+    "Short link": "短縮リンク",
+    "Link library": "リンクライブラリ",
+    "Create short links in LinkHop to see them here.": "LinkHop で短縮リンクを作成すると、ここに表示されます。",
+    "Untitled": "無題",
+    "LinkHop is not reachable right now. You can still paste any URL.": "現在 LinkHop に接続できません。URL を直接貼り付けることはできます。",
+    "The shortener could not make a short link right now. Your original URL was kept.": "現在、短縮リンクを作成できませんでした。元の URL はそのまま保存されています。"
 }

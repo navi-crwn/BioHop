@@ -622,5 +622,17 @@
     "Loading…": "Loading…",
     "Load more": "Load more",
     "Done": "Done",
-    "Cancel": "Cancel"
+    "Cancel": "Cancel",
+    "Select a link": "Select a link",
+    "Selected link": "Selected link",
+    "Clear selected link": "Clear selected link",
+    "Search your links": "Search your links",
+    "Type to search your short links…": "Type to search your short links…",
+    "No links found": "No links found",
+    "Short link": "Short link",
+    "Link library": "Link library",
+    "Create short links in LinkHop to see them here.": "Create short links in LinkHop to see them here.",
+    "Untitled": "Untitled",
+    "LinkHop is not reachable right now. You can still paste any URL.": "LinkHop is not reachable right now. You can still paste any URL.",
+    "The shortener could not make a short link right now. Your original URL was kept.": "The shortener could not make a short link right now. Your original URL was kept."
 }

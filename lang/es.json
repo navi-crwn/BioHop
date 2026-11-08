@@ -622,5 +622,17 @@
     "Loading…": "Cargando…",
     "Load more": "Cargar más",
     "Done": "Listo",
-    "Cancel": "Cancelar"
+    "Cancel": "Cancelar",
+    "Select a link": "Elige un enlace",
+    "Selected link": "Enlace elegido",
+    "Clear selected link": "Quitar el enlace elegido",
+    "Search your links": "Busca en tus enlaces",
+    "Type to search your short links…": "Escribe para buscar tus enlaces cortos…",
+    "No links found": "No se encontraron enlaces",
+    "Short link": "Enlace corto",
+    "Link library": "Biblioteca de enlaces",
+    "Create short links in LinkHop to see them here.": "Crea enlaces cortos en LinkHop para verlos aquí.",
+    "Untitled": "Sin título",
+    "LinkHop is not reachable right now. You can still paste any URL.": "LinkHop no está disponible ahora mismo. Aún puedes pegar cualquier URL.",
+    "The shortener could not make a short link right now. Your original URL was kept.": "El acortador no pudo crear un enlace corto ahora mismo. Se conservó tu URL original."
 }
