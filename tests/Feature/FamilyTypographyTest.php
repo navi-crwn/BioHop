@@ -4,7 +4,8 @@ test('BioHop pages load the HOP family fonts from hel.ink, not a font CDN', func
     foreach (['/', '/report-abuse'] as $path) {
         $html = $this->get($path)->assertOk()->getContent();
 
-        expect($html)->toContain('https://hel.ink/hop-assets/v1/fonts-amnesia.css')
+        // hop/ui takes the version from the family manifest (v3 since FileHop joined); any version is fine here.
+        expect($html)->toMatch('#https://hel.ink/hop-assets/v\d+/fonts-amnesia.css#')
             ->toContain('integrity="sha384-')
             ->not->toContain('fonts.bunny.net');
     }
@@ -20,11 +21,11 @@ test('the header shows the official purple BioHop mark, not the old leaf', funct
 test('the HOP family section lists the other apps from the shared manifest', function () {
     $html = $this->get('/')->assertOk()->getContent();
 
-    expect($html)->toContain('https://hel.ink/hop-assets/v1/apps/linkhop/mark.svg')
-        ->toContain('https://hel.ink/hop-assets/v1/apps/pixelhop/mark.svg')
-        ->toContain('https://hel.ink/hop-assets/v1/apps/notehop/mark.svg');
+    foreach (['linkhop', 'pixelhop', 'notehop'] as $app) {
+        expect($html)->toMatch("#https://hel\.ink/hop-assets/v\d+/apps/{$app}/mark\.svg#");
+    }
     $footer = substr($html, strpos($html, '<footer'));
-    expect($footer)->not->toContain('https://hel.ink/hop-assets/v1/apps/biohop/mark.svg');
+    expect($footer)->not->toMatch('#https://hel.ink/hop-assets/v\d+/apps/biohop/mark.svg#');
     expect($html)->toMatch('/href="https:\/\/bio\.hel\.ink"\s+aria-current="true"/');
 });
 

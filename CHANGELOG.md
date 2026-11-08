@@ -4,6 +4,11 @@ All notable changes to BioHop are listed here. The format follows [Keep a Change
 
 ## [Unreleased]
 
+### FileHop joins the HOP family
+- FileHop (file.hel.ink, file conversion in the browser) is named wherever BioHop lists its sibling apps: the FAQ, the home page and the official page's description, in all nine languages, and the HOP family table in every README. `filehop` and `filehop-` are reserved page names.
+- The home page's HOP family row keeps an app's flat mark when the 3D engine has no block map for it, instead of drawing the NoteHop logo for it.
+- HOP family assets move to v3 (FileHop's tile and 3D preset): the home page module in `public/hop-home/` is refreshed from the hub's v3 (keeping the flat-mark guard), `scripts/sync-hop-assets.sh` copies from v3, and the documentation site loads the family fonts from `hop-assets/v3` (the same file and hash as v1). The tests accept any asset version, since hop/ui takes it from the family manifest.
+
 ### Security
 - The picker calls to PixelHop and NoteHop can be signed with a secret of their own, `HOP_PICKER_SECRET` (32+ characters), instead of this app's SSO secret. Until now PixelHop and NoteHop had to hold BioHop's SSO secret (`HOP_SSO_SECRET_BIOHOP`) to verify the picker, so a leak on either server could forge a hub ticket and sign in to BioHop as anyone. With the same `HOP_PICKER_SECRET` on all three apps, that copy can be removed. Empty, nothing changes. Needs navi-crwn/NoteHop and navi-crwn/PixelHop `fix/picker-secret` to verify it.
 

@@ -77,7 +77,7 @@ class OfficialPage extends Command
                 ['platform' => 'website', 'value' => 'https://hel.ink', 'enabled' => true],
             ],
             'seo_title' => 'HEL.ink · every HOP app in one place',
-            'seo_description' => 'LinkHop, BioHop, PixelHop and NoteHop: short links, bio pages, images and private notes with one free HOP ID.',
+            'seo_description' => 'LinkHop, BioHop, PixelHop, NoteHop and FileHop: short links, bio pages, images, private notes and file conversion with one free HOP ID.',
             'is_published' => true,
             'is_public' => true,
             'password_enabled' => false,
