@@ -183,23 +183,29 @@ class BioPageController extends Controller
         $palette = isset($validated['palette']) ? self::WIZARD_PALETTES[(int) $validated['palette']] : null;
         $goalTheme = ['creator' => 'galaxy', 'business' => 'minimal-light', 'personal' => 'sunset'][$validated['goal'] ?? ''] ?? 'default';
 
+        // A palette sets every colour by hand; "Theme by goal" leaves them to the theme (the columns keep
+        // their defaults: background_type is NOT NULL, so it must not be set to null).
+        $colours = $palette ? [
+            'theme' => 'none',
+            'background_type' => 'solid',
+            'background_value' => $palette[0],
+            'background_color' => $palette[0],
+            'link_bg_color' => $palette[1],
+            'link_text_color' => $palette[2],
+            'button_bg_color' => $palette[1],
+            'button_text_color' => $palette[2],
+            'text_color' => $palette[1],
+            'title_color' => $palette[1],
+            'bio_color' => $palette[1],
+        ] : ['theme' => $goalTheme];
+
         $bioPage = auth()->user()->bioPages()->create([
             'slug' => $validated['slug'],
             'title' => $validated['title'],
             'bio' => $validated['bio'] ?? null,
             'content_warning' => $validated['content_warning'] ?? 'none',
             'is_adult_content' => ($validated['content_warning'] ?? 'none') === 'adult',
-            'theme' => $palette ? 'none' : $goalTheme,
-            'background_type' => $palette ? 'solid' : null,
-            'background_value' => $palette[0] ?? null,
-            'background_color' => $palette[0] ?? null,
-            'link_bg_color' => $palette[1] ?? null,
-            'link_text_color' => $palette[2] ?? null,
-            'button_bg_color' => $palette[1] ?? null,
-            'button_text_color' => $palette[2] ?? null,
-            'text_color' => $palette ? $palette[1] : null,
-            'title_color' => $palette ? $palette[1] : null,
-            'bio_color' => $palette ? $palette[1] : null,
+            ...$colours,
             'social_links' => $socials,
             'button_shape' => 'pill',
         ]);

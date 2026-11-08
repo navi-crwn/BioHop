@@ -35,6 +35,33 @@ test('one wizard request builds a page with socials, branded links, profile and 
     $this->get('/b/wizardly')->assertOk()->assertSee('Helena Studio')->assertSee('YouTube');
 });
 
+test('"Theme by goal" builds a page from the goal alone, with no palette', function (string $goal, string $theme) {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+    // The ✦ swatch sends no palette. This used to be a 500: background_type was set to null on a NOT NULL column.
+    $res = $this->postJson('/bio/wizard', ['slug' => 'bygoal', 'title' => 'By goal', 'goal' => $goal,
+        'platforms' => [['platform' => 'instagram', 'value' => 'bygoal']], 'links' => ['https://example.com/x']])
+        ->assertOk()->json();
+    expect($res['redirect'])->toContain('/bio/bygoal/edit');
+    $page = BioPage::where('slug', 'bygoal')->firstOrFail();
+    expect($page->theme)->toBe($theme)
+        ->and($page->background_type)->toBe('color')
+        ->and($page->background_value)->toBeNull()
+        ->and($page->social_links)->toBe([['platform' => 'instagram', 'value' => 'bygoal', 'enabled' => true]])
+        ->and(BioLink::where('bio_page_id', $page->id)->count())->toBe(1);
+    $this->get('/b/bygoal')->assertOk()->assertSee('By goal');
+})->with([
+    ['creator', 'galaxy'],
+    ['business', 'minimal-light'],
+    ['personal', 'sunset'],
+]);
+
+test('the wizard without a goal or a palette still makes a page', function () {
+    $this->actingAs(User::factory()->create());
+    $this->postJson('/bio/wizard', ['slug' => 'plainest', 'title' => 'Plain'])->assertOk();
+    expect(BioPage::where('slug', 'plainest')->value('theme'))->toBe('default');
+});
+
 test('the wizard refuses a reserved or taken address and a dangerous link', function () {
     $user = User::factory()->create();
     $this->actingAs($user);
