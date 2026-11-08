@@ -4,6 +4,10 @@ All notable changes to BioHop are listed here. The format follows [Keep a Change
 
 ## [Unreleased]
 
+### FileHop joins the HOP family
+- FileHop (file.hel.ink, file conversion in the browser) is named wherever BioHop lists its sibling apps: the FAQ, the home page and the official page's description, in all nine languages, and the HOP family table in every README. `filehop` and `filehop-` are reserved page names.
+- The home page's HOP family row keeps an app's flat mark when the 3D engine has no block map for it, instead of drawing the NoteHop logo for it.
+
 ### Added
 - "Choose from NoteHop" for a link block (`BIO_NOTEHOP_PICKER`, off by default; `BIO_NOTEHOP_URL`, `BIO_NOTEHOP_TIMEOUT`). The editor asks `GET /bio/media/notehop`, which calls NoteHop's `GET /api/v1/me/notes` server to server, signed like the PixelHop picker with `X-HOP-Actor` set to the member's HOP ID; the browser never talks to NoteHop. Only the member's public notes with a read-only link are offered, never an encrypted note. Each address is checked again here (NoteHop's origin, a bare note path, no query, no fragment, no note key) and is kept as typed, not shortened. A member who never signed in to NoteHop is told to do so once; when NoteHop is down the dialog says so and the address field keeps working. Search, "Load more", keyboard and screen-reader friendly, still with reduced motion; 8 new strings in the nine languages. Needs navi-crwn/NoteHop `feat/me-notes-api`.
 
