@@ -3,7 +3,6 @@
 namespace Hop\Bio\Support;
 
 use App\Support\HopSignature;
-use Hop\Auth\Ticket;
 use Hop\Bio\Exceptions\PixelHopUnavailable;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Client\ConnectionException;
@@ -12,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * "Choose from PixelHop": the member's own pictures (or PDFs) in PixelHop, listed server to server for the editor's
- * picker. The call is signed like every HOP App Protocol call (hop1 HMAC with the SSO secret hop/auth already holds,
+ * picker. The call is signed like every HOP App Protocol call (hop1 HMAC with HOP_PICKER_SECRET, or else the SSO secret hop/auth holds,
  * X-HOP-App = this app, X-HOP-Actor = the member's HOP ID, which is their user id here); PixelHop answers with the
  * files of that member only. A picked file stays in PixelHop; the page keeps its public address, and only addresses
  * on the allowed PixelHop hosts are kept (isFileUrl). Nothing is uploaded, fetched or processed here.
@@ -79,15 +78,15 @@ class PixelHopMedia
      */
     public function list(Authenticatable $user, string $type = 'image', string $cursor = '', int $limit = 40): array
     {
-        $secrets = Ticket::resolveSecrets();
-        if ($secrets === []) {
-            throw new PixelHopUnavailable('HOP_SSO_SECRET is not set, so the call to PixelHop cannot be signed.');
+        $secret = PickerSecret::signing();
+        if ($secret === null) {
+            throw new PixelHopUnavailable('Neither HOP_PICKER_SECRET nor HOP_SSO_SECRET is set, so the call to PixelHop cannot be signed.');
         }
         $path = self::PATH.'?'.http_build_query(array_filter(['type' => $type, 'cursor' => $cursor, 'limit' => $limit], fn ($v) => $v !== '' && $v !== null));
         $timeout = max(1, (int) config('bio.pixelhop_timeout', 6));
         try {
             $response = Http::timeout($timeout)->connectTimeout(min(3, $timeout))->acceptJson()
-                ->withHeaders(self::headers((string) config('hop-auth.app'), $secrets[0], (string) $user->getAuthIdentifier(), $path))
+                ->withHeaders(self::headers((string) config('hop-auth.app'), $secret, (string) $user->getAuthIdentifier(), $path))
                 ->get(self::baseUrl().$path);
         } catch (ConnectionException $e) {
             throw new PixelHopUnavailable('PixelHop did not answer.', 'unavailable', $e);

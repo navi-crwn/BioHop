@@ -4,6 +4,9 @@ All notable changes to BioHop are listed here. The format follows [Keep a Change
 
 ## [Unreleased]
 
+### Security
+- The picker calls to PixelHop and NoteHop can be signed with a secret of their own, `HOP_PICKER_SECRET` (32+ characters), instead of this app's SSO secret. Until now PixelHop and NoteHop had to hold BioHop's SSO secret (`HOP_SSO_SECRET_BIOHOP`) to verify the picker, so a leak on either server could forge a hub ticket and sign in to BioHop as anyone. With the same `HOP_PICKER_SECRET` on all three apps, that copy can be removed. Empty, nothing changes. Needs navi-crwn/NoteHop and navi-crwn/PixelHop `fix/picker-secret` to verify it.
+
 ### Added
 - "Choose from NoteHop" for a link block (`BIO_NOTEHOP_PICKER`, off by default; `BIO_NOTEHOP_URL`, `BIO_NOTEHOP_TIMEOUT`). The editor asks `GET /bio/media/notehop`, which calls NoteHop's `GET /api/v1/me/notes` server to server, signed like the PixelHop picker with `X-HOP-Actor` set to the member's HOP ID; the browser never talks to NoteHop. Only the member's public notes with a read-only link are offered, never an encrypted note. Each address is checked again here (NoteHop's origin, a bare note path, no query, no fragment, no note key) and is kept as typed, not shortened. A member who never signed in to NoteHop is told to do so once; when NoteHop is down the dialog says so and the address field keeps working. Search, "Load more", keyboard and screen-reader friendly, still with reduced motion; 8 new strings in the nine languages. Needs navi-crwn/NoteHop `feat/me-notes-api`.
 
