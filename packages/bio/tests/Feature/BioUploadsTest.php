@@ -101,7 +101,7 @@ test('the public page loads only the chosen font', function () {
         ->not->toContain('/fonts/bio/inter-')
         ->not->toContain('fonts.googleapis.com')
         // The HOP family fonts are for BioHop's own pages; a bio keeps the owner's font.
-        ->not->toContain('hop-assets/v1/fonts-amnesia.css');
+        ->not->toMatch('#hop-assets/v\d+/fonts-amnesia.css#');
 });
 
 test('the editor preview only accepts messages from its own editor frame', function () {
