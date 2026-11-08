@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "239ed85141932caf53a0de6332397a21",
+    "content-hash": "777f811b66fc8e0d3536962f6e8b2a9b",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -1411,13 +1411,13 @@
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:navi-crwn/hop-ui.git",
-                "reference": "1a0b1bbc02a77b53614249d0317d2fc15e75e6f4"
+                "url": "https://github.com/navi-crwn/hop-ui.git",
+                "reference": "cf9db5a075a5b9246fab901d22f24edd02a56d9e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/navi-crwn/hop-ui/zipball/1a0b1bbc02a77b53614249d0317d2fc15e75e6f4",
-                "reference": "1a0b1bbc02a77b53614249d0317d2fc15e75e6f4",
+                "url": "https://api.github.com/repos/navi-crwn/hop-ui/zipball/cf9db5a075a5b9246fab901d22f24edd02a56d9e",
+                "reference": "cf9db5a075a5b9246fab901d22f24edd02a56d9e",
                 "shasum": ""
             },
             "require": {
@@ -1442,7 +1442,11 @@
                 "MIT"
             ],
             "description": "HOP shared package: ui.",
-            "time": "2026-11-08T07:46:14+00:00"
+            "support": {
+                "source": "https://github.com/navi-crwn/hop-ui/tree/main",
+                "issues": "https://github.com/navi-crwn/hop-ui/issues"
+            },
+            "time": "2026-11-08T10:07:50+00:00"
         },
         {
             "name": "laravel/framework",
