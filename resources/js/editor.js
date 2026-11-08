@@ -82,6 +82,7 @@ window.bioEditorV2 = function() {
         saveError: '',
         fieldErrors: {},
         autosave: true,
+        copied: false, // "Copy page link" just succeeded; the button shows a check for a moment
         previewOpen: false,
         showDiscardModal: false,
         announcement: '',
@@ -2948,9 +2949,30 @@ window.bioEditorV2 = function() {
         visitUrl() {
             return this.bioPage.is_published ? CONFIG.publicBase + '/' + encodeURIComponent(this.bioPage.slug) : null;
         },
-        copyPageUrl() {
-            navigator.clipboard.writeText(CONFIG.publicBase + '/' + this.bioPage.slug)
-                .then(() => this.showNotification('URL copied!', 'success'));
+        // The button itself says "Copied" with a check for a moment; the toast alone was easy to miss.
+        async copyPageUrl() {
+            const url = CONFIG.publicBase + '/' + this.bioPage.slug;
+            let ok = false;
+            try {
+                await navigator.clipboard.writeText(url);
+                ok = true;
+            } catch (e) {
+                // Older browsers or a page without clipboard permission: a hidden field and execCommand.
+                const field = Object.assign(document.createElement('textarea'), { value: url, readOnly: true });
+                field.style.cssText = 'position:fixed;top:-100px;left:0;opacity:0';
+                document.body.appendChild(field);
+                field.select();
+                try { ok = document.execCommand('copy'); } catch (err) { ok = false; }
+                field.remove();
+            }
+            if (!ok) {
+                this.showNotification('Could not copy. The address is ' + url, 'error');
+                return;
+            }
+            this.copied = true;
+            clearTimeout(this._copiedTimeout);
+            this._copiedTimeout = setTimeout(() => { this.copied = false; }, 1600);
+            this.showNotification('Link copied: ' + url, 'success');
         },
         /**
          * Get Simple Icons CDN URL for a platform

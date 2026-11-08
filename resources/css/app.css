@@ -158,6 +158,9 @@
         color: rgb(var(--muted));
     }
     .icon-btn:hover { color: rgb(var(--ink)); }
+    .icon-btn:active { transform: scale(0.97); }
+    /* Touch screens: the menu, theme and close buttons grow to a 44 px hit area. */
+    @media (pointer: coarse) { .icon-btn { height: 2.75rem; width: 2.75rem; } }
 
     /* Form controls */
     .input {
