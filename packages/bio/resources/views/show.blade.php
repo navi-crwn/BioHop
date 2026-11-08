@@ -841,7 +841,7 @@
                 </div>
                 @if($bioPage->social_links && count($bioPage->social_links) > 0 && (!$bioPage->social_icons_position || $bioPage->social_icons_position === 'below_bio'))
                     <div class="mt-4 flex justify-center gap-3 flex-wrap">
-                        @foreach($bioPage->social_links as $socialLink)
+                        @foreach(array_slice($bioPage->social_links, 0, \Hop\Bio\Models\BioPage::SOCIAL_MAX) as $socialLink)
                             @php
                                 // Shown unless switched off, as in the editor preview; older rows have no "enabled" key.
                                 $isEnabled = is_array($socialLink) && ! in_array($socialLink['enabled'] ?? $socialLink['is_active'] ?? true, [false, 0, '0', 'false'], true);
@@ -1244,7 +1244,7 @@
                 </div>
                 @if($bioPage->social_links && count($bioPage->social_links) > 0 && $bioPage->social_icons_position === 'bottom_page')
                     <div class="mt-8 flex justify-center gap-3 flex-wrap">
-                        @foreach($bioPage->social_links as $socialLink)
+                        @foreach(array_slice($bioPage->social_links, 0, \Hop\Bio\Models\BioPage::SOCIAL_MAX) as $socialLink)
                             @php
                                 // Shown unless switched off, as in the editor preview; older rows have no "enabled" key.
                                 $isEnabled = is_array($socialLink) && ! in_array($socialLink['enabled'] ?? $socialLink['is_active'] ?? true, [false, 0, '0', 'false'], true);

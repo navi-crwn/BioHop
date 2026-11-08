@@ -30,7 +30,7 @@
     <div class="editor-card">
         <div class="editor-card-header">
             <h3 class="editor-card-title">Social Icons</h3>
-            <span class="text-xs editor-text-muted" x-text="(bioPage.social_links || []).length + '/5'"></span>
+            <span class="text-xs editor-text-muted tabular-nums" x-text="(bioPage.social_links || []).length + '/{{ \Hop\Bio\Models\BioPage::SOCIAL_MAX }}'"></span>
         </div>
         <div class="p-4">
             <!-- Social Links List -->
@@ -87,12 +87,12 @@
             </div>
             <!-- Add Social Button -->
             <button @click="showSocialPicker = true" 
-                    :disabled="bioPage.social_links && bioPage.social_links.length >= 5"
+                    :disabled="bioPage.social_links && bioPage.social_links.length >= {{ \Hop\Bio\Models\BioPage::SOCIAL_MAX }}"
                     class="w-full py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-slate-300 dark:disabled:bg-slate-600 disabled:cursor-not-allowed rounded-xl text-white font-medium transition-colors flex items-center justify-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                 </svg>
-                <span x-text="(bioPage.social_links && bioPage.social_links.length >= 5) ? 'Maximum 5 icons reached' : 'Add Social Icon'"></span>
+                <span x-text="(bioPage.social_links && bioPage.social_links.length >= {{ \Hop\Bio\Models\BioPage::SOCIAL_MAX }}) ? @js(__('Maximum :max icons reached', ['max' => \Hop\Bio\Models\BioPage::SOCIAL_MAX])) : @js(__('Add Social Icon'))"></span>
             </button>
         </div>
     </div>

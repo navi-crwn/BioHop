@@ -17,6 +17,7 @@
         'defaults' => config('bio-themes.defaults'),
         'previewUrl' => route('bio.preview', $bioPage),
         'publicBase' => public_url('b'),
+        'socialMax' => \Hop\Bio\Models\BioPage::SOCIAL_MAX,
         'pages' => auth()->user()->bioPages()->orderBy('title')->get(['slug', 'title'])->map(fn ($p) => ['slug' => $p->slug, 'title' => $p->title])->values(),
         'familyHosts' => \App\Bio\FamilyUrls::hosts(),
         // The link picker (LinkHop): what to say when the list cannot be loaded.

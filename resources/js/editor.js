@@ -988,8 +988,8 @@ window.bioEditorV2 = function() {
             if (!this.bioPage.social_links) {
                 this.bioPage.social_links = [];
             }
-            if (this.bioPage.social_links.length >= 5) {
-                this.showNotification('Maximum 5 social icons allowed', 'error');
+            if (this.bioPage.social_links.length >= (CONFIG.socialMax || 5)) {
+                this.showNotification(`Maximum ${CONFIG.socialMax || 5} social icons allowed`, 'error');
                 return;
             }
             // Create temporary social object for editing
