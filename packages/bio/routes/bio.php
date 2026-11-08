@@ -44,6 +44,7 @@ Route::middleware(['web', 'ip.ban', 'hop.auth', UploadStorageGate::class])->pref
     // The member's own PixelHop pictures for the "Choose from PixelHop" picker, fetched server to server
     // (BIO_PIXELHOP_PICKER; 404 while it is off).
     Route::get('/media/pixelhop', [BioMediaController::class, 'pixelhop'])->middleware('throttle:60,1')->name('media.pixelhop');
+    Route::get('/media/notehop', [BioMediaController::class, 'notehop'])->middleware('throttle:60,1')->name('media.notehop');
     Route::post('/import', [BioPageController::class, 'import'])->middleware(['verified', 'throttle:6,1'])->name('import.store');
     Route::get('/{bioPage}/edit', [BioPageController::class, 'edit'])->name('edit');
     Route::put('/{bioPage}', [BioPageController::class, 'update'])->middleware('verified')->name('update');

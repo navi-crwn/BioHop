@@ -21,6 +21,17 @@
         'familyHosts' => \App\Bio\FamilyUrls::hosts(),
         // The link picker (LinkHop): what to say when the list cannot be loaded.
         'linkhop' => ['failed' => __('LinkHop is not reachable right now. You can still paste any URL.')],
+        // "Choose from NoteHop" (BIO_NOTEHOP_PICKER) for a link block: the proxy route and its words; null = off.
+        'notehop' => \Hop\Bio\Support\NoteHopNotes::enabled() ? [
+            'url' => route('bio.media.notehop'),
+            'strings' => [
+                'empty' => __('No public notes in NoteHop yet. Share one there with a read-only link.'),
+                'noMatch' => __('No notes match your search.'),
+                'failed' => __('NoteHop is not reachable right now. You can still paste a note address.'),
+                'picked' => __('Note added from NoteHop'),
+                'untitled' => __('Untitled'),
+            ],
+        ] : null,
         // "Choose from PixelHop" (BIO_PIXELHOP_PICKER): the proxy route and the words the dialog needs; null = uploads only.
         'pixelhop' => \Hop\Bio\Support\PixelHopMedia::enabled() ? [
             'url' => route('bio.media.pixelhop'),
@@ -293,6 +304,9 @@
                                                     <span>Enter a long URL to automatically shorten it</span>
                                                 </template>
                                             </p>
+                                            @if (\Hop\Bio\Support\NoteHopNotes::enabled())
+                                            <button type="button" class="btn btn-secondary text-sm py-2 w-full mt-2" x-show="notehopAvailable() && !editingBlock?.brand" @click="openNoteHop()">{{ __('Choose from NoteHop') }}</button>
+                                            @endif
                                         </div>
                                     </template>
                                     <!-- Select Existing Mode -->
@@ -1356,6 +1370,46 @@
         </div>
     </div>
     </template>
+    @if (\Hop\Bio\Support\NoteHopNotes::enabled())
+    {{-- "Choose from NoteHop": the member's public notes with a read-only link, listed through /bio/media/notehop. Never an encrypted note. --}}
+    <template x-if="notehop.open">
+    <div class="modal-overlay" @click.self="closeNoteHop()">
+        <div class="modal-content notehop-picker" x-modal="notehop.open" data-modal-close="closeNoteHop()" style="max-width: 560px;" @click.stop>
+            <div class="modal-header">
+                <h3 class="modal-title">{{ __('Choose from NoteHop') }}</h3>
+                <button type="button" @click="closeNoteHop()" class="modal-close" aria-label="{{ __('Close') }}">
+                    <svg aria-hidden="true" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="text-xs editor-text-muted mb-3">{{ __('Only your public notes with a read-only link are listed. Encrypted notes are never offered: their key stays with you.') }}</p>
+                <label for="notehop-search" class="sr-only">{{ __('Search your notes') }}</label>
+                <input id="notehop-search" type="search" autocomplete="off" class="form-input w-full mb-3" autofocus
+                       x-model="notehop.q" @input.debounce.300ms="loadNoteHop()" placeholder="{{ __('Search your notes') }}">
+                <p x-show="notehop.error" x-cloak role="alert" class="mb-3 rounded-lg bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300" x-text="notehop.error"></p>
+                <p x-show="!notehop.loading && !notehop.error && notehop.loaded && notehop.items.length === 0" x-cloak class="text-sm editor-text-muted" role="status"
+                   x-text="notehop.q ? notehopStrings().noMatch : notehopStrings().empty"></p>
+                <ul class="notehop-list" x-show="notehop.items.length" role="list">
+                    <template x-for="item in notehop.items" :key="item.id">
+                        <li>
+                            <button type="button" class="notehop-item" @click="pickNoteHop(item)">
+                                <span class="notehop-item-title" x-text="item.title || notehopStrings().untitled"></span>
+                                <span class="notehop-item-url" x-text="item.url.replace(/^https?:\/\//, '')"></span>
+                                <span class="notehop-item-meta" x-show="item.updated" x-text="item.updated ? new Date(item.updated).toLocaleDateString(document.documentElement.lang || undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : ''"></span>
+                            </button>
+                        </li>
+                    </template>
+                </ul>
+                <p x-show="notehop.loading" x-cloak class="text-sm editor-text-muted mt-3" role="status">{{ __('Loading…') }}</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" x-show="notehop.next && !notehop.loading" x-cloak @click="loadNoteHop(true)" class="btn btn-secondary">{{ __('Load more') }}</button>
+                <button type="button" @click="closeNoteHop()" class="btn btn-secondary">{{ __('Cancel') }}</button>
+            </div>
+        </div>
+    </div>
+    </template>
+    @endif
     @if (\Hop\Bio\Support\PixelHopMedia::enabled())
     {{-- "Choose from PixelHop": the member's own PixelHop pictures, listed through /bio/media/pixelhop. The file stays in PixelHop. --}}
     <template x-if="pixelhop.open">

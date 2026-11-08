@@ -634,5 +634,13 @@
     "Create short links in LinkHop to see them here.": "LinkHop で短縮リンクを作成すると、ここに表示されます。",
     "Untitled": "無題",
     "LinkHop is not reachable right now. You can still paste any URL.": "現在 LinkHop に接続できません。URL を直接貼り付けることはできます。",
-    "The shortener could not make a short link right now. Your original URL was kept.": "現在、短縮リンクを作成できませんでした。元の URL はそのまま保存されています。"
+    "The shortener could not make a short link right now. Your original URL was kept.": "現在、短縮リンクを作成できませんでした。元の URL はそのまま保存されています。",
+    "Choose from NoteHop": "NoteHop から選択",
+    "Only your public notes with a read-only link are listed. Encrypted notes are never offered: their key stays with you.": "読み取り専用リンクのある公開ノートだけが表示されます。暗号化されたノートは表示されません。その鍵はあなたの手元にだけあります。",
+    "Search your notes": "自分のノートを検索",
+    "No public notes in NoteHop yet. Share one there with a read-only link.": "NoteHop にはまだ公開ノートがありません。読み取り専用リンクで共有してください。",
+    "No notes match your search.": "検索に一致するノートはありません。",
+    "NoteHop is not reachable right now. You can still paste a note address.": "現在 NoteHop に接続できません。ノートのアドレスを直接貼り付けることはできます。",
+    "Sign in to NoteHop once with your HOP ID; your public notes will then show up here.": "HOP ID で一度 NoteHop にサインインすると、公開ノートがここに表示されます。",
+    "Note added from NoteHop": "NoteHop からノートを追加しました"
 }

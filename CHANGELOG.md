@@ -4,6 +4,9 @@ All notable changes to BioHop are listed here. The format follows [Keep a Change
 
 ## [Unreleased]
 
+### Added
+- "Choose from NoteHop" for a link block (`BIO_NOTEHOP_PICKER`, off by default; `BIO_NOTEHOP_URL`, `BIO_NOTEHOP_TIMEOUT`). The editor asks `GET /bio/media/notehop`, which calls NoteHop's `GET /api/v1/me/notes` server to server, signed like the PixelHop picker with `X-HOP-Actor` set to the member's HOP ID; the browser never talks to NoteHop. Only the member's public notes with a read-only link are offered, never an encrypted note. Each address is checked again here (NoteHop's origin, a bare note path, no query, no fragment, no note key) and is kept as typed, not shortened. A member who never signed in to NoteHop is told to do so once; when NoteHop is down the dialog says so and the address field keeps working. Search, "Load more", keyboard and screen-reader friendly, still with reduced motion; 8 new strings in the nine languages. Needs navi-crwn/NoteHop `feat/me-notes-api`.
+
 ### Fixed
 - "Select existing link" in the block editor now lists the member's short links. It asked LinkHop's `GET /api/links`, which only knows a web session, so the list was always empty, and each search replaced the member's "BioHop" service token without deleting the old one, leaving one more token in their list per keystroke. It now asks `GET /api/me/links` (scope `link:read`, navi-crwn/LinkHop: needs that route deployed first), with the words typed and a limit of 20. A token LinkHop refuses (401, or 403 for a missing scope) is deleted from `api_tokens` before a new one is made, and only BioHop's own token; a suspended account (403 without a scope) does not get a new token per search.
 - When LinkHop cannot be reached the picker says so ("LinkHop is not reachable right now. You can still paste any URL.") instead of "No links found", and the short-link message no longer shows the upstream error text (it could name an internal address). Both are translated.
