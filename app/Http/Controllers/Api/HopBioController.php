@@ -172,7 +172,8 @@ class HopBioController extends Controller
             if ($q !== '') {
                 $query->where(fn ($w) => $w->where('slug', 'like', "%{$q}%")
                     ->orWhere('title', 'like', "%{$q}%")
-                    ->orWhere('description', 'like', "%{$q}%"));
+                    ->orWhere('bio', 'like', "%{$q}%")
+                    ->orWhere('seo_description', 'like', "%{$q}%"));
             }
             if ($owner !== '' && $owner !== 'guest') {
                 if (ctype_digit($owner)) {
@@ -239,7 +240,7 @@ class HopBioController extends Controller
                 return $this->fail('not_found', 'no such bio page', 404);
             }
             $row = $this->pageRow($p, $type === 'bio' ? 'bio' : 'page') + [
-                'description' => $p->description,
+                'description' => $p->bio,
                 'theme' => $p->theme,
                 'custom_css' => $p->custom_css,
                 'adult' => (bool) $p->is_adult_content,
