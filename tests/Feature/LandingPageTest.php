@@ -82,9 +82,16 @@ test('public slug check endpoint returns availability status', function () {
     $res4->assertStatus(422);
 });
 
-test('dashboard route redirects to hub biohop dashboard', function () {
+test('the dashboard route opens BioHop\'s own dashboard, not the hub', function () {
     $response = $this->get('/dashboard');
 
-    $response->assertRedirect();
-    expect($response->headers->get('Location'))->toContain('dashboard#biohop');
+    $response->assertRedirect(route('bio.index'));
+    expect($response->headers->get('Location'))->not->toContain('dashboard#biohop');
+});
+
+test('a signed-in person reaching /dashboard from the hub launcher lands on their bio pages', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)->get('/dashboard')->assertRedirect(route('bio.index'));
+    $this->actingAs($user)->get(route('bio.index'))->assertOk();
 });
