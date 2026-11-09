@@ -4,6 +4,9 @@ All notable changes to BioHop are listed here. The format follows [Keep a Change
 
 ## [Unreleased]
 
+### Fixed
+- The `/changelog` page lists every merged pull request and tag again. The snapshot was never rebuilt for a release, and the build script read a stale `origin/main`; it now fetches first, and `scripts/build-changelog.py --check` (run on release branches in CI) fails when a merged PR or tag is missing.
+
 ## [1.1.0] - 2026-11-10
 
 ### FileHop joins the HOP family
