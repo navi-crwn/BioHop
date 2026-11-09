@@ -21,6 +21,7 @@ All notable changes to BioHop are listed here. The format follows [Keep a Change
 - The link picker and the Link library dialog are translated into the nine languages (12 new strings), their buttons are real buttons for the keyboard, results are announced to screen readers, and the spinner stands still with reduced motion. A search sent with an array as `query` is a 422.
 
 ### Changed
+- The dashboard follows the HOP control standard (`--hop-ctl-*` tokens): one radius and one height for inputs, selects and buttons, 44 px controls on touch screens and narrow windows alike.
 - `composer.lock` moves `hop/safety` from `12d72dd` to `df5e938` (navi-crwn/hop-safety#9): the bundled domain blacklist (`fnjphdp.com` and its subdomains, the Telegram account-takeover kit of 2026-11-05), the kit's phrases as phishing keywords matched in the address too, and the `random_subdomain` signal (weight 30, never blocking on its own). No code change here; link blocks, the short-link form and `abuse:scan` pick the rules up at once.
 
 ### Added
