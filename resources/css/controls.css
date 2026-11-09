@@ -1,0 +1,167 @@
+/*
+| The HOP control standard (2026-11-09): one shape, one height per row, buttons as wide as their text, capped fields.
+| Tokens have the same names in every HOP app. This file is imported unlayered and last, so a utility left on a
+| control in a view (py-3, rounded-xl, w-full, flex-1) cannot change its height, radius or width any more: the
+| classes below are the one definition for the dashboard (.input, .btn, .icon-btn), the editor (.form-input,
+| .btn-secondary, .block-action-btn, .be-*) and what they share.
+|
+| Not covered on purpose: the member's public bio page and its preview (their theme and button shape are theirs),
+| switches, colour dots, and the selectable cards of the wizard and the block catalogue (cards use --hop-card-radius).
+*/
+:root {
+    --hop-ctl-radius: 8px;          /* inputs, selects, textareas, buttons, search */
+    --hop-ctl-radius-sm: 6px;       /* xs buttons, checkboxes, small chips */
+    --hop-card-radius: 14px;        /* cards and panels */
+    --hop-ctl-h: 36px;              /* default control height */
+    --hop-ctl-h-sm: 32px;
+    --hop-ctl-h-lg: 40px;
+    --hop-ctl-px: 12px;
+    --hop-ctl-font: 14px;           /* 16px under 640px for inputs */
+    --hop-ring: 3px;
+    --hop-field-max: 28rem;         /* text, select */
+    --hop-field-max-wide: 40rem;    /* a long URL or a textarea in a full-width row */
+    --hop-field-max-narrow: 24rem;  /* password, email */
+    --hop-field-max-short: 11rem;   /* date, time, number */
+    --hop-field-max-xs: 6rem;
+    --hop-search-max: 20rem;
+    --hop-hit: 44px;                /* the smallest touch target */
+    /* colours: this app's tokens (app.css), light and dark */
+    --hop-accent: rgb(var(--accent));
+    --hop-line: rgb(var(--muted) / 0.32);
+    --hop-surface: rgb(var(--glass) / 0.6);
+    --hop-fill: rgb(var(--muted) / 0.14);
+    --hop-text: rgb(var(--ink));
+    --hop-ui-radius: 14px;          /* the shared dialogs take the card radius */
+}
+.bio-editor {
+    --hop-accent: var(--editor-accent);
+    --hop-line: var(--editor-input-border);
+    --hop-surface: var(--editor-input-bg);
+    --hop-fill: var(--editor-hover-bg);
+    --hop-text: var(--editor-text);
+}
+
+/* ---------- fields ---------- */
+:is(input:not([type=checkbox], [type=radio], [type=range], [type=color], [type=file], [type=hidden]), select, textarea):is(.input, .form-input, .hop-input),
+.bio-editor :is(input:not([type=checkbox], [type=radio], [type=range], [type=color], [type=file], [type=hidden]), select, textarea).form-input {
+    box-sizing: border-box; min-width: 0; max-width: var(--hop-field-max);
+    height: var(--hop-ctl-h); padding: 0 var(--hop-ctl-px);
+    border: 1px solid var(--hop-line); border-radius: var(--hop-ctl-radius);
+    background-color: var(--hop-surface); color: var(--hop-text);
+    font-size: var(--hop-ctl-font); line-height: 1.25; box-shadow: none;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+textarea:is(.input, .form-input, .hop-input), .bio-editor textarea.form-input {
+    height: auto; min-height: 88px; max-width: var(--hop-field-max-wide); padding: 8px var(--hop-ctl-px); line-height: 1.5;
+}
+select:is(.input, .form-input, .hop-input), .bio-editor select.form-input { padding-right: 2.25rem; }
+input[type=url]:is(.input, .form-input, .hop-input), .bio-editor input[type=url].form-input,
+.hop-field--wide :is(.input, .form-input, .hop-input), .bio-editor .hop-field--wide .form-input { max-width: var(--hop-field-max-wide); }
+input:is([type=password], [type=email]):is(.input, .form-input, .hop-input), .bio-editor input:is([type=password], [type=email]).form-input { max-width: var(--hop-field-max-narrow); }
+input:is([type=number], [type=date], [type=time]):is(.input, .form-input, .hop-input), .bio-editor input:is([type=number], [type=date], [type=time]).form-input { max-width: var(--hop-field-max-short); }
+input[type=datetime-local]:is(.input, .form-input, .hop-input), .bio-editor input[type=datetime-local].form-input { max-width: 16rem; }
+:is(.input, .form-input, .hop-input):focus-visible, .bio-editor .form-input:focus-visible,
+:is(.input, .form-input, .hop-input):focus, .bio-editor .form-input:focus {
+    outline: none; border-color: var(--hop-accent);
+    box-shadow: 0 0 0 var(--hop-ring) color-mix(in srgb, var(--hop-accent) 28%, transparent);
+}
+:is(.input, .form-input, .hop-input)[aria-invalid="true"] { border-color: #e11d48; box-shadow: 0 0 0 var(--hop-ring) rgb(225 29 72 / .16); }
+:is(.input, .form-input, .hop-input):disabled { opacity: .64; cursor: not-allowed; }
+
+/* A field wrapper caps the width; the control fills it. */
+.hop-field { display: block; width: 100%; max-width: var(--hop-field-max); }
+.hop-field--wide { max-width: var(--hop-field-max-wide); }
+.hop-field--narrow { max-width: var(--hop-field-max-narrow); }
+.hop-field--short { max-width: var(--hop-field-max-short); }
+.hop-field--xs { max-width: var(--hop-field-max-xs); }
+.hop-field > :is(.input, .form-input, .hop-input), .bio-editor .hop-field > .form-input { max-width: none; }
+/* A box that holds a prefix and a borderless input (the wizard's address field): the box is the control. */
+.hop-field-box {
+    box-sizing: border-box; display: flex; align-items: center; gap: 6px; width: 100%; max-width: var(--hop-field-max);
+    min-height: var(--hop-ctl-h-lg); padding: 0 var(--hop-ctl-px);
+    border: 1px solid var(--hop-line); border-radius: var(--hop-ctl-radius); background-color: var(--hop-surface);
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+.hop-field-box:focus-within { border-color: var(--hop-accent); box-shadow: 0 0 0 var(--hop-ring) color-mix(in srgb, var(--hop-accent) 28%, transparent); }
+.hop-field-box > :is(input, select, textarea) { flex: 1; min-width: 0; height: 100%; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; font-size: var(--hop-ctl-font); outline: none; box-shadow: none; }
+.hop-field-box > textarea { height: auto; padding: 8px 0; line-height: 1.5; }
+/* Search: the same input with a leading icon, 20rem from 640px up. */
+.hop-search { position: relative; display: flex; align-items: center; width: 100%; }
+.hop-search > :is(.input, .form-input, .hop-input), .bio-editor .hop-search > .form-input { max-width: none; padding-left: 34px; }
+@media (min-width: 640px) { .hop-search { max-width: var(--hop-search-max); } }
+
+/* ---------- buttons ---------- */
+:is(.btn, .btn-primary, .btn-ghost, .btn-soft, .btn-danger, .btn-outline, .btn-danger-outline, .hop-btn),
+.bio-editor :is(.btn, .btn-secondary, .be-save, .be-add, .be-fab, .be-health, .block-action-btn, .add-block-btn),
+.bio-editor .be-error button {
+    box-sizing: border-box; align-items: center; justify-content: center; gap: 8px; flex-shrink: 0;
+    height: var(--hop-ctl-h); min-height: 0; padding: 0 14px; border-radius: var(--hop-ctl-radius);
+    font-size: var(--hop-ctl-font); font-weight: 600; line-height: 1; white-space: nowrap; cursor: pointer;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease, transform .12s ease;
+}
+:is(.btn, .btn-primary, .btn-ghost, .btn-soft, .btn-danger, .btn-outline, .btn-danger-outline, .hop-btn):active,
+.bio-editor :is(.btn, .btn-secondary, .be-save, .be-add, .be-fab, .be-health, .block-action-btn, .add-block-btn):active { transform: scale(.97); }
+:is(.btn, .btn-primary, .btn-ghost, .btn-soft, .btn-danger, .btn-outline, .btn-danger-outline, .hop-btn):is(:disabled, [aria-disabled="true"]),
+.bio-editor :is(.btn, .btn-secondary, .be-save, .be-add, .block-action-btn):disabled { opacity: .64; cursor: not-allowed; transform: none; }
+/* sizes */
+.btn-sm:is(.btn, .btn-primary, .btn-ghost, .btn-soft, .btn-danger, .btn-outline, .btn-danger-outline), .btn-sm, .hop-btn--sm,
+.bio-editor .be-health, .bio-editor .be-error button { height: var(--hop-ctl-h-sm); padding: 0 12px; font-size: 13px; }
+.btn-lg:is(.btn, .btn-primary, .btn-ghost, .btn-soft, .btn-danger, .btn-outline, .btn-danger-outline), .hop-btn--lg,
+.bio-editor .be-add { height: var(--hop-ctl-h-lg); padding: 0 16px; }
+/* variants the app did not have yet */
+.btn-outline { background-color: var(--hop-surface); border: 1px solid var(--hop-line); color: var(--hop-text); }
+.btn-outline:hover { background-color: var(--hop-fill); }
+.btn-danger-outline { background-color: var(--hop-surface); border: 1px solid rgb(225 29 72 / .4); color: #e11d48; }
+.btn-danger-outline:hover { background-color: rgb(225 29 72 / .08); }
+.dark .btn-danger-outline { color: #fb7185; }
+.bio-editor .btn-danger { background: #e11d48; color: #fff; border: 0; }
+.bio-editor .btn-danger:hover { background: #be123c; }
+/* A button is as wide as its text (also on a phone, even where a view left flex-1 on it). Only a stacked form may stretch it (.hop-form-actions). */
+:is(.btn, .btn-primary, .btn-ghost, .btn-soft, .btn-danger, .btn-outline, .btn-danger-outline, .hop-btn),
+.bio-editor :is(.btn, .btn-secondary, .be-save, .be-add, .block-action-btn, .add-block-btn) { width: fit-content; flex: 0 0 auto; }
+@media (max-width: 639px) {
+    .hop-form-actions { display: flex; flex-direction: column-reverse; gap: 8px; }
+    .hop-form-actions > :is(.btn, .btn-primary, .btn-ghost, .btn-soft, .btn-danger, .btn-outline, .btn-secondary) { width: 100%; }
+}
+
+/* ---------- icon buttons, tabs ---------- */
+.icon-btn, .bio-editor :is(.be-iconbtn, .modal-close, .block-drag-handle), .bio-editor .block-action-btn:not(.px-3), .bio-editor .option-btn:is(.w-8, .w-9) {
+    box-sizing: border-box; place-items: center; align-items: center; justify-content: center; flex-shrink: 0; position: relative;
+    width: var(--hop-ctl-h); height: var(--hop-ctl-h); min-width: 0; min-height: 0; padding: 0; border-radius: var(--hop-ctl-radius);
+}
+.icon-btn:is(.h-8\!, .w-8\!) { width: var(--hop-ctl-h) !important; height: var(--hop-ctl-h) !important; }
+.bio-editor .option-btn.w-8 { width: var(--hop-ctl-h-sm); height: var(--hop-ctl-h-sm); }
+.bio-editor .be-iconbtn.be-kbd { width: var(--hop-ctl-h-lg) !important; padding: 0; }
+.bio-editor .editor-tab, .bio-editor .be-design-nav [role=tab] {
+    box-sizing: border-box; align-items: center; height: var(--hop-ctl-h); padding: 0 12px;
+    border-radius: var(--hop-ctl-radius); white-space: nowrap; flex-shrink: 0;
+}
+.bio-editor .be-design-nav [role=tab] { height: var(--hop-ctl-h-sm); }
+
+/* ---------- phones and touch ---------- */
+@media (max-width: 639px) {
+    :is(input:not([type=checkbox], [type=radio], [type=range], [type=color], [type=file], [type=hidden]), select, textarea):is(.input, .form-input, .hop-input),
+    .bio-editor :is(input:not([type=checkbox], [type=radio], [type=range], [type=color], [type=file], [type=hidden]), select, textarea).form-input,
+    .hop-field-box > :is(input, select, textarea) { font-size: 16px; }
+}
+@media (pointer: coarse), (max-width: 639px) {
+    :is(input:not([type=checkbox], [type=radio], [type=range], [type=color], [type=file], [type=hidden]), select):is(.input, .form-input, .hop-input),
+    .bio-editor :is(input:not([type=checkbox], [type=radio], [type=range], [type=color], [type=file], [type=hidden]), select).form-input,
+    .hop-field-box,
+    :is(.btn, .btn-primary, .btn-ghost, .btn-soft, .btn-danger, .btn-outline, .btn-danger-outline, .btn-sm, .hop-btn),
+    .bio-editor :is(.btn, .btn-secondary, .be-save, .be-add, .be-fab, .be-health, .block-action-btn.px-3, .add-block-btn, .editor-tab),
+    .bio-editor .be-design-nav [role=tab], .bio-editor .be-error button { min-height: var(--hop-hit); }
+    /* Icon buttons keep their size to look at; the hit area grows to 44px around them. */
+    .icon-btn::after, .bio-editor :is(.be-iconbtn, .modal-close, .block-drag-handle)::after, .bio-editor .block-action-btn:not(.px-3)::after,
+    .bio-editor .option-btn:is(.w-8, .w-9)::after, [data-hit]::after {
+        content: ''; position: absolute; inset: min(0px, calc((100% - var(--hop-hit)) / 2));
+    }
+    [data-hit] { position: relative; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :is(.input, .form-input, .hop-input, .hop-field-box, .btn, .btn-primary, .btn-ghost, .btn-soft, .btn-danger, .btn-outline, .btn-danger-outline, .btn-sm, .hop-btn, .icon-btn),
+    .bio-editor :is(.form-input, .btn, .btn-secondary, .be-save, .be-add, .be-fab, .be-health, .block-action-btn, .be-iconbtn, .editor-tab) { transition: none !important; }
+    :is(.btn, .btn-primary, .btn-ghost, .btn-soft, .btn-danger, .btn-outline, .btn-danger-outline, .hop-btn, .icon-btn):active,
+    .bio-editor :is(.btn, .btn-secondary, .be-save, .be-add, .be-fab, .be-health, .block-action-btn):active { transform: none !important; }
+}

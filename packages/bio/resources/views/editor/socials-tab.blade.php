@@ -9,7 +9,7 @@
             <div class="grid grid-cols-2 gap-3">
                 <button @click="bioPage.social_icons_position = 'below_bio'" 
                         :class="bioPage.social_icons_position === 'below_bio' || !bioPage.social_icons_position ? 'border-blue-500 bg-blue-900/20' : 'border-(--editor-border)'"
-                        class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all">
+                        data-tile class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all">
                     <svg class="w-8 h-8" :class="bioPage.social_icons_position === 'below_bio' || !bioPage.social_icons_position ? 'text-blue-400' : 'editor-text-muted'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                     </svg>
@@ -17,7 +17,7 @@
                 </button>
                 <button @click="bioPage.social_icons_position = 'bottom_page'" 
                         :class="bioPage.social_icons_position === 'bottom_page' ? 'border-blue-500 bg-blue-900/20' : 'border-(--editor-border)'"
-                        class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all">
+                        data-tile class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all">
                     <svg class="w-8 h-8" :class="bioPage.social_icons_position === 'bottom_page' ? 'text-blue-400' : 'editor-text-muted'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
                     </svg>
@@ -59,7 +59,7 @@
                                    data-lpignore="true"
                                    data-form-type="other"
                                    :aria-label="(platforms[item.platform]?.name || item.platform) + ' username or URL'"
-                                   class="w-full bg-transparent border-none focus:outline-hidden text-sm editor-text placeholder-slate-500">
+                                   class="form-input">
                             <div class="text-xs editor-text-muted" x-text="platforms[item.platform]?.name || item.platform"></div>
                         </div>
                         <!-- Actions -->
@@ -88,7 +88,7 @@
             <!-- Add Social Button -->
             <button @click="showSocialPicker = true" 
                     :disabled="bioPage.social_links && bioPage.social_links.length >= {{ \Hop\Bio\Models\BioPage::SOCIAL_MAX }}"
-                    class="w-full py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-slate-300 dark:disabled:bg-slate-600 disabled:cursor-not-allowed rounded-xl text-white font-medium transition-colors flex items-center justify-center gap-2">
+                    class="btn btn-primary">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                 </svg>

@@ -362,7 +362,7 @@
                 <p class="font-medium text-red-800 dark:text-red-300">Delete Page</p>
                 <p class="text-sm text-red-600 dark:text-red-400">Permanently delete this bio page and all its data</p>
             </div>
-            <button @click="confirmDelete($event)" class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">
+            <button type="button" @click="confirmDelete($event)" class="btn btn-danger">
                 Delete Page
             </button>
         </div>

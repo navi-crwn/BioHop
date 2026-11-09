@@ -14,5 +14,5 @@ test('the new bio button has a name when its text is hidden', function (string $
     $user = User::factory()->create();
     BioPage::create(['user_id' => $user->id, 'slug' => 'namedemo', 'title' => 'T']);
     $html = (string) $this->actingAs($user)->get($path)->assertOk()->getContent();
-    expect($html)->toMatch('~<a href="[^"]*/bio/create"[^>]*class="btn-primary btn-sm sm:btn"[^>]*aria-label="New bio"~');
+    expect($html)->toMatch('~<a href="[^"]*/bio/create"[^>]*class="btn-primary"[^>]*aria-label="New bio"~');
 })->with(['/bio', '/bio/import', '/bio/namedemo/analytics', '/bio/namedemo/edit', '/bio/create', '/settings']);

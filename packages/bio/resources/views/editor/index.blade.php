@@ -76,7 +76,7 @@
                     <div class="min-w-0">
                         <div class="relative flex items-center gap-1" x-data="{ pagesOpen: false }" @click.outside="pagesOpen = false" @keydown.escape="pagesOpen = false">
                             <h1 x-text="bioPage.title || 'Untitled'"></h1>
-                            <button type="button" class="be-iconbtn" style="width:24px;height:24px" x-show="pages.length > 1" @click="pagesOpen = !pagesOpen" :aria-expanded="pagesOpen" aria-haspopup="menu" aria-label="Switch to another page">
+                            <button type="button" class="be-iconbtn" x-show="pages.length > 1" @click="pagesOpen = !pagesOpen" :aria-expanded="pagesOpen" aria-haspopup="menu" aria-label="Switch to another page">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                             </button>
                             <div x-show="pagesOpen" x-cloak x-transition class="be-pages-menu" role="menu">
@@ -394,7 +394,7 @@
                                         <label class="form-label">Icon</label>
                                         <button type="button" 
                                                 @click.prevent.stop="openIconPickerSafe(editingBlock)" 
-                                                class="w-full flex items-center gap-3 p-3 option-btn rounded-lg transition-colors text-left relative z-10"
+                                                data-tile class="w-full flex items-center gap-3 p-3 option-btn rounded-lg transition-colors text-left relative z-10"
                                                 style="cursor: pointer; pointer-events: auto;">
                                             <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors" 
                                                  :style="{ backgroundColor: '#6366f1' }">
@@ -419,7 +419,7 @@
                                 </template>
                                 <div class="form-group" x-data="{ showButtonStyle: true }">
                                     <button type="button" @click="showButtonStyle = !showButtonStyle" 
-                                            class="w-full flex items-center justify-between p-3 option-btn rounded-lg transition-colors">
+                                            data-tile class="w-full flex items-center justify-between p-3 option-btn rounded-lg transition-colors">
                                         <div class="flex items-center gap-3">
                                             <div class="w-10 h-10 rounded-lg flex items-center justify-center border-2"
                                                  :style="{

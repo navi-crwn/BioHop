@@ -141,7 +141,7 @@
                     </div>
                 </div>
                 <!-- Add Block Button -->
-                <button @click="showAddBlockModal = true" class="w-full py-3 border-2 border-dashed border-(--editor-border) rounded-xl editor-text-muted hover:editor-text hover:border-blue-500 transition-colors flex items-center justify-center gap-2">
+                <button @click="showAddBlockModal = true" class="btn btn-outline">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                     </svg>
@@ -187,7 +187,7 @@
                     <div class="grid grid-cols-3 gap-2">
                         <template x-for="brandId in ['instagram', 'tiktok', 'youtube', 'twitter', 'spotify', 'whatsapp', 'telegram', 'email', 'facebook']" :key="brandId">
                             <button @click="addBrandBlock(brandId)" 
-                                    class="p-2 rounded-lg transition-colors flex flex-col items-center gap-1 hover:[background:var(--editor-hover-bg)]" 
+                                    data-tile class="p-2 rounded-lg transition-colors flex flex-col items-center gap-1 hover:[background:var(--editor-hover-bg)]" 
                                     style="border: 1px solid var(--editor-border);"
                                     :title="brands[brandId]?.name"
                                     :aria-label="'Add ' + (brands[brandId]?.name || brandId)">

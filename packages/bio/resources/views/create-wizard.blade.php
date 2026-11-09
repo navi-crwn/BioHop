@@ -16,7 +16,7 @@
                 <section x-show="step === 1" class="bw-step">
                     <h1 class="bw-title">{{ __('Pick your address') }}</h1>
                     <p class="bw-lead">{{ __('Letters and numbers only. You can change it later.') }}</p>
-                    <label class="bw-field"><span class="bw-prefix">{{ public_host() }}/b/</span><input type="text" x-model="slug" @input.debounce.400ms="checkSlug()" minlength="{{ $slugMin }}" maxlength="20" pattern="[a-zA-Z0-9]+" autocomplete="off" placeholder="{{ __('yourname') }}" aria-label="{{ __('Your address') }}"></label>
+                    <label class="bw-field hop-field-box"><span class="bw-prefix">{{ public_host() }}/b/</span><input type="text" x-model="slug" @input.debounce.400ms="checkSlug()" minlength="{{ $slugMin }}" maxlength="20" pattern="[a-zA-Z0-9]+" autocomplete="off" placeholder="{{ __('yourname') }}" aria-label="{{ __('Your address') }}"></label>
                     <p class="bw-hint" x-show="checking">{{ __('Checking…') }}</p>
                     <p class="bw-hint ok" x-show="!checking && available === true" x-cloak>✓ {{ __('Available') }}</p>
                     <p class="bw-hint bad" x-show="!checking && available === false" x-cloak x-text="'✗ ' + (slugMessage || '{{ __('Already taken') }}')"></p>
@@ -44,7 +44,7 @@
                         <template x-for="p in platforms" :key="p.id">
                             <div class="bw-platform" :class="{ on: picked[p.id] !== undefined }">
                                 <button type="button" @click="togglePlatform(p.id)" :aria-pressed="String(picked[p.id] !== undefined)" :disabled="picked[p.id] === undefined && Object.keys(picked).length >= maxSocials"><span class="bw-platform-ic" :style="'background:' + p.color"><img :src="'/images/brands/' + p.id + '.svg?v=20251212'" alt="" width="24" height="24"></span><span x-text="p.name"></span></button>
-                                <input x-show="picked[p.id] !== undefined" x-cloak type="text" :placeholder="p.placeholder" :aria-label="p.name" :value="picked[p.id] || ''" @input="picked[p.id] = $event.target.value">
+                                <input class="hop-input" x-show="picked[p.id] !== undefined" x-cloak type="text" :placeholder="p.placeholder" :aria-label="p.name" :value="picked[p.id] || ''" @input="picked[p.id] = $event.target.value">
                             </div>
                         </template>
                     </div>
@@ -55,7 +55,7 @@
                     <p class="bw-lead">{{ __('Paste an address; the name and icon are filled in for you.') }}</p>
                     <div class="bw-links">
                         <template x-for="(l, i) in links" :key="i">
-                            <label class="bw-field"><span class="bw-prefix">🔗</span><input type="url" x-model="links[i]" :placeholder="'https://'" :aria-label="'{{ __('Link') }} ' + (i + 1)"></label>
+                            <label class="bw-field hop-field-box"><span class="bw-prefix">🔗</span><input type="url" x-model="links[i]" :placeholder="'https://'" :aria-label="'{{ __('Link') }} ' + (i + 1)"></label>
                         </template>
                         <button type="button" class="bw-ghost" @click="links.push('')" x-show="links.length < 10">+ {{ __('Another link') }}</button>
                     </div>
@@ -70,9 +70,9 @@
                         <span x-show="!avatarUrl" aria-hidden="true">+</span>
                         <span class="sr-only">{{ __('Upload a profile picture') }}</span>
                     </label>
-                    <label class="bw-field"><input type="text" x-model="title" maxlength="{{ \Hop\Bio\Models\BioPage::TITLE_MAX }}" placeholder="{{ __('Display name') }}" aria-label="{{ __('Display name') }}"></label>
-                    <label class="bw-field"><span class="bw-prefix">{{ __('Content warning') }}</span><select name="content_warning" x-model="contentWarning" aria-label="{{ __('Content warning') }}">@foreach(['none' => 'None', 'sensitive' => 'Sensitive content', 'adult' => 'Adult 18+'] as $value => $label)<option value="{{ $value }}">{{ __($label) }}</option>@endforeach</select></label>
-                    <label class="bw-field bw-area"><textarea x-model="bio" maxlength="{{ \Hop\Bio\Models\BioPage::BIO_MAX }}" rows="3" placeholder="{{ __('Bio') }}" aria-label="{{ __('Bio') }}"></textarea><small x-text="bio.length + '/{{ \Hop\Bio\Models\BioPage::BIO_MAX }}'"></small></label>
+                    <label class="bw-field hop-field-box"><input type="text" x-model="title" maxlength="{{ \Hop\Bio\Models\BioPage::TITLE_MAX }}" placeholder="{{ __('Display name') }}" aria-label="{{ __('Display name') }}"></label>
+                    <label class="bw-field hop-field-box"><span class="bw-prefix">{{ __('Content warning') }}</span><select name="content_warning" x-model="contentWarning" aria-label="{{ __('Content warning') }}">@foreach(['none' => 'None', 'sensitive' => 'Sensitive content', 'adult' => 'Adult 18+'] as $value => $label)<option value="{{ $value }}">{{ __($label) }}</option>@endforeach</select></label>
+                    <label class="bw-field bw-area hop-field-box"><textarea x-model="bio" maxlength="{{ \Hop\Bio\Models\BioPage::BIO_MAX }}" rows="3" placeholder="{{ __('Bio') }}" aria-label="{{ __('Bio') }}"></textarea><small x-text="bio.length + '/{{ \Hop\Bio\Models\BioPage::BIO_MAX }}'"></small></label>
                 </section>
                 {{-- 6 colours --}}
                 <section x-show="step === 6" class="bw-step" x-cloak>
@@ -187,46 +187,47 @@
         /* Surfaces follow the dashboard tokens (--glass, --ink, --muted) so the dark theme reads too. The old --home-*
            variables belong to the homepage and are never set in the dashboard layout: the fallback was a white box
            under light text. */
-        .bio-wizard { --bw-panel: rgb(var(--glass, 255 255 255) / 0.75); --bw-muted: rgb(var(--muted, 100 116 139)); --bw-line: rgb(var(--ink, 15 23 42) / 0.14); color: rgb(var(--ink, 15 23 42)); }
+        .bio-wizard { --bw-panel: rgb(var(--glass, 255 255 255) / 0.75); --bw-muted: rgb(var(--muted, 100 116 139)); --bw-line: rgb(var(--ink, 15 23 42) / 0.14); color: rgb(var(--ink, 15 23 42));
+            /* the standard's fields and buttons (controls.css) take the wizard's surface and line */
+            --hop-surface: var(--bw-panel); --hop-line: var(--bw-line); --hop-text: rgb(var(--ink, 15 23 42)); }
         .dark .bio-wizard { --bw-panel: rgb(var(--glass, 22 27 48) / 0.7); --bw-line: rgb(255 255 255 / 0.14); }
         .bw-lead { color: var(--bw-muted); margin: 0 0 22px; font-size: 16px; }
-        .bw-field { display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 16px; border: 1.5px solid var(--bw-line); border-radius: 16px; background: var(--bw-panel); margin-bottom: 10px; }
-        .bw-field:focus-within { border-color: rgb(var(--accent, 99 102 241)); }
-        .bw-field select { flex: 1; border: 0; background: transparent; padding: 10px 6px; font: inherit; color: inherit; }
+        .bw-field { margin-bottom: 10px; }
         .bw-field select option { color: #0f172a; }
-        .bw-field input, .bw-field textarea { flex: 1; min-width: 0; border: 0; background: transparent; padding: 10px 6px; font: inherit; font-size: 16px; color: inherit; outline: none; }
         .bw-field input::placeholder, .bw-field textarea::placeholder, .bw-platform input::placeholder { color: var(--bw-muted); opacity: .8; }
-        .bw-field.bw-area { display: grid; grid-template-columns: 1fr auto; align-items: end; }
+        .bw-field.bw-area { display: grid; grid-template-columns: 1fr auto; align-items: end; max-width: var(--hop-field-max-wide); }
         .bw-field.bw-area small { font-size: 11px; color: var(--bw-muted); padding: 0 8px 8px 0; font-variant-numeric: tabular-nums; }
         .bw-prefix { color: var(--bw-muted); font: 13px 'JetBrains Mono', ui-monospace, monospace; }
         .bw-hint { font-size: 13px; color: var(--bw-muted); margin: 4px 0 0; } .bw-hint.ok { color: #16a34a; } .bw-hint.bad { color: #e11d48; }
         .dark .bw-hint.ok { color: #4ade80; } .dark .bw-hint.bad { color: #fb7185; }
         .bw-count { margin: -12px 0 16px; font-variant-numeric: tabular-nums; }
         .bw-cards { display: grid; gap: 12px; }
-        .bw-card { display: grid; grid-template-columns: 1fr 72px; grid-template-rows: auto auto; gap: 2px 16px; align-items: center; text-align: left; padding: 18px 20px; border: 1.5px solid var(--bw-line); border-radius: 20px; background: var(--bw-panel); color: inherit; cursor: pointer; transition: border-color .2s, transform .2s, box-shadow .2s; }
-        .bw-card:hover { transform: translateY(-1px); } .bw-card:active { transform: scale(.985); }
+        .bw-card { display: grid; grid-template-columns: 1fr 72px; grid-template-rows: auto auto; gap: 2px 16px; align-items: center; text-align: left; padding: 18px 20px; border: 1px solid var(--bw-line); border-radius: var(--hop-card-radius); background: var(--bw-panel); color: inherit; cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+        .bw-card:hover { border-color: var(--bw-muted); } .bw-card:active { transform: scale(.985); }
         .bw-card.on { border-color: currentColor; box-shadow: 0 0 0 1px currentColor inset; }
         .bw-card b { font-size: 18px; } .bw-card small { color: var(--bw-muted); font-size: 14px; }
-        .bw-card-art { grid-column: 2; grid-row: 1 / 3; width: 72px; height: 72px; border-radius: 16px; }
+        .bw-card-art { grid-column: 2; grid-row: 1 / 3; width: 72px; height: 72px; border-radius: 10px; }
         .bw-platforms { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-        .bw-platform button { width: 100%; display: grid; justify-items: center; gap: 8px; padding: 18px 8px; border: 1.5px solid var(--bw-line); border-radius: 18px; background: var(--bw-panel); color: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: border-color .2s, box-shadow .2s, transform .15s; }
+        .bw-platform button { width: 100%; display: grid; justify-items: center; gap: 8px; padding: 18px 8px; border: 1px solid var(--bw-line); border-radius: var(--hop-card-radius); background: var(--bw-panel); color: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: border-color .15s, box-shadow .15s; }
         .bw-platform button:active { transform: scale(.97); }
         .bw-platform button:disabled { opacity: .45; cursor: not-allowed; }
         .bw-platform.on button { border-color: currentColor; box-shadow: 0 0 0 1px currentColor inset; }
         /* The brand colour sits on a wrapper and the white filter only touches the glyph; on the <img> itself the filter whitened the colour too, which left blank squares. */
-        .bw-platform-ic { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; }
+        .bw-platform-ic { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 10px; }
         .bw-platform-ic img { width: 24px; height: 24px; filter: brightness(0) invert(1); }
-        .bw-platform input { width: 100%; margin-top: 6px; padding: 10px; border: 1.5px solid var(--bw-line); border-radius: 10px; background: var(--bw-panel); color: inherit; font-size: 16px; }
-        .bw-platform input:focus { outline: none; border-color: rgb(var(--accent, 99 102 241)); }
+        .bw-platform input { width: 100%; margin-top: 6px; }
         .bw-avatar { position: relative; display: grid; place-items: center; width: 120px; height: 120px; margin: 0 auto 18px; border-radius: 50%; background: rgba(120,120,140,.2); overflow: hidden; cursor: pointer; font-size: 36px; }
         .bw-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .bw-swatches { display: grid; grid-template-columns: repeat(5, 56px); gap: 16px; }
         .bw-swatch { width: 56px; height: 56px; border-radius: 50%; border: 3px solid transparent; background: linear-gradient(135deg, var(--w) 50%, var(--b) 50%); cursor: pointer; box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); }
         .bw-swatch.on { border-color: currentColor; } .bw-swatch.theme { background: linear-gradient(135deg, #22d3ee, #a78bfa, #f472b6); color: #fff; font-size: 20px; }
-        .bw-nav { display: flex; gap: 10px; margin-top: 28px; }
-        .bw-next { flex: 1; padding: 14px 20px; border: 0; border-radius: 999px; background: #0b1020; color: #fff; font-weight: 700; font-size: 16px; cursor: pointer; }
-        .bw-next:disabled { opacity: .4; cursor: not-allowed; }
-        .bw-ghost { padding: 12px 18px; border: 1.5px solid var(--bw-line); border-radius: 999px; background: transparent; color: inherit; font-weight: 600; cursor: pointer; }
+        .bw-nav { display: flex; align-items: center; gap: 8px; margin-top: 28px; }
+        /* Back, Continue and "+ Another link": the standard button, large (the page's main action), as wide as its text. */
+        .bw-next, .bw-ghost { box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; height: var(--hop-ctl-h-lg); padding: 0 16px; border-radius: var(--hop-ctl-radius); font-size: var(--hop-ctl-font); font-weight: 600; white-space: nowrap; cursor: pointer; transition: background-color .15s, border-color .15s; }
+        .bw-next { border: 1px solid transparent; background: #0b1020; color: #fff; }
+        .bw-next:disabled { opacity: .64; cursor: not-allowed; }
+        .bw-ghost { border: 1px solid var(--bw-line); background: transparent; color: inherit; }
+        .bw-ghost:hover { background: rgb(var(--muted, 100 116 139) / 0.12); }
         .bw-ghost:active, .bw-next:active { transform: scale(.97); }
         .dark .bw-next { background: #f1f5f9; color: #0b1020; }
         .bw-error { color: #e11d48; font-size: 14px; margin-top: 12px; } .dark .bw-error { color: #fb7185; }
@@ -240,7 +241,8 @@
         .bw-socials { display: flex; gap: 8px; min-height: 18px; } .bw-socials img { width: 16px; height: 16px; filter: brightness(0) invert(1); opacity: .9; }
         .bw-pill { width: 100%; padding: 11px; border-radius: 999px; background: var(--b); color: var(--bt); font-size: 13px; font-weight: 600; }
         .bw-pill.ghost { background: color-mix(in srgb, var(--b) 35%, transparent); height: 40px; }
-        @media (prefers-reduced-motion: reduce) { .bio-wizard * { transition: none !important; } .bw-card:hover, .bw-card:active, .bw-platform button:active, .bw-ghost:active, .bw-next:active { transform: none; } }
+        @media (pointer: coarse), (max-width: 639px) { .bw-next, .bw-ghost { min-height: var(--hop-hit); } .bw-nav .bw-next { margin-left: auto; } }
+        @media (prefers-reduced-motion: reduce) { .bio-wizard * { transition: none !important; } .bw-card:active, .bw-platform button:active, .bw-ghost:active, .bw-next:active { transform: none; } }
         @media (max-width: 860px) { .bw-grid { grid-template-columns: minmax(0, 1fr); } .bw-phone-wrap { position: static; order: -1; } .bw-phone { width: 200px; } .bw-swatches { grid-template-columns: repeat(4, 56px); } .bw-platforms { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     </style>
 </x-app-layout>

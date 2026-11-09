@@ -70,7 +70,7 @@
                         </button>
                         <p class="truncate pl-1 text-sm font-semibold text-ink">{{ $sectionTitle }}</p>
                         <div class="ml-auto flex items-center gap-1.5">
-                            <a href="{{ route('bio.create') }}" class="btn-primary btn-sm sm:btn" aria-label="{{ __('New bio') }}">
+                            <a href="{{ route('bio.create') }}" class="btn-primary" aria-label="{{ __('New bio') }}">
                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>
                                 <span class="hidden sm:inline">{{ __('New bio') }}</span>
                             </a>
