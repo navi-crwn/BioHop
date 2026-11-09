@@ -118,9 +118,9 @@
     --editor-hover-bg: rgb(255 255 255 / 0.06);
 }
 :root[data-ui="clean"] .bio-editor .editor-card { border-radius: var(--hop-card-radius); box-shadow: var(--coss-card-shadow); }
-:root[data-ui="clean"] .coss-footer-brand { display: flex; align-items: center; gap: 10px; max-width: 1180px; margin: 24px auto 0; padding: 16px 24px 24px; font-size: 14px; color: rgb(var(--muted)); }
-:root[data-ui="clean"] .coss-footer-brand img { width: 28px; height: 28px; }
-:root[data-ui="clean"] .coss-footer-brand b { color: rgb(var(--ink)); font-weight: 600; }
-
-/* The footer strip is in the markup for everyone; only the Clean style shows it. */
-.coss-footer-brand { display: none; }
+/* Family row: HOP ID mark + "Part of Hop Easy Link", for everyone, in both looks. */
+.hop-family-row { display: flex; align-items: center; gap: 10px; width: fit-content; font-size: 13px; line-height: 20px; color: rgb(var(--muted)); text-decoration: none; }
+.hop-family-row img { width: 20px; height: 20px; border-radius: 4px; flex: none; }
+.hop-family-row b { color: rgb(var(--ink)); font-weight: 500; }
+.hop-family-row:hover b { text-decoration: underline; text-underline-offset: 2px; }
+.hop-family-footer { max-width: 1180px; margin: 24px auto 0; padding: 16px 24px 24px; border-top: 1px solid rgb(var(--muted) / 0.2); }

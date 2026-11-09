@@ -699,5 +699,6 @@
     "The version from :when replaces the page. Your page as it is now is saved as a version first, so you can undo this.": ":when 的版本将替换当前主页。当前主页会先保存为一个版本，因此可以撤销。",
     "Restore": "恢复",
     "Could not restore this version.": "无法恢复此版本。",
-    "Nothing was changed. Try again in a moment.": "未做任何更改。请稍后再试。"
+    "Nothing was changed. Try again in a moment.": "未做任何更改。请稍后再试。",
+    "Part of :name": "属于 :name"
 }

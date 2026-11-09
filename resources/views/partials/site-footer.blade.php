@@ -8,7 +8,8 @@
     ];
 @endphp
 <footer class="border-t border-slate-200/80 bg-white py-12 dark:border-white/10 dark:bg-[#0e1322]">
-    <div class="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-4 text-sm sm:px-6 md:grid-cols-5 lg:px-8">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">@include('partials.family-row')</div>
+    <div class="mx-auto mt-6 grid max-w-7xl grid-cols-2 gap-8 px-4 text-sm sm:px-6 md:grid-cols-5 lg:px-8">
         <div class="col-span-2 md:col-span-1">
             <a href="{{ route('home') }}" class="flex items-center gap-2 font-bold text-slate-900 dark:text-white">
                 <img src="{{ route('brand.favicon', ['v' => 'b10b1000']) }}" alt="" width="28" height="28" class="h-7 w-7 rounded-lg"> BioHop
@@ -26,12 +27,7 @@
             </div>
         @endforeach
     </div>
-    <div class="mx-auto mt-10 flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 text-xs text-slate-500 dark:text-slate-400 sm:px-6 lg:px-8">
+    <div class="mx-auto mt-10 flex max-w-7xl flex-col items-center gap-4 px-4 text-center text-xs text-slate-500 dark:text-slate-400 sm:flex-row sm:justify-end sm:px-6 sm:text-right lg:px-8">
         <p>&copy; {{ date('Y') }} navi-crwn · MIT License</p>
-        <nav aria-label="{{ __('Language') }}" class="flex flex-wrap gap-x-3 gap-y-1">
-            @foreach (\Hop\Ui\Locales::names() as $code => $name)
-                <a href="?lang={{ $code }}" lang="{{ $code }}" @class(['inline-flex min-h-8 items-center hover:text-violet-600 dark:hover:text-violet-400', 'font-semibold text-slate-600 dark:text-slate-200' => app()->getLocale() === $code])>{{ $name }}</a>
-            @endforeach
-        </nav>
     </div>
 </footer>

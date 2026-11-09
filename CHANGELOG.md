@@ -4,6 +4,11 @@ All notable changes to BioHop are listed here. The format follows [Keep a Change
 
 ## [Unreleased]
 
+### Changed
+- Every app shows the family row as the first row inside its footer, for everyone and in both looks: the HOP ID mark and "Part of Hop Easy Link" (linking to hel.ink). "Part of" is translated in all nine languages; the name stays in English. It replaces the strip that only the Clean style showed.
+- The footer no longer has a language row; the language menu in the top bar is the one place to switch. The copyright line is right-aligned on desktop and centred on phones.
+- Signing out sends the person to the hub with `return=<this app's home>`, so the hub's chained logout can bring them back here instead of to the hub's home.
+
 ### Fixed
 - The `/changelog` page lists every merged pull request and tag again. The snapshot was never rebuilt for a release, and the build script read a stale `origin/main`; it now fetches first, and `scripts/build-changelog.py --check` (run on release branches in CI) fails when a merged PR or tag is missing.
 

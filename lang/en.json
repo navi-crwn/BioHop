@@ -699,5 +699,6 @@
     "The version from :when replaces the page. Your page as it is now is saved as a version first, so you can undo this.": "The version from :when replaces the page. Your page as it is now is saved as a version first, so you can undo this.",
     "Restore": "Restore",
     "Could not restore this version.": "Could not restore this version.",
-    "Nothing was changed. Try again in a moment.": "Nothing was changed. Try again in a moment."
+    "Nothing was changed. Try again in a moment.": "Nothing was changed. Try again in a moment.",
+    "Part of :name": "Part of :name"
 }
