@@ -34,8 +34,9 @@
             <div x-data="{ nav: false }" @keydown.escape.window="nav = false" class="lg:pl-68">
                 {{-- Sidebar: floating glass panel on desktop, drawer on mobile --}}
                 <div x-show="nav" x-cloak x-transition.opacity @click="nav = false" class="fixed inset-0 z-40 bg-slate-950/40 backdrop-blur-xs lg:hidden"></div>
-                <aside class="fixed inset-y-0 left-0 z-50 w-68 p-3 transition-transform duration-300 lg:translate-x-0"
-                       :class="nav ? 'translate-x-0' : '-translate-x-full'"
+                {{-- Closed by default in the markup itself: with the class set only by Alpine, the drawer covered a phone's screen until the script started. --}}
+                <aside class="fixed inset-y-0 left-0 z-50 w-68 p-3 -translate-x-full transition-transform duration-300 ease-out lg:translate-x-0"
+                       :class="nav ? 'translate-x-0!' : ''"
                        @click="if ($event.target.closest('a')) nav = false">
                     <div class="glass flex h-full flex-col rounded-3xl">
                         <div class="flex h-16 items-center justify-between px-5">
