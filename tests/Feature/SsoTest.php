@@ -48,7 +48,7 @@ test('a ticket for a suspended account or with the wrong state is refused', func
 
 test('signing out ends the session here and continues at the hub', function () {
     $user = User::factory()->create();
-    $this->actingAs($user)->post('/logout')->assertRedirect('https://hub.test/logout');
+    $this->actingAs($user)->post('/logout')->assertRedirect('https://hub.test/logout?return='.urlencode(route('home')));
     $this->assertGuest();
 });
 
@@ -79,4 +79,19 @@ it('lets the logout chain leave for every HOP host (form-action covers the redir
     }
     // NoteHop is a step of the chain too but is not in hop.apps: the family's subdomains cover it.
     expect($m[1] ?? '')->toContain('https://*.hel.ink');
+});
+
+test('sign-out asks the hub to bring the person back to this app, not to the hub home', function () {
+    $user = User::factory()->create();
+
+    $location = $this->actingAs($user)->post('/logout')->headers->get('Location');
+    parse_str((string) parse_url($location, PHP_URL_QUERY), $query);
+    expect($location)->toStartWith('https://hub.test/logout?')
+        ->and($query['return'])->toBe(route('home'));
+});
+
+test('the footer opens with the family row and has no language row', function () {
+    preg_match('~<footer.*</footer>~s', $this->get('/about')->assertOk()->getContent(), $m);
+    expect($m[0])->toContain('Hop Easy Link')->toContain('Part of')->toContain('href="https://hel.ink"')
+        ->not->toContain('aria-label="Language"')->not->toContain('?lang=');
 });
