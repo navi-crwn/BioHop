@@ -227,8 +227,8 @@
     .bio-editor .block-actions { gap: 0; }
     .bio-editor .block-drag-handle { padding: 10px 4px; }
 }
-/* Touch screens: every control in the editor's header and lists is at least 44 px. */
-@media (pointer: coarse) {
+/* Touch screens and narrow windows: every control in the editor's header and lists is at least 44 px. */
+@media (pointer: coarse), (max-width: 640px) {
     .bio-editor .be-iconbtn, .bio-editor .be-save { min-width: 44px; min-height: 44px; }
     .bio-editor .block-action-btn { min-width: 44px; }
     .bio-editor .editor-tab { min-height: 44px; }
