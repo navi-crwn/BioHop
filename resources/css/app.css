@@ -3,6 +3,7 @@
 @import './profile-hero.css';
 @import './editor.css';
 @import './controls.css';
+@import './coss.css';
 
 @plugin '@tailwindcss/forms';
 

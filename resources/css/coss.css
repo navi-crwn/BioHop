@@ -1,0 +1,101 @@
+/*
+| coss-style surfaces for the BioHop dashboard (same values as the HEL.ink pilot, coss.css): flat neutral app
+| background, solid cards with a 1 px low-contrast border and a barely-there shadow, a flat sidebar and top bar
+| divided by a hairline, quiet navigation, sentence-case eyebrows, 6 px status badges, no blur or gradient on
+| dashboard surfaces. Loaded after controls.css and unlayered, so it wins over the glass component layer.
+| The accent colour, the type family, the phone frame of the editor preview and the member's public bio page
+| (their theme, their button shape) are not touched.
+*/
+:root {
+    --bg: 247 247 248;
+    --glass: 255 255 255;
+    --glass-alpha: 1;
+    --glass-border: 0 0 0;
+    --glass-border-alpha: 0.09;
+    --muted: 96 104 118;
+    --shadow: 0 0 0;
+    --coss-card-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+    --coss-frame: rgb(0 0 0 / 0.035);
+    --hop-card-radius: 14px;
+    --hop-surface: #fff;
+    --hop-line: rgb(0 0 0 / 0.14);
+}
+.dark {
+    --bg: 10 10 12;
+    --glass: 20 20 24;
+    --glass-alpha: 1;
+    --glass-border: 255 255 255;
+    --glass-border-alpha: 0.09;
+    --muted: 154 162 176;
+    --coss-card-shadow: none;
+    --coss-frame: rgb(255 255 255 / 0.03);
+    --hop-surface: rgb(255 255 255 / 0.04);
+    --hop-line: rgb(255 255 255 / 0.16);
+}
+
+/* App background: flat, no gradient. */
+.app-bg, .dark .app-bg { background-image: none; background-color: rgb(var(--bg)); }
+.app-bg::before { display: none; }
+
+/* Surfaces: solid, bordered, no blur. */
+.glass, .glass-card, .glass-strong, .stat {
+    background-color: rgb(var(--glass)) !important;
+    border: 1px solid rgb(var(--glass-border) / var(--glass-border-alpha)) !important;
+    box-shadow: var(--coss-card-shadow) !important;
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+.glass-card, .stat, .glass-strong, .app-shell .glass { border-radius: var(--hop-card-radius); }
+.app-shell :is(.rounded-xl, .rounded-2xl, .rounded-3xl):is(.bg-white, .bg-slate-50, .bg-gray-50):not(.no-skin, input, select, textarea, button, .rounded-full) {
+    background-color: rgb(var(--glass)) !important;
+    border: 1px solid rgb(var(--glass-border) / var(--glass-border-alpha)) !important;
+    box-shadow: var(--coss-card-shadow) !important;
+    border-radius: var(--hop-card-radius);
+}
+.glass-inset { background-color: var(--coss-frame); border-color: rgb(var(--glass-border) / var(--glass-border-alpha)); border-radius: 10px; }
+
+/* Sidebar and top bar: flat, divided by a hairline. */
+aside.fixed { padding: 0; }
+aside.fixed > .glass { border-radius: 0 !important; border-width: 0 1px 0 0 !important; background-color: rgb(var(--bg)) !important; box-shadow: none !important; }
+header.app-topbar { padding: 0; }
+header.app-topbar > .glass {
+    height: 56px; border-radius: 0 !important; border-width: 0 0 1px 0 !important; padding-inline: 16px;
+    background-color: rgb(var(--bg) / 0.86) !important; box-shadow: none !important;
+}
+.nav-item { border-radius: 8px; padding: 7px 10px; font-size: 14px; font-weight: 500; gap: 10px; }
+.nav-item:hover { background-color: rgb(var(--muted) / 0.1); }
+.nav-item-active { background-color: rgb(var(--muted) / 0.14); box-shadow: none; }
+.nav-item-active svg { color: rgb(var(--accent)); }
+
+/* Type: sentence case, no tracking, one quiet secondary colour. */
+.eyebrow, .stat-label { text-transform: none; letter-spacing: 0; font-size: 12px; font-weight: 500; color: rgb(var(--muted)); }
+.page-title { font-weight: 600; letter-spacing: -0.02em; }
+.stat-value { font-variant-numeric: tabular-nums; }
+
+/* Badges: 6 px radius, for real status only. */
+.chip, .chip-green, .chip-gray, .chip-red, .chip-blue, .chip-amber { border-radius: 6px; height: 20px; padding: 0 7px; font-size: 12px; font-weight: 500; }
+
+/* Controls on solid cards read as inputs, not glass. */
+.input, .app-shell :is(input[type=text], input[type=email], input[type=url], input[type=password], input[type=search], input[type=number], select, textarea):not(.no-skin) {
+    background-color: var(--hop-surface) !important; border-color: var(--hop-line); box-shadow: 0 1px 1px rgb(0 0 0 / 0.03);
+}
+.btn-outline, .btn-soft, .btn-danger-outline { background-color: var(--hop-surface) !important; box-shadow: 0 1px 1px rgb(0 0 0 / 0.04) !important; }
+.btn-outline:hover, .btn-soft:hover { background-color: rgb(var(--muted) / 0.1) !important; }
+.btn, .btn-primary, .btn-secondary, .btn-outline, .btn-soft, .btn-ghost, .btn-danger, .btn-danger-outline { font-weight: 500; }
+
+/* Editor: the same neutral surfaces; the phone frame of the preview keeps its own look. */
+.bio-editor {
+    --editor-panel-bg: rgb(255 255 255); --editor-card-bg: rgb(255 255 255); --editor-soft-bg: rgb(247 247 248);
+    --editor-border: rgb(0 0 0 / 0.09); --editor-input-bg: #fff; --editor-input-border: rgb(0 0 0 / 0.14);
+    --editor-hover-bg: rgb(0 0 0 / 0.04); --editor-top: 4.5rem;
+}
+.dark .bio-editor {
+    --editor-panel-bg: rgb(20 20 24); --editor-card-bg: rgb(20 20 24); --editor-soft-bg: rgb(14 14 17);
+    --editor-border: rgb(255 255 255 / 0.09); --editor-input-bg: rgb(255 255 255 / 0.04); --editor-input-border: rgb(255 255 255 / 0.16);
+    --editor-hover-bg: rgb(255 255 255 / 0.06);
+}
+.bio-editor .editor-card { border-radius: var(--hop-card-radius); box-shadow: var(--coss-card-shadow); }
+
+/* Family footer strip: logo + "Hop Easy Link". */
+.coss-footer-brand { display: flex; align-items: center; gap: 10px; max-width: 1180px; margin: 24px auto 0; padding: 16px 24px 24px; font-size: 14px; color: rgb(var(--muted)); }
+.coss-footer-brand img { width: 28px; height: 28px; }
+.coss-footer-brand b { color: rgb(var(--ink)); font-weight: 600; }
