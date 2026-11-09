@@ -1,7 +1,8 @@
 // Delegated replacements for inline on* attributes, so pages work under a CSP
 // without 'unsafe-inline' for event handlers (script-src-attr 'none').
 //
-//   data-confirm="Question?"         on a form (submit) or a button/link (click)
+//   data-confirm="Message"           on a form (submit) or a button/link (click); with data-confirm-title,
+//                                    data-confirm-danger, data-confirm-subject="name of the thing", data-confirm-ok
 //   data-autosubmit                  on a form control: submit its form on change
 //   data-nav="?period={value}"       on a select: go to the URL with its value
 //   data-call="fnName"               on a clickable: call window.fnName(...data-args)
@@ -15,6 +16,8 @@
 //   data-reload                      on a button: reload the page
 //   data-fallback="hide"             on an img: hide it when it fails to load
 //   data-fallback-src="url"          on an img: swap to this image when it fails to load
+
+import { confirmDialog, promptDialog } from './dialogs';
 
 function handleImageError(img) {
     if (!(img instanceof HTMLImageElement) || img.dataset.fallbackDone) return;
@@ -42,12 +45,33 @@ export default function installInlineActions(root = document) {
         if (img.complete && img.naturalWidth === 0 && img.getAttribute('src')) handleImageError(img);
     });
 
+    // data-confirm asks through the shared dialog (dialogs.js: HopUI, or the browser's own until the hub serves it).
+    // The answer comes later, so the first submit or click is stopped and repeated once the member says yes.
+    const ask = (el, anchor) => confirmDialog({
+        title: el.dataset.confirmTitle || '',
+        message: el.dataset.confirm,
+        danger: el.hasAttribute('data-confirm-danger'),
+        subject: el.dataset.confirmSubject || '',
+        ok: el.dataset.confirmOk || undefined,
+        anchor: anchor || el,
+    });
+
     root.addEventListener('submit', (e) => {
         const form = e.target;
-        if (form instanceof HTMLFormElement && form.dataset.confirm && !window.confirm(form.dataset.confirm)) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
+        if (!(form instanceof HTMLFormElement) || !form.dataset.confirm) return;
+        if (form.dataset.confirmed) {
+            delete form.dataset.confirmed;
+            return;
         }
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        const submitter = e.submitter instanceof HTMLElement ? e.submitter : null;
+        ask(form, submitter).then((yes) => {
+            if (!yes) return;
+            form.dataset.confirmed = '1';
+            if (typeof form.requestSubmit === 'function') form.requestSubmit(submitter && submitter.form === form ? submitter : undefined);
+            else form.submit();
+        });
     }, true);
 
     root.addEventListener('change', (e) => {
@@ -70,10 +94,19 @@ export default function installInlineActions(root = document) {
         }
 
         const confirmEl = e.target.closest('[data-confirm]:not(form)');
-        if (confirmEl && !window.confirm(confirmEl.dataset.confirm)) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            return;
+        if (confirmEl) {
+            if (confirmEl.dataset.confirmed) {
+                delete confirmEl.dataset.confirmed;
+            } else {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                ask(confirmEl).then((yes) => {
+                    if (!yes) return;
+                    confirmEl.dataset.confirmed = '1';
+                    confirmEl.click();
+                });
+                return;
+            }
         }
 
         const el = e.target.closest('[data-call], [data-show], [data-hide], [data-toggle-class], [data-copy-from], [data-toggle-dark], [data-prompt-password], [data-reload]');
@@ -81,13 +114,15 @@ export default function installInlineActions(root = document) {
 
         if (el.hasAttribute('data-reload')) window.location.reload();
         if (el.dataset.promptPassword && el.form) {
-            const password = window.prompt(el.dataset.promptPassword);
-            const field = el.form.querySelector('input[name="password"]');
-            if (password && field) {
-                field.value = password;
-                // requestSubmit() fires submit, so the form's data-confirm still asks first.
-                el.form.requestSubmit();
-            }
+            const form = el.form;
+            promptDialog({ title: el.dataset.promptPassword, type: 'password', anchor: el }).then((password) => {
+                const field = form.querySelector('input[name="password"]');
+                if (password && field) {
+                    field.value = password;
+                    // requestSubmit() fires submit, so the form's data-confirm still asks first.
+                    form.requestSubmit();
+                }
+            });
         }
 
         if (el.dataset.show) document.querySelector(el.dataset.show)?.classList.remove('hidden');

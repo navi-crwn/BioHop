@@ -1,6 +1,15 @@
 // The bio editor (Alpine component). Loaded as a module only on the editor page and cached by the browser;
 // the page's data comes in as JSON from <script id="bio-editor-config"> instead of being printed into the page.
+import { confirmDialog } from './dialogs';
+
 const CONFIG = JSON.parse(document.getElementById('bio-editor-config').textContent);
+// Titles and messages of the editor's dialogs, already in the member's language (editor/index.blade.php).
+// say('deleteBlocks', { count: 3 }) fills the :count style placeholders.
+const say = (key, vars = {}) => {
+    const d = (CONFIG.dialogs || {})[key] || {};
+    const fill = (text) => (text ? String(text).replace(/:(\w+)/g, (m, k) => (k in vars ? vars[k] : m)) : undefined);
+    return { title: fill(d.title), message: fill(d.message), ok: fill(d.ok) };
+};
 const csrf = () => document.head.querySelector('meta[name="csrf-token"]')?.content || '';
 // Static lookups are frozen: Alpine skips frozen objects, so ~400 brands are not made reactive and not watched.
 const PLATFORMS = Object.freeze(CONFIG.platforms);
@@ -1176,8 +1185,8 @@ window.bioEditorV2 = function() {
                 if (res.ok) this.pollResults = await res.json();
             } catch (e) { /* the form still works without counts */ }
         },
-        async resetPoll() {
-            if (!confirm('Delete every vote of this poll? This cannot be undone.')) return;
+        async resetPoll(event) {
+            if (!(await confirmDialog({ ...say('resetPoll'), danger: true, anchor: event?.currentTarget }))) return;
             const res = await fetch(bioEditorUrl('/links/' + this.editingBlock.id + '/poll'), { method: 'DELETE', headers: { 'X-CSRF-TOKEN': csrf(), 'Accept': 'application/json' } });
             if (res.ok) { await this.loadPollResults(); this.showNotification('Votes deleted', 'success'); } else { this.showNotification('Could not delete the votes', 'error'); }
         },
@@ -1190,8 +1199,8 @@ window.bioEditorV2 = function() {
         setPollOption(i, value) {
             this.setProductSetting('options', (this.editingBlock.settings?.options || []).map((o, k) => k === i ? { text: value } : o));
         },
-        async deleteLeads() {
-            if (!confirm('Delete every entry of this form? This cannot be undone.')) return;
+        async deleteLeads(event) {
+            if (!(await confirmDialog({ ...say('deleteLeads'), danger: true, anchor: event?.currentTarget }))) return;
             try {
                 const res = await fetch(bioEditorUrl('/links/' + this.editingBlock.id + '/leads'), { method: 'DELETE', headers: { 'X-CSRF-TOKEN': csrf(), 'Accept': 'application/json' } });
                 if (!res.ok) throw new Error('Could not delete the entries');
@@ -1887,8 +1896,10 @@ window.bioEditorV2 = function() {
             this.blocks.forEach(b => { if (this.selectedIds.includes(b.id) && b.is_active !== on) { b.is_active = on; this.markBlockDirty(b.id); } });
             this.selectedIds = [];
         },
-        bulkDelete() {
-            if (!confirm('Delete ' + this.selectedIds.length + (this.selectedIds.length === 1 ? ' block' : ' blocks') + '? Archive keeps their clicks; delete does not.')) return;
+        async bulkDelete(event) {
+            const count = this.selectedIds.length;
+            if (!count) return;
+            if (!(await confirmDialog({ ...say(count === 1 ? 'deleteBlock' : 'deleteBlocks', { count }), danger: true, anchor: event?.currentTarget }))) return;
             [...this.selectedIds].forEach(id => { const i = this.blocks.findIndex(b => b.id === id); if (i >= 0) this.removeBlock(i); });
             this.selectedIds = [];
         },
@@ -1923,10 +1934,22 @@ window.bioEditorV2 = function() {
                 this.refreshPreview && this.refreshPreview();
             } catch (e) { this.showNotification(e.message || 'Failed to restore', 'error'); }
         },
-        async deleteArchived(item) {
-            if (!confirm('Delete this archived block for good?')) return;
+        async deleteArchived(item, event) {
+            if (!(await confirmDialog({ ...say('deleteArchived'), danger: true, subject: this.getBlockDisplayTitle(item), anchor: event?.currentTarget }))) return;
             await this.deleteBlockFromServer(item.id);
             this.archived = this.archived.filter(a => a.id !== item.id);
+        },
+        // The delete button of a block row: asks first, naming the block. A block that was never saved has
+        // nothing to lose and goes at once. removeBlock itself stays silent for bulk delete and archive.
+        async askRemoveBlock(index, event) {
+            const block = this.blocks[index];
+            if (!block) return;
+            if (block.id && block.id < 1000000000) {
+                const anchor = event?.currentTarget;
+                if (!(await confirmDialog({ ...say('deleteBlock'), danger: true, subject: this.getBlockDisplayTitle(block), anchor }))) return;
+            }
+            const at = this.blocks.findIndex(b => b.id === block.id);
+            if (at >= 0) this.removeBlock(at);
         },
         removeBlock(index) {
             const block = this.blocks[index];
@@ -3219,15 +3242,14 @@ window.bioEditorV2 = function() {
             clearTimeout(this._toastTimeout);
             this._toastTimeout = setTimeout(() => el.remove(), type === 'error' ? 7000 : 2600);
         },
-        confirmDelete() {
-            if (confirm('Delete this page permanently?')) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = bioEditorUrl('');
-                form.innerHTML = '<input type="hidden" name="_token" value="'+csrf()+'"><input type="hidden" name="_method" value="DELETE">';
-                document.body.appendChild(form);
-                form.submit();
-            }
+        async confirmDelete(event) {
+            if (!(await confirmDialog({ ...say('deletePage'), danger: true, subject: this.bioPage.title || this.bioPage.slug, anchor: event?.currentTarget }))) return;
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = bioEditorUrl('');
+            form.innerHTML = '<input type="hidden" name="_token" value="'+csrf()+'"><input type="hidden" name="_method" value="DELETE">';
+            document.body.appendChild(form);
+            form.submit();
         }
     };
 }

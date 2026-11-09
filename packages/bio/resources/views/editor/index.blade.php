@@ -18,6 +18,15 @@
         'previewUrl' => route('bio.preview', $bioPage),
         'publicBase' => public_url('b'),
         'socialMax' => \Hop\Bio\Models\BioPage::SOCIAL_MAX,
+        // The editor's confirm dialogs (resources/js/dialogs.js): titles and messages in the member's language.
+        'dialogs' => [
+            'deletePage' => ['title' => __('Delete this page?'), 'message' => __('The page, its blocks and its click counts are deleted for good. This cannot be undone.')],
+            'deleteBlock' => ['title' => __('Delete this block?'), 'message' => __('Its click count is deleted with it. Archive keeps the clicks and can be undone.')],
+            'deleteBlocks' => ['title' => __('Delete :count blocks?'), 'message' => __('Their click counts are deleted with them. Archive keeps the clicks and can be undone.'), 'ok' => __('Delete :count blocks')],
+            'deleteArchived' => ['title' => __('Delete this archived block for good?'), 'message' => __('Its click count is deleted with it. This cannot be undone.')],
+            'resetPoll' => ['title' => __('Delete every vote of this poll?'), 'message' => __('This cannot be undone.'), 'ok' => __('Delete votes')],
+            'deleteLeads' => ['title' => __('Delete every entry of this form?'), 'message' => __('This cannot be undone.'), 'ok' => __('Delete entries')],
+        ],
         'pages' => auth()->user()->bioPages()->orderBy('title')->get(['slug', 'title'])->map(fn ($p) => ['slug' => $p->slug, 'title' => $p->title])->values(),
         'familyHosts' => \App\Bio\FamilyUrls::hosts(),
         // The link picker (LinkHop): what to say when the list cannot be loaded.
@@ -698,7 +707,7 @@
                                     <span class="text-sm"><b x-text="editingBlock.leads_count ?? 0"></b> entries</span>
                                     <span class="flex gap-2">
                                         <a :href="bioEditorUrl('/links/' + editingBlock.id + '/leads.csv')" class="btn btn-secondary text-xs py-1 px-2" x-show="(editingBlock.leads_count ?? 0) > 0">Download CSV</a>
-                                        <button type="button" class="btn btn-secondary text-xs py-1 px-2" x-show="(editingBlock.leads_count ?? 0) > 0" @click="deleteLeads()">Delete all</button>
+                                        <button type="button" class="btn btn-secondary text-xs py-1 px-2" x-show="(editingBlock.leads_count ?? 0) > 0" @click="deleteLeads($event)">Delete all</button>
                                     </span>
                                 </div>
                             </div>
@@ -722,7 +731,7 @@
                                 </template>
                                 <div class="flex items-center justify-between gap-2 p-2 rounded-lg" style="background: var(--editor-input-bg)" x-show="pollResults">
                                     <span class="text-sm">Votes so far: <b x-text="pollResults?.total ?? 0"></b></span>
-                                    <button type="button" class="btn btn-secondary text-xs py-1 px-2" x-show="(pollResults?.total ?? 0) > 0" @click="resetPoll()">Reset votes</button>
+                                    <button type="button" class="btn btn-secondary text-xs py-1 px-2" x-show="(pollResults?.total ?? 0) > 0" @click="resetPoll($event)">Reset votes</button>
                                 </div>
                                 <p class="text-xs editor-text-muted">Changing the number or order of options after people voted mixes up the old votes: reset them first.</p>
                             </div>
