@@ -32,7 +32,7 @@
                                     <template x-for="c in blocks.filter(b => b.type === 'collection')" :key="c.id"><option :value="c.id" x-text="getBlockDisplayTitle(c)"></option></template>
                                 </select>
                                 <button type="button" :disabled="!selectedIds.length" @click="bulkArchive()" class="block-action-btn px-3">Archive</button>
-                                <button type="button" :disabled="!selectedIds.length" @click="bulkDelete()" class="block-action-btn delete px-3">Delete</button>
+                                <button type="button" :disabled="!selectedIds.length" @click="bulkDelete($event)" class="block-action-btn delete px-3">Delete</button>
                             </div>
                         </template>
                     </div>
@@ -103,7 +103,7 @@
                                     </svg>
                                 </button>
                                 <!-- Delete Button -->
-                                <button type="button" @click="removeBlock(idx)" class="block-action-btn delete" :aria-label="'Delete ' + getBlockDisplayTitle(item)">
+                                <button type="button" @click="askRemoveBlock(idx, $event)" class="block-action-btn delete" :aria-label="'Delete ' + getBlockDisplayTitle(item)">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                     </svg>
@@ -132,7 +132,7 @@
                                 </div>
                                 <div class="block-actions">
                                     <button type="button" @click="restoreBlock(item)" class="block-action-btn px-3 text-sm">Restore</button>
-                                    <button type="button" @click="deleteArchived(item)" class="block-action-btn delete" :aria-label="'Delete ' + getBlockDisplayTitle(item)">
+                                    <button type="button" @click="deleteArchived(item, $event)" class="block-action-btn delete" :aria-label="'Delete ' + getBlockDisplayTitle(item)">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                                     </button>
                                 </div>
@@ -141,7 +141,7 @@
                     </div>
                 </div>
                 <!-- Add Block Button -->
-                <button @click="showAddBlockModal = true" class="w-full py-3 border-2 border-dashed border-(--editor-border) rounded-xl editor-text-muted hover:editor-text hover:border-blue-500 transition-colors flex items-center justify-center gap-2">
+                <button @click="showAddBlockModal = true" class="btn btn-outline">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                     </svg>
@@ -187,7 +187,7 @@
                     <div class="grid grid-cols-3 gap-2">
                         <template x-for="brandId in ['instagram', 'tiktok', 'youtube', 'twitter', 'spotify', 'whatsapp', 'telegram', 'email', 'facebook']" :key="brandId">
                             <button @click="addBrandBlock(brandId)" 
-                                    class="p-2 rounded-lg transition-colors flex flex-col items-center gap-1 hover:[background:var(--editor-hover-bg)]" 
+                                    data-tile class="p-2 rounded-lg transition-colors flex flex-col items-center gap-1 hover:[background:var(--editor-hover-bg)]" 
                                     style="border: 1px solid var(--editor-border);"
                                     :title="brands[brandId]?.name"
                                     :aria-label="'Add ' + (brands[brandId]?.name || brandId)">

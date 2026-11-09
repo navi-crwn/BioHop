@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AbuseFlag;
 use App\Support\BioLimits;
 use App\Support\CssValue;
+use App\Support\Reminders;
 use App\Support\ReservedSlugs;
 use Carbon\Carbon;
 use Hop\Bio\Contracts\UrlSafety;
@@ -38,8 +39,12 @@ class BioPageController extends Controller
     {
         $bioPages = auth()->user()->bioPages()->withCount('links')->with('links:id,bio_page_id')->latest()->get();
         $home = self::dashboardHome($bioPages);
+        // The setup checklist is a reminder card: hidden for seven days after "Hide", and for good once every step is done.
+        $checklist = $home['checklist'];
+        $checklistHidden = $checklist !== null
+            && Reminders::hidden((int) auth()->id(), 'setup-checklist', $checklist['done'] >= count($checklist['items']));
 
-        return view('bio::index', compact('bioPages') + $home);
+        return view('bio::index', compact('bioPages', 'checklistHidden') + $home);
     }
 
     /**
@@ -143,7 +148,7 @@ class BioPageController extends Controller
             'title' => 'required|string|max:'.BioPage::TITLE_MAX,
             'bio' => 'nullable|string|max:'.BioPage::BIO_MAX,
             'goal' => 'nullable|in:creator,business,personal',
-            'platforms' => 'nullable|array|max:12',
+            'platforms' => 'nullable|array|max:'.BioPage::SOCIAL_MAX,
             'platforms.*.platform' => 'required_with:platforms|string|max:40',
             'platforms.*.value' => 'nullable|string|max:255',
             'links' => 'nullable|array|max:10',
@@ -183,23 +188,29 @@ class BioPageController extends Controller
         $palette = isset($validated['palette']) ? self::WIZARD_PALETTES[(int) $validated['palette']] : null;
         $goalTheme = ['creator' => 'galaxy', 'business' => 'minimal-light', 'personal' => 'sunset'][$validated['goal'] ?? ''] ?? 'default';
 
+        // A palette sets every colour by hand; "Theme by goal" leaves them to the theme (the columns keep
+        // their defaults: background_type is NOT NULL, so it must not be set to null).
+        $colours = $palette ? [
+            'theme' => 'none',
+            'background_type' => 'solid',
+            'background_value' => $palette[0],
+            'background_color' => $palette[0],
+            'link_bg_color' => $palette[1],
+            'link_text_color' => $palette[2],
+            'button_bg_color' => $palette[1],
+            'button_text_color' => $palette[2],
+            'text_color' => $palette[1],
+            'title_color' => $palette[1],
+            'bio_color' => $palette[1],
+        ] : ['theme' => $goalTheme];
+
         $bioPage = auth()->user()->bioPages()->create([
             'slug' => $validated['slug'],
             'title' => $validated['title'],
             'bio' => $validated['bio'] ?? null,
             'content_warning' => $validated['content_warning'] ?? 'none',
             'is_adult_content' => ($validated['content_warning'] ?? 'none') === 'adult',
-            'theme' => $palette ? 'none' : $goalTheme,
-            'background_type' => $palette ? 'solid' : null,
-            'background_value' => $palette[0] ?? null,
-            'background_color' => $palette[0] ?? null,
-            'link_bg_color' => $palette[1] ?? null,
-            'link_text_color' => $palette[2] ?? null,
-            'button_bg_color' => $palette[1] ?? null,
-            'button_text_color' => $palette[2] ?? null,
-            'text_color' => $palette ? $palette[1] : null,
-            'title_color' => $palette ? $palette[1] : null,
-            'bio_color' => $palette ? $palette[1] : null,
+            ...$colours,
             'social_links' => $socials,
             'button_shape' => 'pill',
         ]);
@@ -556,7 +567,7 @@ class BioPageController extends Controller
             'block_shadow' => CssValue::keyword(20),
             'social_icon_color' => CssValue::color(20),
             'social_placement' => 'nullable|in:top,bottom',
-            'social_links' => 'nullable|array',
+            'social_links' => 'nullable|array|max:'.BioPage::SOCIAL_MAX,
             'social_links.*' => 'nullable|array',
             'social_links.*.platform' => 'nullable|string',
             'social_links.*.value' => 'nullable|string',

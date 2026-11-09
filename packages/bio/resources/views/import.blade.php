@@ -8,14 +8,14 @@
         @csrf
         <div>
             <label for="linktree" class="form-label">{{ __('Your Linktree address') }}</label>
-            <input id="linktree" name="linktree" type="text" value="{{ old('linktree') }}" required autocomplete="off" placeholder="linktr.ee/yourname" class="form-input w-full">
+            <input id="linktree" name="linktree" type="text" value="{{ old('linktree') }}" required autocomplete="off" placeholder="linktr.ee/yourname" class="input">
             @error('linktree')<p class="mt-1 text-sm text-rose-500">{{ $message }}</p>@enderror
         </div>
         <div>
             <label for="slug" class="form-label">{{ __('New address here') }}</label>
             <div class="flex items-center gap-2">
                 <span class="text-sm text-muted whitespace-nowrap">{{ public_host() }}/b/</span>
-                <input id="slug" name="slug" type="text" value="{{ old('slug') }}" required minlength="{{ $slugMin }}" maxlength="20" pattern="[a-zA-Z0-9]+" autocomplete="off" placeholder="{{ __('yourname') }}" class="form-input w-full">
+                <input id="slug" name="slug" type="text" value="{{ old('slug') }}" required minlength="{{ $slugMin }}" maxlength="20" pattern="[a-zA-Z0-9]+" autocomplete="off" placeholder="{{ __('yourname') }}" class="input">
             </div>
             <p class="mt-1 text-xs text-muted">{{ __('Letters and numbers only. You can change it later.') }}</p>
             @error('slug')<p class="mt-1 text-sm text-rose-500">{{ $message }}</p>@enderror

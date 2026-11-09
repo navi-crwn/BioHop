@@ -388,6 +388,20 @@ class BioLink extends Model
     }
 
     /**
+     * The FAQ rows worth showing: those with a question. Older rows may hold an empty question or a missing
+     * answer; the public page and the summaries read this list, never faq_items directly.
+     *
+     * @return list<array{question:string, answer:string}>
+     */
+    public function faqItems(): array
+    {
+        return array_values(array_filter(array_map(fn ($it) => [
+            'question' => trim((string) (is_array($it) ? ($it['question'] ?? '') : '')),
+            'answer' => trim((string) (is_array($it) ? ($it['answer'] ?? '') : '')),
+        ], is_array($this->faq_items) ? $this->faq_items : []), fn ($it) => $it['question'] !== ''));
+    }
+
+    /**
      * Main line for a block in admin lists. Many block types (text, divider, embeds, FAQ…)
      * have no title, so fall back to what the block actually holds.
      */
@@ -402,7 +416,7 @@ class BioLink extends Model
             'vcard' => $this->vcard_name,
             'countdown' => $this->countdown_label,
             'map' => $this->map_address,
-            'faq' => $this->faq_items[0]['question'] ?? null,
+            'faq' => $this->faqItems()[0]['question'] ?? null,
             'html' => $this->excerpt($this->html_content),
             default => null,
         } ?: $this->typeName();
@@ -419,7 +433,7 @@ class BioLink extends Model
             'vcard' => collect([$this->vcard_phone, $this->vcard_email, $this->vcard_company])->filter()->implode(' · '),
             'countdown' => $this->countdown_date?->format('j M Y, H:i'),
             'map' => filled($this->title) ? $this->map_address : null,
-            'faq' => ($n = count($this->faq_items ?? [])) ? $n.' '.Str::plural('question', $n) : null,
+            'faq' => ($n = count($this->faqItems())) ? $n.' '.Str::plural('question', $n) : null,
             'code' => $this->content,
             default => $this->url,
         };

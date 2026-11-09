@@ -178,7 +178,7 @@
                                 <button 
                                     type="button"
                                     @click="openColors = !openColors"
-                                    class="flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-medium text-ink transition-colors hover:bg-slate-500/10"
+                                    data-tile class="flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-medium text-ink transition-colors hover:bg-slate-500/10"
                                 >
                                     <span>Colors (Dots & Background)</span>
                                     <svg 
@@ -238,7 +238,7 @@
                                 <button 
                                     type="button"
                                     @click="openStyles = !openStyles"
-                                    class="flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-medium text-ink transition-colors hover:bg-slate-500/10"
+                                    data-tile class="flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-medium text-ink transition-colors hover:bg-slate-500/10"
                                 >
                                     <span>Styles (Dots & Corners)</span>
                                     <svg 
@@ -292,7 +292,7 @@
                                 <button 
                                     type="button" 
                                     @click="syncSettings(); $dispatch('notify', { message: 'QR Settings Applied', type: 'success' })"
-                                    class="btn-primary btn-sm w-full justify-center gap-2"
+                                    class="btn-primary btn-sm"
                                 >
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>

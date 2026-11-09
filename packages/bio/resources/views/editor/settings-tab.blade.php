@@ -269,7 +269,7 @@
             <div class="flex items-center gap-2">
                 <input :type="show ? 'text' : 'password'" readonly class="form-input text-xs font-mono" :value="info.secret || ''" aria-label="Signing secret">
                 <button type="button" class="btn btn-secondary text-xs py-1.5 px-2" @click="show = !show" x-text="show ? 'Hide' : 'Show'"></button>
-                <button type="button" class="btn btn-secondary text-xs py-1.5 px-2" :disabled="busy" @click="if (confirm('Make a new secret? The old one stops working.')) post('/secret', 'New secret made.')">New secret</button>
+                <button type="button" class="btn btn-secondary text-xs py-1.5 px-2" :disabled="busy" @click="hopDialog.confirm({ title: @js(__('Make a new secret?')), message: @js(__('The old one stops working at once. Update the receiving side with the new secret.')), ok: @js(__('New secret')), anchor: $el }).then(yes => { if (yes) post('/secret', 'New secret made.') })">{{ __('New secret') }}</button>
             </div>
             <p class="text-xs editor-text-muted">Check each request: <code>X-BioHop-Signature</code> is <code>sha256=</code> and the HMAC-SHA256 of <code>timestamp.body</code> with this secret (the timestamp is in <code>X-BioHop-Timestamp</code>; ignore requests older than five minutes).</p>
             <div class="flex items-center gap-2">
@@ -292,7 +292,7 @@
         async load() { try { const r = await fetch(bioEditorUrl('/revisions'), { headers: { 'Accept': 'application/json' } }); this.versions = r.ok ? await r.json() : []; } catch (e) { this.versions = []; } this.loaded = true; },
         when(iso) { return new Date(iso).toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); },
         async save() { this.busy = true; await fetch(bioEditorUrl('/revisions'), { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.head.querySelector('meta[name=csrf-token]')?.content || '', 'Accept': 'application/json' }, body: JSON.stringify({ label: this.label }) }); this.label = ''; this.busy = false; await this.load(); },
-        async restore(v) { if (!confirm('Bring back the version from ' + this.when(v.created_at) + '? Your page as it is now is saved as a version first, so you can undo this.')) return; this.busy = true; const r = await fetch(bioEditorUrl('/revisions/' + v.id + '/restore'), { method: 'POST', headers: { 'X-CSRF-TOKEN': document.head.querySelector('meta[name=csrf-token]')?.content || '', 'Accept': 'application/json' } }); if (r.ok) { window.location.reload(); } else { this.busy = false; alert('Could not restore this version.'); } } }" x-init="$watch('activeTab', t => { if (t === 'settings' && !loaded) load(); }); if (activeTab === 'settings') load();">
+        async restore(v, anchor) { if (!(await hopDialog.confirm({ title: @js(__('Bring back this version?')), message: @js(__('The version from :when replaces the page. Your page as it is now is saved as a version first, so you can undo this.')).replace(':when', this.when(v.created_at)), ok: @js(__('Restore')), anchor }))) return; this.busy = true; const r = await fetch(bioEditorUrl('/revisions/' + v.id + '/restore'), { method: 'POST', headers: { 'X-CSRF-TOKEN': document.head.querySelector('meta[name=csrf-token]')?.content || '', 'Accept': 'application/json' } }); if (r.ok) { window.location.reload(); } else { this.busy = false; hopDialog.alert({ title: @js(__('Could not restore this version.')), message: @js(__('Nothing was changed. Try again in a moment.')) }); } } }" x-init="$watch('activeTab', t => { if (t === 'settings' && !loaded) load(); }); if (activeTab === 'settings') load();">
     <div class="editor-card-header">
         <h3 class="editor-card-title">Versions</h3>
     </div>
@@ -306,7 +306,7 @@
         <template x-for="v in versions" :key="v.id">
             <li>
                 <span><b x-text="v.label || 'Automatic version'"></b><small x-text="when(v.created_at) + ' · ' + v.blocks_count + ' blocks'"></small></span>
-                <button type="button" class="btn btn-secondary text-xs py-1 px-2" :disabled="busy" @click="restore(v)">Restore</button>
+                <button type="button" class="btn btn-secondary text-xs py-1 px-2" :disabled="busy" @click="restore(v, $el)">{{ __('Restore') }}</button>
             </li>
         </template>
     </ul>
@@ -362,7 +362,7 @@
                 <p class="font-medium text-red-800 dark:text-red-300">Delete Page</p>
                 <p class="text-sm text-red-600 dark:text-red-400">Permanently delete this bio page and all its data</p>
             </div>
-            <button @click="confirmDelete()" class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">
+            <button type="button" @click="confirmDelete($event)" class="btn btn-danger">
                 Delete Page
             </button>
         </div>

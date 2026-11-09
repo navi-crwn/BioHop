@@ -52,8 +52,9 @@
                     <div class="glass-inset rounded-xl py-2 max-sm:hidden"><dt class="text-[11px] text-muted">{{ __('Published pages') }}</dt><dd class="text-sm font-semibold tabular-nums text-ink">{{ $bioPages->where('is_published', true)->count() }} / {{ $bioPages->count() }}</dd></div>
                 </dl>
             </section>
-            @if ($checklist)
-                <section class="glass-card" data-checklist>
+            {{-- A reminder card: hop-ui.js adds "Hide · Shows again next week", and App\Support\Reminders keeps it away for seven days. --}}
+            @if ($checklist && ! ($checklistHidden ?? false))
+                <section class="glass-card" data-checklist data-hop-remind="setup-checklist" data-hop-remind-url="{{ route('reminders.dismiss') }}">
                     <div class="flex items-center justify-between gap-2">
                         <h2 class="text-sm font-semibold text-ink">{{ $checklist['done'] >= count($checklist['items']) ? __('Your page is set up') : __('Set up your page') }}</h2>
                         <span class="text-xs tabular-nums text-muted">{{ __(':done of :total complete', ['done' => $checklist['done'], 'total' => count($checklist['items'])]) }}</span>
@@ -131,7 +132,7 @@
                                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                                 </button>
                             </form>
-                            <form action="{{ route('bio.destroy', $bioPage) }}" method="POST" data-confirm="Delete {{ $bioPage->title }}? This can't be undone.">
+                            <form action="{{ route('bio.destroy', $bioPage) }}" method="POST" data-confirm="{{ __('The page, its blocks and its click counts are deleted for good. This cannot be undone.') }}" data-confirm-title="{{ __('Delete this page?') }}" data-confirm-subject="{{ $bioPage->title }}" data-confirm-danger>
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="icon-btn h-8! w-8! hover:text-rose-500!" title="Delete" aria-label="Delete {{ $bioPage->title }}">

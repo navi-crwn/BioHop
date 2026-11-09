@@ -1,0 +1,126 @@
+/*
+| Optional "Clean" interface style (coss surfaces). Every rule below is scoped to html[data-ui="clean"], which the
+| early theme script sets from the cookie hop_ui=clean. Without it the original HOP look is unchanged. Same values
+| as the HEL.ink pilot. The control standard (controls.css) is not part of this option; the phone frame of the
+| editor preview and the member's public bio page are never touched.
+*/
+:root[data-ui="clean"] {
+    --bg: 247 247 248;
+    --glass: 255 255 255;
+    --glass-alpha: 1;
+    --glass-border: 0 0 0;
+    --glass-border-alpha: 0.09;
+    --muted: 96 104 118;
+    --shadow: 0 0 0;
+    --coss-card-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+    --coss-frame: rgb(0 0 0 / 0.035);
+    --hop-card-radius: 14px;
+    --hop-surface: #fff;
+    --hop-line: rgb(0 0 0 / 0.14);
+}
+:root[data-ui="clean"].dark {
+    --bg: 10 10 12;
+    --glass: 20 20 24;
+    --glass-alpha: 1;
+    --glass-border: 255 255 255;
+    --glass-border-alpha: 0.09;
+    --muted: 154 162 176;
+    --coss-card-shadow: none;
+    --coss-frame: rgb(255 255 255 / 0.03);
+    --hop-surface: rgb(255 255 255 / 0.04);
+    --hop-line: rgb(255 255 255 / 0.16);
+}
+:root[data-ui="clean"] .app-bg,
+:root[data-ui="clean"].dark .app-bg { background-image: none; background-color: rgb(var(--bg)); }
+:root[data-ui="clean"] .app-bg::before { display: none; }
+:root[data-ui="clean"] .glass,
+:root[data-ui="clean"] .glass-card,
+:root[data-ui="clean"] .glass-strong,
+:root[data-ui="clean"] .stat {
+    background-color: rgb(var(--glass)) !important;
+    border: 1px solid rgb(var(--glass-border) / var(--glass-border-alpha)) !important;
+    box-shadow: var(--coss-card-shadow) !important;
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+:root[data-ui="clean"] .glass-card,
+:root[data-ui="clean"] .stat,
+:root[data-ui="clean"] .glass-strong,
+:root[data-ui="clean"] .app-shell .glass { border-radius: var(--hop-card-radius); }
+:root[data-ui="clean"] .app-shell :is(.rounded-xl,
+:root[data-ui="clean"] .rounded-2xl,
+:root[data-ui="clean"] .rounded-3xl):is(.bg-white,
+:root[data-ui="clean"] .bg-slate-50,
+:root[data-ui="clean"] .bg-gray-50):not(.no-skin,
+:root[data-ui="clean"] input,
+:root[data-ui="clean"] select,
+:root[data-ui="clean"] textarea,
+:root[data-ui="clean"] button,
+:root[data-ui="clean"] .rounded-full) {
+    background-color: rgb(var(--glass)) !important;
+    border: 1px solid rgb(var(--glass-border) / var(--glass-border-alpha)) !important;
+    box-shadow: var(--coss-card-shadow) !important;
+    border-radius: var(--hop-card-radius);
+}
+:root[data-ui="clean"] .glass-inset { background-color: var(--coss-frame); border-color: rgb(var(--glass-border) / var(--glass-border-alpha)); border-radius: 10px; }
+:root[data-ui="clean"] aside.fixed { padding: 0; }
+:root[data-ui="clean"] aside.fixed > .glass { border-radius: 0 !important; border-width: 0 1px 0 0 !important; background-color: rgb(var(--bg)) !important; box-shadow: none !important; }
+:root[data-ui="clean"] header.app-topbar { padding: 0; }
+:root[data-ui="clean"] header.app-topbar > .glass {
+    height: 56px; border-radius: 0 !important; border-width: 0 0 1px 0 !important; padding-inline: 16px;
+    background-color: rgb(var(--bg) / 0.86) !important; box-shadow: none !important;
+}
+:root[data-ui="clean"] .nav-item { border-radius: 8px; padding: 7px 10px; font-size: 14px; font-weight: 500; gap: 10px; }
+:root[data-ui="clean"] .nav-item:hover { background-color: rgb(var(--muted) / 0.1); }
+:root[data-ui="clean"] .nav-item-active { background-color: rgb(var(--muted) / 0.14); box-shadow: none; }
+:root[data-ui="clean"] .nav-item-active svg { color: rgb(var(--accent)); }
+:root[data-ui="clean"] .eyebrow,
+:root[data-ui="clean"] .stat-label { text-transform: none; letter-spacing: 0; font-size: 12px; font-weight: 500; color: rgb(var(--muted)); }
+:root[data-ui="clean"] .page-title { font-weight: 600; letter-spacing: -0.02em; }
+:root[data-ui="clean"] .stat-value { font-variant-numeric: tabular-nums; }
+:root[data-ui="clean"] .chip,
+:root[data-ui="clean"] .chip-green,
+:root[data-ui="clean"] .chip-gray,
+:root[data-ui="clean"] .chip-red,
+:root[data-ui="clean"] .chip-blue,
+:root[data-ui="clean"] .chip-amber { border-radius: 6px; height: 20px; padding: 0 7px; font-size: 12px; font-weight: 500; }
+:root[data-ui="clean"] .input,
+:root[data-ui="clean"] .app-shell :is(input[type=text],
+:root[data-ui="clean"] input[type=email],
+:root[data-ui="clean"] input[type=url],
+:root[data-ui="clean"] input[type=password],
+:root[data-ui="clean"] input[type=search],
+:root[data-ui="clean"] input[type=number],
+:root[data-ui="clean"] select,
+:root[data-ui="clean"] textarea):not(.no-skin) {
+    background-color: var(--hop-surface) !important; border-color: var(--hop-line); box-shadow: 0 1px 1px rgb(0 0 0 / 0.03);
+}
+:root[data-ui="clean"] .btn-outline,
+:root[data-ui="clean"] .btn-soft,
+:root[data-ui="clean"] .btn-danger-outline { background-color: var(--hop-surface) !important; box-shadow: 0 1px 1px rgb(0 0 0 / 0.04) !important; }
+:root[data-ui="clean"] .btn-outline:hover,
+:root[data-ui="clean"] .btn-soft:hover { background-color: rgb(var(--muted) / 0.1) !important; }
+:root[data-ui="clean"] .btn,
+:root[data-ui="clean"] .btn-primary,
+:root[data-ui="clean"] .btn-secondary,
+:root[data-ui="clean"] .btn-outline,
+:root[data-ui="clean"] .btn-soft,
+:root[data-ui="clean"] .btn-ghost,
+:root[data-ui="clean"] .btn-danger,
+:root[data-ui="clean"] .btn-danger-outline { font-weight: 500; }
+:root[data-ui="clean"] .bio-editor {
+    --editor-panel-bg: rgb(255 255 255); --editor-card-bg: rgb(255 255 255); --editor-soft-bg: rgb(247 247 248);
+    --editor-border: rgb(0 0 0 / 0.09); --editor-input-bg: #fff; --editor-input-border: rgb(0 0 0 / 0.14);
+    --editor-hover-bg: rgb(0 0 0 / 0.04); --editor-top: 4.5rem;
+}
+:root[data-ui="clean"].dark .bio-editor {
+    --editor-panel-bg: rgb(20 20 24); --editor-card-bg: rgb(20 20 24); --editor-soft-bg: rgb(14 14 17);
+    --editor-border: rgb(255 255 255 / 0.09); --editor-input-bg: rgb(255 255 255 / 0.04); --editor-input-border: rgb(255 255 255 / 0.16);
+    --editor-hover-bg: rgb(255 255 255 / 0.06);
+}
+:root[data-ui="clean"] .bio-editor .editor-card { border-radius: var(--hop-card-radius); box-shadow: var(--coss-card-shadow); }
+:root[data-ui="clean"] .coss-footer-brand { display: flex; align-items: center; gap: 10px; max-width: 1180px; margin: 24px auto 0; padding: 16px 24px 24px; font-size: 14px; color: rgb(var(--muted)); }
+:root[data-ui="clean"] .coss-footer-brand img { width: 28px; height: 28px; }
+:root[data-ui="clean"] .coss-footer-brand b { color: rgb(var(--ink)); font-weight: 600; }
+
+/* The footer strip is in the markup for everyone; only the Clean style shows it. */
+.coss-footer-brand { display: none; }

@@ -12,6 +12,12 @@ class SocialUrlHelper
         if (preg_match('/^(https?:\/\/|mailto:|tel:|sms:|viber:|skype:|weixin:)/i', $value)) {
             return self::validateAndCleanUrl($platform, $value);
         }
+        // An address pasted without its scheme, as the placeholders suggest ("youtube.com/@name", "t.me/name",
+        // "open.spotify.com/artist/…"): it is the address, not a handle. Used as a handle it doubled the host
+        // (https://t.me/t.me/name).
+        if (self::looksLikeAddress($platform, $value)) {
+            return self::validateAndCleanUrl($platform, 'https://'.ltrim($value, '/'));
+        }
         // Strip @ prefix for consistent handling (will be re-added if needed)
         $cleanValue = ltrim($value, '@');
         // Strip $ prefix for Cash App type handles
@@ -19,6 +25,31 @@ class SocialUrlHelper
 
         // Platform-specific URL building
         return self::getPlatformUrl($platform, $cleanValue, $value);
+    }
+
+    /** Platforms whose value is an e-mail address or a phone number: never read as a web address. */
+    private const CONTACT_PLATFORMS = ['email', 'email-alt', 'phone', 'sms', 'whatsapp', 'wa', 'signal', 'signal-alt', 'viber'];
+
+    /**
+     * True when a value without a scheme is a web address rather than a handle: a host followed by a path
+     * ("youtube.com/@name", "www.linkedin.com/in/name", "youtu.be/ID"), or the platform's own host on its own
+     * ("instagram.com"). Handles with dots ("john.doe", "name.bsky.social", "blog.tumblr.com") have no path and
+     * are not the platform's host, so they stay handles.
+     */
+    public static function looksLikeAddress(string $platform, string $value): bool
+    {
+        $platform = strtolower(str_replace('_', '-', $platform));
+        if (in_array($platform, self::CONTACT_PLATFORMS, true)) {
+            return false;
+        }
+        $value = strtolower(ltrim(trim($value), '@$'));
+        if (preg_match('~^(?:[a-z0-9-]+\.)+[a-z]{2,}(?::\d+)?/~', $value)) {
+            return true;
+        }
+        $own = parse_url(self::getPlatformUrl($platform, 'x', 'x'), PHP_URL_HOST);
+        $strip = fn (string $h) => preg_replace('/^(?:www|m|mobile)\./', '', $h);
+
+        return is_string($own) && str_contains($own, '.') && $strip($value) === $strip(strtolower($own));
     }
 
     /** Validate and clean URL for specific protocols */

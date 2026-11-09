@@ -7,9 +7,10 @@
         <title>{{ trim(($pageTitle ?? '') ?: config('app.name').' - One link in bio for everything you do') }}</title>
         <meta name="description" content="Build and manage your link-in-bio pages, blocks and analytics in BioHop.">
         <link rel="icon" href="{{ route('brand.favicon') }}" type="image/svg+xml">
-        {{-- Apply the saved theme before first paint (no light flash in dark mode) --}}
+        {{-- Apply the saved theme and the optional Clean style (cookie hop_ui) before first paint (no light flash in dark mode) --}}
         <script nonce="{{ Vite::cspNonce() }}">
             (function () {
+                if (/(?:^|; )hop_ui=clean(?:;|$)/.test(document.cookie)) document.documentElement.dataset.ui = 'clean';
                 try {
                     var t = localStorage.getItem('helink-theme');
                     if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -19,6 +20,7 @@
             })();
         </script>
         <x-hop::fonts />
+        @include('partials.hop-ui')
         @stack('scripts-head')
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @stack('styles')
@@ -34,18 +36,19 @@
             <div x-data="{ nav: false }" @keydown.escape.window="nav = false" class="lg:pl-68">
                 {{-- Sidebar: floating glass panel on desktop, drawer on mobile --}}
                 <div x-show="nav" x-cloak x-transition.opacity @click="nav = false" class="fixed inset-0 z-40 bg-slate-950/40 backdrop-blur-xs lg:hidden"></div>
-                <aside class="fixed inset-y-0 left-0 z-50 w-68 p-3 transition-transform duration-300 lg:translate-x-0"
-                       :class="nav ? 'translate-x-0' : '-translate-x-full'"
+                {{-- Closed by default in the markup itself: with the class set only by Alpine, the drawer covered a phone's screen until the script started. --}}
+                <aside class="fixed inset-y-0 left-0 z-50 w-68 p-3 -translate-x-full transition-transform duration-300 ease-out lg:translate-x-0"
+                       :class="nav ? 'translate-x-0!' : ''"
                        @click="if ($event.target.closest('a')) nav = false">
                     <div class="glass flex h-full flex-col rounded-3xl">
                         <div class="flex h-16 items-center justify-between px-5">
                             <a href="{{ route('bio.index') }}" class="flex items-center gap-2.5">
                                 <x-wordmark class="h-9 w-auto" />
                                 @if ($isAdmin)
-                                    <span class="chip-blue">Admin</span>
+                                    <span class="chip-blue">{{ __('Admin') }}</span>
                                 @endif
                             </a>
-                            <button type="button" class="icon-btn lg:hidden" @click="nav = false" aria-label="Close menu">
+                            <button type="button" class="icon-btn lg:hidden" @click="nav = false" aria-label="{{ __('Close menu') }}">
                                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M6 6l12 12M18 6 6 18"/></svg>
                             </button>
                         </div>
@@ -63,17 +66,17 @@
                 {{-- Top bar --}}
                 <header class="app-topbar sticky top-0 z-30 px-3 pt-3 sm:px-5">
                     <div class="glass glass-bar flex h-14 items-center gap-2 rounded-2xl px-2 sm:px-3">
-                        <button type="button" class="icon-btn lg:hidden" @click="nav = true" aria-label="Open menu">
+                        <button type="button" class="icon-btn lg:hidden" @click="nav = true" aria-label="{{ __('Open menu') }}">
                             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h10"/></svg>
                         </button>
                         <p class="truncate pl-1 text-sm font-semibold text-ink">{{ $sectionTitle }}</p>
                         <div class="ml-auto flex items-center gap-1.5">
-                            <a href="{{ route('bio.create') }}" class="btn-primary btn-sm sm:btn" aria-label="New bio">
+                            <a href="{{ route('bio.create') }}" class="btn-primary" aria-label="{{ __('New bio') }}">
                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>
-                                <span class="hidden sm:inline">New bio</span>
+                                <span class="hidden sm:inline">{{ __('New bio') }}</span>
                             </a>
                             <x-hop::language-switcher />
-                            <button type="button" data-call="toggleTheme" id="theme-toggle-button" class="icon-btn" aria-label="Toggle theme" title="Toggle theme">
+                            <button type="button" data-call="toggleTheme" id="theme-toggle-button" class="icon-btn" aria-label="{{ __('Toggle theme') }}" title="{{ __('Toggle theme') }}">
                                 <svg class="h-[18px] w-[18px] dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5Z"/></svg>
                                 <svg class="hidden h-[18px] w-[18px] dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path stroke-linecap="round" d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
                             </button>
@@ -88,9 +91,9 @@
                             <div class="glass flex flex-col gap-3 rounded-2xl border-amber-400/40 px-4 py-3 sm:flex-row sm:items-center">
                                 <div class="flex flex-1 items-start gap-3">
                                     <span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-300">!</span>
-                                    <p class="text-sm text-ink">Verify your email at HOP ID to publish bio pages. The verification link went to <strong>{{ $user->email }}</strong>.</p>
+                                    <p class="text-sm text-ink">{!! __('Verify your email at HOP ID to publish bio pages. The verification link went to :email.', ['email' => '<strong>'.e($user->email).'</strong>']) !!}</p>
                                 </div>
-                                <a href="{{ \App\Models\User::hubUrl('settings') }}" class="btn-soft btn-sm w-full sm:w-auto">Open HOP ID</a>
+                                <a href="{{ \App\Models\User::hubUrl('settings') }}" class="btn-soft btn-sm w-full sm:w-auto">{{ __('Open HOP ID') }}</a>
                             </div>
                         @endunless
                         @isset($header)
@@ -103,6 +106,7 @@
                         @endif
                     </div>
                 </main>
+                <div class="coss-footer-brand"><img src="{{ route("brand.favicon") }}" alt="" width="28" height="28"><span><b>HOP</b> · Hop Easy Link</span></div>
             </div>
         @else
             <div class="min-h-screen">

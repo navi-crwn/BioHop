@@ -17,6 +17,16 @@
         'defaults' => config('bio-themes.defaults'),
         'previewUrl' => route('bio.preview', $bioPage),
         'publicBase' => public_url('b'),
+        'socialMax' => \Hop\Bio\Models\BioPage::SOCIAL_MAX,
+        // The editor's confirm dialogs (resources/js/dialogs.js): titles and messages in the member's language.
+        'dialogs' => [
+            'deletePage' => ['title' => __('Delete this page?'), 'message' => __('The page, its blocks and its click counts are deleted for good. This cannot be undone.')],
+            'deleteBlock' => ['title' => __('Delete this block?'), 'message' => __('Its click count is deleted with it. Archive keeps the clicks and can be undone.')],
+            'deleteBlocks' => ['title' => __('Delete :count blocks?'), 'message' => __('Their click counts are deleted with them. Archive keeps the clicks and can be undone.'), 'ok' => __('Delete :count blocks')],
+            'deleteArchived' => ['title' => __('Delete this archived block for good?'), 'message' => __('Its click count is deleted with it. This cannot be undone.')],
+            'resetPoll' => ['title' => __('Delete every vote of this poll?'), 'message' => __('This cannot be undone.'), 'ok' => __('Delete votes')],
+            'deleteLeads' => ['title' => __('Delete every entry of this form?'), 'message' => __('This cannot be undone.'), 'ok' => __('Delete entries')],
+        ],
         'pages' => auth()->user()->bioPages()->orderBy('title')->get(['slug', 'title'])->map(fn ($p) => ['slug' => $p->slug, 'title' => $p->title])->values(),
         'familyHosts' => \App\Bio\FamilyUrls::hosts(),
         // The link picker (LinkHop): what to say when the list cannot be loaded.
@@ -66,7 +76,7 @@
                     <div class="min-w-0">
                         <div class="relative flex items-center gap-1" x-data="{ pagesOpen: false }" @click.outside="pagesOpen = false" @keydown.escape="pagesOpen = false">
                             <h1 x-text="bioPage.title || 'Untitled'"></h1>
-                            <button type="button" class="be-iconbtn" style="width:24px;height:24px" x-show="pages.length > 1" @click="pagesOpen = !pagesOpen" :aria-expanded="pagesOpen" aria-haspopup="menu" aria-label="Switch to another page">
+                            <button type="button" class="be-iconbtn" x-show="pages.length > 1" @click="pagesOpen = !pagesOpen" :aria-expanded="pagesOpen" aria-haspopup="menu" aria-label="Switch to another page">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                             </button>
                             <div x-show="pagesOpen" x-cloak x-transition class="be-pages-menu" role="menu">
@@ -89,8 +99,10 @@
                     <button type="button" class="be-iconbtn be-kbd" @click="openPalette()" title="Commands (Ctrl or Cmd + K)" aria-label="Open the command palette" aria-keyshortcuts="Control+K Meta+K">
                         <span aria-hidden="true">⌘K</span>
                     </button>
-                    <button type="button" class="be-iconbtn" @click="copyPageUrl()" title="Copy link" aria-label="Copy page link">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    <button type="button" class="be-iconbtn be-copy" :class="{ 'is-copied': copied }" @click="copyPageUrl()" :title="copied ? @js(__('Copied')) : @js(__('Copy page link'))" :aria-label="copied ? @js(__('Copied')) : @js(__('Copy page link'))" aria-live="polite">
+                        <svg x-show="!copied" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                        <svg x-show="copied" x-cloak fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M5 13l4 4L19 7"/></svg>
+                        <span class="be-copy-label" x-show="copied" x-cloak>{{ __('Copied') }}</span>
                     </button>
                     <button type="button" class="be-iconbtn" @click="toggleAutosave()" :aria-pressed="autosave" :title="autosave ? 'Autosave is on' : 'Autosave is off'" :aria-label="autosave ? 'Turn autosave off' : 'Turn autosave on'">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" :style="autosave ? '' : 'opacity:.4'"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5M5.6 15a7 7 0 0012.7 1.5M18.4 9A7 7 0 005.7 7.5"/></svg>
@@ -106,25 +118,25 @@
                 <button type="button" @click="_autoBlocked = false; saveBioPage()" :disabled="saving">Try again</button>
             </div>
             <div class="editor-tabs" role="tablist" aria-label="Editor sections" @keydown.arrow-right.prevent="cycleTab(1)" @keydown.arrow-left.prevent="cycleTab(-1)" @keydown.home.prevent="cycleTab(0, true)" @keydown.end.prevent="cycleTab(4, true)">
-            <button type="button" @click="activeTab = 'profile'" :class="{ 'active': activeTab === 'profile' }" class="editor-tab" role="tab" id="editor-tab-profile" aria-controls="editor-panel-profile" :aria-selected="activeTab === 'profile'" :tabindex="activeTab === 'profile' ? 0 : -1">
+            <button type="button" @click="activeTab = 'profile'; $el.scrollIntoView({ inline: 'nearest', block: 'nearest' })" :class="{ 'active': activeTab === 'profile' }" class="editor-tab" role="tab" id="editor-tab-profile" aria-controls="editor-panel-profile" :aria-selected="activeTab === 'profile'" :tabindex="activeTab === 'profile' ? 0 : -1">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                Profile
+                {{ __('Profile') }}
             </button>
-            <button type="button" @click="activeTab = 'links'" :class="{ 'active': activeTab === 'links' }" class="editor-tab" role="tab" id="editor-tab-links" aria-controls="editor-panel-links" :aria-selected="activeTab === 'links'" :tabindex="activeTab === 'links' ? 0 : -1">
+            <button type="button" @click="activeTab = 'links'; $el.scrollIntoView({ inline: 'nearest', block: 'nearest' })" :class="{ 'active': activeTab === 'links' }" class="editor-tab" role="tab" id="editor-tab-links" aria-controls="editor-panel-links" :aria-selected="activeTab === 'links'" :tabindex="activeTab === 'links' ? 0 : -1">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-                Build
+                {{ __('Build') }}
             </button>
-            <button type="button" @click="activeTab = 'socials'" :class="{ 'active': activeTab === 'socials' }" class="editor-tab" role="tab" id="editor-tab-socials" aria-controls="editor-panel-socials" :aria-selected="activeTab === 'socials'" :tabindex="activeTab === 'socials' ? 0 : -1">
+            <button type="button" @click="activeTab = 'socials'; $el.scrollIntoView({ inline: 'nearest', block: 'nearest' })" :class="{ 'active': activeTab === 'socials' }" class="editor-tab" role="tab" id="editor-tab-socials" aria-controls="editor-panel-socials" :aria-selected="activeTab === 'socials'" :tabindex="activeTab === 'socials' ? 0 : -1">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                Socials
+                {{ __('Socials') }}
             </button>
-            <button type="button" @click="activeTab = 'appearance'" :class="{ 'active': activeTab === 'appearance' }" class="editor-tab" role="tab" id="editor-tab-appearance" aria-controls="editor-panel-appearance" :aria-selected="activeTab === 'appearance'" :tabindex="activeTab === 'appearance' ? 0 : -1">
+            <button type="button" @click="activeTab = 'appearance'; $el.scrollIntoView({ inline: 'nearest', block: 'nearest' })" :class="{ 'active': activeTab === 'appearance' }" class="editor-tab" role="tab" id="editor-tab-appearance" aria-controls="editor-panel-appearance" :aria-selected="activeTab === 'appearance'" :tabindex="activeTab === 'appearance' ? 0 : -1">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
-                Design
+                {{ __('Design') }}
             </button>
-            <button type="button" @click="activeTab = 'settings'" :class="{ 'active': activeTab === 'settings' }" class="editor-tab" role="tab" id="editor-tab-settings" aria-controls="editor-panel-settings" :aria-selected="activeTab === 'settings'" :tabindex="activeTab === 'settings' ? 0 : -1">
+            <button type="button" @click="activeTab = 'settings'; $el.scrollIntoView({ inline: 'nearest', block: 'nearest' })" :class="{ 'active': activeTab === 'settings' }" class="editor-tab" role="tab" id="editor-tab-settings" aria-controls="editor-panel-settings" :aria-selected="activeTab === 'settings'" :tabindex="activeTab === 'settings' ? 0 : -1">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065zM15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                Settings
+                {{ __('Settings') }}
             </button>
             </div>
             <div class="tab-content">
@@ -259,7 +271,7 @@
                                 </template>
                             </div>
                             <div>
-                                <div class="text-sm font-medium editor-text" x-text="editingBlock?.brand ? brands[editingBlock?.brand]?.name : 'Custom Link'"></div>
+                                <div class="text-sm font-medium editor-text" x-text="editingBlock?.brand ? brands[editingBlock?.brand]?.name : (editingBlock?.type === 'link' ? 'Custom Link' : (getDefaultBlockTitle(editingBlock?.type) || editingBlock?.type))"></div>
                                 <div class="text-xs editor-text-muted" x-text="editingBlock?.type"></div>
                             </div>
                         </div>
@@ -300,10 +312,16 @@
                                                 <template x-if="editingBlock?._urlError">
                                                     <span x-text="editingBlock?._urlError"></span>
                                                 </template>
-                                                <template x-if="!editingBlock?._urlError && !editingBlock?.brand">
-                                                    <span>Enter a long URL to automatically shorten it</span>
+                                                <template x-if="!editingBlock?._urlError && !editingBlock?.brand && !editingBlock?._shortened">
+                                                    <span>{{ __('Saved as typed. A short link is made only when you ask for one.') }}</span>
+                                                </template>
+                                                <template x-if="!editingBlock?._urlError && editingBlock?._shortened">
+                                                    <span>{{ __('Short link in place of the long address.') }} <button type="button" class="underline" @click="undoShortenEditing()">{{ __('Undo') }}</button></span>
                                                 </template>
                                             </p>
+                                            <button type="button" class="btn btn-secondary text-sm py-2 w-full mt-2" x-show="canShortenEditing()" :disabled="shortening" @click="shortenEditingUrl()" data-shorten-url>
+                                                <span x-text="shortening ? @js(__('Asking LinkHop…')) : @js(__('Shorten this URL'))"></span>
+                                            </button>
                                             @if (\Hop\Bio\Support\NoteHopNotes::enabled())
                                             <button type="button" class="btn btn-secondary text-sm py-2 w-full mt-2" x-show="notehopAvailable() && !editingBlock?.brand" @click="openNoteHop()">{{ __('Choose from NoteHop') }}</button>
                                             @endif
@@ -376,7 +394,7 @@
                                         <label class="form-label">Icon</label>
                                         <button type="button" 
                                                 @click.prevent.stop="openIconPickerSafe(editingBlock)" 
-                                                class="w-full flex items-center gap-3 p-3 option-btn rounded-lg transition-colors text-left relative z-10"
+                                                data-tile class="w-full flex items-center gap-3 p-3 option-btn rounded-lg transition-colors text-left relative z-10"
                                                 style="cursor: pointer; pointer-events: auto;">
                                             <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors" 
                                                  :style="{ backgroundColor: '#6366f1' }">
@@ -401,7 +419,7 @@
                                 </template>
                                 <div class="form-group" x-data="{ showButtonStyle: true }">
                                     <button type="button" @click="showButtonStyle = !showButtonStyle" 
-                                            class="w-full flex items-center justify-between p-3 option-btn rounded-lg transition-colors">
+                                            data-tile class="w-full flex items-center justify-between p-3 option-btn rounded-lg transition-colors">
                                         <div class="flex items-center gap-3">
                                             <div class="w-10 h-10 rounded-lg flex items-center justify-center border-2"
                                                  :style="{
@@ -689,7 +707,7 @@
                                     <span class="text-sm"><b x-text="editingBlock.leads_count ?? 0"></b> entries</span>
                                     <span class="flex gap-2">
                                         <a :href="bioEditorUrl('/links/' + editingBlock.id + '/leads.csv')" class="btn btn-secondary text-xs py-1 px-2" x-show="(editingBlock.leads_count ?? 0) > 0">Download CSV</a>
-                                        <button type="button" class="btn btn-secondary text-xs py-1 px-2" x-show="(editingBlock.leads_count ?? 0) > 0" @click="deleteLeads()">Delete all</button>
+                                        <button type="button" class="btn btn-secondary text-xs py-1 px-2" x-show="(editingBlock.leads_count ?? 0) > 0" @click="deleteLeads($event)">Delete all</button>
                                     </span>
                                 </div>
                             </div>
@@ -713,7 +731,7 @@
                                 </template>
                                 <div class="flex items-center justify-between gap-2 p-2 rounded-lg" style="background: var(--editor-input-bg)" x-show="pollResults">
                                     <span class="text-sm">Votes so far: <b x-text="pollResults?.total ?? 0"></b></span>
-                                    <button type="button" class="btn btn-secondary text-xs py-1 px-2" x-show="(pollResults?.total ?? 0) > 0" @click="resetPoll()">Reset votes</button>
+                                    <button type="button" class="btn btn-secondary text-xs py-1 px-2" x-show="(pollResults?.total ?? 0) > 0" @click="resetPoll($event)">Reset votes</button>
                                 </div>
                                 <p class="text-xs editor-text-muted">Changing the number or order of options after people voted mixes up the old votes: reset them first.</p>
                             </div>
@@ -918,6 +936,25 @@
                                     <label for="bfindex-25" class="form-label">Company (Optional)</label>
                                     <input maxlength="100" id="bfindex-25" type="text" x-model="editingBlock.vcard_company" class="form-input" placeholder="Company Name">
                                 </div>
+                            </div>
+                        </template>
+                        <template x-if="editingBlock?.type === 'faq'">
+                            <div class="space-y-3" data-faq-form>
+                                <p class="text-xs editor-text-muted">{{ __('Each question opens to its answer when a visitor taps it. The title above is optional.') }}</p>
+                                <template x-for="(item, i) in (editingBlock.faq_items || [])" :key="'faq' + i">
+                                    <div class="be-faq-item">
+                                        <div class="be-faq-head">
+                                            <span class="text-xs font-semibold editor-text-muted tabular-nums" x-text="(i + 1) + '.'"></span>
+                                            <button type="button" class="block-action-btn delete" @click="removeFaqItem(i)" :aria-label="@js(__('Remove question')) + ' ' + (i + 1)" :title="@js(__('Remove question'))">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                            </button>
+                                        </div>
+                                        <input type="text" maxlength="500" class="form-input" :value="item.question ?? ''" @input="setFaqItem(i, 'question', $event.target.value)" :aria-label="@js(__('Question')) + ' ' + (i + 1)" placeholder="{{ __('Question') }}" autocomplete="off">
+                                        <textarea maxlength="2000" rows="3" class="form-input form-textarea" :value="item.answer ?? ''" @input="setFaqItem(i, 'answer', $event.target.value)" :aria-label="@js(__('Answer')) + ' ' + (i + 1)" placeholder="{{ __('Answer') }}"></textarea>
+                                    </div>
+                                </template>
+                                <button type="button" class="btn btn-secondary text-sm py-2 w-full" @click="addFaqItem()" x-show="(editingBlock.faq_items || []).length < 20">+ {{ __('Add question') }}</button>
+                                <p class="text-xs editor-text-muted" x-show="(editingBlock.faq_items || []).length >= 20">{{ __('A FAQ block holds up to 20 questions.') }}</p>
                             </div>
                         </template>
                         <template x-if="editingBlock?.type === 'html'">

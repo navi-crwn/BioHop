@@ -13,9 +13,9 @@
         ? [['label' => config('hop.control_name', 'Control center'), 'icon' => 'shield', 'href' => config('hop.control_url'), 'active' => 'admin.control']]
         : [];
     $items = array_filter([
-        ['label' => 'My bio pages', 'icon' => 'bio', 'href' => route('bio.index'), 'active' => 'bio.*'],
+        ['label' => __('My bio pages'), 'icon' => 'bio', 'href' => route('bio.index'), 'active' => 'bio.*'],
         ...$control,
-        ['label' => 'Settings', 'icon' => 'settings', 'href' => route('settings'), 'active' => 'settings*'],
+        ['label' => __('Settings'), 'icon' => 'settings', 'href' => route('settings'), 'active' => 'settings*'],
     ]);
 @endphp
 <ul class="space-y-1">

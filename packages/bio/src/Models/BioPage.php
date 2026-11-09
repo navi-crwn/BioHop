@@ -18,6 +18,9 @@ class BioPage extends Model
 
     public const BIO_MAX = 155;
 
+    /** Social icons per page: the wizard, the editor, the server and the public page keep the same number. */
+    public const SOCIAL_MAX = 5;
+
     use HasFactory;
 
     /** The address before the current save, so a renamed page leaves the edge cache under both. */

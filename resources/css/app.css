@@ -2,6 +2,8 @@
 @import './showcase.css';
 @import './profile-hero.css';
 @import './editor.css';
+@import './controls.css';
+@import './coss.css';
 
 @plugin '@tailwindcss/forms';
 
@@ -158,6 +160,9 @@
         color: rgb(var(--muted));
     }
     .icon-btn:hover { color: rgb(var(--ink)); }
+    .icon-btn:active { transform: scale(0.97); }
+    /* Touch screens and narrow windows: the menu, theme and close buttons grow to a 44 px hit area. */
+    @media (pointer: coarse), (max-width: 640px) { .icon-btn { height: 2.75rem; width: 2.75rem; } }
 
     /* Form controls */
     .input {

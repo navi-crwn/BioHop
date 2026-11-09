@@ -24,8 +24,8 @@
                         </div>
                         <!-- Camera button overlay -->
                         <input aria-label="Upload avatar" type="file" accept="image/*" class="hidden" x-ref="avatarInput" @change="uploadAvatar($event)">
-                        <button aria-label="Change avatar" @click="$refs.avatarInput.click()" 
-                                class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/3 w-8 h-8 bg-blue-600 hover:bg-blue-700 rounded-full flex items-center justify-center shadow-lg border-2 border-slate-900 transition-colors z-10" style="aspect-ratio: 1/1;">
+                        <button type="button" data-hit aria-label="Change avatar" @click="$refs.avatarInput.click()" 
+                                class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/3 w-8 h-8 bg-blue-600 hover:bg-blue-700 rounded-lg flex items-center justify-center shadow-lg border-2 border-slate-900 transition-colors z-10" style="aspect-ratio: 1/1;">
                             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -266,7 +266,7 @@
                                         <button :aria-label="'QR color ' + color" @click="setColor(color)" 
                                                 :class="{ 'ring-2 ring-blue-500': qrColor === color }"
                                                 :style="{ backgroundColor: color }"
-                                                class="w-5 h-5 rounded-sm "></button>
+                                                data-swatch data-hit class="w-5 h-5 rounded-sm "></button>
                                     </template>
                                     <div class="relative">
                                         <input aria-label="QR code color" type="color" x-model="qrColor" @input="debouncedUpdateQR()" 
@@ -284,7 +284,7 @@
                                         <button :aria-label="'QR background ' + color" @click="setBgColor(color)" 
                                                 :class="{ 'ring-2 ring-blue-500': bgColor === color }"
                                                 :style="{ backgroundColor: color }"
-                                                class="w-5 h-5 rounded-sm "></button>
+                                                data-swatch data-hit class="w-5 h-5 rounded-sm "></button>
                                     </template>
                                     <div class="relative">
                                         <input aria-label="QR background color" type="color" x-model="bgColor" @input="debouncedUpdateQR()" 

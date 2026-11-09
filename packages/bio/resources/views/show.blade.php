@@ -841,7 +841,7 @@
                 </div>
                 @if($bioPage->social_links && count($bioPage->social_links) > 0 && (!$bioPage->social_icons_position || $bioPage->social_icons_position === 'below_bio'))
                     <div class="mt-4 flex justify-center gap-3 flex-wrap">
-                        @foreach($bioPage->social_links as $socialLink)
+                        @foreach(array_slice($bioPage->social_links, 0, \Hop\Bio\Models\BioPage::SOCIAL_MAX) as $socialLink)
                             @php
                                 // Shown unless switched off, as in the editor preview; older rows have no "enabled" key.
                                 $isEnabled = is_array($socialLink) && ! in_array($socialLink['enabled'] ?? $socialLink['is_active'] ?? true, [false, 0, '0', 'false'], true);
@@ -1214,23 +1214,25 @@
                                     <figure class="bio-slide"><img src="{{ bio_media_url($img['url']) }}" alt="{{ $img['caption'] }}" loading="lazy" decoding="async" {!! \Hop\Bio\Support\ImageMeta::attrs($img['url']) !!}>@if($img['caption'])<figcaption>{{ $img['caption'] }}</figcaption>@endif</figure>
                                 @endforeach
                             </div>
-                        @elseif($link->type === 'faq' && $link->faq_items)
+                        @elseif($link->type === 'faq' && ($faqItems = $link->faqItems()))
                             <div class="w-full rounded-xl p-4" style="background: rgba(0,0,0,0.05);">
                                 @if($link->title)
                                     <div class="mb-3 text-sm font-semibold" style="color: inherit;">{{ $link->title }}</div>
                                 @endif
                                 <div class="space-y-2" x-data="{ openFaq: null }">
-                                    @foreach($link->faq_items as $idx => $faqItem)
+                                    @foreach($faqItems as $idx => $faqItem)
                                         <div class="rounded-lg overflow-hidden" style="background: rgba(255,255,255,0.5);">
-                                            <button @click="openFaq = openFaq === {{ $idx }} ? null : {{ $idx }}" 
-                                                    class="w-full flex justify-between items-center px-4 py-3 text-sm font-medium text-left"
+                                            <button type="button" @click="openFaq = openFaq === {{ $idx }} ? null : {{ $idx }}"
+                                                    class="w-full flex justify-between items-center gap-3 px-4 py-3 text-sm font-medium text-left"
                                                     :class="{ 'bg-indigo-50': openFaq === {{ $idx }} }"
+                                                    :aria-expanded="openFaq === {{ $idx }} ? 'true' : 'false'"
+                                                    aria-controls="faq-{{ $link->id }}-{{ $idx }}"
                                                     style="color: inherit;">
-                                                <span>{{ $faqItem['question'] ?? 'Question' }}</span>
-                                                <svg class="w-4 h-4 transition-transform" :class="{ 'rotate-180': openFaq === {{ $idx }} }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                                <span>{{ $faqItem['question'] }}</span>
+                                                <svg class="w-4 h-4 shrink-0 transition-transform" :class="{ 'rotate-180': openFaq === {{ $idx }} }" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                                             </button>
-                                            <div x-show="openFaq === {{ $idx }}" x-collapse class="px-4 pb-3 text-sm opacity-80" style="color: inherit;">
-                                                {{ $faqItem['answer'] ?? 'Answer' }}
+                                            <div id="faq-{{ $link->id }}-{{ $idx }}" x-show="openFaq === {{ $idx }}" x-collapse class="px-4 pb-3 text-sm opacity-80 whitespace-pre-line" style="color: inherit;">
+                                                {{ $faqItem['answer'] }}
                                             </div>
                                         </div>
                                     @endforeach
@@ -1244,7 +1246,7 @@
                 </div>
                 @if($bioPage->social_links && count($bioPage->social_links) > 0 && $bioPage->social_icons_position === 'bottom_page')
                     <div class="mt-8 flex justify-center gap-3 flex-wrap">
-                        @foreach($bioPage->social_links as $socialLink)
+                        @foreach(array_slice($bioPage->social_links, 0, \Hop\Bio\Models\BioPage::SOCIAL_MAX) as $socialLink)
                             @php
                                 // Shown unless switched off, as in the editor preview; older rows have no "enabled" key.
                                 $isEnabled = is_array($socialLink) && ! in_array($socialLink['enabled'] ?? $socialLink['is_active'] ?? true, [false, 0, '0', 'false'], true);

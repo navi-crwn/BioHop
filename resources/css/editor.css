@@ -131,7 +131,7 @@
 /* ---------- blocks (the list people live in) ---------- */
 .bio-editor .block-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--editor-input-bg); border: 1px solid var(--editor-border); border-radius: 14px; margin-bottom: 8px; /* only colours: transform would fight SortableJS */ transition: border-color .15s, background-color .15s, box-shadow .15s; }
 .bio-editor .block-item:hover { border-color: var(--editor-text-muted); }
-.bio-editor .block-drag-handle { cursor: grab; color: var(--editor-text-muted); padding: 10px 6px; touch-action: none; border-radius: 8px; }
+.bio-editor .block-drag-handle { display: inline-grid; place-items: center; min-width: 32px; min-height: 44px; cursor: grab; color: var(--editor-text-muted); padding: 10px 6px; touch-action: none; border-radius: 8px; }
 .bio-editor .block-drag-handle:active { cursor: grabbing; }
 .bio-editor .block-drag-handle:hover { color: var(--editor-text); background: var(--editor-hover-bg); }
 .bio-editor .block-ghost { opacity: .35; border-style: dashed; }
@@ -141,14 +141,18 @@
 .bio-editor .block-content { flex: 1; min-width: 0; }
 .bio-editor .block-title { font-size: 14px; font-weight: 500; color: var(--editor-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bio-editor .block-subtitle { font-size: 12px; color: var(--editor-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.bio-editor .block-actions { display: flex; align-items: center; gap: 4px; }
-.bio-editor .block-action-btn { padding: 8px; border-radius: 8px; color: var(--editor-text-muted); background: transparent; border: 0; transition: color .15s, background-color .15s; }
+.bio-editor .block-actions { display: flex; align-items: center; gap: 2px; }
+/* Edit, archive, delete and the drag handle are 44 px tall hit areas (the icons stay 16 px): 28 px was too small to tap. */
+.bio-editor .block-action-btn { display: inline-grid; place-items: center; min-width: 40px; min-height: 44px; padding: 0 8px; border-radius: 10px; color: var(--editor-text-muted); background: transparent; border: 0; transition: color .15s, background-color .15s, transform .1s; }
+.bio-editor .block-action-btn:active { transform: scale(.97); }
 .bio-editor .block-action-btn:hover { color: var(--editor-text); background: var(--editor-hover-bg); }
 .bio-editor .block-action-btn.delete:hover { color: #f87171; background: rgb(248 113 113 / 0.1); }
 .bio-editor .add-block-btn { width: 100%; padding: 16px; border: 2px dashed var(--editor-border); border-radius: 14px; background: transparent; color: var(--editor-text-muted); font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; transition: border-color .15s, color .15s, background-color .15s; }
 .bio-editor .add-block-btn:hover { border-color: var(--editor-accent); color: var(--editor-accent); background: rgb(59 130 246 / 0.05); }
 
 .bio-editor .toggle-switch { position: relative; width: 44px; height: 24px; display: inline-block; }
+/* The switch stays 44×24 to look at, but the label's hit area grows to 44 px tall (the whole label toggles the input). */
+.bio-editor .toggle-switch::after { content: ''; position: absolute; inset: -10px 0; }
 .bio-editor .toggle-switch input { opacity: 0; width: 0; height: 0; }
 .bio-editor .toggle-slider { position: absolute; cursor: pointer; inset: 0; background: var(--editor-border); border-radius: 24px; transition: background-color .2s; }
 .bio-editor .toggle-slider::before { content: ''; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: transform .2s; }
@@ -218,13 +222,23 @@
 .dark .bio-editor .be-add:hover { background: #fff; }
 .bio-editor .be-add svg { width: 18px; height: 18px; }
 @media (max-width: 520px) {
-    .bio-editor .block-item { gap: 8px; padding: 10px; }
+    .bio-editor .block-item { gap: 6px; padding: 10px; }
     .bio-editor .block-icon { width: 32px; height: 32px; border-radius: 8px; }
     .bio-editor .block-actions { gap: 0; }
-    .bio-editor .block-action-btn { padding: 6px; }
-    .bio-editor .block-drag-handle { padding: 8px 2px; }
-    .bio-editor .block-actions .toggle-switch { transform: scale(.85); }
+    .bio-editor .block-drag-handle { padding: 10px 4px; }
 }
+/* Touch screens and narrow windows: every control in the editor's header and lists is at least 44 px. */
+@media (pointer: coarse), (max-width: 640px) {
+    .bio-editor .be-iconbtn, .bio-editor .be-save { min-width: 44px; min-height: 44px; }
+    .bio-editor .block-action-btn { min-width: 44px; }
+    .bio-editor .editor-tab { min-height: 44px; }
+}
+/* "Copy page link": the icon turns into a check and the word Copied for a moment. */
+.bio-editor .be-copy { position: relative; }
+.bio-editor .be-copy.is-copied { color: #16a34a; }
+.dark .bio-editor .be-copy.is-copied { color: #4ade80; }
+.bio-editor .be-copy-label { position: absolute; top: calc(100% + 2px); left: 50%; transform: translateX(-50%); padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; white-space: nowrap; color: #fff; background: #16a34a; }
+.dark .bio-editor .be-copy-label { color: #052e16; background: #4ade80; }
 
 /* Header layout picker (Design tab): four small sketches of the top of a page. */
 .be-heads { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
@@ -285,6 +299,10 @@
 .be-wa-row { display: grid; grid-template-columns: 1.3fr 1fr auto auto; gap: 6px; align-items: center; }
 .be-wa-row input[type=number] { width: 72px; }
 @media (max-width: 640px) { .be-wa-row { grid-template-columns: 1fr 1fr; } }
+/* FAQ block form: one card per question, the answer under it. */
+.be-faq-item { display: grid; gap: 6px; padding: 10px 12px; border: 1px solid var(--editor-border); border-radius: 12px; background: var(--editor-input-bg); }
+.be-faq-head { display: flex; align-items: center; justify-content: space-between; min-height: 32px; }
+.be-faq-item .form-textarea { min-height: 72px; }
 
 /* Routing rules in the link form: countries · device · system · hours · address · remove. */
 .be-rule { display: grid; grid-template-columns: 1fr 1fr auto; gap: 6px; align-items: center; padding: 8px; border: 1px solid var(--editor-border); border-radius: 10px; }
