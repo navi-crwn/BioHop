@@ -4,6 +4,8 @@ All notable changes to BioHop are listed here. The format follows [Keep a Change
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-10
+
 ### FileHop joins the HOP family
 - FileHop (file.hel.ink, file conversion in the browser) is named wherever BioHop lists its sibling apps: the FAQ, the home page and the official page's description, in all nine languages, and the HOP family table in every README. `filehop` and `filehop-` are reserved page names.
 - The home page's HOP family row keeps an app's flat mark when the 3D engine has no block map for it, instead of drawing the NoteHop logo for it.
