@@ -6,6 +6,7 @@ use App\Http\Controllers\BrandAssetController;
 use App\Http\Controllers\ChangelogController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SitemapController;
 use App\Models\User;
@@ -80,6 +81,8 @@ Route::middleware('hop.auth')->group(function () {
 
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
     Route::get('/settings/export', [SettingsController::class, 'export'])->middleware('throttle:5,1,export')->name('settings.export');
+    // "Hide · Shows again next week" on a reminder card (hop-ui.js posts the card's key here).
+    Route::post('/reminders/dismiss', [ReminderController::class, 'dismiss'])->middleware('throttle:30,1')->name('reminders.dismiss');
 
     // The admin pages moved to the HOP control center (Imperium), which works
     // through the signed /api/hop/* API. /admin/* sends admins there.

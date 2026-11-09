@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AbuseFlag;
 use App\Support\BioLimits;
 use App\Support\CssValue;
+use App\Support\Reminders;
 use App\Support\ReservedSlugs;
 use Carbon\Carbon;
 use Hop\Bio\Contracts\UrlSafety;
@@ -38,8 +39,12 @@ class BioPageController extends Controller
     {
         $bioPages = auth()->user()->bioPages()->withCount('links')->with('links:id,bio_page_id')->latest()->get();
         $home = self::dashboardHome($bioPages);
+        // The setup checklist is a reminder card: hidden for seven days after "Hide", and for good once every step is done.
+        $checklist = $home['checklist'];
+        $checklistHidden = $checklist !== null
+            && Reminders::hidden((int) auth()->id(), 'setup-checklist', $checklist['done'] >= count($checklist['items']));
 
-        return view('bio::index', compact('bioPages') + $home);
+        return view('bio::index', compact('bioPages', 'checklistHidden') + $home);
     }
 
     /**

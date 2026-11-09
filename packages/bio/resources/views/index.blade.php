@@ -52,8 +52,9 @@
                     <div class="glass-inset rounded-xl py-2 max-sm:hidden"><dt class="text-[11px] text-muted">{{ __('Published pages') }}</dt><dd class="text-sm font-semibold tabular-nums text-ink">{{ $bioPages->where('is_published', true)->count() }} / {{ $bioPages->count() }}</dd></div>
                 </dl>
             </section>
-            @if ($checklist)
-                <section class="glass-card" data-checklist>
+            {{-- A reminder card: hop-ui.js adds "Hide · Shows again next week", and App\Support\Reminders keeps it away for seven days. --}}
+            @if ($checklist && ! ($checklistHidden ?? false))
+                <section class="glass-card" data-checklist data-hop-remind="setup-checklist" data-hop-remind-url="{{ route('reminders.dismiss') }}">
                     <div class="flex items-center justify-between gap-2">
                         <h2 class="text-sm font-semibold text-ink">{{ $checklist['done'] >= count($checklist['items']) ? __('Your page is set up') : __('Set up your page') }}</h2>
                         <span class="text-xs tabular-nums text-muted">{{ __(':done of :total complete', ['done' => $checklist['done'], 'total' => count($checklist['items'])]) }}</span>
