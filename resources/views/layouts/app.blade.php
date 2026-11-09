@@ -7,9 +7,10 @@
         <title>{{ trim(($pageTitle ?? '') ?: config('app.name').' - One link in bio for everything you do') }}</title>
         <meta name="description" content="Build and manage your link-in-bio pages, blocks and analytics in BioHop.">
         <link rel="icon" href="{{ route('brand.favicon') }}" type="image/svg+xml">
-        {{-- Apply the saved theme before first paint (no light flash in dark mode) --}}
+        {{-- Apply the saved theme and the optional Clean style (cookie hop_ui) before first paint (no light flash in dark mode) --}}
         <script nonce="{{ Vite::cspNonce() }}">
             (function () {
+                if (/(?:^|; )hop_ui=clean(?:;|$)/.test(document.cookie)) document.documentElement.dataset.ui = 'clean';
                 try {
                     var t = localStorage.getItem('helink-theme');
                     if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
