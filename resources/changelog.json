@@ -1,9 +1,153 @@
 {
   "schema": 1,
   "sources": {
-    "BioHop": "ff891cce785589bfe98fb8c04efe9600eafb2985"
+    "BioHop": "63a9f68e8a2cd082c1575c0f4848a5d85b31c76d"
   },
   "entries": [
+    {
+      "kind": "pr",
+      "date": "2026-11-10T07:15:21Z",
+      "title": "Proportional home boxes on hop-assets v8",
+      "url": "https://github.com/navi-crwn/BioHop/pull/71",
+      "id": "#71",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-10T14:15:20+07:00",
+      "title": "Merge pull request #71: Proportional home boxes on hop-assets v8",
+      "url": "https://github.com/navi-crwn/BioHop/commit/63a9f68e8a2cd082c1575c0f4848a5d85b31c76d",
+      "id": "63a9f68e",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-10T07:45:14+01:00",
+      "title": "Use the v8 BioHop WebP fallbacks",
+      "url": "https://github.com/navi-crwn/BioHop/commit/6be65a8037449d483557070ff570e0165529076f",
+      "id": "6be65a80",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-10T07:44:20+01:00",
+      "title": "Proportional home boxes on hop-assets v8; capped media; new BioHop mark",
+      "url": "https://github.com/navi-crwn/BioHop/commit/94386fb681ba4c170445aa42100bd7c737c5a264",
+      "id": "94386fb6",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-10T12:53:34+07:00",
+      "title": "Merge pull request #69: Family section on the v6 engine, and grids without a lonely last item",
+      "url": "https://github.com/navi-crwn/BioHop/commit/e0b144b391f3e52675d80da1393d585959cf3b70",
+      "id": "e0b144b3",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "pr",
+      "date": "2026-11-10T05:53:34Z",
+      "title": "Family section on the v6 engine, and grids without a lonely last item",
+      "url": "https://github.com/navi-crwn/BioHop/pull/69",
+      "id": "#69",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-10T06:38:48+01:00",
+      "title": "Logo without text, and the app name as real text in its own typeface",
+      "url": "https://github.com/navi-crwn/BioHop/commit/bebf044b1beb2e87b0ac5b116293c3d867627776",
+      "id": "bebf044b",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-10T06:30:02+01:00",
+      "title": "Home boxes on the shared hop-bento grid (hop-assets v7) with reveal, spotlight and scenes",
+      "url": "https://github.com/navi-crwn/BioHop/commit/7d96e9e1fe1a35f11165dbfb998afe61b2d0cb6d",
+      "id": "7d96e9e1",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-10T05:45:24+01:00",
+      "title": "Family section: v6 engine and fallbacks, no section number, grids without a lonely last item",
+      "url": "https://github.com/navi-crwn/BioHop/commit/38c68d31adde513aa2c69e2e0cb7e4a280d17d9d",
+      "id": "38c68d31",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-10T11:05:19+07:00",
+      "title": "Merge pull request #68: Post-release fixes: changelog snapshot, footer family row, sign-out return",
+      "url": "https://github.com/navi-crwn/BioHop/commit/58fa5ad9a26b36e74628848e6beee6e0e8f4d139",
+      "id": "58fa5ad9",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "pr",
+      "date": "2026-11-10T04:05:19Z",
+      "title": "Post-release fixes: changelog snapshot, footer family row, sign-out return",
+      "url": "https://github.com/navi-crwn/BioHop/pull/68",
+      "id": "#68",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-10T04:46:58+01:00",
+      "title": "Use the new LinkHop and BioHop marks from hop-assets v6",
+      "url": "https://github.com/navi-crwn/BioHop/commit/4de95786c52b8e65d8ca7802ef795e7b6fb0b805",
+      "id": "4de95786",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-09T22:38:30+01:00",
+      "title": "Show the family row in the footer and drop the footer language row",
+      "url": "https://github.com/navi-crwn/BioHop/commit/95f7c1274f8aa20c4cfa1305e3fb58c0bcfbee33",
+      "id": "95f7c127",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-09T22:38:30+01:00",
+      "title": "Ask the hub to return to this app after sign-out",
+      "url": "https://github.com/navi-crwn/BioHop/commit/23ae0497718b42762b8e406e959a4739690a2ef1",
+      "id": "23ae0497",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-09T22:26:49+01:00",
+      "title": "Rebuild the changelog snapshot and fail release branches when it is stale",
+      "url": "https://github.com/navi-crwn/BioHop/commit/cfa3afed7345f5b45697d901435710b6890b236e",
+      "id": "cfa3afed",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "tag",
+      "date": "2026-11-10T04:23:14+07:00",
+      "title": "v1.1.0",
+      "url": "https://github.com/navi-crwn/BioHop/releases/tag/v1.1.0",
+      "id": "v1.1.0",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
     {
       "kind": "commit",
       "date": "2026-11-10T04:23:14+07:00",
