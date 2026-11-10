@@ -4,6 +4,15 @@ All notable changes to BioHop are listed here. The format follows [Keep a Change
 
 ## [Unreleased]
 
+### Added
+- PayHop (pay.hel.ink) joins the family: it is named in the FAQ, the home page FAQ and the official page text in nine languages, in the READMEs and on the Pages site, and `payhop` and `pay` are reserved bio slugs and usernames (`payhop-` also a reserved username prefix). `ReservedFamilyNamesTest` checks every app of the family manifest, not a fixed list.
+- The silent account re-check of `hop/auth`: the home page, `/changelog`, the info pages and `/status` (and every signed-in page) confirm with the hub, at most every five minutes, that the account in this session is still the one signed in there. Switching accounts at the hub no longer leaves the old account here. `HOP_RECHECK=false` turns it off; public bio pages (`/b/{slug}`) never do it. `SilentRecheckTest` reproduces account A in the app and account B at the hub.
+- `/changelog` reads `storage/app/changelog.json` when it exists; `update.sh` builds it from GitHub on each update (needs python3 and an authenticated `gh`, otherwise the committed `resources/changelog.json` stays in use). `scripts/build-changelog.py --out` writes it anywhere and lists PayHop among the public apps.
+
+### Changed
+- hop-assets v9 (PayHop's tile, mark, 3D preset and name font): `public/hop-home/` and `public/hop-brand/` are refreshed from the hub, and `scripts/sync-hop-assets.sh` takes the app list from the manifest instead of a hand-written one. `hop/ui` and `hop/auth` follow their branches until the libraries are tagged.
+- The family table in the READMEs and `scripts/check-hop-family.sh` are the hub's v9 copies (the script takes `--ref` and `--from`).
+
 ### Fixed
 - The contact block's "Save contact" file is built from escaped values: `\ ; ,` and line breaks in a name, number, e-mail or company can no longer add or end vCard properties (before, a line break in the name could inject a property). The file has the `N` and `FN` lines, CRLF line ends, lines folded at 75 octets, and a file name with no path characters. One module (`resources/js/vcard.mjs`) serves the public page and the editor preview; the button label is translated in nine languages; the server refuses line breaks and control characters in the block's name, phone and company.
 - The editor's WhatsApp rotator form (message, numbers, labels, weights, sharing mode, block name and hint) is translated in nine languages.

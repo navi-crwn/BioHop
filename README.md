@@ -136,6 +136,7 @@ Open `.env` before you migrate. `.env.example` documents every key. Set at least
 | `HOP_HUB_URL` | Your hub's address (HOP ID sign-in goes there) |
 | `HOP_APP` | This app's slug at the hub: `biohop` |
 | `HOP_SSO_SECRET` or `HOP_SSO_SECRET_BIOHOP` | The SSO secret shared with the hub, 32 or more characters |
+| `HOP_RECHECK`, `HOP_RECHECK_MAX_AGE` | The silent account re-check of `hop/auth` (on by default, 300 seconds): the home page, the info pages and every signed-in page confirm with the hub that the account in this session is still the one signed in there. `HOP_RECHECK=false` turns it off; public bio pages never do it |
 | `LINKHOP_URL` | Your LinkHop, for "shorten this URL" (`LINKHOP_ENABLED=false` turns it off) |
 | `DB_CONNECTION`, `DB_*`, `DB_MIGRATIONS_TABLE` | Database settings. `DB_MIGRATIONS_TABLE=migrations_bio` keeps this app's migration log apart from the hub's |
 | `TRUSTED_PROXIES` | `cloudflare`, `*` or a list of proxy addresses, when you run behind a proxy |
@@ -266,6 +267,7 @@ BioHop is part of the **HOP** family of self-hostable open-source apps behind [h
 | **PixelHop** | [pixel.hel.ink](https://pixel.hel.ink) · `p.hel.ink/…` | [navi-crwn/PixelHop](https://github.com/navi-crwn/PixelHop) | Image hosting with albums and direct links. |
 | **NoteHop** | [note.hel.ink](https://note.hel.ink) · `n.hel.ink/…` | [navi-crwn/NoteHop](https://github.com/navi-crwn/NoteHop) | Encrypted notes you share with a link. |
 | **FileHop** | [file.hel.ink](https://file.hel.ink) | [navi-crwn/FileHop](https://github.com/navi-crwn/FileHop) | Convert files in your browser; nothing is uploaded. |
+| **PayHop** | [pay.hel.ink](https://pay.hel.ink) | [navi-crwn/PayHop](https://github.com/navi-crwn/PayHop) | Make a payment QR and split a bill; nothing leaves your browser. |
 | **Imperium** | not public-facing: optional, for admins | [navi-crwn/Imperium](https://github.com/navi-crwn/Imperium) | The HOP control panel. |
 <!-- hop-family:end -->
 
