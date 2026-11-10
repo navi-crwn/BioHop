@@ -699,5 +699,6 @@
     "The version from :when replaces the page. Your page as it is now is saved as a version first, so you can undo this.": "Версия от :when заменит страницу. Текущая страница сначала сохранится как версия, так что это можно отменить.",
     "Restore": "Восстановить",
     "Could not restore this version.": "Не удалось восстановить эту версию.",
-    "Nothing was changed. Try again in a moment.": "Ничего не изменено. Попробуйте ещё раз чуть позже."
+    "Nothing was changed. Try again in a moment.": "Ничего не изменено. Попробуйте ещё раз чуть позже.",
+    "Part of :name": "Часть :name"
 }

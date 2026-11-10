@@ -699,5 +699,6 @@
     "The version from :when replaces the page. Your page as it is now is saved as a version first, so you can undo this.": "Versi dari :when menggantikan halaman. Halamanmu yang sekarang disimpan dulu sebagai versi, jadi ini bisa dibatalkan.",
     "Restore": "Pulihkan",
     "Could not restore this version.": "Versi ini tidak bisa dipulihkan.",
-    "Nothing was changed. Try again in a moment.": "Tidak ada yang berubah. Coba lagi sebentar lagi."
+    "Nothing was changed. Try again in a moment.": "Tidak ada yang berubah. Coba lagi sebentar lagi.",
+    "Part of :name": "Bagian dari :name"
 }

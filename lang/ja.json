@@ -699,5 +699,6 @@
     "The version from :when replaces the page. Your page as it is now is saved as a version first, so you can undo this.": ":when のバージョンがページを置き換えます。現在のページは先にバージョンとして保存されるので、元に戻せます。",
     "Restore": "復元",
     "Could not restore this version.": "このバージョンを復元できませんでした。",
-    "Nothing was changed. Try again in a moment.": "何も変更されていません。しばらくしてからもう一度お試しください。"
+    "Nothing was changed. Try again in a moment.": "何も変更されていません。しばらくしてからもう一度お試しください。",
+    "Part of :name": ":name の一員"
 }

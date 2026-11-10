@@ -699,5 +699,6 @@
     "The version from :when replaces the page. Your page as it is now is saved as a version first, so you can undo this.": "A versão de :when substitui a página. Sua página como está agora é salva antes como versão, então dá para desfazer.",
     "Restore": "Restaurar",
     "Could not restore this version.": "Não foi possível restaurar esta versão.",
-    "Nothing was changed. Try again in a moment.": "Nada foi alterado. Tente de novo em instantes."
+    "Nothing was changed. Try again in a moment.": "Nada foi alterado. Tente de novo em instantes.",
+    "Part of :name": "Parte do :name"
 }

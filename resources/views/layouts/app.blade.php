@@ -106,7 +106,7 @@
                         @endif
                     </div>
                 </main>
-                <div class="coss-footer-brand"><img src="{{ route("brand.favicon") }}" alt="" width="28" height="28"><span><b>HOP</b> · Hop Easy Link</span></div>
+                <footer class="hop-family-footer">@include('partials.family-row')</footer>
             </div>
         @else
             <div class="min-h-screen">

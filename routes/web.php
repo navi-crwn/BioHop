@@ -78,7 +78,8 @@ Route::middleware('hop.auth')->group(function () {
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->away(User::hubUrl('logout'));
+        // The hub's chained logout ends on `return` (when it is a family app), so the person lands back here.
+        return redirect()->away(User::hubUrl('logout').'?'.http_build_query(['return' => route('home')]));
     })->name('logout');
 
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
