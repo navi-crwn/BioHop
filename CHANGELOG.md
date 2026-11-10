@@ -4,6 +4,8 @@ All notable changes to BioHop are listed here. The format follows [Keep a Change
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-11-11
+
 ### Added
 - PayHop (pay.hel.ink) joins the family: it is named in the FAQ, the home page FAQ and the official page text in nine languages, in the READMEs and on the Pages site, and `payhop` and `pay` are reserved bio slugs and usernames (`payhop-` also a reserved username prefix). `ReservedFamilyNamesTest` checks every app of the family manifest, not a fixed list.
 - The silent account re-check of `hop/auth`: the home page, `/changelog`, the info pages and `/status` (and every signed-in page) confirm with the hub, at most every five minutes, that the account in this session is still the one signed in there. Switching accounts at the hub no longer leaves the old account here. `HOP_RECHECK=false` turns it off; public bio pages (`/b/{slug}`) never do it. `SilentRecheckTest` reproduces account A in the app and account B at the hub.
@@ -208,5 +210,7 @@ Core (first release of the split)
 - The internal admin pages, now in Imperium.
 - CDN requests for scripts, fonts and icons.
 
-[Unreleased]: https://github.com/navi-crwn/BioHop/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/navi-crwn/BioHop/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/navi-crwn/BioHop/compare/v1.1.0...v1.2.0
+[1.1.0]: https://github.com/navi-crwn/BioHop/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/navi-crwn/BioHop/releases/tag/v1.0.0
