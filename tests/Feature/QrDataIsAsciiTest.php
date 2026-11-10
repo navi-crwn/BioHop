@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\User;
+
 /*
 | The npm bundle of qr-code-styling writes one byte per character, so raw non-ASCII text in a QR decodes as garbage
 | (shown with jsQR; LinkHop fixes it with binaryString because its /qr page encodes free text). BioHop encodes only
@@ -33,7 +35,7 @@ test('a bio slug is ASCII letters and digits only, so the address in a QR is ASC
     $src = (string) file_get_contents(base_path('packages/bio/src/Http/Controllers/BioPageController.php'));
     expect($src)->toContain("'regex:/^[a-z0-9]+\$/'");
 
-    $this->actingAs(\App\Models\User::factory()->create())
+    $this->actingAs(User::factory()->create())
         ->postJson('/bio', ['title' => 'T', 'slug' => 'café'])
         ->assertStatus(422)->assertJsonValidationErrors('slug');
 });

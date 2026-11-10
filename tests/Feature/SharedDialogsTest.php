@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Http;
 function withUiManifest(?array $ui): void
 {
     $bundled = Assets::bundled();
+    // The bundled manifest (v9) already lists hop-ui; the test decides what the manifest says about it.
+    unset($bundled['assets']['ui_css'], $bundled['assets']['ui_js']);
     if ($ui !== null) {
         $bundled['assets'] += $ui;
     }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Support\ReservedSlugs;
+use Hop\Ui\Assets;
 
 /*
 | H-17: every app of the family manifest, and PayHop by name, is a word nobody can take as a bio slug or a username.
@@ -8,7 +9,7 @@ use App\Support\ReservedSlugs;
 */
 
 test('every app in the family manifest is a reserved bio slug and a reserved username', function () {
-    $slugs = collect(\Hop\Ui\Assets::manifest()['apps'])->pluck('slug')->reject('hub');
+    $slugs = collect(Assets::manifest()['apps'])->pluck('slug')->reject('hub');
     expect($slugs)->toContain('payhop');
 
     foreach ($slugs->push('pay') as $slug) {
