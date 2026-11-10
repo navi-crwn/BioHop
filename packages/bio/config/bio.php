@@ -50,7 +50,7 @@ return [
     // Bio slugs nobody can take (lowercase): the HOP family's own words, staff-looking names, brands.
     // The path prefixes l, b and api are always reserved (App\Support\ReservedSlugs).
     'reserved_slugs' => [
-        'hop', 'hopid', 'hop-id', 'helink', 'hel-ink', 'hub', 'linkhop', 'biohop', 'pixelhop', 'notehop', 'filehop', 'imperium',
+        'hop', 'hopid', 'hop-id', 'helink', 'hel-ink', 'hub', 'linkhop', 'biohop', 'pixelhop', 'notehop', 'filehop', 'payhop', 'pay', 'imperium',
         'admin', 'administrator', 'root', 'system', 'moderator', 'staff', 'team', 'official', 'support', 'help', 'abuse',
         'report', 'dmca', 'security', 'verify', 'verified', 'legal', 'billing', 'owner', 'login', 'logout', 'register',
         'signup', 'signin', 'dashboard', 'settings', 'password', 'reset', 'confirm', 'email', 'sso', 'auth', 'oauth',
