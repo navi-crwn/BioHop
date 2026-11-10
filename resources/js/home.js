@@ -56,8 +56,7 @@ function blocks() {
     cells.forEach((cell, i) => {
         cell.addEventListener('pointermove', (e) => { const r = cell.getBoundingClientRect(); cell.style.setProperty('--mx', (e.clientX - r.left) + 'px'); cell.style.setProperty('--my', (e.clientY - r.top) + 'px'); });
         gsap.timeline({ scrollTrigger: once(cell, 'top 90%') })
-            .from(cell, { y: 44, opacity: 0, duration: .7, ease: 'power3.out', delay: (i % 2) * .07 })
-            .from($$('.bx-vis > *', cell), { y: 14, opacity: 0, duration: .5, stagger: .06, ease: 'power2.out' }, '-=.35');
+            .from($$('.bx-vis > *', cell), { y: 14, opacity: 0, duration: .5, stagger: .06, ease: 'power2.out', delay: (i % 2) * .07 }); // the box itself is revealed by hop-bento
         ScrollTrigger.create({ trigger: cell, start: 'top 95%', end: 'bottom 5%', onToggle: (self) => cell.classList.toggle('is-on', self.isActive) });
         const fly = flies[i];
         if (!fly || !fly.offsetParent) return;
@@ -308,7 +307,6 @@ function faq() {
 }
 
 function family() {
-    gsap.from($$('[data-bx-family] .bx-fam'), { y: 20, opacity: 0, scale: .96, duration: .55, stagger: .08, ease: 'back.out(1.5)', scrollTrigger: once('[data-bx-family]', 'top 90%') });
 }
 
 if (!reduced && document.querySelector('.bio-home')) start();
