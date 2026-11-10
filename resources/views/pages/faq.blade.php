@@ -2,7 +2,7 @@
     <h2>{{ __('Is it really free?') }}</h2>
     <p>{{ __('Yes. There is no paid plan and no locked feature, and the code is MIT licensed.') }}</p>
     <h2>{{ __('Do I need an account?') }}</h2>
-    <p>{{ __('Yes, a free HOP ID. It also signs you in to LinkHop, PixelHop, NoteHop and FileHop.') }}</p>
+    <p>{{ __('Yes, a free HOP ID. It also signs you in to LinkHop, PixelHop, NoteHop, FileHop and PayHop.') }}</p>
     <h2>{{ __('Where does my page live?') }}</h2>
     <p>{!! __('At <code>hel.ink/b/</code> followed by the name you pick, for example <a href=":url">hel.ink/b/hel</a>.', ['url' => 'https://hel.ink/b/hel']) !!}</p>
     <h2>{{ __('Do you track my visitors?') }}</h2>
