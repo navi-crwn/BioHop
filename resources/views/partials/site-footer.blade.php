@@ -4,7 +4,7 @@
         'BioHop' => [[__('About'), route('pages.about')], [__('Features'), route('pages.features')], [__('Status'), route('pages.status')], ['GitHub', 'https://github.com/navi-crwn/BioHop']],
         __('Support') => [[__('Help'), route('pages.help')], [__('FAQ'), route('pages.faq')], [__('Contact'), route('pages.contact')], [__('Report abuse'), route('report.create')]],
         __('Policies') => [[__('Terms'), route('pages.terms')], [__('Privacy'), route('pages.privacy')]],
-        __('HOP family') => collect(\Hop\Ui\Assets::family('biohop'))->reject(fn ($a) => $a['current'])->map(fn ($a) => [$a['name'], $a['url']])->values()->all(),
+        __('HOP family') => collect(\Hop\Ui\Assets::family('biohop'))->reject(fn ($a) => $a['current'])->map(fn ($a) => [$a['name'], $a['url'], $a['icons']['mark']['url'] ?? null])->values()->all(),
     ];
 @endphp
 <footer class="border-t border-slate-200/80 bg-white py-12 dark:border-white/10 dark:bg-[#0e1322]">
@@ -21,7 +21,7 @@
                 <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-white">{{ $heading }}</h2>
                 <ul class="mt-3 space-y-2 text-slate-500 dark:text-slate-400">
                     @foreach ($links as $link)
-                        <li><a href="{{ $link[1] }}" class="transition-colors hover:text-violet-600 dark:hover:text-violet-400">{{ $link[0] }}</a></li>
+                        <li><a href="{{ $link[1] }}" class="transition-colors hover:text-violet-600 dark:hover:text-violet-400 @if (! empty($link[2])) inline-flex items-center gap-2 @endif">@if (! empty($link[2]))<img src="{{ $link[2] }}" alt="" width="16" height="16" loading="lazy" class="h-4 w-4 shrink-0 rounded">@endif{{ $link[0] }}</a></li>
                     @endforeach
                 </ul>
             </div>

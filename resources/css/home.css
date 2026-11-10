@@ -260,7 +260,6 @@
 
 /* 11 */
 .bx-final { text-align: center; }
-.bx-final .h-label { justify-content: center; }
 /* doubled class: a later, more specific .h-sub rule had put its left margin back to 0 */
 .bx-final .h-sub.h-sub { margin-inline: auto; }
 .bx-final .h-cta { justify-content: center; }
