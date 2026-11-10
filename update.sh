@@ -343,7 +343,7 @@ step "Linking the storage folder" "$PHP_BIN" artisan storage:link --force
 # The /changelog page reads storage/app/changelog.json when it exists (else the snapshot in the repository). Needs
 # python3 and an authenticated gh; without them, or when GitHub is unreachable, the committed snapshot stays in use.
 if [ "$DRY" != 1 ] && have python3 && have gh; then
-  if python3 scripts/build-changelog.py --repo BioHop --out storage/app/changelog.json >/dev/null 2>&1; then ok "Changelog built from GitHub"; else warn "Could not build the changelog; the committed one is shown."; fi
+  if python3 scripts/build-changelog.py --repo BioHop --out storage/app/changelog.json; then ok "Changelog built from GitHub"; else warn "Could not build the changelog (see the message above); the committed one is shown."; fi
 fi
 step "Clearing and warming caches" "$PHP_BIN" artisan optimize:clear
 step "Warming caches" "$PHP_BIN" artisan optimize

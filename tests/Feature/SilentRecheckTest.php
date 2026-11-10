@@ -12,7 +12,7 @@ use Hop\Auth\Ticket;
 
 beforeEach(function () {
     config(['hop-auth.recheck' => ['enabled' => true, 'max_age' => 300, 'cooldown' => 30, 'retry_after' => 300, 'probe' => true, 'probe_timeout' => 1.5]]);
-    SilentRecheck::$probe = fn () => true;
+    SilentRecheck::$probe = fn (string $url) => 200;
 });
 
 afterEach(function () {
@@ -87,4 +87,12 @@ test('login_required from the hub signs the app session out', function () {
 
     $this->get('/auth/sso/callback?error=login_required&state='.recheckState($start))->assertRedirect();
     $this->assertGuest();
+});
+
+test('a hub that does not answer keeps the session and the page', function () {
+    SilentRecheck::$probe = fn (string $url) => null;
+    $user = User::factory()->create();
+
+    $this->actingAs($user)->get('/bio')->assertOk();
+    $this->assertAuthenticatedAs($user);
 });
