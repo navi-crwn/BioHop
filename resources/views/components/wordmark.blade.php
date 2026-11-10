@@ -1,8 +1,8 @@
-{{-- The BioHop wordmark (resources/brand/logo.svg), inlined: "Bio" is currentColor, which an <img> cannot inherit, so it
-     stayed black on the dark theme. The colour is the ink of the theme. --}}
-@php
-    static $svg = null;
-    $svg ??= file_get_contents(resource_path('brand/logo.svg'));
-    $classes = $attributes->merge(['class' => 'h-9 w-auto text-ink'])->toHtml();
-@endphp
-{!! preg_replace('/^<svg /', '<svg '.$classes.' focusable="false" ', $svg, 1) !!}
+{{-- The BioHop logo (the pixel mark, no text) plus the name as real text in the app's own typeface (hop-brand.css). --}}
+@once
+<link rel="stylesheet" href="{{ asset('hop-brand/hop-brand.css') }}">
+@endonce
+<span {{ $attributes->merge(['class' => 'inline-flex items-center gap-2.5 text-ink']) }}>
+    <img src="{{ route('brand.favicon') }}" alt="" class="aspect-square h-full max-h-9 w-auto">
+    <span class="hop-name hop-name-biohop text-xl leading-none">BioHop</span>
+</span>

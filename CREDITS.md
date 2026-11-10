@@ -82,6 +82,10 @@ the server.
 
 BioHop's feature set was shaped by link-in-bio tools such as Linktree and LinkStack. No code or assets were copied from them.
 
+## Typefaces for the app names
+
+- **Pixelify Sans** (LinkHop) and **Space Grotesk** (BioHop), subset to the letters of the app names, SIL Open Font License 1.1. Licenses: `public/hop-brand/fonts/LICENSE-*.txt`.
+
 ## Corrections
 
 If an attribution or a license is missing or wrong, please open an issue on the repository (https://github.com/navi-crwn/BioHop)
