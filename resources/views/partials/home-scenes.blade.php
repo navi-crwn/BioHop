@@ -11,7 +11,7 @@
 {{-- 01 blocks --}}
 <section id="blocks" class="bx" aria-labelledby="blocks-title">
     <div class="bx-wrap">
-        <div class="bx-head"><p class="h-label"><span class="n">01</span> · <span>{{ __('Blocks') }}</span></p><h2 id="blocks-title"><span>{{ __('Not just links.') }} <em>{{ __('Everything you make.') }}</em></span></h2><p class="h-sub"><span>{{ __('Add a block, drag it where you want it. Each kind knows how to look good on a phone.') }}</span></p></div>
+        <div class="bx-head"><h2 id="blocks-title"><span>{{ __('Not just links.') }} <em>{{ __('Everything you make.') }}</em></span></h2><p class="h-sub"><span>{{ __('Add a block, drag it where you want it. Each kind knows how to look good on a phone.') }}</span></p></div>
         <div class="bx-blocks" data-bx-blocks>
         <div class="hop-bento bx-bento" data-bx-bento>
             <article class="bx-cell" data-span="3"><div class="bx-vis v-link" aria-hidden="true"><span class="bx-pill">{{ __('Portfolio') }} <i>↗</i></span><span class="bx-pill">{{ __('Book a call') }} <i>↗</i></span><span class="bx-cursor"></span></div><h3>{{ __('Link') }}</h3><p>{{ __('Any address, with an icon, a thumbnail and a style of its own.') }}</p></article>
@@ -43,7 +43,7 @@
 <section id="tour" class="bx bx-story" aria-labelledby="tour-title" data-bx-story>
     <div class="bx-wrap bx-story-grid">
         <div class="bx-story-copy">
-            <div class="bx-head"><p class="h-label"><span class="n">02</span> · <span>{{ __('From idea to live') }}</span></p><h2 id="tour-title"><span>{{ __('From a name') }} <em>{{ __('to your page.') }}</em></span></h2></div>
+            <div class="bx-head"><h2 id="tour-title"><span>{{ __('From a name') }} <em>{{ __('to your page.') }}</em></span></h2></div>
             <ol class="bx-steps" data-bx-steps>
                 <li><b>{{ __('Claim your name') }}</b><span>{{ __('Type it. If it is free, it is yours with a HOP ID.') }}</span></li>
                 <li><b>{{ __('Add your blocks') }}</b><span>{{ __('Links, videos, music, a map. Drag to reorder.') }}</span></li>
@@ -68,7 +68,7 @@
 <section id="themes" class="bx" aria-labelledby="themes-title" data-bx-themes>
     <script type="application/json" id="bx-themes-data">@json($themes)</script>
     <div class="bx-wrap bx-two">
-        <div class="bx-head"><p class="h-label"><span class="n">03</span> · <span>{{ __('Themes') }}</span></p><h2 id="themes-title"><span>{{ __('Pick a mood.') }} <em>{{ __('Make it yours.') }}</em></span></h2><p class="h-sub"><span>{{ __('Gradients, animations and button effects. Scroll to see them change, or tap one.') }}</span></p>
+        <div class="bx-head"><h2 id="themes-title"><span>{{ __('Pick a mood.') }} <em>{{ __('Make it yours.') }}</em></span></h2><p class="h-sub"><span>{{ __('Gradients, animations and button effects. Scroll to see them change, or tap one.') }}</span></p>
         </div>
         <div class="bx-themes-vis">
             <div class="bx-ring-box"><x-bx-phone id="theme-phone"></x-bx-phone>
@@ -82,7 +82,7 @@
 {{-- 04 analytics --}}
 <section id="analytics" class="bx" aria-labelledby="analytics-title" data-bx-analytics>
     <div class="bx-wrap bx-two rev">
-        <div class="bx-head"><p class="h-label"><span class="n">04</span> · <span>{{ __('Analytics') }}</span></p><h2 id="analytics-title"><span>{{ __('See what') }} <em>{{ __('connects.') }}</em></span></h2><p class="h-sub"><span>{{ __('Views and clicks per block, countries, devices and where people came from. Counted with a keyed hash, never the visitor itself.') }}</span></p>
+        <div class="bx-head"><h2 id="analytics-title"><span>{{ __('See what') }} <em>{{ __('connects.') }}</em></span></h2><p class="h-sub"><span>{{ __('Views and clicks per block, countries, devices and where people came from. Counted with a keyed hash, never the visitor itself.') }}</span></p>
             <ul class="bx-facts"><li><b>{{ __('Per block.') }}</b> <span>{{ __('Find the link people actually tap.') }}</span></li><li><b>{{ __('No cookies.') }}</b> <span>{{ __('Nothing to accept, nothing to follow.') }}</span></li><li><b>{{ __('Yours to export.') }}</b> <span>{{ __('Download everything from the settings.') }}</span></li></ul></div>
         <div class="bx-analytics-vis">
         <div class="bx-iso" data-bx-iso aria-label="{{ __('Clicks per day, last four weeks') }}"><div class="bx-iso-grid">@foreach ([3,5,4,7,6,9,8, 4,6,5,8,7,10,9, 5,4,7,9,8,12,10, 6,8,7,11,9,14,12] as $n)<i style="--h:{{ round($n / 14, 2) }}" data-n="{{ $n }}"><b class="top"></b><b class="front"></b><b class="side"></b></i>@endforeach</div><p class="bx-iso-label">{{ __('Clicks per day, last four weeks') }}</p></div>
@@ -99,7 +99,7 @@
 {{-- 05 share everywhere --}}
 <section id="share" class="bx" aria-labelledby="share-title" data-bx-share>
     <div class="bx-wrap bx-two">
-        <div class="bx-head"><p class="h-label"><span class="n">05</span> · <span>{{ __('Share') }}</span></p><h2 id="share-title"><span>{{ __('One link.') }} <em>{{ __('A thousand places.') }}</em></span></h2><p class="h-sub"><span>{{ __('Put it in your profiles, your email signature or on a poster. The QR code carries your colours.') }}</span></p></div>
+        <div class="bx-head"><h2 id="share-title"><span>{{ __('One link.') }} <em>{{ __('A thousand places.') }}</em></span></h2><p class="h-sub"><span>{{ __('Put it in your profiles, your email signature or on a poster. The QR code carries your colours.') }}</span></p></div>
         <div class="bx-net" aria-hidden="true">
             <svg viewBox="0 0 400 320" preserveAspectRatio="xMidYMid meet"><g class="links"><path d="M200 160 L60 50"/><path d="M200 160 L340 50"/><path d="M200 160 L40 160"/><path d="M200 160 L360 160"/><path d="M200 160 L60 270"/><path d="M200 160 L340 270"/></g><circle class="pkt" r="4"/><circle class="pkt" r="4"/><circle class="pkt" r="4"/></svg>
             <div class="bx-core"><img src="{{ asset('images/brand/rabbit-mark.png') }}" alt="" width="44" height="44" loading="lazy"><b>hel.ink/b/helena</b></div>
@@ -111,7 +111,7 @@
 {{-- 06 boundaries --}}
 <section id="boundaries" class="bx" aria-labelledby="boundaries-title" data-bx-gate>
     <div class="bx-wrap">
-        <div class="bx-head"><p class="h-label"><span class="n">06</span> · <span>{{ __('Your boundaries') }}</span></p><h2 id="boundaries-title"><span>{{ __('Choose who') }} <em>{{ __('gets in.') }}</em></span></h2><p class="h-sub"><span>{{ __('A password or an 18+ check. Visitors see a gate before the page opens, and nothing behind it is sent until they pass.') }}</span></p></div>
+        <div class="bx-head"><h2 id="boundaries-title"><span>{{ __('Choose who') }} <em>{{ __('gets in.') }}</em></span></h2><p class="h-sub"><span>{{ __('A password or an 18+ check. Visitors see a gate before the page opens, and nothing behind it is sent until they pass.') }}</span></p></div>
         <div class="hop-bento bx-gates">
             <article class="bx-gate" data-spot data-gate="pw"><div class="bx-gate-page" aria-hidden="true"><span></span><span></span><span class="s"></span></div><div class="bx-gate-box" aria-hidden="true"><svg class="lock" viewBox="0 0 48 56"><path class="shackle" d="M14 24V16a10 10 0 0 1 20 0v8" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><rect x="6" y="24" width="36" height="28" rx="8" fill="currentColor"/></svg><div class="bx-pw"><small>{{ __('Password') }}</small><span class="dots" data-gate-dots>••••••••</span></div><span class="bx-go">{{ __('Enter') }}</span></div><h3>{{ __('Password gate') }}</h3><p>{{ __('Share the password only with the people you choose.') }}</p></article>
             <article class="bx-gate" data-spot data-gate="age"><div class="bx-gate-page" aria-hidden="true"><span></span><span></span><span class="s"></span></div><div class="bx-gate-box" aria-hidden="true"><b class="age">18+</b><div class="bx-pw"><small>{{ __('Content warning') }}</small><span>{{ __('Are you 18 or older?') }}</span></div><span class="bx-go">{{ __('Yes, continue') }}</span></div><h3>{{ __('18+ check') }}</h3><p>{{ __('For pages with adult or sensitive content.') }}</p></article>
@@ -122,7 +122,7 @@
 {{-- 07 your own style --}}
 <section id="style" class="bx" aria-labelledby="style-title" data-bx-style>
     <div class="bx-wrap bx-two rev">
-        <div class="bx-head"><p class="h-label"><span class="n">07</span> · <span>{{ __('Your style') }}</span></p><h2 id="style-title"><span>{{ __('Your fonts.') }} <em>{{ __('Your colours. Your CSS.') }}</em></span></h2><p class="h-sub"><span>{{ __('Start from a theme, then change the font, the colours or the whole stylesheet. Nothing is locked.') }}</span></p></div>
+        <div class="bx-head"><h2 id="style-title"><span>{{ __('Your fonts.') }} <em>{{ __('Your colours. Your CSS.') }}</em></span></h2><p class="h-sub"><span>{{ __('Start from a theme, then change the font, the colours or the whole stylesheet. Nothing is locked.') }}</span></p></div>
         <div class="bx-style-vis">
             <article class="bx-card bx-code" aria-hidden="true"><div class="bx-card-bar"><span>● ● ●</span> {{ __('Custom CSS') }} <span>{{ __('Demo') }}</span></div><pre><code data-style-code>.page { font-family: "Instrument Serif"; }
 .page { background: #0f172a; }
@@ -136,7 +136,7 @@
 {{-- 08 self-host --}}
 <section id="open" class="bx" aria-labelledby="open-title" data-bx-install>
     <div class="bx-wrap bx-two">
-        <div class="bx-head"><p class="h-label"><span class="n">08</span> · <span>MIT</span></p><h2 id="open-title"><span>{{ __('Open source') }} <em>{{ __('and yours to host.') }}</em></span></h2><p class="h-sub"><span>{{ __('Yes. No paid plan and no locked feature. The code is MIT licensed.') }}</span></p><div class="h-badges"><a class="h-badge" href="https://github.com/navi-crwn/BioHop/blob/main/LICENSE"><span>{{ __('License') }}</span><b>MIT</b></a><span class="h-badge"><span>PHP</span><b>8.3+</b></span><span class="h-badge"><span>Laravel</span><b>12</b></span></div><div class="h-cta"><a class="h-pill dark" href="https://github.com/navi-crwn/BioHop">GitHub ↗</a></div></div>
+        <div class="bx-head"><h2 id="open-title"><span>{{ __('Open source') }} <em>{{ __('and yours to host.') }}</em></span></h2><p class="h-sub"><span>{{ __('Yes. No paid plan and no locked feature. The code is MIT licensed.') }}</span></p><div class="h-badges"><a class="h-badge" href="https://github.com/navi-crwn/BioHop/blob/main/LICENSE"><span>{{ __('License') }}</span><b>MIT</b></a><span class="h-badge"><span>PHP</span><b>8.3+</b></span><span class="h-badge"><span>Laravel</span><b>12</b></span></div><div class="h-cta"><a class="h-pill dark" href="https://github.com/navi-crwn/BioHop">GitHub ↗</a></div></div>
         <div class="h-shell bx-term"><div class="h-shell-bar"><i></i><i></i><i></i><span>bash</span></div><div class="h-term"><code id="install-sh" data-type>git clone https://github.com/navi-crwn/BioHop.git && cd BioHop && composer install && npm install && npm run build</code><button type="button" data-copy-text data-copy-from="#install-sh">{{ __('Copy') }}</button></div><pre data-out><span>cp .env.example .env && php artisan key:generate</span>
 <span>php artisan migrate</span>
 <span class="ok">✓ php artisan serve</span></pre></div>
@@ -146,7 +146,7 @@
 {{-- 09 questions --}}
 <section id="faq" class="bx" aria-labelledby="faq-title">
     <div class="bx-wrap">
-        <div class="bx-head"><p class="h-label"><span class="n">09</span> · <span>{{ __('Good questions') }}</span></p><h2 id="faq-title"><span>{{ __('A few things') }} <em>{{ __('to know.') }}</em></span></h2><p class="h-sub"><span>{{ __('No premium tier and no locked features.') }}</span></p></div>
+        <div class="bx-head"><h2 id="faq-title"><span>{{ __('A few things') }} <em>{{ __('to know.') }}</em></span></h2><p class="h-sub"><span>{{ __('No premium tier and no locked features.') }}</span></p></div>
         <div class="bx-faq" data-bx-faq>@foreach (['Is BioHop really free?' => 'Yes. No paid plan and no locked feature. The code is MIT licensed.', 'Do I need an account?' => 'Yes, a free HOP ID. The same account works in LinkHop, PixelHop, NoteHop and FileHop.', 'Do you track my visitors?' => 'Views and clicks are counted with a keyed hash of the IP address, never the address itself. Pixels you add load only after the visitor agrees.', 'Can I move my page later?' => 'Yes. You can rename it, and export everything from the settings.', 'Can I have more than one page?' => 'Yes. One HOP ID can hold several pages, each with its own name, theme and blocks.', 'Can I put a password on my page?' => 'Yes. Add a password or an 18+ check, and visitors see a gate before the page opens.'] as $question => $answer)<article class="bx-cell bx-q"><h3>{{ __($question) }}</h3><p>{{ __($answer) }}</p></article>@endforeach</div>
     </div>
 </section>
@@ -162,5 +162,5 @@
 
 {{-- 11 the last word --}}
 <section class="bx bx-final" aria-labelledby="final-title">
-    <div class="bx-wrap"><p class="h-label"><span class="n">11</span> · <span>{{ __('Your next chapter') }}</span></p><h2 id="final-title"><span>{{ __('The internet is big.') }} <em>{{ __('Make a little space.') }}</em></span></h2><p class="h-sub"><span>{{ __('Your work, your links, your next big thing. Bring them together on a page that feels like you.') }}</span></p><div class="h-cta"><a class="h-pill dark" href="{{ route('register') }}">{{ __('Create your bio') }} ↗</a><a class="h-pill" href="#preview">{{ __('Claim my page') }} ↑</a></div></div>
+    <div class="bx-wrap"><h2 id="final-title"><span>{{ __('The internet is big.') }} <em>{{ __('Make a little space.') }}</em></span></h2><p class="h-sub"><span>{{ __('Your work, your links, your next big thing. Bring them together on a page that feels like you.') }}</span></p><div class="h-cta"><a class="h-pill dark" href="{{ route('register') }}">{{ __('Create your bio') }} ↗</a><a class="h-pill" href="#preview">{{ __('Claim my page') }} ↑</a></div></div>
 </section>
