@@ -19,6 +19,7 @@ test('the vcard fields refuse line breaks and control characters', function () {
         ->and($rule("Ann\r\nEND:VCARD"))->toBeTrue()
         ->and($rule("Ann\u{2028}x"))->toBeTrue()
         ->and($rule("Ann\x00x"))->toBeTrue()
+        ->and($rule("Ann\xC3\x28"))->toBeTrue()
         ->and($rule('Ann; Marie, Jr.'))->toBeFalse()
         ->and($rule('日本語 Кириллица'))->toBeFalse();
 });
@@ -31,6 +32,17 @@ test('saving a contact block with a line break in its name is refused', function
     $res = $this->postJson('/bio/vcard-guard/links', ['type' => 'vcard', 'title' => 'Save', 'vcard_name' => "Ann\nNOTE:x"]);
 
     expect($res->status())->toBe(422)->and($res->json('errors'))->toHaveKey('vcard_name');
+});
+
+test('updating a contact block with a line break is refused too', function () {
+    $user = User::factory()->create();
+    $page = BioPage::create(['user_id' => $user->id, 'slug' => 'vcard-upd', 'title' => 'Card']);
+    $link = $page->links()->create(['type' => 'vcard', 'title' => 'Save', 'vcard_name' => 'Ann']);
+    $this->actingAs($user);
+
+    $res = $this->putJson("/bio/vcard-upd/links/{$link->id}", ['vcard_company' => "Co\nNOTE:x"]);
+
+    expect($res->status())->toBe(422)->and($res->json('errors'))->toHaveKey('vcard_company');
 });
 
 test('both pages build the file with the shared module, not with a hand-written template', function () {

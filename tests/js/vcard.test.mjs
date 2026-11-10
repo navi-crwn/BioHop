@@ -50,9 +50,11 @@ test('a line break in a value cannot inject a property', () => {
     assert.equal(names.filter((n) => n === 'END').length, 1);
 });
 
-test('no name and no company gives nothing; company alone becomes FN', () => {
+test('an empty block gives nothing; company, then phone, then e-mail becomes FN', () => {
     assert.equal(buildVcard({}), '');
-    assert.ok(buildVcard({ org: 'Only Org' }).includes('FN:Only Org'));
+    assert.ok(buildVcard({ org: 'Only Org', mobile: '1' }).includes('FN:Only Org'));
+    assert.ok(buildVcard({ mobile: '+62 812' }).includes('FN:+62 812'));
+    assert.ok(buildVcard({ email: 'a@b.co' }).includes('FN:a@b.co'));
 });
 
 test('an invalid email is left out', () => {

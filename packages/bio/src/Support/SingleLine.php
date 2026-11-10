@@ -13,7 +13,8 @@ class SingleLine implements ValidationRule
 {
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (is_string($value) && preg_match('/[\x00-\x08\x0A-\x1F\x7F\x{0085}\x{2028}\x{2029}]/u', $value)) {
+        // preg_match returns false for malformed UTF-8: refuse that too.
+        if (is_string($value) && preg_match('/[\x00-\x08\x0A-\x1F\x7F\x{0085}\x{2028}\x{2029}]/u', $value) !== 0) {
             $fail(__('This field cannot contain line breaks.'));
         }
     }

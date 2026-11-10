@@ -30,13 +30,13 @@ export function foldLine(line, max = 75) {
 
 const EMAIL_RE = /^[^\s@;,:]+@[^\s@;,:]+\.[^\s@;,:]+$/;
 
-/** o: { firstName, lastName, org, mobile, email }. opts: { fold, final }. Returns '' when there is no name. */
+/** o: { firstName, lastName, org, mobile, email }. opts: { fold, final }. FN falls back to company, phone, e-mail; '' when all are empty. */
 export function buildVcard(o = {}, opts = {}) {
     const g = (k) => str(o[k]).trim();
     const first = g('firstName');
     const last = g('lastName');
     const org = g('org');
-    const fn = [first, last].filter(Boolean).join(' ') || org;
+    const fn = [first, last].filter(Boolean).join(' ') || org || g('mobile') || g('email');
     if (!fn) return '';
     let lines = ['BEGIN:VCARD', 'VERSION:3.0'];
     lines.push('N:' + [last, first, '', '', ''].map(vcardEscape).join(';'));
@@ -70,7 +70,7 @@ export function downloadVCard(name, phone, email, company) {
     const url = URL.createObjectURL(new Blob([text], { type: 'text/vcard;charset=utf-8' }));
     const a = document.createElement('a');
     a.href = url;
-    a.download = vcardFileName(name || company);
+    a.download = vcardFileName(name || company || phone || email);
     a.click();
     URL.revokeObjectURL(url);
 }
