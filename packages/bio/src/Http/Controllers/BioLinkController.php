@@ -14,6 +14,7 @@ use Hop\Bio\Support\BioUploads;
 use Hop\Bio\Support\NoteKeys;
 use Hop\Bio\Support\PixelHopMedia;
 use Hop\Bio\Support\ProductMeta;
+use Hop\Bio\Support\SingleLine;
 use Hop\Safety\SafeContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -236,10 +237,10 @@ class BioLinkController extends Controller
             'countdown_label' => 'nullable|string|max:100',
             'map_address' => 'nullable|string|max:500',
             'map_zoom' => 'nullable|integer|min:10|max:18',
-            'vcard_name' => 'nullable|string|max:100',
-            'vcard_phone' => 'nullable|string|max:30',
+            'vcard_name' => ['nullable', 'string', 'max:100', new SingleLine],
+            'vcard_phone' => ['nullable', 'string', 'max:30', new SingleLine],
             'vcard_email' => 'nullable|email|max:100',
-            'vcard_company' => 'nullable|string|max:100',
+            'vcard_company' => ['nullable', 'string', 'max:100', new SingleLine],
             'faq_items' => 'nullable|array',
             'faq_items.*.question' => 'nullable|string|max:500',
             'faq_items.*.answer' => 'nullable|string|max:2000',
@@ -383,10 +384,10 @@ class BioLinkController extends Controller
             'countdown_label' => 'nullable|string|max:100',
             'map_address' => 'nullable|string|max:500',
             'map_zoom' => 'nullable|integer|min:10|max:18',
-            'vcard_name' => 'nullable|string|max:100',
-            'vcard_phone' => 'nullable|string|max:30',
+            'vcard_name' => ['nullable', 'string', 'max:100', new SingleLine],
+            'vcard_phone' => ['nullable', 'string', 'max:30', new SingleLine],
             'vcard_email' => 'nullable|email|max:100',
-            'vcard_company' => 'nullable|string|max:100',
+            'vcard_company' => ['nullable', 'string', 'max:100', new SingleLine],
             'faq_items' => 'nullable|array',
             'faq_items.*.question' => 'nullable|string|max:500',
             'faq_items.*.answer' => 'nullable|string|max:2000',

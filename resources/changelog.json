@@ -1,9 +1,81 @@
 {
   "schema": 1,
   "sources": {
-    "BioHop": "63a9f68e8a2cd082c1575c0f4848a5d85b31c76d"
+    "BioHop": "3b481f1db7b5cd71b1761b64b6ebc944f208b6a0"
   },
   "entries": [
+    {
+      "kind": "commit",
+      "date": "2026-11-10T15:22:21+07:00",
+      "title": "Merge pull request #72: Footer logos in the HOP family list; drop numbered section eyebrows",
+      "url": "https://github.com/navi-crwn/BioHop/commit/3b481f1db7b5cd71b1761b64b6ebc944f208b6a0",
+      "id": "3b481f1d",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "pr",
+      "date": "2026-11-10T08:22:21Z",
+      "title": "Footer logos in the HOP family list; drop numbered section eyebrows",
+      "url": "https://github.com/navi-crwn/BioHop/pull/72",
+      "id": "#72",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-10T09:17:28+01:00",
+      "title": "Version the home asset URLs so a changed hop-bento/home file is not served from cache",
+      "url": "https://github.com/navi-crwn/BioHop/commit/53f243e50834a9a9c4fab62463a9f56c99259ba9",
+      "id": "53f243e5",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-10T09:12:51+01:00",
+      "title": "Footer logos in the HOP family list; drop numbered section eyebrows on the home",
+      "url": "https://github.com/navi-crwn/BioHop/commit/0970730bfcee1b756d363e0e0e68ef3b95e2adcf",
+      "id": "0970730b",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-10T14:39:59+07:00",
+      "title": "Merge pull request #70: Sync repository with what is live (2026-11-10)",
+      "url": "https://github.com/navi-crwn/BioHop/commit/032935dfa48c8cd44944a998bb97c70c48208a8d",
+      "id": "032935df",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "pr",
+      "date": "2026-11-10T07:39:59Z",
+      "title": "Sync repository with what is live (2026-11-10)",
+      "url": "https://github.com/navi-crwn/BioHop/pull/70",
+      "id": "#70",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-10T08:29:34+01:00",
+      "title": "README screenshots: retake from current main",
+      "url": "https://github.com/navi-crwn/BioHop/commit/05b1d28b1df8675bcb6289cd8d3af3bc1531062b",
+      "id": "05b1d28b",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-10T08:26:02+01:00",
+      "title": "Changelog snapshot: rebuild from fresh main",
+      "url": "https://github.com/navi-crwn/BioHop/commit/22415d82a5f7ff391fed17f26841513c0f8a296c",
+      "id": "22415d82",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
     {
       "kind": "pr",
       "date": "2026-11-10T07:15:21Z",

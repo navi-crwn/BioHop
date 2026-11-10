@@ -1161,7 +1161,7 @@
                             </div>
                             <button class="vcard-save-btn" @click="downloadVCard(block)">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                                Save Contact
+                                {{ __('Save contact') }}
                             </button>
                         </div>
                     </template>
@@ -1672,22 +1672,9 @@
                     textarea.innerHTML = text;
                     return textarea.value;
                 },
-                // Download VCard
+                // Download VCard (the same module as the public page)
                 downloadVCard(block) {
-                    const vcard = `BEGIN:VCARD
-VERSION:3.0
-FN:${block.vcard_name || ''}
-ORG:${block.vcard_company || ''}
-TEL:${block.vcard_phone || ''}
-EMAIL:${block.vcard_email || ''}
-END:VCARD`;
-                    const blob = new Blob([vcard], { type: 'text/vcard' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `${(block.vcard_name || 'contact').replace(/\s+/g, '_')}.vcf`;
-                    a.click();
-                    URL.revokeObjectURL(url);
+                    downloadVCard(block.vcard_name, block.vcard_phone, block.vcard_email, block.vcard_company);
                 },
                 // Initialize background animation - React-Snowfall inspired
                 initBackgroundAnimation(type) {
