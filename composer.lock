@@ -1419,12 +1419,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/navi-crwn/hop-ui.git",
-                "reference": "5f264d122b2a6ec12f4883af4db0d278ea6f9304"
+                "reference": "89ff2865f77cf7c78d106c8dee555d9e5789f974"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/navi-crwn/hop-ui/zipball/5f264d122b2a6ec12f4883af4db0d278ea6f9304",
-                "reference": "5f264d122b2a6ec12f4883af4db0d278ea6f9304",
+                "url": "https://api.github.com/repos/navi-crwn/hop-ui/zipball/89ff2865f77cf7c78d106c8dee555d9e5789f974",
+                "reference": "89ff2865f77cf7c78d106c8dee555d9e5789f974",
                 "shasum": ""
             },
             "require": {
@@ -1452,7 +1452,7 @@
                 "source": "https://github.com/navi-crwn/hop-ui/tree/feat/manifest-v9",
                 "issues": "https://github.com/navi-crwn/hop-ui/issues"
             },
-            "time": "2026-11-10T17:26:33+00:00"
+            "time": "2026-11-10T18:46:22+00:00"
         },
         {
             "name": "laravel/framework",

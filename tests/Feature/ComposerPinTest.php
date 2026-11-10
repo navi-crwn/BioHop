@@ -12,7 +12,7 @@ it('pins hop/ui and hop/auth to the commits in the lock', function () {
     $locked = fn (string $name) => collect($lock['packages'])->firstWhere('name', $name);
 
     expect($json['require']['hop/ui'])->toBe('dev-feat/manifest-v9 as 0.2.99')
-        ->and($locked('hop/ui')['source']['reference'])->toBe('5f264d122b2a6ec12f4883af4db0d278ea6f9304')
+        ->and($locked('hop/ui')['source']['reference'])->toBe('89ff2865f77cf7c78d106c8dee555d9e5789f974')
         ->and($json['require']['hop/auth'])->toBe('dev-feat/pay-host-silent-recheck as 0.1.99')
         ->and($locked('hop/auth')['source']['reference'])->toBe('a34ccd8c47962b303a9c9e173957dd382c5df32c');
 });
