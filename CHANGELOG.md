@@ -4,6 +4,15 @@ All notable changes to BioHop are listed here. The format follows [Keep a Change
 
 ## [Unreleased]
 
+### Fixed
+- The contact block's "Save contact" file is built from escaped values: `\ ; ,` and line breaks in a name, number, e-mail or company can no longer add or end vCard properties (before, a line break in the name could inject a property). The file has the `N` and `FN` lines, CRLF line ends, lines folded at 75 octets, and a file name with no path characters. One module (`resources/js/vcard.mjs`) serves the public page and the editor preview; the button label is translated in nine languages; the server refuses line breaks and control characters in the block's name, phone and company.
+- The editor's WhatsApp rotator form (message, numbers, labels, weights, sharing mode, block name and hint) is translated in nine languages.
+- `filehop` is a reserved bio slug, like the other HOP apps.
+
+### Changed
+- `hop/auth` is pinned to `^0.1.5` and `hop/safety` to the release `^0.1.0` (it followed `dev-main`). `hop/ui` is unchanged.
+- `scripts/sync-hop-assets.sh` copies the hop-assets version the HEL.ink manifest names, not a fixed `v3`. `scripts/build-changelog.py` lists FileHop among the public apps.
+
 ### Changed
 - Home boxes are proportional: the engine, motion and bento files are the hop-assets v8 copies (byte-identical). The five family tiles sit in one row of five from 1100 px up (equal boxes of about 215 px), a 3 + 2 bento on tablets and two columns on phones with the last tile spanning both; the 3D art is capped at 160-200 px (130 px on phones) and the gate scenes at 140 px. The block grid on the BioHop home page keeps two boxes per row beside the phone.
 - The BioHop mark is the new 8x8 pixel page with three lines (stepped corners), in the brand files, the favicon and `docs/assets/mark.svg`.

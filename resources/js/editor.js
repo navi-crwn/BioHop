@@ -56,6 +56,8 @@ const BLOCK_CATALOG = [
         ['faq', 'FAQ', 'Questions that open to answers', '#6366f1', 'M8.2 9a3 3 0 115.8 1c-.7 1-2 1.3-2 2.5M12 17h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z', 'add', 'questions answers help'],
     ]],
 ];
+// Names and hints the server translated (CONFIG.blockText: type => [name, hint]) replace the English ones.
+BLOCK_CATALOG.forEach(([, items]) => items.forEach((i) => { const t = (CONFIG.blockText || {})[i[0]]; if (t) { i[1] = t[0]; i[2] = t[1]; } }));
 
 // The Design tab: six sub-tabs, one section at a time; the last one used is remembered per browser.
 window.designTab = function() {

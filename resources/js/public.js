@@ -6,6 +6,10 @@ import collapse from '@alpinejs/collapse';
 import installInlineActions from './inline-actions';
 import './turnstile';
 import './lazy-libs';
+import { downloadVCard } from './vcard.mjs';
+
+// Called by the vCard block's data-call button.
+window.downloadVCard = downloadVCard;
 
 Alpine.plugin(collapse);
 window.Alpine = Alpine;

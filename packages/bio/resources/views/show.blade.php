@@ -1072,7 +1072,7 @@
                                         class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all"
                                         style="background: var(--button-bg, #6366f1); color: var(--button-text, #fff);">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                                    Save Contact
+                                    {{ __('Save contact') }}
                                 </button>
                             </div>
                         @elseif($link->type === 'html')
@@ -1315,22 +1315,6 @@
             updateCountdown();
             setInterval(updateCountdown, 1000);
         });
-        function downloadVCard(name, phone, email, company) {
-            const vcard = `BEGIN:VCARD
-VERSION:3.0
-FN:${name || ''}
-ORG:${company || ''}
-TEL:${phone || ''}
-EMAIL:${email || ''}
-END:VCARD`;
-            const blob = new Blob([vcard], { type: 'text/vcard' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${(name || 'contact').replace(/\s+/g, '_')}.vcf`;
-            a.click();
-            URL.revokeObjectURL(url);
-        }
     </script>
     <script nonce="{{ Vite::cspNonce() }}">
         const qrSettings = @json($bioPage->qr_settings ?? []);
