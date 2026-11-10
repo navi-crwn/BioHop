@@ -19,6 +19,7 @@
     <link rel="icon" type="image/svg+xml" href="{{ route('brand.favicon', ['v' => 'b10b1000']) }}">
     <x-hop::fonts />
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/home.css', 'resources/js/home.js'])
+    <link rel="stylesheet" href="{{ asset('hop-home/hop-bento.css') }}?v={{ substr(md5_file(public_path('hop-home/hop-bento.css')), 0, 8) }}">
     <link rel="stylesheet" href="{{ asset('hop-home/hop-home.css') }}?v={{ substr(md5_file(public_path('hop-home/hop-home.css')), 0, 8) }}">
     <script src="{{ asset('hop-home/hop-hero3d.js') }}?v={{ substr(md5_file(public_path('hop-home/hop-hero3d.js')), 0, 8) }}" defer></script>
     <script src="{{ asset('hop-home/hop-motion.js') }}?v={{ substr(md5_file(public_path('hop-home/hop-motion.js')), 0, 8) }}" defer></script>

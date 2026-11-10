@@ -13,7 +13,7 @@ test('the closing paragraph of the home page stays centred', function () {
 
 test('the home 3D engine animates every app mark in the family row, not only the most visible one', function () {
     $js = file_get_contents(public_path('hop-home/hop-hero3d.js'));
-    expect($js)->toContain('.slice(0, 4)')->not->toContain('.sort(function (a, b) { return b.ratio - a.ratio; })[0]');
+    expect($js)->toContain('return !s.settled;')->toContain('.slice(0, Math.max(0, 4 - live.length))')->not->toContain('.sort(function (a, b) { return b.ratio - a.ratio; })[0]');
 });
 
 test('a family app the 3D engine has no block map for keeps its flat mark instead of borrowing another logo', function () {

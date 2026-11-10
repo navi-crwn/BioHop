@@ -12,6 +12,7 @@
     <link rel="icon" type="image/svg+xml" href="{{ route('brand.favicon', ['v' => 'b10b1000']) }}">
     <x-hop::fonts />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @stack('head')
     <script nonce="{{ Vite::cspNonce() }}">
         (function () { try { var t = localStorage.getItem('helink-theme'); if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) { document.documentElement.classList.add('dark'); } } catch (e) {} })();
     </script>
@@ -31,5 +32,6 @@
         </div>
     </main>
     @include('partials.site-footer')
+@stack('scripts')
 </body>
 </html>

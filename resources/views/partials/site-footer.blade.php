@@ -12,7 +12,7 @@
     <div class="mx-auto mt-6 grid max-w-7xl grid-cols-2 gap-8 px-4 text-sm sm:px-6 md:grid-cols-5 lg:px-8">
         <div class="col-span-2 md:col-span-1">
             <a href="{{ route('home') }}" class="flex items-center gap-2 font-bold text-slate-900 dark:text-white">
-                <img src="{{ route('brand.favicon', ['v' => 'b10b1000']) }}" alt="" width="28" height="28" class="h-7 w-7 rounded-lg"> BioHop
+                <img src="{{ route('brand.favicon', ['v' => 'b10b1000']) }}" alt="" width="28" height="28" class="h-7 w-7 rounded-lg"> <span class="hop-name hop-name-biohop">BioHop</span>
             </a>
             <p class="mt-3 text-xs text-slate-500 dark:text-slate-400">{{ __('One link-in-bio page for everything you do.') }} {{ __('Free and open source (MIT), part of the HOP family.') }}</p>
         </div>
