@@ -12,9 +12,11 @@ use Hop\Bio\Models\BioPage;
 use Hop\Bio\Support\BioRevisions;
 use Hop\Bio\Support\BioUploads;
 use Hop\Bio\Support\NoteKeys;
+use Hop\Bio\Support\PayBlock;
 use Hop\Bio\Support\PixelHopMedia;
 use Hop\Bio\Support\ProductMeta;
 use Hop\Bio\Support\SingleLine;
+use Hop\Safety\DeepLinks;
 use Hop\Safety\SafeContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -35,6 +37,8 @@ class BioLinkController extends Controller
             $data['title'] ?? null,
             $data['description'] ?? null,
             isset($data['content']) ? strip_tags($data['content']) : null,
+            // the payee name and note of a payment block go through the same content checks as any other text
+            PayBlock::text($data['settings']['pay'] ?? null),
         ]));
         $checks = [
             'url' => UrlSafety::BIO_SCHEMES,
@@ -132,6 +136,38 @@ class BioLinkController extends Controller
         }
     }
 
+    /**
+     * A payment block keeps only the shape PayBlock accepts. Its settings are dropped from any other block type, a new
+     * payment block must carry them, and a bad value is refused with a message per field (translated).
+     */
+    private function normalizePay(array $data, ?BioLink $link): array
+    {
+        $type = $data['type'] ?? $link?->type;
+        if ($type !== 'pay') {
+            unset($data['settings']['pay']);
+
+            return $data;
+        }
+        if (! isset($data['settings']) || ! array_key_exists('pay', (array) $data['settings'])) {
+            if ($link === null) {
+                throw ValidationException::withMessages(['settings.pay.format' => __('Choose a payment method.')]);
+            }
+            // a request that sends other settings but no payment details must not wipe the stored ones
+            if (isset($data['settings']) && is_array($link->settings['pay'] ?? null)) {
+                $data['settings']['pay'] = $link->settings['pay'];
+            }
+
+            return $data;
+        }
+        [$clean, $errors] = PayBlock::clean($data['settings']['pay']);
+        if ($errors !== []) {
+            throw ValidationException::withMessages($errors);
+        }
+        $data['settings']['pay'] = $clean;
+
+        return $data;
+    }
+
     /** FAQ rows without a question are dropped and the texts trimmed; an empty list is stored as null. */
     private function normalizeFaq(array $data): array
     {
@@ -164,7 +200,7 @@ class BioLinkController extends Controller
         $this->authorize('update', $bioPage);
         BioRevisions::maybeSnapshot($bioPage);
         $validated = $request->validate([
-            'type' => 'required|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code,product,collection,whatsapp,app,goal,audio,carousel,pdf,form,rss,poll',
+            'type' => 'required|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code,product,collection,whatsapp,app,goal,audio,carousel,pdf,form,rss,poll,pay',
             'title' => 'nullable|string|max:100',
             'url' => 'nullable|string|max:500',
             'content' => 'nullable|string|max:5000',
@@ -223,6 +259,7 @@ class BioLinkController extends Controller
             'settings.numbers.*.number' => ['required_with:settings.numbers', 'string', 'max:24', 'regex:/^\+?[0-9 .()-]{6,24}$/'],
             'settings.numbers.*.label' => 'nullable|string|max:40',
             'settings.numbers.*.weight' => 'nullable|integer|min:1|max:100',
+            'settings.pay' => 'nullable|array',
             'publish_at' => 'nullable|date',
             'expire_at' => ['nullable', 'date', function ($attribute, $value, $fail) use ($request) {
                 if ($value && $request->input('publish_at') && strtotime((string) $value) <= strtotime((string) $request->input('publish_at'))) {
@@ -251,6 +288,7 @@ class BioLinkController extends Controller
         if ($bioPage->links()->count() >= BioLimits::maxBlocks()) {
             throw ValidationException::withMessages(['type' => 'A bio page can have at most '.BioLimits::maxBlocks().' blocks.']);
         }
+        $validated = $this->normalizePay($validated, null);
         $this->assertSafe($validated);
         $this->assertOwnMedia($validated);
         $validated = $this->normalizeFaq($this->normalizeCountdown($validated));
@@ -311,7 +349,7 @@ class BioLinkController extends Controller
         $this->authorize('update', $bioPage);
         BioRevisions::maybeSnapshot($bioPage);
         $validated = $request->validate([
-            'type' => 'nullable|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code,product,collection,whatsapp,app,goal,audio,carousel,pdf,form,rss,poll',
+            'type' => 'nullable|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code,product,collection,whatsapp,app,goal,audio,carousel,pdf,form,rss,poll,pay',
             'title' => 'nullable|string|max:100',
             'url' => 'nullable|string|max:500',
             'content' => 'nullable|string|max:5000',
@@ -370,6 +408,7 @@ class BioLinkController extends Controller
             'settings.numbers.*.number' => ['required_with:settings.numbers', 'string', 'max:24', 'regex:/^\+?[0-9 .()-]{6,24}$/'],
             'settings.numbers.*.label' => 'nullable|string|max:40',
             'settings.numbers.*.weight' => 'nullable|integer|min:1|max:100',
+            'settings.pay' => 'nullable|array',
             'publish_at' => 'nullable|date',
             'expire_at' => ['nullable', 'date', function ($attribute, $value, $fail) use ($request) {
                 if ($value && $request->input('publish_at') && strtotime((string) $value) <= strtotime((string) $request->input('publish_at'))) {
@@ -395,6 +434,7 @@ class BioLinkController extends Controller
             'entrance_animation' => 'nullable|in:none,fade,slide-up,slide-down,pop,bounce,flip,stagger',
             'attention_animation' => 'nullable|in:none,pulse,bounce,shake,wiggle,glow,heartbeat,rainbow',
         ]);
+        $validated = $this->normalizePay($validated, $bioLink);
         $this->assertSafe($validated);
         $this->assertOwnMedia($validated, $bioLink);
         $validated = $this->normalizeFaq($this->normalizeCountdown($validated));
@@ -436,6 +476,17 @@ class BioLinkController extends Controller
             });
             fclose($out);
         }, 'entries-'.Str::slug($bioPage->slug.'-'.$bioLink->id).'.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    /** The name of the app an app block's address will open on a phone, for the editor's hint; null when it is not one. */
+    public function appHint(Request $request, BioPage $bioPage)
+    {
+        $this->authorize('update', $bioPage);
+        $data = $request->validate(['url' => ['nullable', 'string', 'max:500']]);
+        $url = trim((string) ($data['url'] ?? ''));
+        $deep = preg_match('#^https://#i', $url) ? app(DeepLinks::class)->resolve($url) : null;
+
+        return response()->json(['app' => $deep?->name])->header('Cache-Control', 'no-store');
     }
 
     /** Reads a product page's public tags (title, picture, price) so the editor can fill the product form. */

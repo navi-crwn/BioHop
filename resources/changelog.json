@@ -1,9 +1,126 @@
 {
   "schema": 1,
   "sources": {
-    "BioHop": "39cf2085fadca5e27c69f0f46bd7382f7ba902ca"
+    "BioHop": "fce4096516c865c8a6d53ddf7da9bdaf87eb25a4"
   },
   "entries": [
+    {
+      "kind": "tag",
+      "date": "2026-11-11T13:41:41+07:00",
+      "title": "v1.2.0",
+      "url": "https://github.com/navi-crwn/BioHop/releases/tag/v1.2.0",
+      "id": "v1.2.0",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-11T13:41:41+07:00",
+      "title": "Merge pull request #74: hop-assets v9 and PayHop in the family (1.2.0)",
+      "url": "https://github.com/navi-crwn/BioHop/commit/fce4096516c865c8a6d53ddf7da9bdaf87eb25a4",
+      "id": "fce40965",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "pr",
+      "date": "2026-11-11T06:41:41Z",
+      "title": "hop-assets v9 and PayHop in the family (1.2.0)",
+      "url": "https://github.com/navi-crwn/BioHop/pull/74",
+      "id": "#74",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-11T07:38:37+01:00",
+      "title": "Pin hop/ui 0.4.0 and hop/auth 0.2.0 to their tags",
+      "url": "https://github.com/navi-crwn/BioHop/commit/202d6f7a65d8089dcd71403a332415ddabe7203e",
+      "id": "202d6f7a",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-10T19:50:22+01:00",
+      "title": "Release 1.2.0",
+      "url": "https://github.com/navi-crwn/BioHop/commit/b6a11577136ac2dad9d8950d71a11012972217b7",
+      "id": "b6a11577",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-10T19:47:17+01:00",
+      "title": "Lock hop/ui to the final manifest-v9 commit",
+      "url": "https://github.com/navi-crwn/BioHop/commit/77286ec611e26e8341322dd55c59902b89d7d39a",
+      "id": "77286ec6",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-10T19:42:38+01:00",
+      "title": "hop-assets v9 final (bento), hop-auth with the HTTP hub probe, --output alias and visible errors for the changelog build",
+      "url": "https://github.com/navi-crwn/BioHop/commit/24dbcf7bb0aaace79cf1a906335bfaf2327d6777",
+      "id": "24dbcf7b",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-10T19:11:10+01:00",
+      "title": "Tests follow the v9 manifest: dialogs test sets the hop-ui entries itself, pin tests split between tags and branches",
+      "url": "https://github.com/navi-crwn/BioHop/commit/2eecd6f9a0ed10494a64c145a7975b5509061b1c",
+      "id": "2eecd6f9",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-10T19:02:51+01:00",
+      "title": "og:image and link preview tags on the info pages, QR data kept to ASCII addresses with a test",
+      "url": "https://github.com/navi-crwn/BioHop/commit/4e43f99dc60b1dbbf8c68bde3714187b7c40b37d",
+      "id": "4e43f99d",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-10T19:00:25+01:00",
+      "title": "Pages site: FileHop and PayHop in the family table, hop-assets v9",
+      "url": "https://github.com/navi-crwn/BioHop/commit/2e5b263eb234fa7aa630c8ae573f9b331d6cee46",
+      "id": "2e5b263e",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-10T19:00:02+01:00",
+      "title": "README: PayHop in the family table of the READMEs, family check script from the hub, recheck setting",
+      "url": "https://github.com/navi-crwn/BioHop/commit/29528f44b822b1402b1b33e8154a77dec0631265",
+      "id": "29528f44",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-10T18:59:28+01:00",
+      "title": "Pin hop/ui and hop/auth to the v9 and silent re-check branches, re-check the account on public pages, reserve payhop and pay",
+      "url": "https://github.com/navi-crwn/BioHop/commit/6b82367bf48ea86d04b8cabab8985eba8340f0b9",
+      "id": "6b82367b",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-10T18:59:28+01:00",
+      "title": "PayHop in the family texts in nine languages, v9 home assets, manifest-driven sync script, changelog built at deploy time",
+      "url": "https://github.com/navi-crwn/BioHop/commit/455eb051628f161e53a427c189157495efc63d61",
+      "id": "455eb051",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
     {
       "kind": "commit",
       "date": "2026-11-10T21:50:50+07:00",

@@ -38,6 +38,12 @@ laravel/pail (MIT), laravel/pint (MIT).
 | lenis | MIT | Smooth scrolling on the home page |
 | gsap | GreenSock "Standard no charge" license (https://gsap.com/standard-license) | Home page scroll animation. This is not an open-source license: read its terms before you redistribute a modified build. |
 
+### Vendored source
+
+| File | License | Use |
+|---|---|---|
+| `resources/js/vendor/hop-pay.js` | MIT (Copyright (c) 2026 Ivan Novskies (hel.ink)) | The payment QR payload module of [PayHop](https://github.com/navi-crwn/PayHop), `web/src/lib/pay/hop-pay.js`, copied unchanged for the "Receive payment" block. The header names the PayHop commit. Refresh: `node scripts/vendor-hop-pay.mjs <PayHop checkout> [ref]`. |
+
 Build tools (not shipped to browsers): vite, laravel-vite-plugin, tailwindcss and @tailwindcss/forms and @tailwindcss/vite (MIT), concurrently (MIT).
 
 All of these are bundled with the application. No script is loaded from a CDN, except the optional bot check described under

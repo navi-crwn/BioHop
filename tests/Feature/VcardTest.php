@@ -102,7 +102,8 @@ test('the hop/safety pin names a released tag that the lock holds', function () 
     $lock = json_decode((string) file_get_contents(base_path('composer.lock')), true);
     $version = fn (string $n) => collect($lock['packages'])->firstWhere('name', $n)['version'];
 
-    expect($json['require']['hop/safety'])->toBe('^0.1.0')->and($version('hop/safety'))->toBe('v0.1.0');
+    // Until the DeepLinks release is tagged the app follows its branch (swapped for the tag at release); no other value passes.
+    expect([$json['require']['hop/safety'], $version('hop/safety')])->toBeIn([['^0.2.0', 'v0.2.0']]);
 });
 
 test('sync-hop-assets.sh reads the version from the manifest', function () {

@@ -8,6 +8,12 @@ import './turnstile';
 import './lazy-libs';
 import { downloadVCard } from './vcard.mjs';
 
+// A receive-payment block draws its QR code in the browser (hop-pay); the module is fetched only on pages that have one.
+if (document.querySelector('[data-pay]')) import('./pay-block.js');
+
+// An app block whose address belongs to a known app opens the app on a phone (app-links.js); the link works without it.
+if (document.querySelector('[data-app]')) import('./app-links.js');
+
 // Called by the vCard block's data-call button.
 window.downloadVCard = downloadVCard;
 

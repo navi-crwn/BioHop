@@ -20,7 +20,9 @@
         'socialMax' => \Hop\Bio\Models\BioPage::SOCIAL_MAX,
         // The editor's confirm dialogs (resources/js/dialogs.js): titles and messages in the member's language.
         // Block picker texts that come from the server so they are translated (the rest of the catalogue is in editor.js).
-        'blockText' => ['whatsapp' => [__('WhatsApp rotator'), __('Share chats between several numbers')]],
+        'blockText' => ['whatsapp' => [__('WhatsApp rotator'), __('Share chats between several numbers')], 'pay' => [__('Receive payment'), __('A QR code for your bank or wallet')]],
+        // The receive-payment block: the module's own format list with its forms (resources/pay/formats.json), and the words for them.
+        'pay' => ['labels' => \Hop\Bio\Support\PayBlock::labels(), 'msgs' => \Hop\Bio\Support\PayBlock::messages()],
         'dialogs' => [
             'deletePage' => ['title' => __('Delete this page?'), 'message' => __('The page, its blocks and its click counts are deleted for good. This cannot be undone.')],
             'deleteBlock' => ['title' => __('Delete this block?'), 'message' => __('Its click count is deleted with it. Archive keeps the clicks and can be undone.')],
@@ -739,11 +741,50 @@
                             </div>
                         </template>
                         <template x-if="editingBlock?.type === 'app'">
-                            <div class="space-y-4">
+                            <div class="space-y-4" x-init="appHintCheck(editingBlock.settings?.web || editingBlock.url)">
                                 <p class="text-xs editor-text-muted">One button, three addresses: iPhone and iPad visitors go to the App Store, Android visitors to Google Play, everyone else (computers) to the website.</p>
                                 <div class="form-group"><label for="bfindex-a1" class="form-label">App Store address</label><input id="bfindex-a1" type="url" :value="editingBlock.settings?.ios ?? ''" @input="setProductSetting('ios', $event.target.value)" class="form-input" placeholder="https://apps.apple.com/app/…"></div>
                                 <div class="form-group"><label for="bfindex-a2" class="form-label">Google Play address</label><input id="bfindex-a2" type="url" :value="editingBlock.settings?.android ?? ''" @input="setProductSetting('android', $event.target.value)" class="form-input" placeholder="https://play.google.com/store/apps/details?id=…"></div>
-                                <div class="form-group"><label for="bfindex-a3" class="form-label">Website (computers and others)</label><input id="bfindex-a3" type="url" :value="editingBlock.settings?.web ?? ''" @input="setProductSetting('web', $event.target.value)" class="form-input" placeholder="https://your-app.example"></div>
+                                <div class="form-group"><label for="bfindex-a3" class="form-label">Website (computers and others)</label><input id="bfindex-a3" type="url" :value="editingBlock.settings?.web ?? ''" @input="setProductSetting('web', $event.target.value); appHintCheck($event.target.value)" class="form-input" placeholder="https://your-app.example"><p class="text-xs editor-text-muted mt-1" x-show="appHint" x-text="@js(__('Opens in the :app app on phones; computers and visitors without scripts get this address.')).replace(':app', appHint)"></p></div>
+                            </div>
+                        </template>
+                        <template x-if="editingBlock?.type === 'pay' && editingBlock.settings?.pay">
+                            <div class="space-y-4" data-pay-form>
+                                <div class="form-group">
+                                    <label for="bfindex-pay-format" class="form-label">{{ __('Payment method') }}</label>
+                                    <select id="bfindex-pay-format" class="form-input" @change="setPayFormat($event.target.value)">
+                                        <template x-for="o in payFormatList()" :key="o[0]"><option :value="o[0]" :selected="o[0] === editingBlock.settings.pay.format" x-text="o[1]"></option></template>
+                                    </select>
+                                </div>
+                                <template x-for="f in payDef().fields" :key="editingBlock.settings.pay.format + ':' + f.key">
+                                    <div class="form-group">
+                                        <label :for="'bfindex-pay-' + f.key" class="form-label" x-text="payT(f.label)"></label>
+                                        <template x-if="f.kind === 'currency'">
+                                            <select :id="'bfindex-pay-' + f.key" class="form-input" @change="setPayField(f.key, $event.target.value)">
+                                                <template x-for="c in payDef().currencies" :key="c"><option :value="c" :selected="c === payField(f.key)" x-text="c"></option></template>
+                                            </select>
+                                        </template>
+                                        <template x-if="f.kind !== 'currency'">
+                                            <input :id="'bfindex-pay-' + f.key" type="text" :maxlength="f.max" :inputmode="f.kind === 'tel' ? 'tel' : 'text'" autocomplete="off" spellcheck="false" class="form-input" :class="{ 'font-mono': f.mono }" :value="payField(f.key)" @input="setPayField(f.key, $event.target.value)" :aria-invalid="payError(f.key) ? 'true' : 'false'" :aria-describedby="'bfindex-pay-' + f.key + '-e'">
+                                        </template>
+                                        <p class="text-xs editor-text-muted mt-1" x-show="f.hint" x-text="payT(f.hint)"></p>
+                                        <p :id="'bfindex-pay-' + f.key + '-e'" class="text-xs text-red-600 mt-1" role="alert" x-show="payError(f.key)" x-text="payError(f.key)"></p>
+                                    </div>
+                                </template>
+                                <div class="form-group">
+                                    <label for="bfindex-pay-amount" class="form-label">{{ __('Fixed amount (optional)') }} <span class="editor-text-muted font-normal" x-text="'(' + payCurrency() + ')'"></span></label>
+                                    <input id="bfindex-pay-amount" type="text" inputmode="decimal" maxlength="24" autocomplete="off" class="form-input" :value="editingBlock.settings.pay.amount ?? ''" @input="setPayTop('amount', $event.target.value)" :aria-invalid="payError('amount') ? 'true' : 'false'" aria-describedby="bfindex-pay-amount-e">
+                                    <p id="bfindex-pay-amount-e" class="text-xs text-red-600 mt-1" role="alert" x-show="payError('amount')" x-text="payError('amount')"></p>
+                                    <label class="flex items-center gap-2 mt-2 text-sm"><input type="checkbox" :checked="editingBlock.settings.pay.open_amount && !String(editingBlock.settings.pay.amount || '').trim()" :disabled="String(editingBlock.settings.pay.amount || '').trim() !== ''" @change="setPayTop('open_amount', $event.target.checked)"> {{ __('Let visitors type the amount') }}</label>
+                                    <p class="text-xs editor-text-muted mt-1">{{ __('Leave both empty and the payer chooses the amount in their own app.') }}</p>
+                                </div>
+                                <div class="form-group" x-show="payDef().note">
+                                    <label for="bfindex-pay-note" class="form-label">{{ __('Short note (optional)') }}</label>
+                                    <input id="bfindex-pay-note" type="text" maxlength="140" autocomplete="off" class="form-input" :value="editingBlock.settings.pay.note ?? ''" @input="setPayTop('note', $event.target.value)" :aria-invalid="payError('note') ? 'true' : 'false'" aria-describedby="bfindex-pay-note-e">
+                                    <p id="bfindex-pay-note-e" class="text-xs text-red-600 mt-1" role="alert" x-show="payError('note')" x-text="payError('note')"></p>
+                                </div>
+                                <p class="text-xs editor-text-muted">{{ __('The QR code is drawn in your visitor\'s browser from these details. Nothing is sent to a payment service, and BioHop does not process payments.') }}</p>
+                                <p class="text-xs editor-text-muted">{{ __('Scan the code with your own bank or wallet app once before you publish: these formats have not been tested with every app.') }}</p>
                             </div>
                         </template>
                         <template x-if="editingBlock?.type === 'goal'">
