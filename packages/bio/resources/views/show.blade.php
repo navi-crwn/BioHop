@@ -984,7 +984,7 @@
                                 if ($attentionAnim && $attentionAnim !== 'none') $animClasses .= ' attention-' . $attentionAnim;
                             @endphp
                             @php $deep = $link->type === 'app' ? $link->appDeepLink() : null; @endphp
-                            <a href="{{ $linkHref }}" target="_blank" rel="{{ $linkRel }}" @if($deep) data-app="{{ $deep->name }}" @if($deep->ios) data-ios="{{ $deep->ios }}" @endif @if($deep->android) data-android="{{ $deep->android }}" @endif @endif
+                            <a href="{{ $linkHref }}" target="_blank" rel="{{ $linkRel }}" @if($deep) data-app="{{ $deep->name }}" data-fallback="{{ $deep->fallback }}" @if($deep->ios) data-ios="{{ $deep->ios }}" @endif @if($deep->android) data-android="{{ $deep->android }}" @endif @endif
                                class="link-block {{ $hasThumbnail ? 'has-thumbnail' : '' }} {{ $hasIcon && !$hasThumbnail ? 'has-icon' : '' }}{{ $animClasses }}"
                                style="background: {{ $brandColor }}; color: {{ $textColor }}; {{ $borderStyle }}{{ $entranceAnim === 'stagger' ? ' animation-delay: ' . ($loop->index * 0.1) . 's;' : '' }}"
                                @if($entranceAnim && $entranceAnim !== 'none')

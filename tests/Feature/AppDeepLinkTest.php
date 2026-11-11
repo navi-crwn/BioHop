@@ -25,7 +25,7 @@ test('an app block whose address is a known app carries the app addresses, and i
     [, , $link] = appBlockPage('appyt', ['web' => APP_YT]);
     $html = $this->get('/b/appyt')->assertOk()->getContent();
 
-    expect($html)->toContain('data-app="YouTube"')->toContain('data-ios="youtube://www.youtube.com/watch?v=abc123"')->toContain('data-android="intent://')
+    expect($html)->toContain('data-app="YouTube"')->toContain('data-ios="youtube://www.youtube.com/watch?v=abc123"')->toContain('data-android="intent://')->toContain('data-fallback="'.APP_YT.'"')
         // without scripts the button is the same tracked link as before: no scheme address in its href
         ->toContain('href="'.route('bio.public.click', ['bioLink' => $link->public_id]).'"')
         ->not->toContain('href="youtube://')->not->toContain('href="intent://');
@@ -87,4 +87,13 @@ test('the hint line is translated in all nine languages and the page script is o
     expect($js)->toContain("document.querySelector('[data-app]')")->toContain("import('./app-links.js')");
     $links = (string) file_get_contents(base_path('resources/js/app-links.js'));
     expect($links)->not->toContain('http://')->not->toContain('//cdn');
+});
+
+test('the app-link script passes its JS tests (iPhone fallback, Android untouched)', function () {
+    $node = trim((string) shell_exec('command -v node 2>/dev/null'));
+    if ($node === '') {
+        $this->markTestSkipped('node is not installed');
+    }
+    exec(escapeshellarg($node).' --test '.escapeshellarg(base_path('tests/js/app-links.test.mjs')).' 2>&1', $out, $code);
+    expect($code)->toBe(0, implode("\n", $out));
 });
