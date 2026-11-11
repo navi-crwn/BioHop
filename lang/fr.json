@@ -773,5 +773,6 @@
     "10 digits, starting 06, 08 or 09.": "10 chiffres, commençant par 06, 08 ou 09.",
     "Bank code (BIN)": "Code de la banque (BIN)",
     "Six digits, as published by the bank.": "Six chiffres, tels que publiés par la banque.",
-    "Account number": "Numéro de compte"
+    "Account number": "Numéro de compte",
+    "Opens in the :app app on phones; computers and visitors without scripts get this address.": "Sur mobile, s'ouvre dans l'application :app ; les ordinateurs et les visiteurs sans script utilisent cette adresse."
 }

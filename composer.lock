@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6f59dea5c9ff96510e6e5d2d98a948a6",
+    "content-hash": "9cc9f1ecd3f83640efd7d5de6a7f756f",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -1368,16 +1368,16 @@
         },
         {
             "name": "hop/safety",
-            "version": "v0.1.0",
+            "version": "dev-feat/deep-links",
             "source": {
                 "type": "git",
                 "url": "https://github.com/navi-crwn/hop-safety.git",
-                "reference": "bd5ffd5caffacf6fa11916c3f079ca44b4d6e7c2"
+                "reference": "96c3c4294f0cfc01981c8bd32fa5f790965312c2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/navi-crwn/hop-safety/zipball/bd5ffd5caffacf6fa11916c3f079ca44b4d6e7c2",
-                "reference": "bd5ffd5caffacf6fa11916c3f079ca44b4d6e7c2",
+                "url": "https://api.github.com/repos/navi-crwn/hop-safety/zipball/96c3c4294f0cfc01981c8bd32fa5f790965312c2",
+                "reference": "96c3c4294f0cfc01981c8bd32fa5f790965312c2",
                 "shasum": ""
             },
             "require": {
@@ -1404,10 +1404,10 @@
             ],
             "description": "HOP shared package: safety.",
             "support": {
-                "source": "https://github.com/navi-crwn/hop-safety/tree/v0.1.0",
+                "source": "https://github.com/navi-crwn/hop-safety/tree/feat/deep-links",
                 "issues": "https://github.com/navi-crwn/hop-safety/issues"
             },
-            "time": "2026-11-10T06:04:28+00:00"
+            "time": "2026-11-11T15:21:20+00:00"
         },
         {
             "name": "hop/ui",
@@ -10349,7 +10349,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "hop/bio": 20
+        "hop/bio": 20,
+        "hop/safety": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

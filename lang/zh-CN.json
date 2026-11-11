@@ -773,5 +773,6 @@
     "10 digits, starting 06, 08 or 09.": "10 位数字,以 06、08 或 09 开头。",
     "Bank code (BIN)": "银行代码(BIN)",
     "Six digits, as published by the bank.": "六位数字,以银行公布的为准。",
-    "Account number": "账号"
+    "Account number": "账号",
+    "Opens in the :app app on phones; computers and visitors without scripts get this address.": "手机上会在 :app 应用中打开;电脑和未启用脚本的访客使用此地址。"
 }

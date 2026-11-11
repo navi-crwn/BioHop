@@ -773,5 +773,6 @@
     "10 digits, starting 06, 08 or 09.": "10 digit, diawali 06, 08, atau 09.",
     "Bank code (BIN)": "Kode bank (BIN)",
     "Six digits, as published by the bank.": "Enam digit, sesuai yang diterbitkan bank.",
-    "Account number": "Nomor rekening"
+    "Account number": "Nomor rekening",
+    "Opens in the :app app on phones; computers and visitors without scripts get this address.": "Di ponsel dibuka di aplikasi :app; komputer dan pengunjung tanpa skrip memakai alamat ini."
 }

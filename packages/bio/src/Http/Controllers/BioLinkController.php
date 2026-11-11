@@ -477,6 +477,17 @@ class BioLinkController extends Controller
         }, 'entries-'.Str::slug($bioPage->slug.'-'.$bioLink->id).'.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 
+    /** The name of the app an app block's address will open on a phone, for the editor's hint; null when it is not one. */
+    public function appHint(Request $request, BioPage $bioPage)
+    {
+        $this->authorize('update', $bioPage);
+        $data = $request->validate(['url' => ['nullable', 'string', 'max:500']]);
+        $url = trim((string) ($data['url'] ?? ''));
+        $deep = preg_match('#^https://#i', $url) ? app(\Hop\Safety\DeepLinks::class)->resolve($url) : null;
+
+        return response()->json(['app' => $deep?->name])->header('Cache-Control', 'no-store');
+    }
+
     /** Reads a product page's public tags (title, picture, price) so the editor can fill the product form. */
     public function fetchMeta(Request $request, BioPage $bioPage)
     {

@@ -1199,6 +1199,20 @@ window.bioEditorV2 = function() {
             const m = CONFIG.pay?.msgs || {};
             return m[r.code] || m.other || '';
         },
+        // App block: does the website address belong to an app the page can open on a phone? (the server knows the list)
+        appHint: '',
+        _appHintTimer: null,
+        appHintCheck(url) {
+            clearTimeout(this._appHintTimer);
+            const v = String(url || '').trim();
+            if (!/^https:\/\//i.test(v)) { this.appHint = ''; return; }
+            this._appHintTimer = setTimeout(async () => {
+                try {
+                    const res = await fetch(bioEditorUrl('/links/app-hint'), { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf(), 'Accept': 'application/json' }, body: JSON.stringify({ url: v }) });
+                    this.appHint = res.ok ? ((await res.json()).app || '') : '';
+                } catch (e) { this.appHint = ''; }
+            }, 350);
+        },
         productFetch: { busy: false, ok: false, message: '' },
         // Reads the shop page's public tags and fills only what is still empty; the shop may refuse, and then you type it.
         async fillProductFromAddress() {

@@ -268,6 +268,20 @@ class BioLink extends Model
         return preg_match('#^https?://#i', $url) ? $url : null;
     }
 
+    /**
+     * The app a block's web address belongs to (Hop\Safety\DeepLinks), for a phone to open instead of the page; null for
+     * anything that is not an https address of a known app. The stored address stays the plain https one.
+     */
+    public function appDeepLink(): ?\Hop\Safety\DeepLink
+    {
+        if ($this->type !== 'app') {
+            return null;
+        }
+        $web = trim((string) (($this->settings['web'] ?? '') ?: $this->url));
+
+        return preg_match('#^https://#i', $web) ? app(\Hop\Safety\DeepLinks::class)->resolve($web) : null;
+    }
+
     /** 0–100 for a goal block. */
     public function goalPercent(): int
     {

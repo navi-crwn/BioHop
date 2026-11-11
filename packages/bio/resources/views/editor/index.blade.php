@@ -741,11 +741,11 @@
                             </div>
                         </template>
                         <template x-if="editingBlock?.type === 'app'">
-                            <div class="space-y-4">
+                            <div class="space-y-4" x-init="appHintCheck(editingBlock.settings?.web || editingBlock.url)">
                                 <p class="text-xs editor-text-muted">One button, three addresses: iPhone and iPad visitors go to the App Store, Android visitors to Google Play, everyone else (computers) to the website.</p>
                                 <div class="form-group"><label for="bfindex-a1" class="form-label">App Store address</label><input id="bfindex-a1" type="url" :value="editingBlock.settings?.ios ?? ''" @input="setProductSetting('ios', $event.target.value)" class="form-input" placeholder="https://apps.apple.com/app/…"></div>
                                 <div class="form-group"><label for="bfindex-a2" class="form-label">Google Play address</label><input id="bfindex-a2" type="url" :value="editingBlock.settings?.android ?? ''" @input="setProductSetting('android', $event.target.value)" class="form-input" placeholder="https://play.google.com/store/apps/details?id=…"></div>
-                                <div class="form-group"><label for="bfindex-a3" class="form-label">Website (computers and others)</label><input id="bfindex-a3" type="url" :value="editingBlock.settings?.web ?? ''" @input="setProductSetting('web', $event.target.value)" class="form-input" placeholder="https://your-app.example"></div>
+                                <div class="form-group"><label for="bfindex-a3" class="form-label">Website (computers and others)</label><input id="bfindex-a3" type="url" :value="editingBlock.settings?.web ?? ''" @input="setProductSetting('web', $event.target.value); appHintCheck($event.target.value)" class="form-input" placeholder="https://your-app.example"><p class="text-xs editor-text-muted mt-1" x-show="appHint" x-text="@js(__('Opens in the :app app on phones; computers and visitors without scripts get this address.')).replace(':app', appHint)"></p></div>
                             </div>
                         </template>
                         <template x-if="editingBlock?.type === 'pay' && editingBlock.settings?.pay">
