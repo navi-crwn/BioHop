@@ -4,6 +4,11 @@ All notable changes to BioHop are listed here. The format follows [Keep a Change
 
 ## [Unreleased]
 
+### Added
+- A "Receive payment" block: the page owner picks one of the payment formats of `hop-pay` (today PayPal.me, Cash App, Venmo, Solana Pay, UPI, EPC SEPA, PromptPay and VietQR), fills in its fields, and optionally sets a fixed amount, lets visitors type the amount, and adds a short note. The editor checks every field with the module itself and shows translated errors; the server checks the shape (format, field names, lengths, control characters) and sends the payee name and note through the same content checks as other block text. QRIS is not included.
+- The public page prints the payee, the method, the account details, the amount and the note as text, so it reads without scripts; the QR code is drawn in the visitor's browser from the same data with `qr-code-styling` (already bundled), and an open amount is validated with the module and redrawn as it is typed. Nothing is sent to PayHop or any payment service, and nothing animates. A line under the block says that the visitor's own bank or wallet app shows who they are paying and that BioHop does not process payments.
+- `resources/js/vendor/hop-pay.js`: a vendored copy of PayHop's payload module (MIT) with a provenance header, `resources/pay/formats.json` (the module's format list with the form of each format, built by the script) and `scripts/vendor-hop-pay.mjs` to refresh both from a PayHop checkout (`--check` verifies they agree). All new text is in nine languages.
+
 ## [1.2.0] - 2026-11-11
 
 ### Added

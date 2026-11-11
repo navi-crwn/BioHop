@@ -1191,6 +1191,33 @@
                                 </ul>
                             </div>
                             @endif
+                        @elseif($link->type === 'pay' && ($pay = $link->payView()))
+                            <section class="bio-pay w-full rounded-2xl p-4" style="background: {{ $blockBg }}; color: {{ $linkTextColor }};" aria-label="{{ $link->title ?: __('Receive payment') }}"
+                                     data-pay="{{ json_encode(['pay' => $pay['pay'], 'msgs' => \Hop\Bio\Support\PayBlock::messages()], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) }}">
+                                @if($link->title)<h3 class="text-sm font-semibold">{{ $link->title }}</h3>@endif
+                                <dl class="bio-pay-details mt-2 text-sm">
+                                    <div><dt>{{ __('Pay to') }}</dt><dd class="font-semibold">{{ $pay['payee'] }}</dd></div>
+                                    <div><dt>{{ __('Method') }}</dt><dd>{{ $pay['scheme'] }}</dd></div>
+                                    @foreach($pay['rows'] as $row)
+                                        <div><dt>{{ $row['label'] }}</dt><dd @class(['bio-pay-mono' => $row['mono']])>{{ $row['value'] }}</dd></div>
+                                    @endforeach
+                                    @if($pay['amount'] !== '')<div><dt>{{ __('Amount') }}</dt><dd class="font-semibold">{{ $pay['amount'] }} {{ $pay['currency'] }}</dd></div>@endif
+                                    @if($pay['note'] !== '')<div><dt>{{ __('Note') }}</dt><dd>{{ $pay['note'] }}</dd></div>@endif
+                                </dl>
+                                @if($pay['open'])
+                                    <noscript><p class="mt-2 text-sm">{{ __('Enter the amount in your own bank or wallet app.') }}</p></noscript>
+                                    <form class="bio-pay-open mt-3" data-pay-open hidden>
+                                        <label class="text-sm font-semibold" for="pay-amount-{{ $link->id }}">{{ __('Amount') }} ({{ $pay['currency'] }})</label>
+                                        <input id="pay-amount-{{ $link->id }}" type="text" inputmode="decimal" autocomplete="off" maxlength="20" placeholder="{{ __('Optional') }}">
+                                    </form>
+                                @endif
+                                <p class="bio-pay-error mt-2 text-xs font-semibold" data-pay-error role="alert" hidden></p>
+                                <figure class="bio-pay-qr mt-3" data-pay-qr hidden>
+                                    <div data-pay-canvas role="img" aria-label="{{ __('QR code for this payment') }}"></div>
+                                    <figcaption class="mt-1 text-xs font-semibold" data-pay-amount-text></figcaption>
+                                </figure>
+                                <p class="mt-3 text-xs opacity-75">{{ __('Your own bank or wallet app shows who you are paying: check the name before you confirm. BioHop does not process payments.') }}</p>
+                            </section>
                         @elseif($link->type === 'goal')
                             @php $pct = $link->goalPercent(); $unit = trim((string) ($link->settings['unit'] ?? '')); $fmt = fn ($n) => number_format((float) $n, 0, '.', ',').($unit !== '' ? ' '.$unit : ''); @endphp
                             <div class="bio-goal w-full rounded-2xl p-4" style="background: {{ $blockBg }}; color: {{ $linkTextColor }};">

@@ -1,6 +1,8 @@
 // The bio editor (Alpine component). Loaded as a module only on the editor page and cached by the browser;
 // the page's data comes in as JSON from <script id="bio-editor-config"> instead of being printed into the page.
 import { confirmDialog } from './dialogs';
+import { payCheck, emptyPay } from './pay-shared.js';
+import PAY_FORMATS from '../pay/formats.json';
 
 const CONFIG = JSON.parse(document.getElementById('bio-editor-config').textContent);
 // Titles and messages of the editor's dialogs, already in the member's language (editor/index.blade.php).
@@ -43,6 +45,7 @@ const BLOCK_CATALOG = [
         ['product', 'Product', 'Picture, price, variants and stock', '#db2777', 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z', 'add', 'shop sell price store'],
         ['collection', 'Collection', 'A titled group of blocks', '#d97706', 'M4 6h16M4 12h16M4 18h7', 'add', 'group section category'],
         ['goal', 'Goal bar', 'A progress bar toward a target', '#059669', 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6', 'add', 'progress fundraising'],
+        ['pay', 'Receive payment', 'A QR code for your bank or wallet', '#0d9488', 'M3 7h18v10H3V7zm0 3h18M7 14h3', 'add', 'payment qr bank wallet donate tip paypal'],
         ['app', 'App store link', 'iPhone, Android and web in one button', '#0284c7', 'M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z', 'add', 'ios android play download'],
     ]],
     ['Smart & conversion', [
@@ -753,11 +756,11 @@ window.bioEditorV2 = function() {
                 faq_items: type === 'faq' ? [{ question: '', answer: '' }] : [],
                 html_content: '',
                 description: '',
-                settings: type === 'product' ? { price: '', currency: 'IDR', sold_out: false } : (type === 'collection' ? { layout: 'stack' } : (type === 'whatsapp' ? { text: '', mode: 'round_robin', numbers: [{ number: '', label: '', weight: 1 }] } : (type === 'goal' ? { target: '', current: '', unit: '' } : (type === 'poll' ? { options: [{ text: '' }, { text: '' }] } : type === 'rss' ? { count: 5 } : type === 'form' ? { ask_name: true, ask_email: true, ask_phone: false, button: '', thanks: '', consent: '', retention_days: 90 } : type === 'app' ? { ios: '', android: '', web: '' } : (type === 'carousel' ? { images: [] } : null)))))
+                settings: type === 'pay' ? { pay: emptyPay(PAY_FORMATS) } : type === 'product' ? { price: '', currency: 'IDR', sold_out: false } : (type === 'collection' ? { layout: 'stack' } : (type === 'whatsapp' ? { text: '', mode: 'round_robin', numbers: [{ number: '', label: '', weight: 1 }] } : (type === 'goal' ? { target: '', current: '', unit: '' } : (type === 'poll' ? { options: [{ text: '' }, { text: '' }] } : type === 'rss' ? { count: 5 } : type === 'form' ? { ask_name: true, ask_email: true, ask_phone: false, button: '', thanks: '', consent: '', retention_days: 90 } : type === 'app' ? { ios: '', android: '', web: '' } : (type === 'carousel' ? { images: [] } : null)))))
             };
             if (type === 'whatsapp') newBlock.brand = 'whatsapp';
             this.blocks.push(newBlock);
-            if (['link', 'header', 'text', 'video', 'music', 'vcard', 'html', 'countdown', 'map', 'faq', 'youtube', 'spotify', 'soundcloud', 'code', 'image', 'product', 'collection', 'whatsapp', 'app', 'goal', 'audio', 'carousel', 'pdf', 'form', 'rss', 'poll'].includes(type)) {
+            if (['link', 'header', 'text', 'video', 'music', 'vcard', 'html', 'countdown', 'map', 'faq', 'youtube', 'spotify', 'soundcloud', 'code', 'image', 'product', 'collection', 'whatsapp', 'app', 'goal', 'audio', 'carousel', 'pdf', 'form', 'rss', 'poll', 'pay'].includes(type)) {
                 this.editingBlock = JSON.parse(JSON.stringify(newBlock));
             }
             this.showAddBlockModal = false;
@@ -783,7 +786,8 @@ window.bioEditorV2 = function() {
                 'pdf': 'Menu (PDF)',
                 'form': 'Stay in touch',
                 'rss': 'Latest posts',
-                'poll': 'Quick poll'
+                'poll': 'Quick poll',
+                'pay': 'Pay me'
             };
             return titles[type] || '';
         },
@@ -1009,6 +1013,18 @@ window.bioEditorV2 = function() {
                 }
                 this.editingBlock.faq_items = items;
             }
+            if (this.editingBlock.type === 'pay') {
+                // The module checks every field; the first problem is shown under its field and nothing is saved.
+                const pay = this.editingBlock.settings?.pay;
+                const r = pay ? payCheck(pay, PAY_FORMATS) : { ok: false, code: 'unknown_format' };
+                this.payAttempted = true;
+                if (!r.ok) {
+                    const m = CONFIG.pay?.msgs || {};
+                    this.showNotification(m[r.code] || m.other || 'Check the payment details', 'error');
+                    return;
+                }
+                this.payAttempted = false;
+            }
             const index = this.blocks.findIndex(b => b.id === this.editingBlock.id);
             if (index !== -1) {
                 // A plain deep copy: spreading the proxy kept nested settings (variants, numbers, faq) reactive,
@@ -1157,6 +1173,31 @@ window.bioEditorV2 = function() {
             // Plain copies only: a reactive proxy inside settings cannot be posted to the preview frame.
             const plain = value && typeof value === 'object' ? JSON.parse(JSON.stringify(value)) : value;
             this.editingBlock.settings = Object.assign({}, JSON.parse(JSON.stringify(this.editingBlock.settings || {})), { [key]: plain });
+        },
+        // Receive-payment block: the formats are the vendored module's own list; a check is the module's own build().
+        payAttempted: false,
+        payFormatList() { return Object.entries(PAY_FORMATS).map(([id, d]) => [id, d.name + (d.country ? ' (' + d.country + ')' : '')]); },
+        payDef() { return PAY_FORMATS[this.editingBlock?.settings?.pay?.format] || PAY_FORMATS[Object.keys(PAY_FORMATS)[0]]; },
+        payT(text) { return (CONFIG.pay?.labels || {})[text] || text; },
+        payField(key) { return this.editingBlock?.settings?.pay?.fields?.[key] ?? ''; },
+        payCurrency() { const d = this.payDef(); return this.payField('currency') || (d.currencies || [])[0] || ''; },
+        setPay(patch) {
+            const pay = JSON.parse(JSON.stringify(Alpine.raw(this.editingBlock.settings?.pay || emptyPay(PAY_FORMATS))));
+            this.setProductSetting('pay', Object.assign(pay, patch(pay) || pay));
+        },
+        setPayFormat(id) { if (PAY_FORMATS[id]) { const keep = this.editingBlock.settings.pay; this.setProductSetting('pay', Object.assign(emptyPay(PAY_FORMATS, id), { amount: keep.amount || '', note: keep.note || '', open_amount: !!keep.open_amount })); } },
+        setPayField(key, value) { this.setPay((p) => { p.fields = Object.assign({}, p.fields, { [key]: value }); return p; }); },
+        setPayTop(key, value) { this.setPay((p) => { p[key] = value; if (key === 'amount' && String(value).trim() !== '') p.open_amount = false; return p; }); },
+        // The message under a field: only for what the member has typed (or after a save attempt), so an empty form is not red.
+        payError(field) {
+            const pay = this.editingBlock?.settings?.pay;
+            if (!pay) return '';
+            const r = payCheck(pay, PAY_FORMATS);
+            if (r.ok || r.field !== field) return '';
+            const typed = field === 'amount' ? String(pay.amount || '').trim() !== '' : String((pay.fields || {})[field] ?? '').trim() !== '';
+            if (!typed && !this.payAttempted) return '';
+            const m = CONFIG.pay?.msgs || {};
+            return m[r.code] || m.other || '';
         },
         productFetch: { busy: false, ok: false, message: '' },
         // Reads the shop page's public tags and fills only what is still empty; the shop may refuse, and then you type it.

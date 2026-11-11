@@ -5,6 +5,7 @@ namespace Hop\Bio\Models;
 use Carbon\CarbonInterface;
 use Hop\Bio\Support\EdgeCache;
 use Hop\Bio\Support\FeedReader;
+use Hop\Bio\Support\PayBlock;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -375,16 +376,22 @@ class BioLink extends Model
         'link' => 'Link', 'image' => 'Image', 'text' => 'Text', 'header' => 'Header',
         'divider' => 'Divider', 'spacer' => 'Spacer', 'video' => 'Video', 'youtube' => 'YouTube',
         'music' => 'Music', 'spotify' => 'Spotify', 'soundcloud' => 'SoundCloud', 'vcard' => 'Contact card',
-        'html' => 'HTML', 'countdown' => 'Countdown', 'map' => 'Map', 'faq' => 'FAQ', 'product' => 'Product', 'collection' => 'Collection', 'whatsapp' => 'WhatsApp', 'app' => 'App', 'form' => 'Form', 'rss' => 'Feed', 'poll' => 'Poll', 'goal' => 'Goal', 'audio' => 'Audio', 'carousel' => 'Carousel', 'pdf' => 'PDF',
+        'html' => 'HTML', 'countdown' => 'Countdown', 'map' => 'Map', 'faq' => 'FAQ', 'product' => 'Product', 'collection' => 'Collection', 'whatsapp' => 'WhatsApp', 'app' => 'App', 'form' => 'Form', 'rss' => 'Feed', 'poll' => 'Poll', 'goal' => 'Goal', 'audio' => 'Audio', 'carousel' => 'Carousel', 'pdf' => 'PDF', 'pay' => 'Payment',
         'email' => 'Email', 'code' => 'Code',
     ];
 
     /** Blocks a visitor can only read or use in place: they never get a click, so analytics leaves them out. */
-    public const INERT_TYPES = ['text', 'header', 'divider', 'spacer', 'html', 'code', 'countdown', 'faq', 'collection', 'poll', 'form', 'rss', 'carousel', 'map', 'youtube', 'video', 'music', 'spotify', 'soundcloud', 'audio'];
+    public const INERT_TYPES = ['text', 'header', 'divider', 'spacer', 'html', 'code', 'countdown', 'faq', 'collection', 'poll', 'form', 'rss', 'carousel', 'map', 'youtube', 'video', 'music', 'spotify', 'soundcloud', 'audio', 'pay'];
 
     public function typeName(): string
     {
         return self::TYPE_NAMES[$this->type] ?? Str::headline($this->type ?: 'block');
+    }
+
+    /** The receive-payment block as the public page prints it (see Support\PayBlock); null when it holds nothing usable. */
+    public function payView(): ?array
+    {
+        return $this->type === 'pay' && is_array($this->settings['pay'] ?? null) ? PayBlock::view($this->settings['pay']) : null;
     }
 
     /**
@@ -417,6 +424,7 @@ class BioLink extends Model
             'countdown' => $this->countdown_label,
             'map' => $this->map_address,
             'faq' => $this->faqItems()[0]['question'] ?? null,
+            'pay' => $this->payView()['payee'] ?? null,
             'html' => $this->excerpt($this->html_content),
             default => null,
         } ?: $this->typeName();
@@ -435,6 +443,7 @@ class BioLink extends Model
             'map' => filled($this->title) ? $this->map_address : null,
             'faq' => ($n = count($this->faqItems())) ? $n.' '.Str::plural('question', $n) : null,
             'code' => $this->content,
+            'pay' => (($v = $this->payView()) ? trim($v['scheme'].' · '.$v['payee'], ' ·') : null),
             default => $this->url,
         };
         if ($this->type === 'link') {

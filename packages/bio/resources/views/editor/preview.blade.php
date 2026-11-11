@@ -1075,6 +1075,13 @@
                             <small x-text="(block.settings?.current || 0) + ' / ' + (block.settings?.target || 0) + (block.settings?.unit ? ' ' + block.settings.unit : '')"></small>
                         </div>
                     </template>
+                    <template x-if="block.type === 'pay'">
+                        <div class="goal-block" :style="{ background: block.btn_bg_color || getEffectiveButtonBg(), color: block.btn_text_color || getEffectiveButtonText() }">
+                            <div class="goal-top"><b x-text="block.title || 'Pay me'"></b></div>
+                            <small x-text="payPreview(block)"></small>
+                            <small>{{ __('The QR code appears on your public page.') }}</small>
+                        </div>
+                    </template>
                     <template x-if="block.type === 'audio'">
                         <div class="goal-block" :style="{ background: block.btn_bg_color || getEffectiveButtonBg(), color: block.btn_text_color || getEffectiveButtonText() }">
                             <div class="goal-top"><b x-text="block.title || 'Audio'"></b></div>
@@ -1472,6 +1479,10 @@
                 goalPercent(block) {
                     const t = Number(block.settings && block.settings.target), c = Number(block.settings && block.settings.current);
                     return t > 0 ? Math.max(0, Math.min(100, Math.round(c / t * 100))) : 0;
+                },
+                payPreview(block) {
+                    const p = (block.settings && block.settings.pay) || {};
+                    return [Object.values(p.fields || {}).filter(Boolean)[0], p.amount].filter(Boolean).join(' · ');
                 },
                 pageImageUrl(path) { return !path ? '' : (path.startsWith('/') || path.startsWith('http') ? path : '/storage/' + path); },
                 isLive(block) {
