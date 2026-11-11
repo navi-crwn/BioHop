@@ -222,7 +222,7 @@ test('a hand-made request cannot store details the module would reject', functio
     ];
     foreach ($bad as [$id, $fields, $key]) {
         [, $errors] = PayBlock::clean(['format' => $id, 'fields' => $fields]);
-        expect($errors)->toHaveKey('settings.pay.fields.'.$key, $id.'.'.$key);
+        expect(isset($errors['settings.pay.fields.'.$key]))->toBeTrue($id.'.'.$key);
     }
     // the shapes the module accepts still pass, including the forms it normalises
     foreach ([
