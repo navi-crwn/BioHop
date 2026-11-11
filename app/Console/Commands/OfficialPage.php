@@ -69,7 +69,7 @@ class OfficialPage extends Command
     {
         return [
             'title' => 'HEL.ink',
-            'bio' => 'Short links, bio pages, images and private notes. One free HOP ID, open source, yours to host.',
+            'bio' => 'Short links, bio pages, images, private notes, files and payments. One free HOP ID, open source, yours to host.',
             'theme' => 'galaxy',
             'button_shape' => 'pill',
             'social_links' => [
@@ -77,7 +77,7 @@ class OfficialPage extends Command
                 ['platform' => 'website', 'value' => 'https://hel.ink', 'enabled' => true],
             ],
             'seo_title' => 'HEL.ink · every HOP app in one place',
-            'seo_description' => 'LinkHop, BioHop, PixelHop, NoteHop and FileHop: short links, bio pages, images, private notes and file conversion with one free HOP ID.',
+            'seo_description' => 'LinkHop, BioHop, PixelHop, NoteHop, FileHop and PayHop: short links, bio pages, images, private notes, file conversion and payment QR codes with one free HOP ID.',
             'is_published' => true,
             'is_public' => true,
             'password_enabled' => false,

@@ -1,9 +1,45 @@
 {
   "schema": 1,
   "sources": {
-    "BioHop": "3b481f1db7b5cd71b1761b64b6ebc944f208b6a0"
+    "BioHop": "39cf2085fadca5e27c69f0f46bd7382f7ba902ca"
   },
   "entries": [
+    {
+      "kind": "commit",
+      "date": "2026-11-10T21:50:50+07:00",
+      "title": "Merge pull request #73: Escape the vCard, translate the WhatsApp block, pin hop/auth and hop/safety",
+      "url": "https://github.com/navi-crwn/BioHop/commit/39cf2085fadca5e27c69f0f46bd7382f7ba902ca",
+      "id": "39cf2085",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "pr",
+      "date": "2026-11-10T14:50:50Z",
+      "title": "Escape the vCard, translate the WhatsApp block, pin hop/auth and hop/safety",
+      "url": "https://github.com/navi-crwn/BioHop/pull/73",
+      "id": "#73",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-10T14:45:21+01:00",
+      "title": "Fall back to phone or e-mail for the vCard name; refuse malformed UTF-8",
+      "url": "https://github.com/navi-crwn/BioHop/commit/7235d0245b5853f9c6bbb5a41b28cf2a36e74d81",
+      "id": "7235d024",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-10T14:34:54+01:00",
+      "title": "Escape the vCard, translate the WhatsApp block, pin hop/auth and hop/safety",
+      "url": "https://github.com/navi-crwn/BioHop/commit/2431fe6e80afdd4a89576f538cf05ac69fb6fe86",
+      "id": "2431fe6e",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
     {
       "kind": "commit",
       "date": "2026-11-10T15:22:21+07:00",

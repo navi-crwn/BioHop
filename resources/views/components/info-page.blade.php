@@ -9,6 +9,16 @@
     <title>{{ __($title) }} · BioHop</title>
     <meta name="description" content="{{ $description ?? ($lead ? __($lead) : __('One link-in-bio page for everything you do.')) }}">
     <link rel="canonical" href="{{ url()->current() }}">
+    {{-- Link previews (K-8): every info page, /changelog /privacy /terms included, names itself and shows the family image. --}}
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="BioHop">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:title" content="{{ __($title) }} · BioHop">
+    <meta property="og:description" content="{{ $description ?? ($lead ? __($lead) : __('One link-in-bio page for everything you do.')) }}">
+    <meta property="og:image" content="{{ asset('images/brand/og.png') }}">
+    <meta property="og:image:width" content="2400">
+    <meta property="og:image:height" content="1260">
+    <meta name="twitter:card" content="summary_large_image">
     <link rel="icon" type="image/svg+xml" href="{{ route('brand.favicon', ['v' => 'b10b1000']) }}">
     <x-hop::fonts />
     @vite(['resources/css/app.css', 'resources/js/app.js'])

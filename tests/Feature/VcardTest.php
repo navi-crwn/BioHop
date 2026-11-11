@@ -96,13 +96,13 @@ test('the "Save contact" label exists in every language', function () {
     }
 });
 
-test('the hop/auth and hop/safety pins name released tags that the lock holds', function () {
+test('the hop/safety pin names a released tag that the lock holds', function () {
+    // hop/ui and hop/auth follow their branches until they are tagged: tests/Feature/ComposerPinTest.php.
     $json = json_decode((string) file_get_contents(base_path('composer.json')), true);
     $lock = json_decode((string) file_get_contents(base_path('composer.lock')), true);
     $version = fn (string $n) => collect($lock['packages'])->firstWhere('name', $n)['version'];
 
-    expect($json['require']['hop/auth'])->toBe('^0.1.5')->and($version('hop/auth'))->toBe('v0.1.5')
-        ->and($json['require']['hop/safety'])->toBe('^0.1.0')->and($version('hop/safety'))->toBe('v0.1.0');
+    expect($json['require']['hop/safety'])->toBe('^0.1.0')->and($version('hop/safety'))->toBe('v0.1.0');
 });
 
 test('sync-hop-assets.sh reads the version from the manifest', function () {

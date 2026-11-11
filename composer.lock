@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4acecb0548fadbbb5966199c4cbc5036",
+    "content-hash": "6f59dea5c9ff96510e6e5d2d98a948a6",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -1297,16 +1297,16 @@
         },
         {
             "name": "hop/auth",
-            "version": "v0.1.5",
+            "version": "v0.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/navi-crwn/hop-auth.git",
-                "reference": "df506c4f2c558cd015f0b6132cf60caf5256a398"
+                "reference": "c40263c40a05d49ff2be112468d5cf54378d9f95"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/navi-crwn/hop-auth/zipball/df506c4f2c558cd015f0b6132cf60caf5256a398",
-                "reference": "df506c4f2c558cd015f0b6132cf60caf5256a398",
+                "url": "https://api.github.com/repos/navi-crwn/hop-auth/zipball/c40263c40a05d49ff2be112468d5cf54378d9f95",
+                "reference": "c40263c40a05d49ff2be112468d5cf54378d9f95",
                 "shasum": ""
             },
             "require": {
@@ -1330,11 +1330,7 @@
                 "MIT"
             ],
             "description": "HOP shared package: auth.",
-            "support": {
-                "source": "https://github.com/navi-crwn/hop-auth/tree/v0.1.5",
-                "issues": "https://github.com/navi-crwn/hop-auth/issues"
-            },
-            "time": "2026-11-10T07:17:26+00:00"
+            "time": "2026-11-11T06:24:47+00:00"
         },
         {
             "name": "hop/bio",
@@ -1415,23 +1411,22 @@
         },
         {
             "name": "hop/ui",
-            "version": "dev-main",
+            "version": "v0.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/navi-crwn/hop-ui.git",
-                "reference": "cf9db5a075a5b9246fab901d22f24edd02a56d9e"
+                "reference": "bd95089fd85591cb85d7f7336b1416966fb205af"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/navi-crwn/hop-ui/zipball/cf9db5a075a5b9246fab901d22f24edd02a56d9e",
-                "reference": "cf9db5a075a5b9246fab901d22f24edd02a56d9e",
+                "url": "https://api.github.com/repos/navi-crwn/hop-ui/zipball/bd95089fd85591cb85d7f7336b1416966fb205af",
+                "reference": "bd95089fd85591cb85d7f7336b1416966fb205af",
                 "shasum": ""
             },
             "require": {
                 "illuminate/support": "^12.0",
                 "php": "^8.3"
             },
-            "default-branch": true,
             "type": "library",
             "extra": {
                 "laravel": {
@@ -1449,11 +1444,7 @@
                 "MIT"
             ],
             "description": "HOP shared package: ui.",
-            "support": {
-                "source": "https://github.com/navi-crwn/hop-ui/tree/main",
-                "issues": "https://github.com/navi-crwn/hop-ui/issues"
-            },
-            "time": "2026-11-08T10:07:50+00:00"
+            "time": "2026-11-11T06:24:44+00:00"
         },
         {
             "name": "laravel/framework",
@@ -10355,18 +10346,10 @@
             "time": "2026-10-05T23:14:19+00:00"
         }
     ],
-    "aliases": [
-        {
-            "package": "hop/ui",
-            "version": "dev-main",
-            "alias": "0.2.99",
-            "alias_normalized": "0.2.99.0"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "hop/bio": 20,
-        "hop/ui": 20
+        "hop/bio": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
