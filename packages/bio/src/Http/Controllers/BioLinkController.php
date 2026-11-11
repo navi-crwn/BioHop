@@ -16,6 +16,7 @@ use Hop\Bio\Support\PayBlock;
 use Hop\Bio\Support\PixelHopMedia;
 use Hop\Bio\Support\ProductMeta;
 use Hop\Bio\Support\SingleLine;
+use Hop\Safety\DeepLinks;
 use Hop\Safety\SafeContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -483,7 +484,7 @@ class BioLinkController extends Controller
         $this->authorize('update', $bioPage);
         $data = $request->validate(['url' => ['nullable', 'string', 'max:500']]);
         $url = trim((string) ($data['url'] ?? ''));
-        $deep = preg_match('#^https://#i', $url) ? app(\Hop\Safety\DeepLinks::class)->resolve($url) : null;
+        $deep = preg_match('#^https://#i', $url) ? app(DeepLinks::class)->resolve($url) : null;
 
         return response()->json(['app' => $deep?->name])->header('Cache-Control', 'no-store');
     }

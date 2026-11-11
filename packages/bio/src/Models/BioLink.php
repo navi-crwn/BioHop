@@ -6,6 +6,8 @@ use Carbon\CarbonInterface;
 use Hop\Bio\Support\EdgeCache;
 use Hop\Bio\Support\FeedReader;
 use Hop\Bio\Support\PayBlock;
+use Hop\Safety\DeepLink;
+use Hop\Safety\DeepLinks;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -272,14 +274,14 @@ class BioLink extends Model
      * The app a block's web address belongs to (Hop\Safety\DeepLinks), for a phone to open instead of the page; null for
      * anything that is not an https address of a known app. The stored address stays the plain https one.
      */
-    public function appDeepLink(): ?\Hop\Safety\DeepLink
+    public function appDeepLink(): ?DeepLink
     {
         if ($this->type !== 'app') {
             return null;
         }
         $web = trim((string) (($this->settings['web'] ?? '') ?: $this->url));
 
-        return preg_match('#^https://#i', $web) ? app(\Hop\Safety\DeepLinks::class)->resolve($web) : null;
+        return preg_match('#^https://#i', $web) ? app(DeepLinks::class)->resolve($web) : null;
     }
 
     /** 0–100 for a goal block. */
