@@ -101,6 +101,8 @@ class PayBlock
                 $errors[$name] = self::messages()['too_long'];
             } elseif (self::hasControl($v)) {
                 $errors[$name] = self::messages()['hidden_characters'];
+            } elseif ($v !== '' && isset($f['check']) && ! self::passes($v, $f['check'])) {
+                $errors[$name] = ($f['check']['kind'] ?? '') === 'iban' ? self::messages()['bad_iban'] : self::messages()['bad_handle'];
             }
             if ($v !== '') {
                 $fields[$f['key']] = $v;
@@ -120,6 +122,88 @@ class PayBlock
         $open = filter_var($pay['open_amount'] ?? false, FILTER_VALIDATE_BOOLEAN) && $amount === '';
 
         return [['format' => $id, 'fields' => $fields, 'amount' => $amount, 'note' => $def['note'] ? $note : '', 'open_amount' => $open], $errors];
+    }
+
+    /**
+     * The cheap checks of a field (resources/pay/fields.json "check"): the same shapes hop-pay enforces for it, so a
+     * request that skips the editor cannot store details the module rejects. Not ported: the IBAN length table and the
+     * amount rules, which stay with the module in the browser (a block it rejects there hides its detail rows).
+     */
+    private static function passes(string $v, array $check): bool
+    {
+        foreach ($check['strip'] ?? [] as $s) {
+            $v = (string) preg_replace('~'.str_replace('~', '\~', $s['re']).'~'.($s['flags'] ?? ''), '', $v);
+        }
+        if (! empty($check['space'])) {
+            $v = (string) preg_replace('/\s+/', '', $v);
+        }
+        if (! empty($check['upper'])) {
+            $v = strtoupper($v);
+        }
+        $kind = $check['kind'] ?? '';
+        if ($kind === 'iban') {
+            return self::ibanOk($v);
+        }
+        if ($kind === 'base58-32') {
+            return self::base58Length($v) === 32;
+        }
+        if ($kind === 'th-mobile') {
+            $d = (string) preg_replace('/[\s().-]/', '', $v);
+            if (str_starts_with($d, '+66')) {
+                $d = substr($d, 3);
+            } elseif (str_starts_with($d, '0066')) {
+                $d = substr($d, 4);
+            } elseif (str_starts_with($d, '66') && strlen($d) === 11) {
+                $d = substr($d, 2);
+            } elseif (str_starts_with($d, '0')) {
+                $d = substr($d, 1);
+            }
+
+            return (bool) preg_match('/^[689][0-9]{8}$/', $d);
+        }
+
+        return isset($check['pattern']) ? (bool) preg_match('~'.str_replace('~', '\~', $check['pattern']).'~'.($check['flags'] ?? ''), $v) : true;
+    }
+
+    /** Structure and the mod-97 checksum of an IBAN (spaces and case ignored). */
+    private static function ibanOk(string $raw): bool
+    {
+        $iban = strtoupper((string) preg_replace('/\s+/', '', $raw));
+        if (! preg_match('/^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$/', $iban)) {
+            return false;
+        }
+        $rem = 0;
+        foreach (str_split(substr($iban, 4).substr($iban, 0, 4)) as $ch) {
+            foreach (str_split(ctype_alpha($ch) ? (string) (ord($ch) - 55) : $ch) as $d) {
+                $rem = ($rem * 10 + (int) $d) % 97;
+            }
+        }
+
+        return $rem === 1;
+    }
+
+    /** Length in bytes of a base58 string (leading 1s count as zero bytes), or -1 when a character is not base58. */
+    private static function base58Length(string $s): int
+    {
+        $alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+        if ($s === '' || strspn($s, $alphabet) !== strlen($s)) {
+            return -1;
+        }
+        $bytes = [];
+        foreach (str_split($s) as $ch) {
+            $carry = strpos($alphabet, $ch);
+            foreach ($bytes as $i => $b) {
+                $carry += $b * 58;
+                $bytes[$i] = $carry & 0xFF;
+                $carry >>= 8;
+            }
+            while ($carry > 0) {
+                $bytes[] = $carry & 0xFF;
+                $carry >>= 8;
+            }
+        }
+
+        return count($bytes) + (strlen($s) - strlen(ltrim($s, '1')));
     }
 
     /** The texts of a block that a content check should read: the payee name and the note. */

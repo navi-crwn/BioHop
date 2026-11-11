@@ -52,6 +52,14 @@ function init(el) {
         }
     };
 
+    // The module is the judge: a block it rejects is not shown as account details (the server only checks the shape).
+    const base = payCheck(cfg.pay, formats, form ? '' : undefined);
+    if (!base.ok) {
+        const dl = el.querySelector('[data-pay-details]');
+        if (dl) dl.hidden = true;
+        fail(base.code);
+        return;
+    }
     if (form) {
         form.hidden = false;
         let t;

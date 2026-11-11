@@ -20,8 +20,9 @@ const VECTORS = {
     venmo: [{ format: 'venmo', fields: { user: '@jane-doe' }, amount: '3.5', note: 'Lunch & drinks' }, 'https://venmo.com/jane-doe?txn=pay&amount=3.50&note=Lunch%20%26%20drinks'],
     solana: [{ format: 'solana', fields: { recipient: SYS, label: 'Cafe Ana' }, amount: '1.5', note: 'Order #12' }, 'solana:' + SYS + '?amount=1.5&label=Cafe%20Ana&message=Order%20%2312'],
     upi: [{ format: 'upi', fields: { name: 'Warung Sri', vpa: 'shop@okbank' }, amount: '250', note: 'Order 7' }, 'upi://pay?pa=shop@okbank&pn=Warung%20Sri&am=250.00&cu=INR&tn=Order%207'],
-    epc: [{ format: 'epc', fields: { name: 'Red Cross Fund', iban: IBAN }, amount: '12.34', note: 'Donation' }, ['BCD', '002', '1', 'SCT', '', 'Red Cross Fund', 'DE89370400440532013000', 'EUR12.34', '', '', 'Donation'].join('\n')],
-    promptpay: [{ format: 'promptpay', fields: { name: 'Somchai Jaidee', phone: '081 234 5678' }, amount: '250' }, null],
+    epc: [{ format: 'epc', fields: { name: 'Taman Baca Fund', iban: IBAN }, amount: '12.34', note: 'Donation' }, ['BCD', '002', '1', 'SCT', '', 'Taman Baca Fund', 'DE89370400440532013000', 'EUR12.34', '', '', 'Donation'].join('\n')],
+    promptpay: [{ format: 'promptpay', fields: { name: 'Nama Contoh', phone: '060 000 0000' }, amount: '250' }, null],
+    // 970436 is a real, publicly listed bank identifier, kept so the sample looks like a real transfer; the account number is invented
     vietqr: [{ format: 'vietqr', fields: { name: 'Nguyen Van A', bin: '970436', account: '0123456789' }, amount: '50000' }, null],
 };
 
@@ -74,7 +75,7 @@ test('invalid blocks are refused by the module, with its own error code and fiel
     bad({ format: 'epc', fields: { name: 'A', iban: 'DE89 3704 0044 0532 0130 01' } }, 'bad_iban', 'iban');
     bad({ format: 'epc', fields: { name: 'A'.repeat(71), iban: IBAN } }, 'too_long', 'name');
     bad({ format: 'promptpay', fields: { name: 'A', phone: '12345' } }, 'bad_handle', 'phone');
-    bad({ format: 'promptpay', fields: { name: 'A', phone: '0812345678' }, amount: '0' }, 'amount_not_positive', 'amount');
+    bad({ format: 'promptpay', fields: { name: 'A', phone: '0600000000' }, amount: '0' }, 'amount_not_positive', 'amount');
     bad({ format: 'vietqr', fields: { name: 'A', bin: '970436', account: '123' }, amount: '50.5' }, 'amount_no_decimals', 'amount');
     bad({ format: 'nope', fields: {} }, 'unknown_format', 'format');
     // an empty required field is named before the module is asked

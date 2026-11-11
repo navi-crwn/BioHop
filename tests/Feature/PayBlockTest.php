@@ -18,8 +18,8 @@ function payValid(): array
         'venmo' => ['user' => 'jane-doe'],
         'solana' => ['recipient' => $sys, 'label' => 'Cafe Ana'],
         'upi' => ['name' => 'Warung Sri', 'vpa' => 'shop@okbank'],
-        'epc' => ['name' => 'Red Cross Fund', 'iban' => 'DE89 3704 0044 0532 0130 00'],
-        'promptpay' => ['name' => 'Somchai Jaidee', 'phone' => '081 234 5678'],
+        'epc' => ['name' => 'Taman Baca Fund', 'iban' => 'DE89 3704 0044 0532 0130 00'],
+        'promptpay' => ['name' => 'Nama Contoh', 'phone' => '060 000 0000'],
         'vietqr' => ['name' => 'Nguyen Van A', 'bin' => '970436', 'account' => '0123456789'],
     ];
 }
@@ -88,7 +88,7 @@ test('the editor saves a payment block, refuses a bad one, and keeps the setting
 
     // update: a bad change is refused and the stored block stays as it was
     $this->putJson('/bio/payedit/links/'.$link->id, ['settings' => ['pay' => ['format' => 'epc', 'fields' => ['name' => '', 'iban' => 'x']]]])->assertStatus(422);
-    expect($link->fresh()->settings['pay']['fields']['name'])->toBe('Red Cross Fund');
+    expect($link->fresh()->settings['pay']['fields']['name'])->toBe('Taman Baca Fund');
     $this->putJson('/bio/payedit/links/'.$link->id, ['title' => 'New title'])->assertOk();
     expect($link->fresh()->settings['pay']['format'])->toBe('epc');
 
@@ -118,7 +118,7 @@ test('the public page prints the payee and every detail as text, so it reads wit
 
     $html = $this->get('/b/paypub')->assertOk()->getContent();
     expect($html)->toContain('class="bio-pay ')->toContain('Support us')
-        ->toContain('Red Cross Fund')->toContain('EPC SEPA')->toContain('DE89 3704 0044 0532 0130 00')
+        ->toContain('Taman Baca Fund')->toContain('EPC SEPA')->toContain('DE89 3704 0044 0532 0130 00')
         ->toContain('12.34 EUR')->toContain('Donation')
         // the QR card and the amount form stay hidden until the script runs; a fixed amount has no form
         ->toContain('data-pay-qr hidden')->not->toContain('data-pay-open')
@@ -199,4 +199,62 @@ test('the vendored hop-pay and the format list pass their JS tests', function ()
     expect($code)->toBe(0, implode("\n", $out));
     exec(escapeshellarg($node).' '.escapeshellarg(base_path('scripts/vendor-hop-pay.mjs')).' --check 2>&1', $out2, $code2);
     expect($code2)->toBe(0, implode("\n", $out2));
+});
+
+test('a hand-made request cannot store details the module would reject', function () {
+    $sys = '11111111111111111111111111111111';
+    $bad = [
+        ['paypal', ['user' => 'j doe', 'currency' => 'USD'], 'user'],
+        ['paypal', ['user' => str_repeat('a', 21), 'currency' => 'USD'], 'user'],
+        ['cashapp', ['cashtag' => '12345'], 'cashtag'],
+        ['cashapp', ['cashtag' => 'a/b'], 'cashtag'],
+        ['venmo', ['user' => 'ab'], 'user'],
+        ['solana', ['recipient' => $sys.'x', 'label' => 'Ana'], 'recipient'],
+        ['solana', ['recipient' => '0OIl'.$sys, 'label' => 'Ana'], 'recipient'],
+        ['solana', ['recipient' => $sys, 'label' => 'Ana', 'splToken' => 'abc'], 'splToken'],
+        ['upi', ['name' => 'Ana', 'vpa' => 'shop'], 'vpa'],
+        ['epc', ['name' => 'Ana', 'iban' => 'DE89 3704 0044 0532 0130 01'], 'iban'],
+        ['epc', ['name' => 'Ana', 'iban' => 'XX00'], 'iban'],
+        ['epc', ['name' => 'Ana', 'iban' => 'DE89 3704 0044 0532 0130 00', 'bic' => 'XX'], 'bic'],
+        ['promptpay', ['name' => 'Ana', 'phone' => '12345'], 'phone'],
+        ['vietqr', ['name' => 'Ana', 'bin' => '12', 'account' => '123'], 'bin'],
+        ['vietqr', ['name' => 'Ana', 'bin' => '970436', 'account' => 'abc'], 'account'],
+    ];
+    foreach ($bad as [$id, $fields, $key]) {
+        [, $errors] = PayBlock::clean(['format' => $id, 'fields' => $fields]);
+        expect($errors)->toHaveKey('settings.pay.fields.'.$key, $id.'.'.$key);
+    }
+    // the shapes the module accepts still pass, including the forms it normalises
+    foreach ([
+        ['paypal', ['user' => 'https://paypal.me/jdoe', 'currency' => 'EUR']],
+        ['cashapp', ['cashtag' => '$jdoe']],
+        ['venmo', ['user' => '@jane-doe']],
+        ['epc', ['name' => 'Ana', 'iban' => 'gb82 west 1234 5698 7654 32', 'bic' => 'dabadkkk']],
+        ['promptpay', ['name' => 'Ana', 'phone' => '+66 60 000 0000']],
+        ['vietqr', ['name' => 'Ana', 'bin' => '970436', 'account' => '0123-4567 89']],
+    ] as [$id, $fields]) {
+        expect(PayBlock::clean(['format' => $id, 'fields' => $fields])[1])->toBe([], $id);
+    }
+
+    [$user] = payPage('payhand');
+    $res = $this->actingAs($user)->postJson('/bio/payhand/links', ['type' => 'pay', 'title' => 'x', 'settings' => ['pay' => ['format' => 'epc', 'fields' => ['name' => 'Ana', 'iban' => 'DE89 3704 0044 0532 0130 01']]]]);
+    $res->assertStatus(422)->assertJsonValidationErrors('settings.pay.fields.iban');
+    expect(BioLink::count())->toBe(0);
+});
+
+test('a stored block the shape check rejects is not printed on the page', function () {
+    [, $page] = payPage('paybad');
+    BioLink::create(['bio_page_id' => $page->id, 'type' => 'pay', 'title' => 'Old', 'order' => 0, 'is_active' => true,
+        'settings' => ['pay' => ['format' => 'epc', 'fields' => ['name' => 'Ana', 'iban' => 'DE89 3704 0044 0532 0130 01']]]]);
+    $this->get('/b/paybad')->assertOk()->assertDontSee('DE89 3704')->assertDontSee('data-pay-details', false);
+});
+
+test('updating a payment block with other settings keeps the stored payment details', function () {
+    [$user] = payPage('payupd');
+    $id = $this->actingAs($user)->postJson('/bio/payupd/links', ['type' => 'pay', 'title' => 'Tip', 'settings' => ['pay' => ['format' => 'cashapp', 'fields' => ['cashtag' => 'jdoe']]]])->assertOk()->json('block.id');
+    $this->putJson('/bio/payupd/links/'.$id, ['settings' => ['text' => 'unrelated']])->assertOk();
+    expect(BioLink::find($id)->settings['pay']['fields']['cashtag'])->toBe('jdoe');
+    // a change that does carry details replaces them
+    $this->putJson('/bio/payupd/links/'.$id, ['settings' => ['pay' => ['format' => 'cashapp', 'fields' => ['cashtag' => 'other1']]]])->assertOk();
+    expect(BioLink::find($id)->settings['pay']['fields']['cashtag'])->toBe('other1');
 });

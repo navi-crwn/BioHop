@@ -151,6 +151,10 @@ class BioLinkController extends Controller
             if ($link === null) {
                 throw ValidationException::withMessages(['settings.pay.format' => __('Choose a payment method.')]);
             }
+            // a request that sends other settings but no payment details must not wipe the stored ones
+            if (isset($data['settings']) && is_array($link->settings['pay'] ?? null)) {
+                $data['settings']['pay'] = $link->settings['pay'];
+            }
 
             return $data;
         }

@@ -1195,7 +1195,7 @@
                             <section class="bio-pay w-full rounded-2xl p-4" style="background: {{ $blockBg }}; color: {{ $linkTextColor }};" aria-label="{{ $link->title ?: __('Receive payment') }}"
                                      data-pay="{{ json_encode(['pay' => $pay['pay'], 'msgs' => \Hop\Bio\Support\PayBlock::messages()], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) }}">
                                 @if($link->title)<h3 class="text-sm font-semibold">{{ $link->title }}</h3>@endif
-                                <dl class="bio-pay-details mt-2 text-sm">
+                                <dl class="bio-pay-details mt-2 text-sm" data-pay-details>
                                     <div><dt>{{ __('Pay to') }}</dt><dd class="font-semibold">{{ $pay['payee'] }}</dd></div>
                                     <div><dt>{{ __('Method') }}</dt><dd>{{ $pay['scheme'] }}</dd></div>
                                     @foreach($pay['rows'] as $row)
