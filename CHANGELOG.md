@@ -13,7 +13,7 @@ All notable changes to BioHop are listed here. The format follows [Keep a Change
 - `/changelog`, `/privacy`, `/terms` and every other page on the shared info layout carry `og:image` (the family preview, `public/images/brand/og.png`), `og:title`, `og:description`, `og:url` and `twitter:card`, so a shared link shows a preview.
 
 ### Changed
-- hop-assets v9 (PayHop's tile, mark, 3D preset and name font): `public/hop-home/` and `public/hop-brand/` are refreshed from the hub, and `scripts/sync-hop-assets.sh` takes the app list from the manifest instead of a hand-written one. `hop/ui` and `hop/auth` follow their branches until the libraries are tagged.
+- hop-assets v9 (PayHop's tile, mark, 3D preset and name font): `public/hop-home/` and `public/hop-brand/` are refreshed from the hub, and `scripts/sync-hop-assets.sh` takes the app list from the manifest instead of a hand-written one. `hop/ui` `^0.4.0` and `hop/auth` `^0.2.0` are the tagged releases.
 - The family table in the READMEs and `scripts/check-hop-family.sh` are the hub's v9 copies (the script takes `--ref` and `--from`).
 
 ### Fixed

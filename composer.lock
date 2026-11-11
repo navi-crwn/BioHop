@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "996c8248bc2d7262b43096f954848b04",
+    "content-hash": "6f59dea5c9ff96510e6e5d2d98a948a6",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -1297,16 +1297,16 @@
         },
         {
             "name": "hop/auth",
-            "version": "dev-feat/pay-host-silent-recheck",
+            "version": "v0.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/navi-crwn/hop-auth.git",
-                "reference": "a34ccd8c47962b303a9c9e173957dd382c5df32c"
+                "reference": "c40263c40a05d49ff2be112468d5cf54378d9f95"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/navi-crwn/hop-auth/zipball/a34ccd8c47962b303a9c9e173957dd382c5df32c",
-                "reference": "a34ccd8c47962b303a9c9e173957dd382c5df32c",
+                "url": "https://api.github.com/repos/navi-crwn/hop-auth/zipball/c40263c40a05d49ff2be112468d5cf54378d9f95",
+                "reference": "c40263c40a05d49ff2be112468d5cf54378d9f95",
                 "shasum": ""
             },
             "require": {
@@ -1330,11 +1330,7 @@
                 "MIT"
             ],
             "description": "HOP shared package: auth.",
-            "support": {
-                "source": "https://github.com/navi-crwn/hop-auth/tree/feat/pay-host-silent-recheck",
-                "issues": "https://github.com/navi-crwn/hop-auth/issues"
-            },
-            "time": "2026-11-10T18:30:03+00:00"
+            "time": "2026-11-11T06:24:47+00:00"
         },
         {
             "name": "hop/bio",
@@ -1415,16 +1411,16 @@
         },
         {
             "name": "hop/ui",
-            "version": "dev-feat/manifest-v9",
+            "version": "v0.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/navi-crwn/hop-ui.git",
-                "reference": "89ff2865f77cf7c78d106c8dee555d9e5789f974"
+                "reference": "bd95089fd85591cb85d7f7336b1416966fb205af"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/navi-crwn/hop-ui/zipball/89ff2865f77cf7c78d106c8dee555d9e5789f974",
-                "reference": "89ff2865f77cf7c78d106c8dee555d9e5789f974",
+                "url": "https://api.github.com/repos/navi-crwn/hop-ui/zipball/bd95089fd85591cb85d7f7336b1416966fb205af",
+                "reference": "bd95089fd85591cb85d7f7336b1416966fb205af",
                 "shasum": ""
             },
             "require": {
@@ -1448,11 +1444,7 @@
                 "MIT"
             ],
             "description": "HOP shared package: ui.",
-            "support": {
-                "source": "https://github.com/navi-crwn/hop-ui/tree/feat/manifest-v9",
-                "issues": "https://github.com/navi-crwn/hop-ui/issues"
-            },
-            "time": "2026-11-10T18:46:22+00:00"
+            "time": "2026-11-11T06:24:44+00:00"
         },
         {
             "name": "laravel/framework",
@@ -10354,25 +10346,10 @@
             "time": "2026-10-05T23:14:19+00:00"
         }
     ],
-    "aliases": [
-        {
-            "package": "hop/auth",
-            "version": "dev-feat/pay-host-silent-recheck",
-            "alias": "0.1.99",
-            "alias_normalized": "0.1.99.0"
-        },
-        {
-            "package": "hop/ui",
-            "version": "dev-feat/manifest-v9",
-            "alias": "0.2.99",
-            "alias_normalized": "0.2.99.0"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "hop/auth": 20,
-        "hop/bio": 20,
-        "hop/ui": 20
+        "hop/bio": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
