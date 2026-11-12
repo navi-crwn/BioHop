@@ -13,11 +13,10 @@
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M12 5v14M5 12h14"/></svg>
                     Add block
                 </button>
-                <!-- Blocks List (Sortable) -->
-                <div id="blocks-list" class="space-y-2 mb-4" x-show="blocks.length > 0">
-                    <!-- Select mode: tick blocks, then archive, hide, show or delete them together -->
-                    <style>.be-select-bar button { padding: 6px 12px; border: 1px solid var(--editor-border); border-radius: 999px; font-size: 12px; font-weight: 600; line-height: 1.2; } .be-select-bar button:disabled { opacity: .4; } .be-select-bar button.delete { color: #e11d48; }</style>
-                    <div class="be-select-bar flex flex-wrap items-center gap-2 mb-3 text-sm">
+                <!-- Select mode: tick blocks, then archive, hide, show or delete them together. Outside #blocks-list on
+                     purpose: the sortable list holds nothing but its blocks (a child before them shifted every drop). -->
+                <style>.be-select-bar button { padding: 6px 12px; border: 1px solid var(--editor-border); border-radius: 999px; font-size: 12px; font-weight: 600; line-height: 1.2; } .be-select-bar button:disabled { opacity: .4; } .be-select-bar button.delete { color: #e11d48; }</style>
+                <div class="be-select-bar flex flex-wrap items-center gap-2 mb-3 text-sm" x-show="blocks.length > 0">
                         <button type="button" @click="toggleSelectMode()" class="block-action-btn px-3" x-text="selectMode ? 'Done' : 'Select'"></button>
                         <button type="button" @click="sortByClicks()" class="block-action-btn px-3" x-show="blocks.length > 1" title="Most clicked first, inside each group">Sort by clicks</button>
                         <button type="button" @click="undoSort()" class="block-action-btn px-3" x-show="_beforeSort">Undo sort</button>
@@ -35,7 +34,9 @@
                                 <button type="button" :disabled="!selectedIds.length" @click="bulkDelete($event)" class="block-action-btn delete px-3">Delete</button>
                             </div>
                         </template>
-                    </div>
+                </div>
+                <!-- Blocks List (Sortable): only the x-for template and the blocks -->
+                <div id="blocks-list" class="space-y-2 mb-4" x-show="blocks.length > 0">
                     <template x-for="(item, idx) in blocks" :key="item.id">
                         <div class="block-item" :data-id="item.id" :class="{ 'opacity-50': item && !item.is_active, 'is-collection': item.type === 'collection', 'in-collection': !!collectionOf(idx), 'is-last-member': !!collectionOf(idx) && (idx + 1 >= blocks.length || ['collection', 'divider'].includes(blocks[idx + 1]?.type)) }">
                             <template x-if="selectMode">

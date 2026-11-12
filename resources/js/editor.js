@@ -2,6 +2,7 @@
 // the page's data comes in as JSON from <script id="bio-editor-config"> instead of being printed into the page.
 import { confirmDialog } from './dialogs';
 import { payCheck, emptyPay } from './pay-shared.js';
+import { orderByIds, itemIds, putBack } from './drop-move.js';
 import PAY_FORMATS from '../pay/formats.json';
 
 const CONFIG = JSON.parse(document.getElementById('bio-editor-config').textContent);
@@ -587,28 +588,36 @@ window.bioEditorV2 = function() {
             this.$nextTick(() => {
                 const blocksEl = document.getElementById('blocks-list');
                 if (blocksEl && !this.blocksSortable) {
-                    this.blocksSortable = this.makeSortable(blocksEl, '.block-drag-handle', (from, to) => {
-                        const [moved] = this.blocks.splice(from, 1);
-                        this.blocks.splice(to, 0, moved);
+                    this.blocksSortable = this.makeSortable(blocksEl, '.block-drag-handle', (ids) => {
+                        const next = orderByIds(this.blocks, ids);
+                        if (!next) return;
+                        this.blocks = next;
                         this.blocks.forEach((b, i) => b.order = i);
                         this._orderDirty = true; this.onModelChanged();
+                        const moved = this.blocks.find(b => String(b.id) === String(this._draggedId));
+                        if (moved) this.announce(`${this.getBlockDisplayTitle(moved)} moved to position ${this.blocks.indexOf(moved) + 1} of ${this.blocks.length}`);
                     });
                 }
                 const socialsEl = document.getElementById('socials-list');
                 if (socialsEl && !this.socialsSortable) {
-                    this.socialsSortable = this.makeSortable(socialsEl, '.social-drag-handle', (from, to) => {
-                        const list = this.bioPage.social_links;
-                        const [moved] = list.splice(from, 1);
-                        list.splice(to, 0, moved);
+                    this.socialsSortable = this.makeSortable(socialsEl, '.social-drag-handle', (ids) => {
+                        const next = orderByIds(this.bioPage.social_links || [], ids, s => s?._uid);
+                        if (next) this.bioPage.social_links = next;
                     });
                 }
             });
         },
-        makeSortable(el, handle, onMove) {
+        // One Sortable per list (blocks, socials). Each list element holds nothing but its <template x-for> and the
+        // items, and every item carries data-id. After a drop the new order is read from those ids (drop-move.js),
+        // the node goes back where Alpine left it and the array is reordered, so x-for moves the DOM from the data.
+        // Nothing thrown here may escape: an exception inside Sortable's end event left it mid-drag and every later
+        // drag and save was ignored until a reload.
+        makeSortable(el, handle, onDrop) {
+            const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
             return Sortable.create(el, {
                 draggable: '.block-item',
                 handle,
-                animation: 150,
+                animation: reduced ? 0 : 150,
                 ghostClass: 'block-ghost',
                 chosenClass: 'block-chosen',
                 // Pointer-based dragging behaves the same with mouse and touch and
@@ -617,19 +626,20 @@ window.bioEditorV2 = function() {
                 fallbackTolerance: 4,
                 scroll: true,
                 bubbleScroll: true,
-                fallbackOnBody: true,
-                // The drag ghost is a clone of the item appended to <body>; keep Alpine
-                // from initialising it outside its x-for scope ("item is not defined").
-                onStart: () => { document.body._x_ignoreMutationObserver = true; },
+                // The drag clone stays inside the list (no fallbackOnBody), so it keeps the editor's block styles.
+                // Alpine must not initialise it outside its x-for scope: the list ignores DOM changes while dragging.
+                onStart: (evt) => { el._x_ignoreMutationObserver = true; this._draggedId = evt.item?.dataset?.id; },
                 onEnd: (evt) => {
-                    delete document.body._x_ignoreMutationObserver;
-                    const { item, from, oldIndex, newIndex } = evt;
-                    if (oldIndex === undefined || newIndex === undefined || oldIndex === newIndex) return;
-                    // Put the node back where it was: Alpine's keyed x-for moves it
-                    // once the array changes, so DOM and data never disagree.
-                    const siblings = Array.from(from.children).filter(c => c !== item && c.tagName !== 'TEMPLATE');
-                    from.insertBefore(item, siblings[oldIndex] ?? null);
-                    onMove(oldIndex, newIndex);
+                    try {
+                        const ids = itemIds(el);
+                        putBack(el, evt.item, evt.oldDraggableIndex);
+                        delete el._x_ignoreMutationObserver;
+                        onDrop(ids);
+                    } catch (error) {
+                        console.error('Reorder failed:', error);
+                    } finally {
+                        delete el._x_ignoreMutationObserver;
+                    }
                 }
             });
         },
@@ -1723,7 +1733,9 @@ window.bioEditorV2 = function() {
                 });
                 if (!response.ok) throw new Error(response.status);
                 this.noteRevision((await response.json().catch(() => ({}))).page_updated_at);
-                this._orderDirty = false;
+                // A drag made while this request was on its way is not saved yet: keep it pending for the next pass.
+                const now = this.blocks.filter(b => b.id < 1000000000).map(b => b.id).join(',');
+                this._orderDirty = now !== linksData.map(l => l.id).join(',');
                 return true;
             } catch (e) {
                 // Autosave of the order must not fail silently (M4): keep the change pending.
