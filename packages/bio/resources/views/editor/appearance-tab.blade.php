@@ -26,7 +26,7 @@
                 <p class="text-xs editor-text-muted mt-2" x-show="!bioPage.avatar_url && ['hero','cutout'].includes(bioPage.header_layout)">Hero and Cutout need a profile picture; until one is uploaded the page shows the classic header.</p>
                 <div x-show="bioPage.header_layout === 'banner'" class="mt-3">
                     <label class="form-label text-xs mb-1">Cover picture</label>
-                    <input aria-label="Upload cover picture" type="file" accept="image/*" class="hidden" x-ref="coverInput" @change="uploadCoverImage($event)">
+                    <input aria-label="Upload cover picture" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/bmp" class="hidden" x-ref="coverInput" @change="uploadCoverImage($event)">
                     <div class="flex items-center gap-2">
                         <button type="button" @click="$refs.coverInput.click()" class="btn btn-secondary text-sm py-2 flex-1">Upload cover</button>
                         @if (\Hop\Bio\Support\PixelHopMedia::enabled())
@@ -159,7 +159,7 @@
                     </div>
                     <!-- Image -->
                     <div x-show="bioPage.background_type === 'image'">
-                        <input aria-label="Upload background image" type="file" accept="image/*" class="hidden" x-ref="bgImageInput" @change="uploadBackgroundImage($event)">
+                        <input aria-label="Upload background image" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/bmp" class="hidden" x-ref="bgImageInput" @change="uploadBackgroundImage($event)">
                         <button @click="$refs.bgImageInput.click()" class="btn btn-secondary w-full text-sm py-2">Upload Image</button>
                         <template x-if="bioPage.background_value && bioPage.background_type === 'image' && bioPage.background_value.length > 0">
                             <div class="mt-2 relative rounded-lg overflow-hidden">

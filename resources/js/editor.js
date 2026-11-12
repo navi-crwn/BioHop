@@ -13,6 +13,12 @@ const say = (key, vars = {}) => {
     return { title: fill(d.title), message: fill(d.message), ok: fill(d.ok) };
 };
 const csrf = () => document.head.querySelector('meta[name="csrf-token"]')?.content || '';
+// Profile picture, pictures, cover, background, share picture and favicon are raster only (the server refuses SVG):
+// say so before the upload, in the member's language. Icons and the QR logo take SVG and do not use this.
+const isSvg = (file) => !!file && (file.type === 'image/svg+xml' || /\.svgz?$/i.test(file.name || ''));
+const RASTER_ONLY = () => (CONFIG.uploads || {}).rasterOnly || 'SVG cannot be used here. Use a PNG, JPG, WebP or GIF picture.';
+// The reason an upload was refused (422 names the field), not only "Upload failed".
+const uploadError = (data, field, status) => data?.errors?.[field]?.[0] || data?.message || (status === 413 ? 'The file is too large.' : 'Upload failed');
 // Static lookups are frozen: Alpine skips frozen objects, so ~400 brands are not made reactive and not watched.
 const PLATFORMS = Object.freeze(CONFIG.platforms);
 const THEMES = Object.freeze(CONFIG.themes);
@@ -1111,8 +1117,8 @@ window.bioEditorV2 = function() {
                 return;
             }
             // Validate file type
-            if (!file.type.startsWith('image/')) {
-                this.showNotification('Please select an image file', 'error');
+            if (!file.type.startsWith('image/') || isSvg(file)) {
+                this.showNotification(isSvg(file) ? RASTER_ONLY() : 'Please select an image file', 'error');
                 event.target.value = '';
                 return;
             }
@@ -1320,13 +1326,14 @@ window.bioEditorV2 = function() {
             const files = Array.from(event.target.files || []).slice(0, 10 - (this.editingBlock.settings?.images || []).length);
             event.target.value = '';
             files.forEach(file => {
+                if (isSvg(file)) { this.showNotification(RASTER_ONLY(), 'error'); return; }
                 const formData = new FormData();
                 formData.append('image', file);
                 formData.append('_token', csrf());
                 fetch(bioEditorUrl('/upload-image'), { method: 'POST', headers: { 'Accept': 'application/json' }, body: formData })
-                .then(res => res.json())
-                .then(data => {
-                    if (!data.success || !data.url) throw new Error(data.message || 'Upload failed');
+                .then(async res => ({ status: res.status, data: await res.json().catch(() => ({})) }))
+                .then(({ status, data }) => {
+                    if (!data.success || !data.url) throw new Error(uploadError(data, 'image', status));
                     this.setProductSetting('images', [...(this.editingBlock.settings?.images || []), { url: data.url, caption: '' }]);
                 })
                 .catch(error => this.showNotification(error.message || 'Failed to upload', 'error'));
@@ -1366,18 +1373,20 @@ window.bioEditorV2 = function() {
         uploadPageImage(field, event) {
             const file = event.target.files[0];
             if (!file) return;
+            if (isSvg(file)) { this.showNotification(RASTER_ONLY(), 'error'); event.target.value = ''; return; }
             const formData = new FormData();
             formData.append('image', file);
             formData.append('_token', csrf());
             if (field === 'favicon') formData.append('format', 'png');
-            fetch(bioEditorUrl('/upload-image'), { method: 'POST', body: formData })
-            .then(res => res.json())
-            .then(data => {
+            // Accept: JSON, so a refused file answers 422 with its reason instead of a redirect page.
+            fetch(bioEditorUrl('/upload-image'), { method: 'POST', headers: { 'Accept': 'application/json' }, body: formData })
+            .then(async res => ({ status: res.status, data: await res.json().catch(() => ({})) }))
+            .then(({ status, data }) => {
                 if (data.success && data.path) {
                     this.bioPage[field] = data.path;
                     this.showNotification('Uploaded!', 'success');
                 } else {
-                    throw new Error(data.message || 'Upload failed');
+                    throw new Error(uploadError(data, 'image', status));
                 }
             })
             .catch(error => this.showNotification(error.message || 'Failed to upload', 'error'));
@@ -1390,43 +1399,48 @@ window.bioEditorV2 = function() {
         uploadCoverImage(event) {
             const file = event.target.files[0];
             if (!file) return;
+            if (isSvg(file)) { this.showNotification(RASTER_ONLY(), 'error'); event.target.value = ''; return; }
             const formData = new FormData();
             formData.append('image', file);
             formData.append('_token', csrf());
-            fetch(bioEditorUrl('/upload-image'), { method: 'POST', body: formData })
-            .then(res => res.json())
-            .then(data => {
+            fetch(bioEditorUrl('/upload-image'), { method: 'POST', headers: { 'Accept': 'application/json' }, body: formData })
+            .then(async res => ({ status: res.status, data: await res.json().catch(() => ({})) }))
+            .then(({ status, data }) => {
                 if (data.success && data.path) {
                     this.bioPage.cover_image = data.path;
                     this.showNotification('Cover uploaded!', 'success');
                 } else {
-                    throw new Error(data.message || 'Upload failed');
+                    throw new Error(uploadError(data, 'image', status));
                 }
             })
             .catch(error => this.showNotification(error.message || 'Failed to upload', 'error'));
+            event.target.value = '';
         },
         uploadBackgroundImage(event) {
             const file = event.target.files[0];
             if (!file) return;
+            if (isSvg(file)) { this.showNotification(RASTER_ONLY(), 'error'); event.target.value = ''; return; }
             const formData = new FormData();
             formData.append('image', file);
             formData.append('_token', csrf());
             fetch(bioEditorUrl('/upload-image'), {
                 method: 'POST',
+                headers: { 'Accept': 'application/json' },
                 body: formData
             })
-            .then(res => res.json())
-            .then(data => {
+            .then(async res => ({ status: res.status, data: await res.json().catch(() => ({})) }))
+            .then(({ status, data }) => {
                 if (data.success && data.url) {
                     this.bioPage.background_image = data.path || data.image_url;
                     this.bioPage.background_value = data.url;
                     this.bioPage.background_type = 'image';
                     this.showNotification('Background uploaded!', 'success');
                 } else {
-                    throw new Error(data.message || 'Upload failed');
+                    throw new Error(uploadError(data, 'image', status));
                 }
             })
             .catch(error => this.showNotification(error.message || 'Failed to upload', 'error'));
+            event.target.value = '';
         },
         applyTheme(themeId) {
             this.bioPage.theme = themeId;
@@ -2056,8 +2070,8 @@ window.bioEditorV2 = function() {
         async uploadBlockImage(event, block) {
             const file = event.target.files[0];
             if (!file) return;
-            if (!file.type.startsWith('image/')) {
-                this.showNotification('Please select an image file', 'error');
+            if (!file.type.startsWith('image/') || isSvg(file)) {
+                this.showNotification(isSvg(file) ? RASTER_ONLY() : 'Please select an image file', 'error');
                 return;
             }
             if (file.size > 5 * 1024 * 1024) {
@@ -2071,19 +2085,20 @@ window.bioEditorV2 = function() {
             try {
                 const response = await fetch(bioEditorUrl('/upload-image'), {
                     method: 'POST',
+                    headers: { 'Accept': 'application/json' },
                     body: formData
                 });
-                const data = await response.json();
+                const data = await response.json().catch(() => ({}));
                 if (data.image_url) {
                     block.content = block.thumbnail_url = data.image_url.startsWith('http') || data.image_url.startsWith('/') ? data.image_url : '/storage/' + data.image_url;
                     this.markBlockDirty(block.id);
                     this.showNotification('Image uploaded!', 'success');
                 } else {
-                    throw new Error(data.message || 'Upload failed');
+                    throw new Error(uploadError(data, 'image', response.status));
                 }
             } catch(e) {
                 console.error('Upload error:', e);
-                this.showNotification('Failed to upload image', 'error');
+                this.showNotification('Failed to upload image: ' + (e.message || ''), 'error');
             } finally {
                 this.saving = false;
             }
@@ -2091,6 +2106,7 @@ window.bioEditorV2 = function() {
         async uploadImageBlock(event) {
             const file = event.target.files[0];
             if (!file) return;
+            if (isSvg(file)) { this.showNotification(RASTER_ONLY(), 'error'); event.target.value = ''; return; }
             this.saving = true;
             const formData = new FormData();
             formData.append('image', file);
@@ -2098,9 +2114,10 @@ window.bioEditorV2 = function() {
             try {
                 const response = await fetch(bioEditorUrl('/upload-image'), {
                     method: 'POST',
+                    headers: { 'Accept': 'application/json' },
                     body: formData
                 });
-                const data = await response.json();
+                const data = await response.json().catch(() => ({}));
                 if (data.image_url) {
                     const imageUrl = data.image_url.startsWith('/') ? data.image_url : '/storage/' + data.image_url;
                     const newBlock = {
@@ -2119,11 +2136,11 @@ window.bioEditorV2 = function() {
                     this.imageBlockAlt = '';
                     this.showNotification('Image uploaded!', 'success');
                 } else {
-                    throw new Error('No image URL returned');
+                    throw new Error(uploadError(data, 'image', response.status));
                 }
             } catch (error) {
                 console.error('Image upload error:', error);
-                this.showNotification('Failed to upload image', 'error');
+                this.showNotification('Failed to upload image: ' + (error.message || ''), 'error');
             } finally {
                 this.saving = false;
             }

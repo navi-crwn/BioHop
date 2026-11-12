@@ -774,5 +774,6 @@
     "Bank code (BIN)": "Código do banco (BIN)",
     "Six digits, as published by the bank.": "Seis dígitos, conforme divulgado pelo banco.",
     "Account number": "Número da conta",
-    "Opens in the :app app on phones; computers and visitors without scripts get this address.": "No celular abre no app :app; computadores e visitantes sem scripts usam este endereço."
+    "Opens in the :app app on phones; computers and visitors without scripts get this address.": "No celular abre no app :app; computadores e visitantes sem scripts usam este endereço.",
+    "SVG cannot be used here. Use a PNG, JPG, WebP or GIF picture.": "SVG não pode ser usado aqui. Use uma imagem PNG, JPG, WebP ou GIF."
 }

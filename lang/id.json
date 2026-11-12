@@ -774,5 +774,6 @@
     "Bank code (BIN)": "Kode bank (BIN)",
     "Six digits, as published by the bank.": "Enam digit, sesuai yang diterbitkan bank.",
     "Account number": "Nomor rekening",
-    "Opens in the :app app on phones; computers and visitors without scripts get this address.": "Di ponsel dibuka di aplikasi :app; komputer dan pengunjung tanpa skrip memakai alamat ini."
+    "Opens in the :app app on phones; computers and visitors without scripts get this address.": "Di ponsel dibuka di aplikasi :app; komputer dan pengunjung tanpa skrip memakai alamat ini.",
+    "SVG cannot be used here. Use a PNG, JPG, WebP or GIF picture.": "SVG tidak bisa dipakai di sini. Pakai gambar PNG, JPG, WebP, atau GIF."
 }

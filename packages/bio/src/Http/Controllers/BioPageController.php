@@ -1002,6 +1002,7 @@ class BioPageController extends Controller
             return response()->json([
                 'success' => true,
                 'logo_url' => '/storage/'.$path,
+                'page_updated_at' => $bioPage->updated_at->toJSON(), // the editor's next save starts from this version
             ]);
         } catch (ValidationException $e) {
             throw $e;

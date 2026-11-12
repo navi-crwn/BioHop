@@ -33,6 +33,8 @@
         ],
         'pages' => auth()->user()->bioPages()->orderBy('title')->get(['slug', 'title'])->map(fn ($p) => ['slug' => $p->slug, 'title' => $p->title])->values(),
         'familyHosts' => \App\Bio\FamilyUrls::hosts(),
+        // Said before uploading an SVG where only pictures are taken (profile picture, images, cover, background, favicon).
+        'uploads' => ['rasterOnly' => __('SVG cannot be used here. Use a PNG, JPG, WebP or GIF picture.')],
         // The link picker (LinkHop): what to say when the list cannot be loaded.
         'linkhop' => ['failed' => __('LinkHop is not reachable right now. You can still paste any URL.')],
         // "Choose from NoteHop" (BIO_NOTEHOP_PICKER) for a link block: the proxy route and its words; null = off.
@@ -220,7 +222,7 @@
                         <span class="text-sm font-medium editor-text-muted">Upload Custom Icon</span>
                     </label>
                     <div class="flex gap-2">
-                        <input aria-label="Upload custom icon" type="file" accept="image/*" @change="uploadCustomIcon($event)" 
+                        <input aria-label="Upload custom icon" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/bmp,image/svg+xml,.svg" @change="uploadCustomIcon($event)" 
                                class="flex-1 text-sm editor-text-muted file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white file:font-medium hover:file:bg-blue-700">
                     </div>
                     <p class="text-xs editor-text-muted mt-1">PNG, JPG, or SVG. Max 1MB.</p>
@@ -587,7 +589,7 @@
                                         <button type="button" class="btn btn-secondary text-sm py-2 w-full" x-show="pixelhopAvailable()" @click="openPixelHop('image-block')">{{ __('Choose from PixelHop') }}</button>
                                         @endif
                                         <label class="block p-4 border-2 border-dashed border-(--editor-border) hover:border-indigo-500 rounded-lg cursor-pointer transition-colors text-center">
-                                            <input aria-label="Upload image" type="file" class="hidden" accept="image/*" @change="uploadBlockImage($event, editingBlock)">
+                                            <input aria-label="Upload image" type="file" class="hidden" accept="image/png,image/jpeg,image/gif,image/webp,image/bmp" @change="uploadBlockImage($event, editingBlock)">
                                             <svg class="w-8 h-8 mx-auto editor-text-muted mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                             </svg>
@@ -810,7 +812,7 @@
                         </template>
                         <template x-if="editingBlock?.type === 'carousel'">
                             <div class="space-y-3">
-                                <input aria-label="Upload pictures" type="file" accept="image/*" multiple class="hidden" x-ref="carouselInput" @change="uploadCarouselImage($event)">
+                                <input aria-label="Upload pictures" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/bmp" multiple class="hidden" x-ref="carouselInput" @change="uploadCarouselImage($event)">
                                 <button type="button" class="btn btn-secondary text-sm py-2 w-full" @click="$refs.carouselInput.click()" x-show="(editingBlock.settings?.images || []).length < 10">+ Add pictures (up to 10)</button>
                                 @if (\Hop\Bio\Support\PixelHopMedia::enabled())
                                 <button type="button" class="btn btn-secondary text-sm py-2 w-full" x-show="pixelhopAvailable() && (editingBlock.settings?.images || []).length < 10" @click="openPixelHop('carousel')">{{ __('Choose from PixelHop') }}</button>
@@ -929,7 +931,7 @@
                                     </div>
                                 </div>
                                 <label class="block p-4 border-2 border-dashed border-(--editor-border) hover:border-indigo-500 rounded-lg cursor-pointer transition-colors text-center">
-                                    <input aria-label="Upload product picture" type="file" class="hidden" accept="image/*" @change="uploadBlockImage($event, editingBlock)">
+                                    <input aria-label="Upload product picture" type="file" class="hidden" accept="image/png,image/jpeg,image/gif,image/webp,image/bmp" @change="uploadBlockImage($event, editingBlock)">
                                     <span class="text-sm editor-text-muted">Upload a picture (square looks best)</span>
                                 </label>
                                 <label class="flex items-center gap-2 text-sm">
@@ -1423,7 +1425,7 @@
                 </div>
                 <div x-show="imageUploadTab === 'upload'">
                     <div class="border-2 border-dashed border-(--editor-border) rounded-xl p-8 text-center">
-                        <input aria-label="Upload image" type="file" accept="image/*" class="hidden" x-ref="imageBlockInput" @change="uploadImageBlock($event)">
+                        <input aria-label="Upload image" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/bmp" class="hidden" x-ref="imageBlockInput" @change="uploadImageBlock($event)">
                         <svg class="w-12 h-12 mx-auto editor-text-muted mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                         </svg>

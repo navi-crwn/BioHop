@@ -160,7 +160,7 @@
                                 <div class="flex items-center gap-2">
                                     <input 
                                         type="file" aria-label="Upload QR logo" 
-                                        accept="image/*"
+                                        accept="image/png,image/jpeg,image/gif"
                                         @change="uploadLogo($event)"
                                         class="block w-full text-xs text-muted file:mr-2 file:rounded-sm file:border-0 file:bg-indigo-500/15 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-indigo-700 hover:file:bg-indigo-500/25 dark:file:text-indigo-300"
                                     >

@@ -23,7 +23,7 @@
                             </template>
                         </div>
                         <!-- Camera button overlay -->
-                        <input aria-label="Upload avatar" type="file" accept="image/*" class="hidden" x-ref="avatarInput" @change="uploadAvatar($event)">
+                        <input aria-label="Upload avatar" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/bmp" class="hidden" x-ref="avatarInput" @change="uploadAvatar($event)">
                         <button type="button" data-hit aria-label="Change avatar" @click="$refs.avatarInput.click()" 
                                 class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/3 w-8 h-8 bg-blue-600 hover:bg-blue-700 rounded-lg flex items-center justify-center shadow-lg border-2 border-slate-900 transition-colors z-10" style="aspect-ratio: 1/1;">
                             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -247,7 +247,7 @@
                         <div class="form-group">
                             <label class="form-label text-xs">Logo (optional)</label>
                             <div class="flex items-center gap-2">
-                                <input aria-label="Upload QR logo" type="file" accept="image/*" @change="uploadLogo($event)" class="flex-1 text-xs editor-text-muted file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white file:font-medium hover:file:bg-blue-700">
+                                <input aria-label="Upload QR logo" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/bmp,image/svg+xml,.svg" @change="uploadLogo($event)" class="flex-1 text-xs editor-text-muted file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white file:font-medium hover:file:bg-blue-700">
                                 <button x-show="logoUrl" @click="removeLogo()" class="px-2 py-1 text-xs bg-red-600 hover:bg-red-700 text-white rounded-lg">×</button>
                             </div>
                             <template x-if="logoUrl">
@@ -502,10 +502,20 @@ window.qrGenerator = function() {
                 event.target.value = '';
                 return;
             }
+            // The upload saves the page (its revision changes), so it takes the editor's save lane like the avatar does.
+            const editorEl = this.$el.closest('.bio-editor');
+            const editor = editorEl ? Alpine.$data(editorEl) : null;
+            if (editor?._saveInFlight) {
+                this.showQrNotification('Please wait for the current save, then upload the logo.', 'info');
+                event.target.value = '';
+                return;
+            }
+            if (editor) editor._saveInFlight = true;
             const formData = new FormData();
             formData.append('logo', file);
             try {
-                const response = await fetch(`/bio/${bioPage.id}/upload-qr-logo`, {
+                // The route takes the page's (saved) slug, like every other editor request; the id gave a 404.
+                const response = await fetch(window.bioEditorUrl('/upload-qr-logo'), {
                     method: 'POST',
                     body: formData,
                     headers: {
@@ -513,22 +523,28 @@ window.qrGenerator = function() {
                         'Accept': 'application/json'
                     }
                 });
-                const result = await response.json();
-                if (result.success) {
+                const result = await response.json().catch(() => ({}));
+                if (response.ok && result.success) {
                     this.logoUrl = result.logo_url;
                     if (this.qrCodeInstance) {
                         this.qrCodeInstance.update({ image: this.logoUrl });
                     }
+                    // The upload saved the page, so the editor's next save must start from this version (no false 409).
+                    editor?.noteRevision?.(result.page_updated_at);
                     this.saveSettings();
                     this.showQrNotification('Logo uploaded successfully', 'success');
                 } else {
-                    this.showQrNotification('Failed to upload: ' + (result.message || 'Unknown error'), 'error');
+                    this.showQrNotification('Failed to upload: ' + (result.errors?.logo?.[0] || result.message || (response.status === 413 ? 'The file is too large.' : 'Unknown error')), 'error');
                 }
             } catch (error) {
                 console.error('Upload error:', error);
                 this.showQrNotification('Failed to upload logo. Please try again.', 'error');
             }
             event.target.value = '';
+            if (editor) {
+                editor._saveInFlight = false;
+                if (editor._saveQueued) { editor._saveQueued = false; editor.saveBioPage(); }
+            }
         },
         showQrNotification(message, type = 'info') {
             const notification = document.createElement('div');

@@ -774,5 +774,6 @@
     "Bank code (BIN)": "銀行コード(BIN)",
     "Six digits, as published by the bank.": "銀行が公開している6桁の数字です。",
     "Account number": "口座番号",
-    "Opens in the :app app on phones; computers and visitors without scripts get this address.": "スマートフォンでは :app アプリで開きます。パソコンやスクリプトなしの訪問者にはこのアドレスが使われます。"
+    "Opens in the :app app on phones; computers and visitors without scripts get this address.": "スマートフォンでは :app アプリで開きます。パソコンやスクリプトなしの訪問者にはこのアドレスが使われます。",
+    "SVG cannot be used here. Use a PNG, JPG, WebP or GIF picture.": "ここでは SVG は使えません。PNG、JPG、WebP、GIF の画像を使ってください。"
 }

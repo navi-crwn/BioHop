@@ -109,7 +109,7 @@ BioHop 有 29 种区块：链接、文本、标题、分隔线、间距、图片
 - `abuse:scan` 用 `hop/safety` 的规则和共享的 `domain_blacklist` 检查 bio 页面和区块。它每小时扫描有变动的内容，每天对全部内容扫描一次。Google Safe Browsing、abuse.ch URLhaus 和 Spamhaus DBL 的查询是可选的。
 - 访客可以在 `/report-abuse` 举报页面（设置了密钥时，表单由 Cloudflare Turnstile 保护）。
 - 管理工作在 Imperium（HOP 控制面板）里进行。BioHop 响应它签名的 `/api/hop/*` 请求，`/admin` 会把管理员送过去。
-- 磁盘快满时，上传会被拒绝并返回 507（见 [`docs/UPLOAD-STORAGE.md`](docs/UPLOAD-STORAGE.md)）。上传的图片会缩小为 WebP，SVG 文件在存储前会按白名单重建。
+- 磁盘快满时，上传会被拒绝并返回 507（见 [`docs/UPLOAD-STORAGE.md`](docs/UPLOAD-STORAGE.md)）。上传的图片会缩小为 WebP。SVG 只用于区块的自定义图标和二维码 Logo，存储前会按白名单重建；头像、图片、封面、背景、分享图和网站图标只接受 PNG、JPG、GIF、WebP 或 BMP。
 - 订阅源读取器和 webhook 发送器只连接它们检查过的地址，所以域名不会在检查和请求之间解析到另一个地址。
 - 内容安全策略不包含任何 CDN、字体或图标主机，库都随应用打包。
 - bio.hel.ink 的首页是一个交互式导览，手机里展示官方 HEL.ink 页面。开启“减少动态效果”后，每个场景都显示最终状态。

@@ -65,7 +65,7 @@
                     <h1 class="bw-title">{{ __('Add profile details') }}</h1>
                     <p class="bw-lead">{{ __('Your picture, name and a short bio.') }}</p>
                     <label class="bw-avatar">
-                        <input type="file" accept="image/*" class="sr-only" @change="pickAvatar($event)">
+                        <input type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/bmp" class="sr-only" @change="pickAvatar($event)">
                         <img x-show="avatarUrl" :src="avatarUrl" alt="">
                         <span x-show="!avatarUrl" aria-hidden="true">+</span>
                         <span class="sr-only">{{ __('Upload a profile picture') }}</span>
@@ -134,7 +134,7 @@
                 finally { this.checking = false; }
             },
             togglePlatform(id) { if (this.picked[id] !== undefined) { delete this.picked[id]; this.picked = { ...this.picked }; } else if (Object.keys(this.picked).length < this.maxSocials) { this.picked = { ...this.picked, [id]: '' }; } },
-            pickAvatar(e) { const f = e.target.files[0]; if (!f) return; this.avatarFile = f; this.avatarUrl = URL.createObjectURL(f); },
+            pickAvatar(e) { const f = e.target.files[0]; if (!f) return; if (f.type === 'image/svg+xml' || /\.svgz?$/i.test(f.name)) { e.target.value = ''; this.error = @js(__('SVG cannot be used here. Use a PNG, JPG, WebP or GIF picture.')); return; } this.error = ''; this.avatarFile = f; this.avatarUrl = URL.createObjectURL(f); },
             blocker() { return this.step === 1 ? '{{ __('Choose a free address to continue.') }}' : this.step === 5 ? '{{ __('Add a display name to continue.') }}' : ''; },
             canContinue() {
                 if (this.step === 1) return this.slug.trim().length >= 3 && this.available !== false;
