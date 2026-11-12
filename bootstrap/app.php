@@ -34,8 +34,9 @@ return Application::configure(basePath: dirname(__DIR__))
             NoStoreWhenSignedIn::class,
         ]);
         $middleware->validateCsrfTokens(except: ['internal/*', 'hop/events']);
-        // The language cookie is plain text (en, id, …), read before decryption.
-        $middleware->encryptCookies(except: [SetLocale::COOKIE]);
+        // The family cookies are plain text, read by the other apps and by scripts too: hop_lang (en, id, …), its one-time
+        // marker hop_pref, and hop_theme (written by JavaScript only).
+        $middleware->encryptCookies(except: [SetLocale::COOKIE, SetLocale::MIGRATED, 'hop_theme']);
         // `hop.auth` and `hop.token` come from hop/auth; `verified` is Laravel's (verification.notice goes to the hub).
         $middleware->alias([
             'admin' => AdminMiddleware::class,

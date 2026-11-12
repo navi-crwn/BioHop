@@ -131,7 +131,9 @@ export default function installInlineActions(root = document) {
         if (el.dataset.copyFrom) copyText(el, document.querySelector(el.dataset.copyFrom)?.value ?? '');
         if (el.hasAttribute('data-toggle-dark')) {
             const dark = document.documentElement.classList.toggle('dark');
-            try { localStorage.setItem('helink-theme', dark ? 'dark' : 'light'); } catch (err) { /* storage blocked */ }
+            // the family cookie hop_theme and the old key (resources/js/hop-prefs.js, printed in the page head)
+            if (window.hopPrefs) window.hopPrefs.setTheme(dark);
+            else try { localStorage.setItem('helink-theme', dark ? 'dark' : 'light'); } catch (err) { /* storage blocked */ }
         }
         if (el.dataset.call) {
             const fn = window[el.dataset.call];

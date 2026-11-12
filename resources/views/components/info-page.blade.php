@@ -8,11 +8,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ __($title) }} · BioHop</title>
     <meta name="description" content="{{ $description ?? ($lead ? __($lead) : __('One link-in-bio page for everything you do.')) }}">
-    <link rel="canonical" href="{{ url()->current() }}">
+    @include('partials.seo-links')
     {{-- Link previews (K-8): every info page, /changelog /privacy /terms included, names itself and shows the family image. --}}
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="BioHop">
-    <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:title" content="{{ __($title) }} · BioHop">
     <meta property="og:description" content="{{ $description ?? ($lead ? __($lead) : __('One link-in-bio page for everything you do.')) }}">
     <meta property="og:image" content="{{ asset('images/brand/og.png') }}">
@@ -23,9 +22,7 @@
     <x-hop::fonts />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('head')
-    <script nonce="{{ Vite::cspNonce() }}">
-        (function () { try { var t = localStorage.getItem('helink-theme'); if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) { document.documentElement.classList.add('dark'); } } catch (e) {} })();
-    </script>
+    @include('partials.hop-prefs')
 </head>
 <body class="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased dark:bg-[#0e1322] dark:text-slate-100">
     @include('partials.site-header')

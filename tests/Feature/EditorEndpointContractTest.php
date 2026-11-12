@@ -1,7 +1,10 @@
 <?php
 
 use App\Models\User;
+use Hop\Bio\Models\BioPage;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 test('the existing-link picker asks the registered search route, which answers a list', function () {
     Http::fake(['https://link.test/api/me/links*' => Http::response(['data' => [
@@ -55,12 +58,12 @@ test('every page request of the editor goes to a registered route, by slug', fun
 });
 
 test('a QR logo upload answers with the page version, so the next save is not refused as a conflict', function () {
-    Illuminate\Support\Facades\Storage::fake('public');
+    Storage::fake('public');
     $user = User::factory()->create();
-    Hop\Bio\Models\BioPage::create(['user_id' => $user->id, 'slug' => 'qrlogo', 'title' => 'QR']);
+    BioPage::create(['user_id' => $user->id, 'slug' => 'qrlogo', 'title' => 'QR']);
     $this->actingAs($user);
     $this->travel(5)->seconds();
-    $up = $this->postJson('/bio/qrlogo/upload-qr-logo', ['logo' => Illuminate\Http\UploadedFile::fake()->image('logo.png', 64, 64)])
+    $up = $this->postJson('/bio/qrlogo/upload-qr-logo', ['logo' => UploadedFile::fake()->image('logo.png', 64, 64)])
         ->assertOk()->assertJsonPath('success', true);
     expect($up->json('logo_url'))->toStartWith('/storage/qr-logos/');
     expect($up->json('page_updated_at'))->toBeString();
@@ -69,6 +72,6 @@ test('a QR logo upload answers with the page version, so the next save is not re
     $this->travel(5)->seconds();
     $this->putJson('/bio/qrlogo', ['qr_settings' => ['image' => $up->json('logo_url')], 'base_updated_at' => $up->json('page_updated_at')])
         ->assertOk();
-    $this->postJson('/bio/qrlogo/upload-qr-logo', ['logo' => Illuminate\Http\UploadedFile::fake()->create('notes.txt', 2, 'text/plain')])
+    $this->postJson('/bio/qrlogo/upload-qr-logo', ['logo' => UploadedFile::fake()->create('notes.txt', 2, 'text/plain')])
         ->assertStatus(422)->assertJsonValidationErrors('logo');
 });

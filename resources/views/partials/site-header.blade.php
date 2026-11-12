@@ -43,7 +43,7 @@
                     </ul>
                 </details>
                 <button type="button"
-                    onclick="try { var d = document.documentElement.classList.toggle('dark'); localStorage.setItem('helink-theme', d ? 'dark' : 'light'); } catch (e) {}"
+                    onclick="var d = document.documentElement.classList.toggle('dark'); if (window.hopPrefs) hopPrefs.setTheme(d);"
                     class="rounded-xl border border-slate-200/80 p-2 text-slate-600 hover:bg-slate-100 max-[360px]:hidden dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/5 transition-colors"
                     aria-label="{{ __('Toggle theme') }}">
                     <svg class="h-4 w-4 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
