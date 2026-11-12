@@ -55,8 +55,8 @@
             margin-bottom: 16px;
             position: relative;
         }
-        /* Header layouts, same rules as the public page at phone scale. */
-        .profile-section.head-hero { margin: -8px -8px 14px; border-radius: 18px 18px 14px 14px; overflow: hidden; aspect-ratio: 4 / 5; max-height: 340px; background: #0f172a; }
+        /* Header layouts, same rules as the public page at phone scale (the hero names its width, see show.blade.php). */
+        .profile-section.head-hero { width: calc(100% + 16px); margin: -8px -8px 14px; border-radius: 18px 18px 14px 14px; overflow: hidden; aspect-ratio: 4 / 5; max-height: 340px; background: #0f172a; }
         .profile-section.head-hero .hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
         .profile-section.head-hero .hero-text { position: absolute; inset: auto 0 0 0; padding: 48px 14px 14px; background: linear-gradient(180deg, rgba(15,23,42,0) 0%, rgba(15,23,42,.55) 45%, rgba(15,23,42,.85) 100%); }
         .profile-section.head-hero .display-name, .profile-section.head-hero .bio-text { color: #fff !important; text-shadow: 0 1px 2px rgba(0,0,0,.35); }
