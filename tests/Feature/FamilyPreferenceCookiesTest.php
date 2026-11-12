@@ -95,3 +95,40 @@ test('every page with a theme toggle reads hop_theme before first paint, and eve
     // the public bio pages keep their own theme
     expect(file_get_contents(base_path('packages/bio/resources/views/show.blade.php')))->not->toContain('hop-prefs')->not->toContain('hop_theme');
 });
+
+// A browser holding this host's old host-only cookie and the newer .hel.ink one sends both, oldest first; PHP keeps the
+// first. The last one in the raw header is the newer family choice and counts (contract amendment after LinkHop's audit).
+function withRawCookies($test, string $url, string $header)
+{
+    return $test->call('GET', $url, [], [], [], ['HTTP_COOKIE' => $header, 'HTTPS' => str_starts_with($url, 'https') ? 'on' : 'off']);
+}
+
+test('when hop_lang comes twice the last one counts, for the page and for the clean-up', function () {
+    $response = withRawCookies($this, 'https://bio.hel.ink/', 'hop_lang=en; hop_lang=ja');
+    $response->assertOk()->assertSee('<html lang="ja"', false);
+    expect(familyCookie($response, 'hop_lang', '.hel.ink')->getValue())->toBe('ja');
+    expect(familyCookie($response, 'hop_lang')->isCleared())->toBeTrue();
+    expect(familyCookie($response, 'hop_pref')->getValue())->toBe('2');
+
+    // a single cookie: as before
+    $single = withRawCookies($this, 'https://bio.hel.ink/', 'hop_lang=de');
+    $single->assertSee('<html lang="de"', false);
+    expect(familyCookie($single, 'hop_lang', '.hel.ink')->getValue())->toBe('de');
+
+    // ?lang= in the same request still wins
+    $picked = withRawCookies($this, 'https://bio.hel.ink/?lang=fr', 'hop_lang=en; hop_lang=ja');
+    $picked->assertSee('<html lang="fr"', false);
+    expect(familyCookie($picked, 'hop_lang', '.hel.ink')->getValue())->toBe('fr');
+
+    // off the family hosts the last one picks the page too, and nothing is migrated
+    $local = withRawCookies($this, 'http://localhost/', 'hop_lang=en; hop_lang=es');
+    $local->assertSee('<html lang="es"', false);
+    expect(familyCookie($local, 'hop_pref'))->toBeNull();
+});
+
+test('a malformed Cookie header does not break the page language', function () {
+    foreach (['hop_lang', 'hop_lang=', ';;; =x; hop_lang', 'hop_lang=xx', 'hop_lang==de', 'other=1; hop_lang=%7Bbad'] as $header) {
+        withRawCookies($this, 'http://localhost/', $header)->assertOk()->assertSee('<html lang="en"', false);
+    }
+    withRawCookies($this, 'http://localhost/', 'hop_lang=xx; hop_lang=id')->assertSee('<html lang="id"', false);
+});

@@ -60,11 +60,11 @@ class SetLocale
      */
     private static function migrate(Request $request, Response $response): void
     {
-        if ($request->cookies->get(self::MIGRATED) === '2' || ! $request->cookies->has(self::COOKIE)) {
+        if ($request->cookies->get(self::MIGRATED) === '2' || self::cookieValue($request) === null) {
             return;
         }
         $response->headers->setCookie(self::cookie(self::COOKIE, '', null, true, 0));
-        $carried = Locales::resolve((string) $request->cookies->get(self::COOKIE));
+        $carried = Locales::resolve(self::cookieValue($request));
         if ($carried !== null) {
             $response->headers->setCookie(self::cookie(self::COOKIE, $carried, '.hel.ink', true));
         }
@@ -89,6 +89,25 @@ class SetLocale
      */
     public static function fromRequest(Request $request): string
     {
-        return self::requested($request) ?? Locales::normalize((string) $request->cookie(self::COOKIE, Locales::DEFAULT));
+        return self::requested($request) ?? Locales::normalize(self::cookieValue($request) ?? Locales::DEFAULT);
+    }
+
+    /**
+     * The value of hop_lang. A browser that still holds this host's old host-only cookie besides the newer .hel.ink one
+     * sends both, oldest first, and PHP keeps the first: the last one in the raw Cookie header is the newer family
+     * choice, so that one counts (KONTRAK-PREFERENSI). With a single hop_lang this is the cookie as PHP read it.
+     */
+    public static function cookieValue(Request $request): ?string
+    {
+        $last = null;
+        foreach (explode(';', (string) $request->headers->get('Cookie', '')) as $pair) {
+            $parts = explode('=', $pair, 2);
+            if (count($parts) === 2 && trim($parts[0]) === self::COOKIE) {
+                $last = urldecode(trim($parts[1]));
+            }
+        }
+        $value = $last ?? $request->cookies->get(self::COOKIE);
+
+        return is_string($value) && $value !== '' ? $value : null;
     }
 }
