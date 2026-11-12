@@ -278,7 +278,7 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ '/'.ltrim(request()->path(), '/') }}" novalidate>
+            <form method="POST" action="{{ '/'.ltrim(request()->path(), '/').(request()->getQueryString() !== null ? '?'.request()->getQueryString() : '') }}" novalidate>
                 @csrf
                 <input type="hidden" name="age_confirm" value="yes">
                 
