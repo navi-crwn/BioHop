@@ -87,7 +87,11 @@ input[type=datetime-local]:is(.input, .form-input, .hop-input), .bio-editor inpu
 .hop-field-box > textarea { height: auto; padding: 8px 0; line-height: 1.5; }
 /* Search: the same input with a leading icon, 20rem from 640px up. */
 .hop-search { position: relative; display: flex; align-items: center; width: 100%; }
-.hop-search > :is(.input, .form-input, .hop-input), .bio-editor .hop-search > .form-input { max-width: none; padding-left: 34px; }
+/* An icon inside a field keeps its room. These rules repeat the field rule's element part (input, select, textarea) so
+   they outrank it: written as .hop-search > .form-input, pl-10 or pr-10 they lost to it and icons covered the text. */
+.hop-search > :is(input, select, textarea):is(.input, .form-input, .hop-input), .bio-editor .hop-search > :is(input, select, textarea).form-input { max-width: none; padding-left: 34px; }
+:is(input, select, textarea):is(.input, .form-input, .hop-input).pl-10, .bio-editor :is(input, select, textarea).form-input.pl-10 { padding-left: 2.5rem; }
+:is(input, select, textarea):is(.input, .form-input, .hop-input).pr-10, .bio-editor :is(input, select, textarea).form-input.pr-10 { padding-right: 2.5rem; }
 @media (min-width: 640px) { .hop-search { max-width: var(--hop-search-max); } }
 
 /* ---------- buttons ---------- */
