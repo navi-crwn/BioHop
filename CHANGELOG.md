@@ -4,6 +4,21 @@ All notable changes to BioHop are listed here. The format follows [Keep a Change
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-11-12
+
+### Fixed
+- Dragging blocks in the editor moves the block you drag. The blocks list held a style and the select bar before its blocks, so a drag moved another block, and dragging one of the two bottom blocks added an empty "Untitled" block, after which no drag and no save worked until a reload ("Saving soon…" stayed). The new order is now read from the blocks' ids after the drop, an error can no longer freeze dragging, the dragged block looks like a block (not plain text), and a drag made while the order is being saved is saved too. The social icons list works the same way. Orders scrambled earlier are not repaired automatically; Settings > Versions can bring back an earlier one.
+- A page with an age or content warning, or a password, opens after one confirmation and stays on the address the visitor came by (`hel.ink/b/...`); before, the first confirmation was lost and the visitor ended up on `bio.hel.ink`. The `?src=` of a QR or NFC visit is kept, and the shop address (`/b/shop/...`) takes the confirmation too (it answered 405).
+- The QR logo in the Profile tab uploads (it always failed with a 404), and the next save after it is not refused as "changed in another tab".
+- Picture uploads (cover, background, share picture, favicon, images) show why a file was refused instead of "Failed to upload".
+- Text typed in "Select existing link", the Add block search and the page password field no longer runs over the search icon.
+- The "hero" header fills the width of the page and of the editor preview instead of sitting to the left.
+
+### Changed
+- Upload buttons offer the file types their upload takes: SVG only for custom block icons and the QR logo. Choosing an SVG for the profile picture, an image, the cover, the background, the share picture or the favicon says so at once, in nine languages. The README says where SVG is taken.
+- The theme and the language are shared with the other HOP apps: the theme is kept in the cookie `hop_theme` (the old browser setting is copied over once) and the language cookie `hop_lang` is set for all of `hel.ink`. Both are plain text; a browser that still has this site's old language cookie gets it moved once (`hop_pref=2`), and when two `hop_lang` cookies arrive the newer one counts. Public bio pages keep their own theme.
+- Search engines: the home and info pages name one canonical address per language (`?lang=`), list the nine languages and `x-default`, share a PNG preview, and the home page describes BioHop as a web application (JSON-LD). The sitemap lists these pages with their languages before the public bio pages. Signed-in screens say `noindex`.
+
 ## [1.3.0] - 2026-11-12
 
 ### Added
