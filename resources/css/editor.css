@@ -387,3 +387,6 @@
 .block-item.is-compact { padding: 6px 8px; gap: 8px; }
 .block-item.is-compact .block-icon { width: 32px; height: 32px; }
 .block-item.is-compact .form-input { padding-top: 6px; padding-bottom: 6px; }
+
+/* Design sub-tabs: a panel with little in it keeps a readable width on a wide screen instead of stretching into an empty card. */
+.be-design { max-width: 760px; }

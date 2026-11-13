@@ -20,7 +20,7 @@
         'socialMax' => \Hop\Bio\Models\BioPage::SOCIAL_MAX,
         // The editor's confirm dialogs (resources/js/dialogs.js): titles and messages in the member's language.
         // Block picker texts that come from the server so they are translated (the rest of the catalogue is in editor.js).
-        'blockText' => ['whatsapp' => [__('WhatsApp rotator'), __('Share chats between several numbers')], 'pay' => [__('Receive payment'), __('A QR code for your bank or wallet')]],
+        'blockText' => ['music' => [__('Music'), __('Spotify, SoundCloud, Apple Music or YouTube Music')], 'pay' => [__('Receive payment'), __('A QR code for your bank or wallet')]],
         // The receive-payment block: the module's own format list with its forms (resources/pay/formats.json), and the words for them.
         'pay' => ['labels' => \Hop\Bio\Support\PayBlock::labels(), 'msgs' => \Hop\Bio\Support\PayBlock::messages()],
         'dialogs' => [
@@ -43,6 +43,14 @@
             'gone' => __('A block of this page no longer exists. The page is reloading.'),
             'saveFailed' => __('Could not save the new order. Click Save to retry.'),
             'moved' => __(':name moved to position :position of :total'),
+            'conflict' => __('This page was changed in another tab or window. Reload the editor to get the latest version.'),
+        ],
+        // Words of the block form's sections and its checks, and of the Settings sections.
+        'ui' => [
+            'tabContent' => __('Content'), 'tabLook' => __('Look'), 'tabSchedule' => __('Schedule'), 'tabAdvanced' => __('Advanced'), 'blockTabs' => __('Block sections'),
+            'scheduleOrder' => __('The end time must be after the time it goes live.'),
+            'musicRequired' => __('Music URL is required'), 'musicInvalid' => __('Please enter a Spotify, SoundCloud, Apple Music or YouTube Music URL'),
+            'setSearch' => __('Search & sharing'), 'setPrivacy' => __('Privacy'), 'setTools' => __('Tools'), 'setSafety' => __('Versions'),
         ],
         // The link picker (LinkHop): what to say when the list cannot be loaded.
         'linkhop' => ['failed' => __('LinkHop is not reachable right now. You can still paste any URL.')],

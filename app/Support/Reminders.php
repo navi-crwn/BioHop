@@ -3,6 +3,8 @@
 namespace App\Support;
 
 use Carbon\CarbonInterface;
+use Hop\Bio\Models\BioLink;
+use Hop\Bio\Models\BioPage;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -36,8 +38,8 @@ class Reminders
      */
     public static function whatsappRetiredNotice(int $userId): bool
     {
-        $has = \Hop\Bio\Models\BioLink::query()->where('type', 'whatsapp')
-            ->whereIn('bio_page_id', \Hop\Bio\Models\BioPage::query()->where('user_id', $userId)->select('id'))->exists();
+        $has = BioLink::query()->where('type', 'whatsapp')
+            ->whereIn('bio_page_id', BioPage::query()->where('user_id', $userId)->select('id'))->exists();
 
         return $has && ! self::hidden($userId, 'whatsapp-rotator-retired');
     }

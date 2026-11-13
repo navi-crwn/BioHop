@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Support\ReservedSlugs;
 use Hop\Bio\Models\BioPage;
 use Illuminate\Http\JsonResponse;
