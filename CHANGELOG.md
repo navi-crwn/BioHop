@@ -4,6 +4,14 @@ All notable changes to BioHop are listed here. The format follows [Keep a Change
 
 ## [Unreleased]
 
+## [1.3.2] - 2026-11-14
+
+### Fixed
+- Saving the order of your blocks is stricter on the server. It answers the same for a block that belongs to someone else and for one that does not exist, so block numbers of other pages cannot be guessed; it refuses a list that is too long, repeats a block, or carries a position outside the page's block limit; it saves the whole new order in one step or not at all; and it is rate-limited like the other editor actions. The editor you use today sends nothing that this refuses.
+- Blocks that share the same position are always listed in the same order, in the editor, on the public page and in the API.
+- When a request to save the order carries the page version it was made from, it is refused with "changed in another tab" if the page changed meanwhile, like saving the other fields. The editor does not send the version yet.
+- An empty entry in the social icons list is refused on save and ignored when the page is read, so older data with an empty entry can no longer stop the editor from opening.
+
 ## [1.3.1] - 2026-11-12
 
 ### Fixed
