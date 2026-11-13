@@ -809,5 +809,14 @@
     "The WhatsApp rotator block is being retired.": "Blok rotator WhatsApp akan dihentikan.",
     "The blocks you already have keep working for now, but new ones cannot be added. Use a normal link block or a LinkHop link instead.": "Blok yang sudah ada tetap berjalan untuk sementara, tetapi blok baru tidak bisa ditambahkan lagi. Gunakan blok tautan biasa atau tautan LinkHop sebagai gantinya.",
     "The blocks you already have keep working until :date, but new ones cannot be added. Use a normal link block or a LinkHop link instead.": "Blok yang sudah ada tetap berjalan sampai :date, tetapi blok baru tidak bisa ditambahkan lagi. Gunakan blok tautan biasa atau tautan LinkHop sebagai gantinya.",
-    "Back to dashboard": "Kembali ke dasbor"
+    "Back to dashboard": "Kembali ke dasbor",
+    "What changed in each HOP app, newest first.": "Apa yang berubah di setiap app HOP, yang terbaru di atas.",
+    "Technical details": "Detail teknis",
+    "Latest release of each app": "Rilis terbaru tiap app",
+    "Added": "Ditambahkan",
+    "Changed": "Diubah",
+    "Fixed": "Diperbaiki",
+    "Security": "Keamanan",
+    "Removed": "Dihapus",
+    "Deprecated": "Usang"
 }

@@ -809,5 +809,14 @@
     "The WhatsApp rotator block is being retired.": "WhatsAppローテーターのブロックは終了します。",
     "The blocks you already have keep working for now, but new ones cannot be added. Use a normal link block or a LinkHop link instead.": "すでにあるブロックは当面そのまま動作しますが、新しく追加することはできません。代わりに通常のリンクブロックか LinkHop のリンクをお使いください。",
     "The blocks you already have keep working until :date, but new ones cannot be added. Use a normal link block or a LinkHop link instead.": "すでにあるブロックは :date まで動作しますが、新しく追加することはできません。代わりに通常のリンクブロックか LinkHop のリンクをお使いください。",
-    "Back to dashboard": "ダッシュボードに戻る"
+    "Back to dashboard": "ダッシュボードに戻る",
+    "What changed in each HOP app, newest first.": "HOPの各アプリで何が変わったか。新しい順です。",
+    "Technical details": "技術的な詳細",
+    "Latest release of each app": "各アプリの最新リリース",
+    "Added": "追加",
+    "Changed": "変更",
+    "Fixed": "修正",
+    "Security": "セキュリティ",
+    "Removed": "削除",
+    "Deprecated": "非推奨"
 }

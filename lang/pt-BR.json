@@ -809,5 +809,14 @@
     "The WhatsApp rotator block is being retired.": "O bloco rotador de WhatsApp está sendo descontinuado.",
     "The blocks you already have keep working for now, but new ones cannot be added. Use a normal link block or a LinkHop link instead.": "Os blocos que você já tem continuam funcionando por enquanto, mas não é mais possível adicionar novos. Use um bloco de link comum ou um link do LinkHop.",
     "The blocks you already have keep working until :date, but new ones cannot be added. Use a normal link block or a LinkHop link instead.": "Os blocos que você já tem continuam funcionando até :date, mas não é mais possível adicionar novos. Use um bloco de link comum ou um link do LinkHop.",
-    "Back to dashboard": "Voltar ao painel"
+    "Back to dashboard": "Voltar ao painel",
+    "What changed in each HOP app, newest first.": "O que mudou em cada app HOP, do mais recente ao mais antigo.",
+    "Technical details": "Detalhes técnicos",
+    "Latest release of each app": "Versão mais recente de cada app",
+    "Added": "Adicionado",
+    "Changed": "Alterado",
+    "Fixed": "Corrigido",
+    "Security": "Segurança",
+    "Removed": "Removido",
+    "Deprecated": "Obsoleto"
 }

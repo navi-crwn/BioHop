@@ -809,5 +809,14 @@
     "The WhatsApp rotator block is being retired.": "WhatsApp 轮换区块即将停用。",
     "The blocks you already have keep working for now, but new ones cannot be added. Use a normal link block or a LinkHop link instead.": "您已有的区块目前仍可使用，但无法再添加新的。请改用普通链接区块或 LinkHop 链接。",
     "The blocks you already have keep working until :date, but new ones cannot be added. Use a normal link block or a LinkHop link instead.": "您已有的区块在 :date 之前仍可使用，但无法再添加新的。请改用普通链接区块或 LinkHop 链接。",
-    "Back to dashboard": "返回控制台"
+    "Back to dashboard": "返回控制台",
+    "What changed in each HOP app, newest first.": "每个 HOP 应用的更新内容，最新的在前。",
+    "Technical details": "技术详情",
+    "Latest release of each app": "各应用的最新版本",
+    "Added": "新增",
+    "Changed": "变更",
+    "Fixed": "修复",
+    "Security": "安全",
+    "Removed": "移除",
+    "Deprecated": "已弃用"
 }
