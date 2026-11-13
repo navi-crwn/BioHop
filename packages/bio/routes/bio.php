@@ -84,7 +84,7 @@ Route::middleware(['web', 'ip.ban', 'hop.auth', UploadStorageGate::class])->pref
         Route::delete('/{bioLink}', [BioLinkController::class, 'destroy'])->name('destroy');
         Route::post('/app-hint', [BioLinkController::class, 'appHint'])->middleware('throttle:60,1')->name('app-hint');
         Route::post('/fetch-meta', [BioLinkController::class, 'fetchMeta'])->middleware(['verified', 'throttle:20,1'])->name('fetch-meta');
-        Route::post('/reorder', [BioLinkController::class, 'reorder'])->middleware('verified')->name('reorder');
+        Route::post('/reorder', [BioLinkController::class, 'reorder'])->middleware(['verified', 'throttle:60,1'])->name('reorder');
         Route::post('/{bioLink}/toggle', [BioLinkController::class, 'toggle'])->middleware('verified')->name('toggle');
         Route::post('/{bioLink}/archive', [BioLinkController::class, 'archive'])->middleware('verified')->name('archive');
         Route::post('/{bioLink}/restore', [BioLinkController::class, 'restore'])->middleware('verified')->name('restore');

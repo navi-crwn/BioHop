@@ -250,6 +250,7 @@ class HopBioController extends Controller
                 'seo_noindex' => (bool) $p->seo_noindex,
                 'blocks' => BioLink::where('bio_page_id', $p->id)
                     ->orderBy('order')
+                    ->orderBy('id')
                     ->limit(100)
                     ->get(['id', 'title', 'url', 'type', 'is_active', 'click_count', 'order as position'])
                     ->all(),

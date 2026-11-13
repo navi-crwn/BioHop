@@ -363,7 +363,7 @@ class BioLink extends Model
 
     public function scopeOrdered($query)
     {
-        return $query->orderBy('order');
+        return $query->orderBy('order')->orderBy('id');
     }
 
     public function recordClick(array $data): BioClick

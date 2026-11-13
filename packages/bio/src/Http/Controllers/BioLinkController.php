@@ -21,6 +21,7 @@ use Hop\Safety\SafeContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -560,17 +561,35 @@ class BioLinkController extends Controller
     public function reorder(Request $request, BioPage $bioPage)
     {
         $this->authorize('update', $bioPage);
-        BioRevisions::maybeSnapshot($bioPage);
-        $validated = $request->validate([
-            'links' => 'required|array',
-            'links.*.id' => 'required|exists:bio_links,id',
-            'links.*.order' => 'required|integer|min:0',
-        ]);
-        foreach ($validated['links'] as $linkData) {
-            BioLink::where('id', $linkData['id'])
-                ->where('bio_page_id', $bioPage->id)
-                ->update(['order' => $linkData['order']]);
+        // Two editor tabs: when the request carries the revision it was made from, a later change wins no silent overwrite
+        // (the same check as the page save). The editor of today does not send it yet, so its request is not refused.
+        $base = $request->input('base_updated_at');
+        if (is_string($base) && $base !== '' && $bioPage->updated_at
+            && strtotime($base) !== $bioPage->updated_at->getTimestamp()) {
+            return response()->json([
+                'message' => 'This page was changed in another tab or window. Reload the editor to get the latest version.',
+                'conflict' => true,
+            ], 409);
         }
+        // No block count can exceed the page's limit (or what the page already holds, if the limit was lowered since),
+        // and an order is a position in that list.
+        $cap = max(BioLimits::maxBlocks(), $bioPage->bioLinks()->count());
+        $validated = $request->validate([
+            'links' => 'required|array|max:'.$cap,
+            'links.*.id' => 'required|integer|distinct',
+            'links.*.order' => 'required|integer|min:0|max:'.($cap - 1),
+        ]);
+        // One answer for "a block of someone else" and "no such block": the member learns nothing about other pages.
+        $ids = array_column($validated['links'], 'id');
+        if ($bioPage->bioLinks()->whereIn('id', $ids)->count() !== count($ids)) {
+            throw ValidationException::withMessages(['links' => 'These blocks are not all on this page. Reload the editor.']);
+        }
+        DB::transaction(function () use ($bioPage, $validated) {
+            BioRevisions::maybeSnapshot($bioPage);
+            foreach ($validated['links'] as $linkData) {
+                $bioPage->bioLinks()->whereKey($linkData['id'])->update(['order' => $linkData['order']]);
+            }
+        });
 
         return response()->json([
             'success' => true,

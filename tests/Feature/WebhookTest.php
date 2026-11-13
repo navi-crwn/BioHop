@@ -76,8 +76,8 @@ test('a failing receiver is tried again after 1, 5 and 30 minutes, then given up
 
 test('only https addresses on public networks are called', function () {
     Http::fake();
-    foreach (['https://internal.example/hook', 'https://localhost/hook'] as $url) {
-        [, $page] = hookPage('hookb'.mt_rand(100, 999), $url);
+    foreach (['https://internal.example/hook', 'https://localhost/hook'] as $i => $url) {
+        [, $page] = hookPage('hookb'.$i, $url);
         $d = Webhooks::queue($page, 'ping', []);
         runDeferred();
         expect($d->fresh()->status)->toBe('failed')->and($d->fresh()->error)->toBe('Address not allowed');

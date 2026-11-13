@@ -4,10 +4,12 @@ use App\Models\User;
 use Hop\Bio\Models\BioLink;
 use Hop\Bio\Models\BioPage;
 
+$GLOBALS['routedLinkCount'] = 0; // a slug that is unique by construction, not by luck
+
 function routedLink(array $rules): array
 {
     $user = User::factory()->create(['timezone' => 'UTC']);
-    $page = BioPage::create(['user_id' => $user->id, 'slug' => 'route'.mt_rand(1000, 9999), 'title' => 'R', 'is_published' => true]);
+    $page = BioPage::create(['user_id' => $user->id, 'slug' => 'route'.++$GLOBALS['routedLinkCount'], 'title' => 'R', 'is_published' => true]);
     $link = BioLink::create(['bio_page_id' => $page->id, 'type' => 'link', 'title' => 'Shop', 'url' => 'https://default.example/', 'order' => 0, 'is_active' => true, 'settings' => ['rules' => $rules]]);
 
     return [$user, $page, $link];

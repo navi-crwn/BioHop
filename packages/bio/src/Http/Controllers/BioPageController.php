@@ -512,7 +512,7 @@ class BioPageController extends Controller
     {
         $this->authorize('update', $bioPage);
         $bioPage->load(['links' => function ($query) {
-            $query->orderBy('order')->withCount('leads');
+            $query->orderBy('order')->orderBy('id')->withCount('leads');
         }]);
         $brands = config('brands.platforms', []);
 
@@ -568,7 +568,7 @@ class BioPageController extends Controller
             'social_icon_color' => CssValue::color(20),
             'social_placement' => 'nullable|in:top,bottom',
             'social_links' => 'nullable|array|max:'.BioPage::SOCIAL_MAX,
-            'social_links.*' => 'nullable|array',
+            'social_links.*' => 'required|array',
             'social_links.*.platform' => 'nullable|string',
             'social_links.*.value' => 'nullable|string',
             'social_links.*.enabled' => 'nullable|boolean',
@@ -1021,7 +1021,7 @@ class BioPageController extends Controller
     {
         $this->authorize('view', $bioPage);
         $bioPage->load(['links' => function ($query) {
-            $query->orderBy('order');
+            $query->orderBy('order')->orderBy('id');
         }]);
 
         return view('bio::editor.preview', compact('bioPage'));
