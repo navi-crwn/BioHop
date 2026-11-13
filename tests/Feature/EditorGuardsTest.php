@@ -67,8 +67,14 @@ test('analytics lists only blocks that can be clicked, and counts only those as 
 });
 
 test('inputs that carry an icon keep their side padding over the base input style', function () {
-    $css = file_get_contents(base_path('resources/css/editor.css'));
-    expect($css)->toContain('.bio-editor .form-input.pl-10')->toContain('.bio-editor .form-input.pr-10');
+    // The field rule of the control standard is `.bio-editor :is(input:not(...), select, textarea).form-input` (0,3,1);
+    // the icon rules must name the element too and come after it, or the icon covers the text (A-6, picture 7).
+    $css = file_get_contents(base_path('resources/css/controls.css'));
+    $field = strpos($css, '.bio-editor :is(input:not([type=checkbox]');
+    foreach (['.bio-editor :is(input, select, textarea).form-input.pl-10', '.bio-editor :is(input, select, textarea).form-input.pr-10', '.bio-editor .hop-search > :is(input, select, textarea).form-input'] as $rule) {
+        expect($css)->toContain($rule);
+        expect(strpos($css, $rule))->toBeGreaterThan($field);
+    }
 });
 
 test('the weekly bar chart on the dashboard home grows with its card instead of leaving a gap', function () {

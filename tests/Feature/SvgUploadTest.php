@@ -76,3 +76,38 @@ test('icons, logos and thumbnails accept svg; avatars and block images stay rast
     // a png still goes through the old path
     $this->postJson('/bio/svgmix/upload-icon', ['icon' => UploadedFile::fake()->image('i.png', 64, 64)])->assertOk();
 });
+
+// What a file input offers must be what its endpoint takes (A-5): SVG only where it is accepted (icons, QR logo), never on
+// the profile picture, pictures, cover, background, share picture or favicon, and the editor says so in nine languages.
+test('every picture input offers exactly the types its endpoint takes', function () {
+    $raster = 'accept="image/png,image/jpeg,image/gif,image/webp,image/bmp"';
+    $withSvg = 'accept="image/png,image/jpeg,image/gif,image/webp,image/bmp,image/svg+xml,.svg"';
+    $views = base_path('packages/bio/resources/views/');
+    $inputs = [];
+    foreach (['editor/index', 'editor/profile-tab', 'editor/appearance-tab', 'editor/settings-tab', 'create-wizard', 'create'] as $view) {
+        $html = file_get_contents($views.$view.'.blade.php');
+        preg_match_all('/<input\b[^>]*type="file"[^>]*>/s', $html, $found);
+        foreach ($found[0] as $tag) {
+            if (preg_match('/@change="(\w+)/', $tag, $m) && preg_match('/(?<![:\w])accept="[^"]*"/', $tag, $a)) {
+                $inputs[$view.':'.$m[1]][] = $a[0];
+            }
+        }
+    }
+    foreach (['editor/index:uploadCustomIcon', 'editor/profile-tab:uploadLogo'] as $key) {
+        expect($inputs[$key])->each->toBe($withSvg);
+    }
+    foreach (['editor/index:uploadBlockImage', 'editor/index:uploadCarouselImage', 'editor/index:uploadImageBlock', 'editor/profile-tab:uploadAvatar',
+        'editor/appearance-tab:uploadCoverImage', 'editor/appearance-tab:uploadBackgroundImage', 'editor/settings-tab:uploadPageImage', 'create-wizard:pickAvatar'] as $key) {
+        expect($inputs[$key])->each->toBe($raster);
+    }
+    // the classic form sends its QR logo as a data URI, which the server keeps only for PNG, JPG and GIF
+    expect($inputs['create:uploadLogo'])->toBe(['accept="image/png,image/jpeg,image/gif"']);
+    expect(collect($inputs)->flatten()->filter(fn ($a) => $a === 'accept="image/*"'))->toBeEmpty();
+
+    $message = 'SVG cannot be used here. Use a PNG, JPG, WebP or GIF picture.';
+    foreach (['zh-CN', 'de', 'id', 'ja', 'pt-BR', 'es', 'fr', 'ru'] as $locale) {
+        $lang = json_decode(file_get_contents(lang_path($locale.'.json')), true);
+        expect($lang)->toHaveKey($message);
+        expect($lang[$message])->not->toBe($message);
+    }
+});

@@ -244,7 +244,7 @@
                     <span class="page-title">{{ $bioPage->title }}</span>
                 @endif
             </div>
-            <form method="POST" action="{{ '/'.ltrim(request()->path(), '/') }}">
+            <form method="POST" action="{{ '/'.ltrim(request()->path(), '/').(request()->getQueryString() !== null ? '?'.request()->getQueryString() : '') }}">
                 @csrf
                 <div class="form-group">
                     <div class="input-wrapper">

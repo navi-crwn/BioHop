@@ -774,5 +774,17 @@
     "Bank code (BIN)": "Код банка (BIN)",
     "Six digits, as published by the bank.": "Шесть цифр, как указано банком.",
     "Account number": "Номер счёта",
-    "Opens in the :app app on phones; computers and visitors without scripts get this address.": "На телефоне откроется в приложении :app; компьютеры и посетители без скриптов получают этот адрес."
+    "Opens in the :app app on phones; computers and visitors without scripts get this address.": "На телефоне откроется в приложении :app; компьютеры и посетители без скриптов получают этот адрес.",
+    "SVG cannot be used here. Use a PNG, JPG, WebP or GIF picture.": "SVG здесь использовать нельзя. Используйте изображение PNG, JPG, WebP или GIF.",
+    "That move could not be applied. The list was refreshed; try again.": "Не удалось применить это перемещение. Список обновлён, попробуйте ещё раз.",
+    "Your session expired. Reload the page and sign in again.": "Сеанс истёк. Перезагрузите страницу и войдите снова.",
+    "A block of this page no longer exists. The page is reloading.": "Один из блоков этой страницы больше не существует. Страница перезагружается.",
+    "The file is too large.": "Файл слишком большой.",
+    "Upload failed": "Не удалось загрузить",
+    ":name moved to position :position of :total": "Перемещено: :name — позиция :position из :total",
+    "Could not save the new order. Click Save to retry.": "Не удалось сохранить новый порядок. Нажмите «Сохранить», чтобы повторить.",
+    "Please wait for the current save, then upload the logo.": "Дождитесь окончания текущего сохранения, затем загрузите логотип.",
+    "Failed to upload: :reason": "Не удалось загрузить: :reason",
+    "Failed to upload image: :reason": "Не удалось загрузить изображение: :reason",
+    "Unknown error": "Неизвестная ошибка"
 }

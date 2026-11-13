@@ -16,6 +16,7 @@ use Hop\Bio\Support\ImageMeta;
 use Hop\Bio\Support\Webhooks;
 use Hop\Safety\SafeContent;
 use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
@@ -84,8 +85,8 @@ class PublicBioController extends Controller
                     RateLimiter::clear($key);
                     session([$sessionKey => true]);
 
-                    // Use 303 redirect (See Other) to convert POST to GET - prevents browser resubmit warning
-                    return redirect()->to(url()->current(), 303);
+                    // 303 turns the POST into a GET (no resubmit warning), back to the address the visitor came by
+                    return $this->backToGatedPage($request);
                 } else {
                     return view('bio::password', compact('bioPage'))->withErrors(['password' => 'Incorrect password']);
                 }
@@ -99,7 +100,7 @@ class PublicBioController extends Controller
             if ($request->isMethod('post') && in_array($request->input('age_confirm'), ['yes', '1', 'continue'], true)) {
                 session([$sessionKey => true]);
 
-                $response = redirect()->to(url()->current(), 303);
+                $response = $this->backToGatedPage($request);
                 if ($request->boolean('remember')) {
                     $response->withCookie(new Cookie("hop_gate_bio_{$bioPage->id}", '1', now()->addDay(), '/', null, $request->isSecure(), true, false, 'lax'));
                 }
@@ -125,6 +126,18 @@ class PublicBioController extends Controller
         }
 
         return view('bio::show', compact('bioPage'));
+    }
+
+    /**
+     * After a gate was passed: the same path and query on the same host. The session cookie belongs to the host the
+     * visitor came by (hel.ink/b/...), and url() would name the app host (bio.hel.ink, forceRootUrl), whose session
+     * has no confirmation: the gate showed again and the visitor ended up on the other address (A-8).
+     */
+    private function backToGatedPage(Request $request): RedirectResponse
+    {
+        $query = $request->getQueryString();
+
+        return new RedirectResponse('/'.ltrim($request->path(), '/').($query !== null ? '?'.$query : ''), 303);
     }
 
     /**

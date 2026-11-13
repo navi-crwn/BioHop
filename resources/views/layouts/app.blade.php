@@ -7,18 +7,13 @@
         <title>{{ trim(($pageTitle ?? '') ?: config('app.name').' - One link in bio for everything you do') }}</title>
         <meta name="description" content="Build and manage your link-in-bio pages, blocks and analytics in BioHop.">
         <link rel="icon" href="{{ route('brand.favicon') }}" type="image/svg+xml">
-        {{-- Apply the saved theme and the optional Clean style (cookie hop_ui) before first paint (no light flash in dark mode) --}}
+        {{-- Signed-in screens (dashboard, editor, settings) stay out of search; robots.txt also keeps crawlers away. --}}
+        <meta name="robots" content="noindex, nofollow">
+        {{-- Apply the family theme (cookie hop_theme) and the optional Clean style (cookie hop_ui) before first paint (no light flash in dark mode) --}}
         <script nonce="{{ Vite::cspNonce() }}">
-            (function () {
-                if (/(?:^|; )hop_ui=clean(?:;|$)/.test(document.cookie)) document.documentElement.dataset.ui = 'clean';
-                try {
-                    var t = localStorage.getItem('helink-theme');
-                    if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                        document.documentElement.classList.add('dark');
-                    }
-                } catch (e) {}
-            })();
+            if (/(?:^|; )hop_ui=clean(?:;|$)/.test(document.cookie)) document.documentElement.dataset.ui = 'clean';
         </script>
+        @include('partials.hop-prefs')
         <x-hop::fonts />
         @include('partials.hop-ui')
         @stack('scripts-head')
@@ -122,7 +117,7 @@
         <script nonce="{{ Vite::cspNonce() }}">
             window.toggleTheme = function () {
                 const isDark = document.documentElement.classList.toggle('dark');
-                try { localStorage.setItem('helink-theme', isDark ? 'dark' : 'light'); } catch (e) {}
+                window.hopPrefs.setTheme(isDark); // cookie hop_theme for the whole family, and the old key
                 window.dispatchEvent(new CustomEvent('theme-changed'));
             };
         </script>

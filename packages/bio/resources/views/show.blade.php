@@ -284,9 +284,11 @@
         .powered-link:hover {
             opacity: 1;
         }
-        /* Header layouts: classic (small avatar), hero (picture fills the top), banner (cover strip), cutout (big fading picture). */
+        /* Header layouts: classic (small avatar), hero (picture fills the top), banner (cover strip), cutout (big fading picture).
+           The hero names its width: with width auto, aspect-ratio and max-height made the browser narrow it to 4/5 of the
+           height cap and set it against the left edge. */
         .bio-head { position: relative; }
-        .bio-head-hero { margin: -2rem -2rem 1.25rem; border-radius: 1.5rem 1.5rem 1.25rem 1.25rem; overflow: hidden; aspect-ratio: 4 / 5; max-height: 460px; background: #0f172a; }
+        .bio-head-hero { width: calc(100% + 4rem); margin: -2rem -2rem 1.25rem; border-radius: 1.5rem 1.5rem 1.25rem 1.25rem; overflow: hidden; aspect-ratio: 4 / 5; max-height: 460px; background: #0f172a; }
         .bio-head-hero .bio-hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
         .bio-head-hero .bio-hero-text { position: absolute; inset: auto 0 0 0; padding: 4rem 1.5rem 1.5rem; background: linear-gradient(180deg, rgba(15, 23, 42, 0) 0%, rgba(15, 23, 42, .55) 45%, rgba(15, 23, 42, .85) 100%); }
         .bio-head-hero .bio-title, .bio-head-hero .bio-bio { color: #fff !important; text-shadow: 0 1px 2px rgba(0, 0, 0, .35); }
@@ -298,7 +300,7 @@
         .bio-head-cutout { padding-top: .25rem; }
         .bio-head-cutout .bio-avatar { width: 250px; height: 250px; max-width: 78%; border: 0; box-shadow: none; border-radius: 0 !important; margin-bottom: -2.25rem; object-fit: cover; -webkit-mask-image: radial-gradient(ellipse 72% 86% at 50% 36%, #000 42%, transparent 94%); mask-image: radial-gradient(ellipse 72% 86% at 50% 36%, #000 42%, transparent 94%); }
         .bio-head-cutout .bio-title { position: relative; font-size: 1.75rem; text-shadow: 0 1px 12px rgba(0, 0, 0, .18); }
-        @media (max-width: 480px) { .bio-head-hero, .bio-head-banner .bio-cover { margin-left: -1rem; margin-right: -1rem; } .bio-head-hero { margin-top: -1rem; } .bio-head-banner { margin-top: -1rem; } }
+        @media (max-width: 480px) { .bio-head-hero, .bio-head-banner .bio-cover { margin-left: -1rem; margin-right: -1rem; } .bio-head-hero { width: calc(100% + 2rem); margin-top: -1rem; } .bio-head-banner { margin-top: -1rem; } }
         @if($showHeaderBg)
         .bio-header-bg {
             background: {{ $headerBgColor }};

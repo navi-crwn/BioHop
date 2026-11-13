@@ -2,6 +2,8 @@
 // the page's data comes in as JSON from <script id="bio-editor-config"> instead of being printed into the page.
 import { confirmDialog } from './dialogs';
 import { payCheck, emptyPay } from './pay-shared.js';
+import { orderByIds, sameOrder, dropStray, finishDrop } from './drop-move.js';
+import { addOnce, removeById, postToPreview } from './editor-safe.js';
 import PAY_FORMATS from '../pay/formats.json';
 
 const CONFIG = JSON.parse(document.getElementById('bio-editor-config').textContent);
@@ -13,6 +15,16 @@ const say = (key, vars = {}) => {
     return { title: fill(d.title), message: fill(d.message), ok: fill(d.ok) };
 };
 const csrf = () => document.head.querySelector('meta[name="csrf-token"]')?.content || '';
+// Profile picture, pictures, cover, background, share picture and favicon are raster only (the server refuses SVG):
+// say so before the upload, in the member's language. Icons and the QR logo take SVG and do not use this.
+const isSvg = (file) => !!file && (file.type === 'image/svg+xml' || /\.svgz?$/i.test(file.name || ''));
+const RASTER_ONLY = () => (CONFIG.uploads || {}).rasterOnly || 'SVG cannot be used here. Use a PNG, JPG, WebP or GIF picture.';
+// The reason an upload was refused (422 names the field), not only "Upload failed".
+const uploadError = (data, field, status) => data?.errors?.[field]?.[0] || data?.message
+    || (status === 413 ? (CONFIG.uploads || {}).tooLarge || 'The file is too large.' : (CONFIG.uploads || {}).failed || 'Upload failed');
+// The screen-reader line after a block or social icon moved, in the member's language (CONFIG.reorder.moved).
+const movedTo = (name, position, total) => String((CONFIG.reorder || {}).moved || ':name moved to position :position of :total')
+    .replace(/:(name|position|total)/g, (m, k) => ({ name, position, total })[k]);
 // Static lookups are frozen: Alpine skips frozen objects, so ~400 brands are not made reactive and not watched.
 const PLATFORMS = Object.freeze(CONFIG.platforms);
 const THEMES = Object.freeze(CONFIG.themes);
@@ -552,7 +564,7 @@ window.bioEditorV2 = function() {
             this.blocks.splice(to, 0, moved);
             this.blocks.forEach((b, i) => b.order = i);
             this._orderDirty = true; this.onModelChanged();
-            this.announce(`${this.getBlockDisplayTitle(moved)} moved to position ${to + 1} of ${this.blocks.length}`);
+            this.announce(movedTo(this.getBlockDisplayTitle(moved), to + 1, this.blocks.length));
             this.$nextTick(() => document.querySelectorAll('#blocks-list .block-drag-handle')[to]?.focus());
         },
         moveSocial(index, step) {
@@ -561,7 +573,7 @@ window.bioEditorV2 = function() {
             if (to < 0 || to >= list.length) return;
             const [moved] = list.splice(index, 1);
             list.splice(to, 0, moved);
-            this.announce(`${this.platforms[moved.platform]?.name || moved.platform} moved to position ${to + 1} of ${list.length}`);
+            this.announce(movedTo(this.platforms[moved.platform]?.name || moved.platform, to + 1, list.length));
             this.$nextTick(() => document.querySelectorAll('#socials-list .social-drag-handle')[to]?.focus());
         },
         cycleTab(step, absolute = false) {
@@ -581,28 +593,48 @@ window.bioEditorV2 = function() {
             this.$nextTick(() => {
                 const blocksEl = document.getElementById('blocks-list');
                 if (blocksEl && !this.blocksSortable) {
-                    this.blocksSortable = this.makeSortable(blocksEl, '.block-drag-handle', (from, to) => {
-                        const [moved] = this.blocks.splice(from, 1);
-                        this.blocks.splice(to, 0, moved);
+                    this.blocksSortable = this.makeSortable(blocksEl, '.block-drag-handle', (ids) => {
+                        const raw = Alpine.raw(this.blocks); // raw entries: the preview message cannot carry Alpine proxies
+                        const next = orderByIds(raw, ids);
+                        if (!next) return sameOrder(raw, ids) ? 'same' : this.dropRefused(blocksEl, raw, () => { this.blocks = [...raw]; });
+                        this.blocks = next;
                         this.blocks.forEach((b, i) => b.order = i);
                         this._orderDirty = true; this.onModelChanged();
+                        const moved = this.blocks.find(b => String(b.id) === String(this._draggedId));
+                        if (moved) this.announce(movedTo(this.getBlockDisplayTitle(moved), this.blocks.indexOf(moved) + 1, this.blocks.length));
                     });
                 }
                 const socialsEl = document.getElementById('socials-list');
                 if (socialsEl && !this.socialsSortable) {
-                    this.socialsSortable = this.makeSortable(socialsEl, '.social-drag-handle', (from, to) => {
-                        const list = this.bioPage.social_links;
-                        const [moved] = list.splice(from, 1);
-                        list.splice(to, 0, moved);
+                    this.socialsSortable = this.makeSortable(socialsEl, '.social-drag-handle', (ids) => {
+                        const raw = Alpine.raw(this.bioPage.social_links || []);
+                        const next = orderByIds(raw, ids, s => s?._uid);
+                        if (!next) return sameOrder(raw, ids, s => s?._uid) ? 'same' : this.dropRefused(socialsEl, raw, () => { this.bioPage.social_links = [...raw]; }, s => s?._uid);
+                        this.bioPage.social_links = next;
                     });
                 }
             });
         },
-        makeSortable(el, handle, onMove) {
+        // One Sortable per list (blocks, socials). Each list element holds nothing but its <template x-for> and the
+        // items, and every item carries data-id. After a drop the new order is read from those ids (drop-move.js),
+        // the node goes back where Alpine left it and the array is reordered, so x-for moves the DOM from the data.
+        // Nothing thrown here may escape: an exception inside Sortable's end event left it mid-drag and every later
+        // drag and save was ignored until a reload.
+        // A drop the data refused (the DOM and the data disagree): take out what the data does not know, render the list from
+        // the data again and say so once, so the next drag works without a reload. Returns 'refused'.
+        dropRefused(el, list, rerender, keyOf = (entry) => entry?.id) {
+            dropStray(el, list, keyOf);
+            rerender();
+            console.warn('Reorder: the list did not match its data; it was refreshed.');
+            this.showNotification((CONFIG.reorder || {}).refused || 'That move could not be applied. The list was refreshed; try again.', 'error');
+            return 'refused';
+        },
+        makeSortable(el, handle, onDrop) {
+            const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
             return Sortable.create(el, {
                 draggable: '.block-item',
                 handle,
-                animation: 150,
+                animation: reduced ? 0 : 150,
                 ghostClass: 'block-ghost',
                 chosenClass: 'block-chosen',
                 // Pointer-based dragging behaves the same with mouse and touch and
@@ -611,19 +643,12 @@ window.bioEditorV2 = function() {
                 fallbackTolerance: 4,
                 scroll: true,
                 bubbleScroll: true,
-                fallbackOnBody: true,
-                // The drag ghost is a clone of the item appended to <body>; keep Alpine
-                // from initialising it outside its x-for scope ("item is not defined").
-                onStart: () => { document.body._x_ignoreMutationObserver = true; },
+                // The drag clone stays inside the list (no fallbackOnBody), so it keeps the editor's block styles.
+                // Alpine must not initialise it outside its x-for scope: the list ignores DOM changes while dragging.
+                onStart: (evt) => { el._x_ignoreMutationObserver = true; this._draggedId = evt.item?.dataset?.id; },
                 onEnd: (evt) => {
-                    delete document.body._x_ignoreMutationObserver;
-                    const { item, from, oldIndex, newIndex } = evt;
-                    if (oldIndex === undefined || newIndex === undefined || oldIndex === newIndex) return;
-                    // Put the node back where it was: Alpine's keyed x-for moves it
-                    // once the array changes, so DOM and data never disagree.
-                    const siblings = Array.from(from.children).filter(c => c !== item && c.tagName !== 'TEMPLATE');
-                    from.insertBefore(item, siblings[oldIndex] ?? null);
-                    onMove(oldIndex, newIndex);
+                    const done = finishDrop(el, evt, onDrop);
+                    if (done.error) console.error('Reorder failed:', done.error);
                 }
             });
         },
@@ -718,7 +743,7 @@ window.bioEditorV2 = function() {
                     if (json !== this._pvLast[part]) { this._pvLast[part] = json; data[part] = previewData[part]; }
                 }
                 if (!Object.keys(data).length) return;
-                frame.contentWindow.postMessage({ type: 'preview-update', data }, window.location.origin);
+                postToPreview(frame.contentWindow, { type: 'preview-update', data }, window.location.origin);
             } catch (e) {
                 console.warn('Preview update failed:', e);
             }
@@ -1111,8 +1136,8 @@ window.bioEditorV2 = function() {
                 return;
             }
             // Validate file type
-            if (!file.type.startsWith('image/')) {
-                this.showNotification('Please select an image file', 'error');
+            if (!file.type.startsWith('image/') || isSvg(file)) {
+                this.showNotification(isSvg(file) ? RASTER_ONLY() : 'Please select an image file', 'error');
                 event.target.value = '';
                 return;
             }
@@ -1320,13 +1345,14 @@ window.bioEditorV2 = function() {
             const files = Array.from(event.target.files || []).slice(0, 10 - (this.editingBlock.settings?.images || []).length);
             event.target.value = '';
             files.forEach(file => {
+                if (isSvg(file)) { this.showNotification(RASTER_ONLY(), 'error'); return; }
                 const formData = new FormData();
                 formData.append('image', file);
                 formData.append('_token', csrf());
                 fetch(bioEditorUrl('/upload-image'), { method: 'POST', headers: { 'Accept': 'application/json' }, body: formData })
-                .then(res => res.json())
-                .then(data => {
-                    if (!data.success || !data.url) throw new Error(data.message || 'Upload failed');
+                .then(async res => ({ status: res.status, data: await res.json().catch(() => ({})) }))
+                .then(({ status, data }) => {
+                    if (!data.success || !data.url) throw new Error(uploadError(data, 'image', status));
                     this.setProductSetting('images', [...(this.editingBlock.settings?.images || []), { url: data.url, caption: '' }]);
                 })
                 .catch(error => this.showNotification(error.message || 'Failed to upload', 'error'));
@@ -1366,18 +1392,20 @@ window.bioEditorV2 = function() {
         uploadPageImage(field, event) {
             const file = event.target.files[0];
             if (!file) return;
+            if (isSvg(file)) { this.showNotification(RASTER_ONLY(), 'error'); event.target.value = ''; return; }
             const formData = new FormData();
             formData.append('image', file);
             formData.append('_token', csrf());
             if (field === 'favicon') formData.append('format', 'png');
-            fetch(bioEditorUrl('/upload-image'), { method: 'POST', body: formData })
-            .then(res => res.json())
-            .then(data => {
+            // Accept: JSON, so a refused file answers 422 with its reason instead of a redirect page.
+            fetch(bioEditorUrl('/upload-image'), { method: 'POST', headers: { 'Accept': 'application/json' }, body: formData })
+            .then(async res => ({ status: res.status, data: await res.json().catch(() => ({})) }))
+            .then(({ status, data }) => {
                 if (data.success && data.path) {
                     this.bioPage[field] = data.path;
                     this.showNotification('Uploaded!', 'success');
                 } else {
-                    throw new Error(data.message || 'Upload failed');
+                    throw new Error(uploadError(data, 'image', status));
                 }
             })
             .catch(error => this.showNotification(error.message || 'Failed to upload', 'error'));
@@ -1390,43 +1418,48 @@ window.bioEditorV2 = function() {
         uploadCoverImage(event) {
             const file = event.target.files[0];
             if (!file) return;
+            if (isSvg(file)) { this.showNotification(RASTER_ONLY(), 'error'); event.target.value = ''; return; }
             const formData = new FormData();
             formData.append('image', file);
             formData.append('_token', csrf());
-            fetch(bioEditorUrl('/upload-image'), { method: 'POST', body: formData })
-            .then(res => res.json())
-            .then(data => {
+            fetch(bioEditorUrl('/upload-image'), { method: 'POST', headers: { 'Accept': 'application/json' }, body: formData })
+            .then(async res => ({ status: res.status, data: await res.json().catch(() => ({})) }))
+            .then(({ status, data }) => {
                 if (data.success && data.path) {
                     this.bioPage.cover_image = data.path;
                     this.showNotification('Cover uploaded!', 'success');
                 } else {
-                    throw new Error(data.message || 'Upload failed');
+                    throw new Error(uploadError(data, 'image', status));
                 }
             })
             .catch(error => this.showNotification(error.message || 'Failed to upload', 'error'));
+            event.target.value = '';
         },
         uploadBackgroundImage(event) {
             const file = event.target.files[0];
             if (!file) return;
+            if (isSvg(file)) { this.showNotification(RASTER_ONLY(), 'error'); event.target.value = ''; return; }
             const formData = new FormData();
             formData.append('image', file);
             formData.append('_token', csrf());
             fetch(bioEditorUrl('/upload-image'), {
                 method: 'POST',
+                headers: { 'Accept': 'application/json' },
                 body: formData
             })
-            .then(res => res.json())
-            .then(data => {
+            .then(async res => ({ status: res.status, data: await res.json().catch(() => ({})) }))
+            .then(({ status, data }) => {
                 if (data.success && data.url) {
                     this.bioPage.background_image = data.path || data.image_url;
                     this.bioPage.background_value = data.url;
                     this.bioPage.background_type = 'image';
                     this.showNotification('Background uploaded!', 'success');
                 } else {
-                    throw new Error(data.message || 'Upload failed');
+                    throw new Error(uploadError(data, 'image', status));
                 }
             })
             .catch(error => this.showNotification(error.message || 'Failed to upload', 'error'));
+            event.target.value = '';
         },
         applyTheme(themeId) {
             this.bioPage.theme = themeId;
@@ -1639,7 +1672,7 @@ window.bioEditorV2 = function() {
             pending.forEach(id => this.dirtyBlockIds.delete(id));
             // New blocks got real ids: persist the full order once.
             if ((created || this._orderDirty) && !(await this.saveBlocksOrder())) {
-                throw new Error('The block order could not be saved');
+                throw new Error(this._orderFailMessage || 'The block order could not be saved');
             }
         },
         markBlockDirty(blockId) {
@@ -1659,6 +1692,9 @@ window.bioEditorV2 = function() {
             });
             const data = await response.json().catch(() => ({}));
             if (response.ok) {
+                // The list keys its elements by _key, so the real id replacing the temporary one does not make Alpine swap the
+                // element, which may be under someone's finger (B-1, H-1).
+                block._key ??= block.id;
                 block.id = data.block?.id || data.id;
                 this.noteRevision(data.page_updated_at);
             } else {
@@ -1707,16 +1743,29 @@ window.bioEditorV2 = function() {
                     },
                     body: JSON.stringify({ links: linksData })
                 });
-                if (!response.ok) throw new Error(response.status);
+                if (!response.ok) throw Object.assign(new Error(response.status), { status: response.status });
                 this.noteRevision((await response.json().catch(() => ({}))).page_updated_at);
-                this._orderDirty = false;
+                // A drag made while this request was on its way is not saved yet: keep it pending for the next pass.
+                const now = this.blocks.filter(b => b.id < 1000000000).map(b => b.id).join(',');
+                this._orderDirty = now !== linksData.map(l => l.id).join(',');
                 return true;
             } catch (e) {
                 // Autosave of the order must not fail silently (M4): keep the change pending.
                 console.error('Reorder failed:', e);
                 this._orderDirty = true;
                 this.hasUnsavedChanges = true;
-                this.showNotification('Could not save the new order. Click Save to retry.', 'error');
+                const words = CONFIG.reorder || {};
+                let message = words.saveFailed || 'Could not save the new order. Click Save to retry.';
+                if (e.status === 419) {
+                    message = words.expired || 'Your session expired. Reload the page and sign in again.';
+                } else if (e.status === 422) {
+                    // a block of this list no longer exists (deleted in another tab): Save could never succeed, the list is stale
+                    message = words.gone || 'A block of this page no longer exists. The page is reloading.';
+                    this._autoBlocked = true;
+                    setTimeout(() => { window.onbeforeunload = null; window.location.reload(); }, 2500);
+                }
+                this._orderFailMessage = message; // the save that asked for the order says the same, not a generic line
+                this.showNotification(message, 'error');
                 return false;
             }
         },
@@ -1973,7 +2022,8 @@ window.bioEditorV2 = function() {
                 const res = await fetch(bioEditorUrl('/links/' + block.id + '/archive'), { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf(), 'Accept': 'application/json' } });
                 const data = await res.json();
                 if (!data.success) throw new Error(data.message || 'Archive failed');
-                this.blocks.splice(index, 1);
+                // by id: the list may have been reordered while the request was on its way
+                removeById(this.blocks, block.id);
                 this.blocks.forEach((b, i) => b.order = i);
                 this.archived.unshift(data.link);
                 if (!quiet) this.showNotification('Archived. Restore it any time from the archived list.', 'success');
@@ -1981,15 +2031,20 @@ window.bioEditorV2 = function() {
             } catch (e) { this.showNotification(e.message || 'Failed to archive', 'error'); }
         },
         async restoreBlock(item) {
+            // a second click while the first is on its way would put the same block in the list twice
+            this._restoring ||= new Set();
+            if (this._restoring.has(item.id)) return;
+            this._restoring.add(item.id);
             try {
                 const res = await fetch(bioEditorUrl('/links/' + item.id + '/restore'), { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf(), 'Accept': 'application/json' } });
                 const data = await res.json();
                 if (!data.success) throw new Error(data.message || 'Restore failed');
                 this.archived = this.archived.filter(a => a.id !== item.id);
-                this.blocks.push(data.link);
+                addOnce(this.blocks, data.link);
                 this.showNotification('Restored', 'success');
                 this.refreshPreview && this.refreshPreview();
             } catch (e) { this.showNotification(e.message || 'Failed to restore', 'error'); }
+            finally { this._restoring.delete(item.id); }
         },
         async deleteArchived(item, event) {
             if (!(await confirmDialog({ ...say('deleteArchived'), danger: true, subject: this.getBlockDisplayTitle(item), anchor: event?.currentTarget }))) return;
@@ -2041,9 +2096,10 @@ window.bioEditorV2 = function() {
             if (this.textEditorBlock) {
                 const index = this.blocks.findIndex(b => b.id === this.textEditorBlock.id);
                 if (index !== -1) {
-                    this.blocks[index] = { ...this.textEditorBlock };
+                    // a plain copy: spreading the editor's proxy leaves proxies in its nested fields (settings, faq_items)
+                    this.blocks[index] = JSON.parse(JSON.stringify(this.textEditorBlock));
                 } else {
-                    this.blocks.push(this.textEditorBlock);
+                    this.blocks.push(JSON.parse(JSON.stringify(this.textEditorBlock)));
                 }
                 if (this.editingBlock && this.editingBlock.id === this.textEditorBlock.id) {
                     this.editingBlock.content = this.textEditorBlock.content;
@@ -2056,8 +2112,8 @@ window.bioEditorV2 = function() {
         async uploadBlockImage(event, block) {
             const file = event.target.files[0];
             if (!file) return;
-            if (!file.type.startsWith('image/')) {
-                this.showNotification('Please select an image file', 'error');
+            if (!file.type.startsWith('image/') || isSvg(file)) {
+                this.showNotification(isSvg(file) ? RASTER_ONLY() : 'Please select an image file', 'error');
                 return;
             }
             if (file.size > 5 * 1024 * 1024) {
@@ -2071,19 +2127,20 @@ window.bioEditorV2 = function() {
             try {
                 const response = await fetch(bioEditorUrl('/upload-image'), {
                     method: 'POST',
+                    headers: { 'Accept': 'application/json' },
                     body: formData
                 });
-                const data = await response.json();
+                const data = await response.json().catch(() => ({}));
                 if (data.image_url) {
                     block.content = block.thumbnail_url = data.image_url.startsWith('http') || data.image_url.startsWith('/') ? data.image_url : '/storage/' + data.image_url;
                     this.markBlockDirty(block.id);
                     this.showNotification('Image uploaded!', 'success');
                 } else {
-                    throw new Error(data.message || 'Upload failed');
+                    throw new Error(uploadError(data, 'image', response.status));
                 }
             } catch(e) {
                 console.error('Upload error:', e);
-                this.showNotification('Failed to upload image', 'error');
+                this.showNotification(((CONFIG.uploads || {}).imageFailed || 'Failed to upload image: :reason').replace(':reason', e.message || ''), 'error');
             } finally {
                 this.saving = false;
             }
@@ -2091,6 +2148,7 @@ window.bioEditorV2 = function() {
         async uploadImageBlock(event) {
             const file = event.target.files[0];
             if (!file) return;
+            if (isSvg(file)) { this.showNotification(RASTER_ONLY(), 'error'); event.target.value = ''; return; }
             this.saving = true;
             const formData = new FormData();
             formData.append('image', file);
@@ -2098,9 +2156,10 @@ window.bioEditorV2 = function() {
             try {
                 const response = await fetch(bioEditorUrl('/upload-image'), {
                     method: 'POST',
+                    headers: { 'Accept': 'application/json' },
                     body: formData
                 });
-                const data = await response.json();
+                const data = await response.json().catch(() => ({}));
                 if (data.image_url) {
                     const imageUrl = data.image_url.startsWith('/') ? data.image_url : '/storage/' + data.image_url;
                     const newBlock = {
@@ -2119,11 +2178,11 @@ window.bioEditorV2 = function() {
                     this.imageBlockAlt = '';
                     this.showNotification('Image uploaded!', 'success');
                 } else {
-                    throw new Error('No image URL returned');
+                    throw new Error(uploadError(data, 'image', response.status));
                 }
             } catch (error) {
                 console.error('Image upload error:', error);
-                this.showNotification('Failed to upload image', 'error');
+                this.showNotification(((CONFIG.uploads || {}).imageFailed || 'Failed to upload image: :reason').replace(':reason', error.message || ''), 'error');
             } finally {
                 this.saving = false;
             }

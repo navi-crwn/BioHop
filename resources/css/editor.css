@@ -108,9 +108,7 @@
 .bio-editor .form-group { margin-bottom: 12px; }
 .bio-editor .form-label { display: block; font-size: 12px; font-weight: 500; color: var(--editor-text-muted); margin-bottom: 6px; }
 .bio-editor .form-input { width: 100%; padding: 10px 12px; border: 1px solid var(--editor-input-border); border-radius: 10px; font-size: 14px; color: var(--editor-text); background: var(--editor-input-bg); transition: border-color .15s, box-shadow .15s; }
-/* .form-input sets its own padding outside the utility layer, which beat pl-10/pr-10 and put icons over the text. */
-.bio-editor .form-input.pl-10 { padding-left: 2.5rem; }
-.bio-editor .form-input.pr-10 { padding-right: 2.5rem; }
+/* Room for an icon inside a field (pl-10, pr-10, .hop-search) is in controls.css, beside the field rule it must beat. */
 .bio-editor .form-input:focus { outline: none; border-color: var(--editor-accent); box-shadow: 0 0 0 3px rgb(59 130 246 / 0.2); }
 .bio-editor .form-input::placeholder { color: var(--editor-text-muted); }
 .bio-editor .form-textarea { resize: vertical; min-height: 60px; }

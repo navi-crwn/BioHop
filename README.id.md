@@ -109,7 +109,7 @@ Per halaman: tayangan, klik tautan, rasio klik, klik dari waktu ke waktu, perang
 - `abuse:scan` memeriksa halaman bio dan blok dengan aturan serta `domain_blacklist` bersama dari `hop/safety`. Perintah ini berjalan setiap jam pada yang berubah dan sekali sehari pada semuanya. Pencarian ke Google Safe Browsing, abuse.ch URLhaus, dan Spamhaus DBL bersifat opsional.
 - Pengunjung dapat melaporkan halaman di `/report-abuse` (Cloudflare Turnstile melindungi formulir bila kuncinya diatur).
 - Pekerjaan admin dilakukan di Imperium, panel kontrol HOP. BioHop menjawab permintaan `/api/hop/*` bertanda tangan dari Imperium, dan `/admin` mengarahkan admin ke sana.
-- Unggahan ditolak dengan kode 507 ketika disk hampir penuh (lihat [`docs/UPLOAD-STORAGE.md`](docs/UPLOAD-STORAGE.md)). Gambar yang diunggah dikecilkan ke WebP, dan berkas SVG dibangun ulang dari daftar yang diizinkan sebelum disimpan.
+- Unggahan ditolak dengan kode 507 ketika disk hampir penuh (lihat [`docs/UPLOAD-STORAGE.md`](docs/UPLOAD-STORAGE.md)). Gambar yang diunggah dikecilkan ke WebP. SVG hanya diterima untuk ikon blok sendiri dan logo QR, dan dibangun ulang dari daftar yang diizinkan sebelum disimpan; foto profil, gambar, sampul, latar, gambar bagikan, dan favicon menerima PNG, JPG, GIF, WebP, atau BMP.
 - Pembaca feed dan pengirim webhook terhubung ke alamat yang sudah mereka periksa, sehingga sebuah nama tidak dapat beralih ke alamat lain di antara pemeriksaan dan permintaan.
 - Content security policy tidak menyebut host CDN, font, atau ikon mana pun. Pustaka disertakan dalam aplikasi.
 - Beranda di bio.hel.ink adalah tur interaktif dengan halaman resmi HEL.ink di dalam sebuah ponsel. Bila "kurangi gerakan" aktif, setiap adegan menampilkan keadaan akhirnya.

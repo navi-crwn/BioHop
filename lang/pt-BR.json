@@ -774,5 +774,17 @@
     "Bank code (BIN)": "Código do banco (BIN)",
     "Six digits, as published by the bank.": "Seis dígitos, conforme divulgado pelo banco.",
     "Account number": "Número da conta",
-    "Opens in the :app app on phones; computers and visitors without scripts get this address.": "No celular abre no app :app; computadores e visitantes sem scripts usam este endereço."
+    "Opens in the :app app on phones; computers and visitors without scripts get this address.": "No celular abre no app :app; computadores e visitantes sem scripts usam este endereço.",
+    "SVG cannot be used here. Use a PNG, JPG, WebP or GIF picture.": "SVG não pode ser usado aqui. Use uma imagem PNG, JPG, WebP ou GIF.",
+    "That move could not be applied. The list was refreshed; try again.": "Não foi possível aplicar essa mudança. A lista foi atualizada; tente de novo.",
+    "Your session expired. Reload the page and sign in again.": "Sua sessão expirou. Recarregue a página e entre novamente.",
+    "A block of this page no longer exists. The page is reloading.": "Um bloco desta página não existe mais. A página está sendo recarregada.",
+    "The file is too large.": "O arquivo é grande demais.",
+    "Upload failed": "Falha no envio",
+    ":name moved to position :position of :total": ":name movido para a posição :position de :total",
+    "Could not save the new order. Click Save to retry.": "Não foi possível salvar a nova ordem. Clique em Salvar para tentar de novo.",
+    "Please wait for the current save, then upload the logo.": "Aguarde o salvamento em andamento terminar e depois envie o logotipo.",
+    "Failed to upload: :reason": "Falha no envio: :reason",
+    "Failed to upload image: :reason": "Falha ao enviar a imagem: :reason",
+    "Unknown error": "Erro desconhecido"
 }

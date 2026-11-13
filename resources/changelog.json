@@ -1,9 +1,108 @@
 {
   "schema": 1,
   "sources": {
-    "BioHop": "fce4096516c865c8a6d53ddf7da9bdaf87eb25a4"
+    "BioHop": "b848d476a7f86e71b696a6e126b4af9530fa44db"
   },
   "entries": [
+    {
+      "kind": "tag",
+      "date": "2026-11-12T02:38:27+07:00",
+      "title": "v1.3.0",
+      "url": "https://github.com/navi-crwn/BioHop/releases/tag/v1.3.0",
+      "id": "v1.3.0",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-12T02:38:27+07:00",
+      "title": "Merge pull request #75: Receive-payment block; app blocks open the app on a phone",
+      "url": "https://github.com/navi-crwn/BioHop/commit/b848d476a7f86e71b696a6e126b4af9530fa44db",
+      "id": "b848d476",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "pr",
+      "date": "2026-11-11T19:38:27Z",
+      "title": "Receive-payment block; app blocks open the app on a phone",
+      "url": "https://github.com/navi-crwn/BioHop/pull/75",
+      "id": "#75",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-11T19:55:43+01:00",
+      "title": "Use hop/safety 0.2.0 from its tag",
+      "url": "https://github.com/navi-crwn/BioHop/commit/ea2954cb8ed8e731c3b48d8c5e0f956d68c8ac69",
+      "id": "ea2954cb",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-12T00:01:10+07:00",
+      "title": "Release 1.3.0",
+      "url": "https://github.com/navi-crwn/BioHop/commit/0808c8ec32149e89f1f491d217dd3cd9e518c9ea",
+      "id": "0808c8ec",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-11T22:41:00+07:00",
+      "title": "Fall back to the web address on iPhone when the app is not installed",
+      "url": "https://github.com/navi-crwn/BioHop/commit/1ec301051e8e360babe9006942ab7169588a3053",
+      "id": "1ec30105",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-11T22:25:12+07:00",
+      "title": "Pint imports for DeepLinks and the changelog for the audit round and app links",
+      "url": "https://github.com/navi-crwn/BioHop/commit/87753cca01460676c27b00260d5a90b41c670a11",
+      "id": "87753cca",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-11T22:24:18+07:00",
+      "title": "Open an app block's known app on a phone with hop/safety DeepLinks",
+      "url": "https://github.com/navi-crwn/BioHop/commit/1547f28a2d6002c5fd52c41af2da44f1b933601c",
+      "id": "1547f28a",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-11T22:20:57+07:00",
+      "title": "Fix the assertion message in the hand-made payload test",
+      "url": "https://github.com/navi-crwn/BioHop/commit/cb7769475ac573f7238f233d06b497040e8dfc24",
+      "id": "cb776947",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-11T22:20:24+07:00",
+      "title": "Audit round: invented sample names, server-side shape checks, keep stored payment details on update",
+      "url": "https://github.com/navi-crwn/BioHop/commit/e53ee4f568d4e5c36d870426a805f6b549a6f610",
+      "id": "e53ee4f5",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
+    {
+      "kind": "commit",
+      "date": "2026-11-11T21:32:22+07:00",
+      "title": "Add a receive-payment block built on the vendored hop-pay module",
+      "url": "https://github.com/navi-crwn/BioHop/commit/2775c24b414153919b09783532c055c6f6d79e5d",
+      "id": "2775c24b",
+      "app": "BioHop",
+      "repo": "BioHop"
+    },
     {
       "kind": "tag",
       "date": "2026-11-11T13:41:41+07:00",

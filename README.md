@@ -109,7 +109,7 @@ Per page: views, link clicks, click rate, clicks over time, devices, countries, 
 - `abuse:scan` checks bio pages and blocks with the rules and the shared `domain_blacklist` from `hop/safety`. It runs hourly over what changed and once a day over everything. Google Safe Browsing, abuse.ch URLhaus and Spamhaus DBL lookups are optional.
 - Visitors can report a page at `/report-abuse` (Cloudflare Turnstile protects the form when its keys are set).
 - Admin work happens in Imperium, the HOP control panel. BioHop answers its signed `/api/hop/*` requests, and `/admin` sends admins there.
-- Uploads are refused with a 507 when the disk is nearly full (see [`docs/UPLOAD-STORAGE.md`](docs/UPLOAD-STORAGE.md)). Uploaded pictures are shrunk to WebP, and SVG files are rebuilt from an allowlist before they are stored.
+- Uploads are refused with a 507 when the disk is nearly full (see [`docs/UPLOAD-STORAGE.md`](docs/UPLOAD-STORAGE.md)). Uploaded pictures are shrunk to WebP. SVG is taken only for custom block icons and the QR logo, and is rebuilt from an allowlist before it is stored; the profile picture, images, cover, background, share picture and favicon take PNG, JPG, GIF, WebP or BMP.
 - The feed reader and the webhook sender connect to the addresses they checked, so a name cannot resolve to a different address between the check and the request.
 - The content security policy names no CDN, font or icon host. Libraries are bundled with the app.
 - The home page at bio.hel.ink is an interactive tour with the official HEL.ink page in a phone. With "reduce motion" on, every scene shows its finished state.

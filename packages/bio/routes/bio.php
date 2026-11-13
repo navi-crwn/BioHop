@@ -14,7 +14,8 @@ use Illuminate\Support\Facades\Route;
 
 // Public pages: hel.ink/b/{slug}. The host app's ip.ban middleware keeps banned visitors out.
 Route::middleware(['web', 'ip.ban'])->prefix('b')->name('bio.public.')->group(function () {
-    Route::get('/shop/{slug}', [PublicBioController::class, 'shop'])->name('shop');
+    // POST: the password and age gates of a page with a shop answer on the shop address too.
+    Route::match(['get', 'post'], '/shop/{slug}', [PublicBioController::class, 'shop'])->name('shop');
     Route::match(['get', 'post'], '/{slug}', [PublicBioController::class, 'show'])->name('show');
     Route::get('/{slug}/qr', [PublicBioController::class, 'qr'])->name('qr');
     Route::get('/{slug}/manifest.webmanifest', [PublicBioController::class, 'manifest'])->name('manifest');

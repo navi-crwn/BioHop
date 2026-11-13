@@ -45,7 +45,7 @@
         <div>
             <label class="form-label">Share picture (Open Graph)</label>
             <p class="text-xs editor-text-muted mb-2">Shown when the page is shared on WhatsApp, Telegram, X or Facebook. 1200×630 works best; without one the profile picture is used.</p>
-            <input aria-label="Upload share picture" type="file" accept="image/*" class="hidden" x-ref="ogInput" @change="uploadPageImage('og_image', $event)">
+            <input aria-label="Upload share picture" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/bmp" class="hidden" x-ref="ogInput" @change="uploadPageImage('og_image', $event)">
             <div class="flex items-center gap-2">
                 <button type="button" @click="$refs.ogInput.click()" class="btn btn-secondary text-sm py-2 flex-1">Upload picture</button>
                 <button type="button" x-show="bioPage.og_image" @click="bioPage.og_image = ''" class="btn btn-secondary text-sm py-2">Remove</button>
@@ -55,7 +55,7 @@
         <div>
             <label class="form-label">Favicon</label>
             <p class="text-xs editor-text-muted mb-2">The small icon in the browser tab. A square PNG, 64×64 or larger.</p>
-            <input aria-label="Upload favicon" type="file" accept="image/png,image/x-icon,image/svg+xml,image/webp" class="hidden" x-ref="favInput" @change="uploadPageImage('favicon', $event)">
+            <input aria-label="Upload favicon" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/bmp" class="hidden" x-ref="favInput" @change="uploadPageImage('favicon', $event)">
             <div class="flex items-center gap-2">
                 <button type="button" @click="$refs.favInput.click()" class="btn btn-secondary text-sm py-2 flex-1">Upload favicon</button>
                 @if (\Hop\Bio\Support\PixelHopMedia::enabled())

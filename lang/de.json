@@ -774,5 +774,17 @@
     "Bank code (BIN)": "Bankleitzahl (BIN)",
     "Six digits, as published by the bank.": "Sechs Ziffern, wie von der Bank veröffentlicht.",
     "Account number": "Kontonummer",
-    "Opens in the :app app on phones; computers and visitors without scripts get this address.": "Öffnet auf Smartphones in der App :app; Computer und Besucher ohne Skripte erhalten diese Adresse."
+    "Opens in the :app app on phones; computers and visitors without scripts get this address.": "Öffnet auf Smartphones in der App :app; Computer und Besucher ohne Skripte erhalten diese Adresse.",
+    "SVG cannot be used here. Use a PNG, JPG, WebP or GIF picture.": "SVG kann hier nicht verwendet werden. Verwende ein PNG-, JPG-, WebP- oder GIF-Bild.",
+    "That move could not be applied. The list was refreshed; try again.": "Diese Verschiebung konnte nicht übernommen werden. Die Liste wurde aktualisiert, bitte versuche es noch einmal.",
+    "Your session expired. Reload the page and sign in again.": "Deine Sitzung ist abgelaufen. Lade die Seite neu und melde dich erneut an.",
+    "A block of this page no longer exists. The page is reloading.": "Ein Block dieser Seite existiert nicht mehr. Die Seite wird neu geladen.",
+    "The file is too large.": "Die Datei ist zu groß.",
+    "Upload failed": "Hochladen fehlgeschlagen",
+    ":name moved to position :position of :total": ":name wurde auf Position :position von :total verschoben",
+    "Could not save the new order. Click Save to retry.": "Die neue Reihenfolge konnte nicht gespeichert werden. Klicke auf Speichern, um es noch einmal zu versuchen.",
+    "Please wait for the current save, then upload the logo.": "Bitte warte, bis das laufende Speichern fertig ist, und lade dann das Logo hoch.",
+    "Failed to upload: :reason": "Hochladen fehlgeschlagen: :reason",
+    "Failed to upload image: :reason": "Bild konnte nicht hochgeladen werden: :reason",
+    "Unknown error": "Unbekannter Fehler"
 }

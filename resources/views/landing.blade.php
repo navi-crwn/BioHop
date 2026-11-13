@@ -6,15 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>BioHop · {{ __('One link-in-bio page for everything you do.') }}</title>
     <meta name="description" content="{{ __('Share all your links, social profiles, embeds, vCard and QR code on one fast, customizable page at hel.ink/b/yourname. Free, open source, and powered by your HOP ID.') }}">
-    <link rel="canonical" href="{{ url('/') }}">
-    @foreach (\Hop\Ui\Locales::names() as $code => $name)
-        <link rel="alternate" hreflang="{{ $code }}" href="{{ url('/') }}?lang={{ $code }}">
-    @endforeach
+    @include('partials.seo-links')
     <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ url('/') }}">
+    <meta property="og:site_name" content="BioHop">
     <meta property="og:title" content="BioHop · {{ __('One link-in-bio page for everything you do.') }}">
     <meta property="og:description" content="{{ __('One page. Every part of you.') }}">
-    <meta property="og:image" content="{{ route('brand.logo', ['v' => 'b10b1000']) }}">
+    {{-- A PNG: link previews and search results do not show an SVG. --}}
+    <meta property="og:image" content="{{ asset('images/brand/og.png') }}">
+    <meta property="og:image:width" content="2400">
+    <meta property="og:image:height" content="1260">
     <meta name="twitter:card" content="summary_large_image">
     <link rel="icon" type="image/svg+xml" href="{{ route('brand.favicon', ['v' => 'b10b1000']) }}">
     <x-hop::fonts />
@@ -25,9 +25,9 @@
     <script src="{{ asset('hop-home/hop-motion.js') }}?v={{ substr(md5_file(public_path('hop-home/hop-motion.js')), 0, 8) }}" defer></script>
     <script src="{{ asset('hop-home/hop-home.js') }}?v={{ substr(md5_file(public_path('hop-home/hop-home.js')), 0, 8) }}" defer></script>
     <script src="{{ asset('hop-home/hop-scenes.js') }}?v={{ substr(md5_file(public_path('hop-home/hop-scenes.js')), 0, 8) }}" defer></script>
-    <script nonce="{{ Vite::cspNonce() }}">
-        try { const t = localStorage.getItem('helink-theme'); if (t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches)) document.documentElement.classList.add('dark'); } catch (e) {}
-    </script>
+    @include('partials.hop-prefs')
+    {{-- Structured data, not a script that runs. --}}
+    <script type="application/ld+json" nonce="{{ Vite::cspNonce() }}">{!! json_encode(\App\Support\Seo::homeGraph(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) !!}</script>
 </head>
 <body class="bio-home bg-slate-50 text-slate-900 antialiased dark:bg-[#0e1322] dark:text-slate-100 font-sans">
     @include('partials.site-header')

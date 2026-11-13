@@ -36,7 +36,7 @@
             <!-- Social Links List -->
             <div id="socials-list" class="space-y-2 mb-4" x-show="bioPage.social_links && bioPage.social_links.length > 0">
                 <template x-for="(item, idx) in (bioPage.social_links || [])" :key="item._uid || (item.platform + '-' + idx)">
-                    <div class="block-item" x-show="item">
+                    <div class="block-item" :data-id="item._uid" x-show="item">
                         <!-- Drag Handle -->
                         <div class="social-drag-handle block-drag-handle" role="button" tabindex="0"
                              :aria-label="'Move ' + (platforms[item.platform]?.name || item.platform) + '. Use the up and down arrow keys.'"
