@@ -277,7 +277,7 @@
             <div class="modal-body">
                 <template x-if="editingBlock">
                     <div class="space-y-4">
-                        <nav class="be-design-nav" role="tablist" :aria-label="CONFIG.ui?.blockTabs || 'Block sections'" x-show="blockTabs().length > 1" x-cloak>
+                        <nav class="be-design-nav" role="tablist" :aria-label="blockTabLabel('aria')" x-show="blockTabs().length > 1" x-cloak>
                             <template x-for="t in blockTabs()" :key="t[0]">
                                 <button type="button" role="tab" :id="'block-tab-' + t[0]" :aria-selected="String(blockTab === t[0])" :tabindex="blockTab === t[0] ? 0 : -1" :class="{ 'is-active': blockTab === t[0] }" @click="blockTab = t[0]" x-text="blockTabLabel(t[0])"></button>
                             </template>

@@ -196,7 +196,7 @@ window.bioEditorV2 = function() {
         },
         blockTabLabel(key) {
             const words = CONFIG.ui || {};
-            return { content: words.tabContent || 'Content', look: words.tabLook || 'Look', schedule: words.tabSchedule || 'Schedule', advanced: words.tabAdvanced || 'Advanced' }[key] || key;
+            return { content: words.tabContent || 'Content', look: words.tabLook || 'Look', schedule: words.tabSchedule || 'Schedule', advanced: words.tabAdvanced || 'Advanced', aria: words.blockTabs || 'Block sections' }[key] || key;
         },
         get isBlockValid() {
             if (!this.editingBlock) return false;
