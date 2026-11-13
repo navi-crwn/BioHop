@@ -778,5 +778,13 @@
     "SVG cannot be used here. Use a PNG, JPG, WebP or GIF picture.": "Aquí no se puede usar SVG. Usa una imagen PNG, JPG, WebP o GIF.",
     "That move could not be applied. The list was refreshed; try again.": "No se pudo aplicar ese movimiento. La lista se actualizó; inténtalo de nuevo.",
     "Your session expired. Reload the page and sign in again.": "Tu sesión ha caducado. Recarga la página e inicia sesión de nuevo.",
-    "A block of this page no longer exists. The page is reloading.": "Un bloque de esta página ya no existe. Se está recargando la página."
+    "A block of this page no longer exists. The page is reloading.": "Un bloque de esta página ya no existe. Se está recargando la página.",
+    "The file is too large.": "El archivo es demasiado grande.",
+    "Upload failed": "La subida falló",
+    ":name moved to position :position of :total": ":name se movió a la posición :position de :total",
+    "Could not save the new order. Click Save to retry.": "No se pudo guardar el nuevo orden. Haz clic en Guardar para reintentar.",
+    "Please wait for the current save, then upload the logo.": "Espera a que termine el guardado en curso y luego sube el logotipo.",
+    "Failed to upload: :reason": "Error al subir: :reason",
+    "Failed to upload image: :reason": "Error al subir la imagen: :reason",
+    "Unknown error": "Error desconocido"
 }

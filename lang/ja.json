@@ -778,5 +778,13 @@
     "SVG cannot be used here. Use a PNG, JPG, WebP or GIF picture.": "ここでは SVG は使えません。PNG、JPG、WebP、GIF の画像を使ってください。",
     "That move could not be applied. The list was refreshed; try again.": "この移動を反映できませんでした。リストを更新しました。もう一度お試しください。",
     "Your session expired. Reload the page and sign in again.": "セッションの有効期限が切れました。ページを再読み込みして、もう一度ログインしてください。",
-    "A block of this page no longer exists. The page is reloading.": "このページのブロックが存在しなくなりました。ページを再読み込みしています。"
+    "A block of this page no longer exists. The page is reloading.": "このページのブロックが存在しなくなりました。ページを再読み込みしています。",
+    "The file is too large.": "ファイルが大きすぎます。",
+    "Upload failed": "アップロードに失敗しました",
+    ":name moved to position :position of :total": ":name を :total 件中 :position 番目に移動しました",
+    "Could not save the new order. Click Save to retry.": "新しい順序を保存できませんでした。もう一度試すには「保存」をクリックしてください。",
+    "Please wait for the current save, then upload the logo.": "保存が終わるまで待ってから、ロゴをアップロードしてください。",
+    "Failed to upload: :reason": "アップロードに失敗しました：:reason",
+    "Failed to upload image: :reason": "画像のアップロードに失敗しました：:reason",
+    "Unknown error": "不明なエラー"
 }

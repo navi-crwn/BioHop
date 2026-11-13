@@ -20,7 +20,11 @@ const csrf = () => document.head.querySelector('meta[name="csrf-token"]')?.conte
 const isSvg = (file) => !!file && (file.type === 'image/svg+xml' || /\.svgz?$/i.test(file.name || ''));
 const RASTER_ONLY = () => (CONFIG.uploads || {}).rasterOnly || 'SVG cannot be used here. Use a PNG, JPG, WebP or GIF picture.';
 // The reason an upload was refused (422 names the field), not only "Upload failed".
-const uploadError = (data, field, status) => data?.errors?.[field]?.[0] || data?.message || (status === 413 ? 'The file is too large.' : 'Upload failed');
+const uploadError = (data, field, status) => data?.errors?.[field]?.[0] || data?.message
+    || (status === 413 ? (CONFIG.uploads || {}).tooLarge || 'The file is too large.' : (CONFIG.uploads || {}).failed || 'Upload failed');
+// The screen-reader line after a block or social icon moved, in the member's language (CONFIG.reorder.moved).
+const movedTo = (name, position, total) => String((CONFIG.reorder || {}).moved || ':name moved to position :position of :total')
+    .replace(/:(name|position|total)/g, (m, k) => ({ name, position, total })[k]);
 // Static lookups are frozen: Alpine skips frozen objects, so ~400 brands are not made reactive and not watched.
 const PLATFORMS = Object.freeze(CONFIG.platforms);
 const THEMES = Object.freeze(CONFIG.themes);
@@ -560,7 +564,7 @@ window.bioEditorV2 = function() {
             this.blocks.splice(to, 0, moved);
             this.blocks.forEach((b, i) => b.order = i);
             this._orderDirty = true; this.onModelChanged();
-            this.announce(`${this.getBlockDisplayTitle(moved)} moved to position ${to + 1} of ${this.blocks.length}`);
+            this.announce(movedTo(this.getBlockDisplayTitle(moved), to + 1, this.blocks.length));
             this.$nextTick(() => document.querySelectorAll('#blocks-list .block-drag-handle')[to]?.focus());
         },
         moveSocial(index, step) {
@@ -569,7 +573,7 @@ window.bioEditorV2 = function() {
             if (to < 0 || to >= list.length) return;
             const [moved] = list.splice(index, 1);
             list.splice(to, 0, moved);
-            this.announce(`${this.platforms[moved.platform]?.name || moved.platform} moved to position ${to + 1} of ${list.length}`);
+            this.announce(movedTo(this.platforms[moved.platform]?.name || moved.platform, to + 1, list.length));
             this.$nextTick(() => document.querySelectorAll('#socials-list .social-drag-handle')[to]?.focus());
         },
         cycleTab(step, absolute = false) {
@@ -597,7 +601,7 @@ window.bioEditorV2 = function() {
                         this.blocks.forEach((b, i) => b.order = i);
                         this._orderDirty = true; this.onModelChanged();
                         const moved = this.blocks.find(b => String(b.id) === String(this._draggedId));
-                        if (moved) this.announce(`${this.getBlockDisplayTitle(moved)} moved to position ${this.blocks.indexOf(moved) + 1} of ${this.blocks.length}`);
+                        if (moved) this.announce(movedTo(this.getBlockDisplayTitle(moved), this.blocks.indexOf(moved) + 1, this.blocks.length));
                     });
                 }
                 const socialsEl = document.getElementById('socials-list');
@@ -1751,7 +1755,7 @@ window.bioEditorV2 = function() {
                 this._orderDirty = true;
                 this.hasUnsavedChanges = true;
                 const words = CONFIG.reorder || {};
-                let message = 'Could not save the new order. Click Save to retry.';
+                let message = words.saveFailed || 'Could not save the new order. Click Save to retry.';
                 if (e.status === 419) {
                     message = words.expired || 'Your session expired. Reload the page and sign in again.';
                 } else if (e.status === 422) {
@@ -2136,7 +2140,7 @@ window.bioEditorV2 = function() {
                 }
             } catch(e) {
                 console.error('Upload error:', e);
-                this.showNotification('Failed to upload image: ' + (e.message || ''), 'error');
+                this.showNotification(((CONFIG.uploads || {}).imageFailed || 'Failed to upload image: :reason').replace(':reason', e.message || ''), 'error');
             } finally {
                 this.saving = false;
             }
@@ -2178,7 +2182,7 @@ window.bioEditorV2 = function() {
                 }
             } catch (error) {
                 console.error('Image upload error:', error);
-                this.showNotification('Failed to upload image: ' + (error.message || ''), 'error');
+                this.showNotification(((CONFIG.uploads || {}).imageFailed || 'Failed to upload image: :reason').replace(':reason', error.message || ''), 'error');
             } finally {
                 this.saving = false;
             }

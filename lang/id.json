@@ -778,5 +778,13 @@
     "SVG cannot be used here. Use a PNG, JPG, WebP or GIF picture.": "SVG tidak bisa dipakai di sini. Pakai gambar PNG, JPG, WebP, atau GIF.",
     "That move could not be applied. The list was refreshed; try again.": "Pemindahan itu tidak dapat diterapkan. Daftar sudah disegarkan, coba lagi.",
     "Your session expired. Reload the page and sign in again.": "Sesi Anda berakhir. Muat ulang halaman dan masuk lagi.",
-    "A block of this page no longer exists. The page is reloading.": "Salah satu blok di halaman ini sudah tidak ada. Halaman dimuat ulang."
+    "A block of this page no longer exists. The page is reloading.": "Salah satu blok di halaman ini sudah tidak ada. Halaman dimuat ulang.",
+    "The file is too large.": "Berkas terlalu besar.",
+    "Upload failed": "Unggahan gagal",
+    ":name moved to position :position of :total": ":name dipindahkan ke posisi :position dari :total",
+    "Could not save the new order. Click Save to retry.": "Urutan baru tidak dapat disimpan. Klik Simpan untuk mencoba lagi.",
+    "Please wait for the current save, then upload the logo.": "Tunggu penyimpanan yang sedang berjalan selesai, lalu unggah logonya.",
+    "Failed to upload: :reason": "Gagal mengunggah: :reason",
+    "Failed to upload image: :reason": "Gagal mengunggah gambar: :reason",
+    "Unknown error": "Kesalahan tidak dikenal"
 }

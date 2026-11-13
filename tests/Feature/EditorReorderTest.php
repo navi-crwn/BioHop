@@ -76,3 +76,39 @@ test('the reorder endpoint stores the order it is sent, for the page\'s own bloc
     $back = $this->get('/b/drag-save')->getContent();
     expect(strpos($back, 'Alpha-one'))->toBeLessThan(strpos($back, 'Bravo-two'))->and(strpos($back, 'Bravo-two'))->toBeLessThan(strpos($back, 'Charlie-three'));
 });
+
+test('the editor messages of the reorder and upload fixes exist in all nine languages and reach the page', function () {
+    $keys = [
+        'The file is too large.',
+        'Upload failed',
+        ':name moved to position :position of :total',
+        'Could not save the new order. Click Save to retry.',
+        'Please wait for the current save, then upload the logo.',
+        'Failed to upload: :reason',
+        'Failed to upload image: :reason',
+        'Unknown error',
+    ];
+    foreach (['zh-CN', 'de', 'id', 'ja', 'pt-BR', 'es', 'fr', 'ru'] as $locale) {
+        $lang = json_decode(file_get_contents(lang_path($locale.'.json')), true);
+        foreach ($keys as $key) {
+            expect($lang)->toHaveKey($key);
+            expect($lang[$key])->not->toBe($key);
+            preg_match_all('/:\w+/', $key, $want);
+            preg_match_all('/:\w+/', $lang[$key], $got);
+            expect(collect($got[0])->sort()->values()->all())->toBe(collect($want[0])->sort()->values()->all());
+        }
+    }
+
+    // the ones the editor's config carries (editor/index.blade.php); the logo upload texts sit in the profile tab's script
+    $inConfig = [$keys[0], $keys[1], $keys[2], $keys[3], $keys[6]];
+    $user = User::factory()->create();
+    BioPage::create(['user_id' => $user->id, 'slug' => 'words-page', 'title' => 'Words']);
+    $id = json_decode(file_get_contents(lang_path('id.json')), true);
+    $html = $this->actingAs($user)->get('/bio/words-page/edit?lang=id')->assertOk()->getContent();
+    foreach ($inConfig as $key) {
+        expect($html)->toContain(json_encode($id[$key], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+    }
+    foreach ([$keys[4], $keys[5], $keys[7]] as $key) {
+        expect($html)->toContain("'".$id[$key]."'"); // @js(__()) in the profile tab prints a single-quoted string
+    }
+});

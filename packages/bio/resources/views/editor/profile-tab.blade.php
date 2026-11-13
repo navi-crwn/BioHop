@@ -506,7 +506,7 @@ window.qrGenerator = function() {
             const editorEl = this.$el.closest('.bio-editor');
             const editor = editorEl ? Alpine.$data(editorEl) : null;
             if (editor?._saveInFlight) {
-                this.showQrNotification('Please wait for the current save, then upload the logo.', 'info');
+                this.showQrNotification(@js(__('Please wait for the current save, then upload the logo.')), 'info');
                 event.target.value = '';
                 return;
             }
@@ -534,7 +534,7 @@ window.qrGenerator = function() {
                     this.saveSettings();
                     this.showQrNotification('Logo uploaded successfully', 'success');
                 } else {
-                    this.showQrNotification('Failed to upload: ' + (result.errors?.logo?.[0] || result.message || (response.status === 413 ? 'The file is too large.' : 'Unknown error')), 'error');
+                    this.showQrNotification(@js(__('Failed to upload: :reason')).replace(':reason', result.errors?.logo?.[0] || result.message || (response.status === 413 ? @js(__('The file is too large.')) : @js(__('Unknown error')))), 'error');
                 }
             } catch (error) {
                 console.error('Upload error:', error);
