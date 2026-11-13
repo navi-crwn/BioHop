@@ -46,8 +46,8 @@ test('the sortable lists hold nothing but the x-for template and items with an i
 test('the editor reorders by ids, keeps the drag clone inside the editor and never lets a drop throw', function () {
     $js = file_get_contents(resource_path('js/editor.js'));
     expect($js)->toContain("import { orderByIds, itemIds, putBack } from './drop-move.js';")
-        ->toContain('orderByIds(this.blocks, ids)')
-        ->toContain('orderByIds(this.bioPage.social_links || [], ids, s => s?._uid)')
+        ->toContain('orderByIds(Alpine.raw(this.blocks), ids)')
+        ->toContain('orderByIds(Alpine.raw(this.bioPage.social_links || []), ids, s => s?._uid)')
         ->not->toContain('fallbackOnBody: true')
         ->not->toContain('onMove(oldIndex, newIndex)')
         ->not->toContain('document.body._x_ignoreMutationObserver');

@@ -589,7 +589,7 @@ window.bioEditorV2 = function() {
                 const blocksEl = document.getElementById('blocks-list');
                 if (blocksEl && !this.blocksSortable) {
                     this.blocksSortable = this.makeSortable(blocksEl, '.block-drag-handle', (ids) => {
-                        const next = orderByIds(this.blocks, ids);
+                        const next = orderByIds(Alpine.raw(this.blocks), ids); // raw entries: the preview message cannot carry Alpine proxies
                         if (!next) return;
                         this.blocks = next;
                         this.blocks.forEach((b, i) => b.order = i);
@@ -601,7 +601,7 @@ window.bioEditorV2 = function() {
                 const socialsEl = document.getElementById('socials-list');
                 if (socialsEl && !this.socialsSortable) {
                     this.socialsSortable = this.makeSortable(socialsEl, '.social-drag-handle', (ids) => {
-                        const next = orderByIds(this.bioPage.social_links || [], ids, s => s?._uid);
+                        const next = orderByIds(Alpine.raw(this.bioPage.social_links || []), ids, s => s?._uid);
                         if (next) this.bioPage.social_links = next;
                     });
                 }
