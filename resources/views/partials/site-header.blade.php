@@ -36,7 +36,7 @@
                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
                         <span class="max-[440px]:hidden">{{ app()->getLocale() }}</span>
                     </summary>
-                    <ul class="absolute start-0 z-50 mt-2 w-44 rounded-2xl border border-slate-200/80 bg-white p-1.5 text-sm shadow-lg dark:border-white/10 dark:bg-slate-900">
+                    <ul class="absolute end-0 z-50 mt-2 w-44 rounded-2xl border border-slate-200/80 bg-white p-1.5 text-sm shadow-lg dark:border-white/10 dark:bg-slate-900">
                         @foreach (\Hop\Ui\Locales::names() as $code => $name)
                             <li><a href="?lang={{ $code }}" lang="{{ $code }}" @class(['block rounded-xl px-3 py-2 hover:bg-slate-100 dark:hover:bg-white/5', 'font-bold text-violet-600 dark:text-violet-400' => app()->getLocale() === $code])>{{ $name }}</a></li>
                         @endforeach

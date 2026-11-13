@@ -70,14 +70,14 @@ As capturas de tela abaixo vêm de uma instalação local com dados de exemplo i
 - Arraste para reordenar. Um modo de seleção mostra, oculta, arquiva ou exclui vários blocos de uma vez. Um bloco arquivado sai da página, mas mantém seus cliques.
 - Versões: o editor salva uma versão antes de cada sessão de edição. Você também pode dar nome a uma versão e restaurar qualquer uma.
 - As páginas podem ser duplicadas. Por padrão, uma conta tem 3 páginas e uma página tem 100 blocos (veja as configurações abaixo).
-- Design: quatro layouts de cabeçalho (clássico, hero, banner com imagem de capa, cutout), 17 temas no seletor, plano de fundo em cor, gradiente ou imagem, estilos de botão e de bloco, fontes servidas pelo próprio app, CSS próprio por página e um botão para a linha "Powered by".
+- Design: quatro layouts de cabeçalho (clássico, hero, banner com imagem de capa, cutout), 17 temas no seletor, plano de fundo em cor, gradiente ou imagem, estilos de botão e de bloco, fontes servidas pelo próprio app e CSS próprio por página.
 - A interface está disponível em English, 简体中文, Deutsch, Bahasa Indonesia, 日本語, Português (Brasil), Español, Français e Русский.
 
 ### Blocos
 
-O BioHop tem 29 tipos de bloco: link, texto, título, divisor, espaçador, imagem, carrossel, PDF, áudio, vídeo, YouTube, Spotify, SoundCloud, música, mapa, contagem regressiva, FAQ, HTML, código, cartão de contato, e-mail, WhatsApp, link de loja de apps, barra de meta, produto, coleção, formulário de inscrição, enquete e feed RSS ou Atom.
+O BioHop oferece 19 tipos de bloco ao adicionar um: link, texto, título, imagem, divisor, YouTube, música (Spotify, SoundCloud, Apple Music ou YouTube Music), clipe de áudio, carrossel de imagens, PDF, produto, coleção, barra de meta, receber pagamento, formulário de inscrição, contagem regressiva, cartão de contato, local e FAQ. Os blocos de cinco tipos descontinuados (rotador de WhatsApp, link de loja de apps, SoundCloud, feed RSS, enquete) que uma página já tem continuam funcionando e podem ser editados, mas não podem ser adicionados de novo.
 
-- Um bloco de WhatsApp alterna entre até 10 números, em sequência ou por peso.
+- O bloco rotador de WhatsApp foi descontinuado: a página que já tem um o mantém (ele alterna entre até 10 números, em sequência ou por peso), e não é possível criar novos.
 - Um bloco de app leva o visitante à loja que corresponde ao sistema dele.
 - Qualquer bloco pode ter horário de publicação e de expiração.
 - Um link pode enviar os visitantes para outro lugar conforme país, dispositivo, sistema ou hora do dia, e pode ter um PIN próprio.

@@ -70,14 +70,14 @@ Les captures d'écran ci-dessous proviennent d'une installation locale avec des 
 - Glissez pour réordonner. Un mode sélection affiche, masque, archive ou supprime plusieurs blocs ensemble. Un bloc archivé quitte la page mais garde ses clics.
 - Versions : l'éditeur enregistre une version avant chaque session de modification. Vous pouvez aussi nommer une version et restaurer n'importe laquelle.
 - Les pages peuvent être dupliquées. Par défaut, un compte a 3 pages et une page a 100 blocs (voir les réglages plus bas).
-- Design : quatre dispositions d'en-tête (classique, hero, bannière avec image de couverture, cutout), 17 thèmes dans le sélecteur, un fond en couleur, en dégradé ou en image, des styles de boutons et de blocs, des polices servies par l'application elle-même, du CSS propre à chaque page et un interrupteur pour la ligne « Powered by ».
+- Design : quatre dispositions d'en-tête (classique, hero, bannière avec image de couverture, cutout), 17 thèmes dans le sélecteur, un fond en couleur, en dégradé ou en image, des styles de boutons et de blocs, des polices servies par l'application elle-même et du CSS propre à chaque page.
 - L'interface existe en English, 简体中文, Deutsch, Bahasa Indonesia, 日本語, Português (Brasil), Español, Français et Русский.
 
 ### Blocs
 
-BioHop propose 29 types de blocs : lien, texte, titre, séparateur, espacement, image, carrousel, PDF, audio, vidéo, YouTube, Spotify, SoundCloud, musique, carte, compte à rebours, FAQ, HTML, code, carte de contact, e-mail, WhatsApp, lien vers une boutique d'applications, barre d'objectif, produit, collection, formulaire d'inscription, sondage et flux RSS ou Atom.
+BioHop propose 19 types de blocs à l’ajout : lien, texte, titre, image, séparateur, YouTube, musique (Spotify, SoundCloud, Apple Music ou YouTube Music), clip audio, carrousel d’images, PDF, produit, collection, barre d’objectif, recevoir un paiement, formulaire d’inscription, compte à rebours, carte de contact, lieu et FAQ. Les blocs de cinq types retirés (rotateur WhatsApp, lien vers une boutique d’applications, SoundCloud, flux RSS, sondage) qu’une page possède déjà continuent de fonctionner et restent modifiables, mais ne peuvent plus être ajoutés.
 
-- Un bloc WhatsApp alterne entre 10 numéros au plus, à tour de rôle ou selon un poids.
+- Le bloc rotateur WhatsApp est retiré : une page qui en a un le garde (il alterne entre jusqu’à 10 numéros, à tour de rôle ou selon un poids) et aucun nouveau ne peut être créé.
 - Un bloc d'application envoie le visiteur vers la boutique qui correspond à son système.
 - Tout bloc peut avoir une heure de publication et une heure d'expiration.
 - Un lien peut envoyer les visiteurs ailleurs selon le pays, l'appareil, le système ou l'heure de la journée, et peut avoir son propre code PIN.

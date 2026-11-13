@@ -70,14 +70,14 @@ Las capturas de abajo salen de una instalación local con datos de ejemplo inven
 - Arrastra para reordenar. Un modo de selección muestra, oculta, archiva o elimina varios bloques a la vez. Un bloque archivado sale de la página pero conserva sus clics.
 - Versiones: el editor guarda una versión antes de cada sesión de edición. También puedes ponerle nombre a una versión y restaurar cualquiera.
 - Las páginas se pueden duplicar. Por defecto, una cuenta tiene 3 páginas y una página tiene 100 bloques (consulta los ajustes más abajo).
-- Diseño: cuatro disposiciones de cabecera (clásica, hero, banner con imagen de portada, cutout), 17 temas en el selector, fondo en color, degradado o imagen, estilos de botones y bloques, tipografías servidas por la propia app, CSS propio por página y un interruptor para la línea "Powered by".
+- Diseño: cuatro disposiciones de cabecera (clásica, hero, banner con imagen de portada, cutout), 17 temas en el selector, fondo en color, degradado o imagen, estilos de botones y bloques, tipografías servidas por la propia app y CSS propio por página.
 - La interfaz está disponible en English, 简体中文, Deutsch, Bahasa Indonesia, 日本語, Português (Brasil), Español, Français y Русский.
 
 ### Bloques
 
-BioHop tiene 29 tipos de bloque: enlace, texto, encabezado, separador, espaciador, imagen, carrusel, PDF, audio, vídeo, YouTube, Spotify, SoundCloud, música, mapa, cuenta atrás, preguntas frecuentes, HTML, código, tarjeta de contacto, correo electrónico, WhatsApp, enlace a tienda de apps, barra de objetivo, producto, colección, formulario de registro, encuesta y feed RSS o Atom.
+BioHop ofrece 19 tipos de bloque al añadir uno: enlace, texto, encabezado, imagen, separador, YouTube, música (Spotify, SoundCloud, Apple Music o YouTube Music), clip de audio, carrusel de imágenes, PDF, producto, colección, barra de objetivo, recibir pagos, formulario de registro, cuenta atrás, tarjeta de contacto, ubicación y preguntas frecuentes. Los bloques de cinco tipos retirados (rotador de WhatsApp, enlace a tienda de apps, SoundCloud, feed RSS, encuesta) que una página ya tiene siguen funcionando y se pueden editar, pero no se pueden añadir de nuevo.
 
-- Un bloque de WhatsApp rota entre hasta 10 números, por turno o por peso.
+- El bloque rotador de WhatsApp está retirado: la página que ya tiene uno lo conserva (rota entre hasta 10 números, por turno o por peso) y no se pueden crear nuevos.
 - Un bloque de app lleva al visitante a la tienda que corresponde a su sistema.
 - Cualquier bloque puede tener una hora de publicación y otra de caducidad.
 - Un enlace puede enviar a los visitantes a otro sitio según país, dispositivo, sistema u hora del día, y puede tener su propio PIN.
