@@ -124,3 +124,8 @@
 .hop-family-row b { color: rgb(var(--ink)); font-weight: 500; }
 .hop-family-row:hover b { text-decoration: underline; text-underline-offset: 2px; }
 .hop-family-side { flex: none; }
+/* A reminder card that is a plain block (the setup checklist): the shared "Hide" button is positioned at the right and the card
+   keeps 220px of padding on that side for it, so on a narrow card the list items were cut short with room to spare.
+   Put the button in the flow, above the content, and give the content the whole card. */
+.hop-remind[data-checklist] { display: flex; flex-direction: column; padding-right: 20px; }
+.hop-remind[data-checklist] > .hop-remind__hide { position: static; align-self: flex-end; order: -1; margin: -6px -6px 6px 0; }

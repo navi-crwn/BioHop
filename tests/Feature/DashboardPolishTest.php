@@ -92,8 +92,10 @@ test('the retired-rotator notice shows only to members who have such a block, ca
     config(['hop.whatsapp_retire_on' => '2027-03-01']);
     $this->get(route('bio.index'))->assertSee('keep working until 1 March 2027');
 
-    // it shows on the other dashboard screens too (the editor), and "Hide" hides it for a week
-    $this->get('/bio/polish-note/edit')->assertSee('data-announcement', false);
+    // it is on the dashboard home only: the editor, the settings and the analytics do not carry it, and "Hide" hides it for a week
+    foreach (['/bio/polish-note/edit', route('settings'), '/bio/polish-note/analytics'] as $other) {
+        $this->get($other)->assertDontSee('data-announcement', false);
+    }
     $this->postJson(route('reminders.dismiss'), ['key' => 'whatsapp-rotator-retired'])->assertOk();
     $this->get(route('bio.index'))->assertDontSee('data-announcement', false);
     $this->travel(8)->days();

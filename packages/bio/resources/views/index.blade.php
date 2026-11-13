@@ -21,6 +21,20 @@
 
     <x-flash />
 
+    {{-- The announcement: one card at the top of the dashboard home, the same look in every HOP dashboard. A reminder card, so hop-ui adds "Hide · Shows again next week". Nothing to say: no card and no gap. --}}
+    @if (\App\Support\Reminders::whatsappRetiredNotice((int) auth()->id()))
+        @php $retireDate = \App\Support\Reminders::whatsappRetireDate(); @endphp
+        <div class="glass flex flex-wrap items-center gap-3 rounded-2xl px-4 py-3 text-sm" data-announcement data-hop-remind="whatsapp-rotator-retired" data-hop-remind-url="{{ route('reminders.dismiss') }}">
+            <span class="chip-blue">{{ __('Notice') }}</span>
+            <span class="min-w-0 flex-1 text-muted">
+                <strong class="text-ink">{{ __('The WhatsApp rotator block is being retired.') }}</strong>
+                {{ $retireDate
+                    ? __('The blocks you already have keep working until :date, but new ones cannot be added. Use a normal link block or a LinkHop link instead.', ['date' => $retireDate])
+                    : __('The blocks you already have keep working for now, but new ones cannot be added. Use a normal link block or a LinkHop link instead.') }}
+            </span>
+        </div>
+    @endif
+
     @unless ($bioPages->isEmpty())
         <div class="mt-4 grid gap-3 md:grid-cols-3">
             <section class="glass-card flex flex-col justify-between gap-4 md:col-span-2">
