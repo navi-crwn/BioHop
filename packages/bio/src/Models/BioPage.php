@@ -4,6 +4,7 @@ namespace Hop\Bio\Models;
 
 use App\Models\User;
 use Hop\Bio\Support\EdgeCache;
+use Hop\Bio\Support\SocialLinksCast;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -155,7 +156,7 @@ class BioPage extends Model
     ];
 
     protected $casts = [
-        'social_links' => 'array',
+        'social_links' => SocialLinksCast::class,
         'socials' => 'array',
         'qr_settings' => 'array',
         'is_published' => 'boolean',
@@ -231,7 +232,8 @@ class BioPage extends Model
 
     public function links(): HasMany
     {
-        return $this->hasMany(BioLink::class)->orderBy('order');
+        // the id breaks a tie, so blocks with the same order read alike in the editor, the public page and the API
+        return $this->hasMany(BioLink::class)->orderBy('order')->orderBy('id');
     }
 
     /**
