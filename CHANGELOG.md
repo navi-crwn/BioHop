@@ -17,7 +17,7 @@ All notable changes to BioHop are listed here. The format follows [Keep a Change
 ### Changed
 - Upload buttons offer the file types their upload takes: SVG only for custom block icons and the QR logo. Choosing an SVG for the profile picture, an image, the cover, the background, the share picture or the favicon says so at once, in nine languages. The README says where SVG is taken.
 - The theme and the language are shared with the other HOP apps: the theme is kept in the cookie `hop_theme` (the old browser setting is copied over once) and the language cookie `hop_lang` is set for all of `hel.ink`. Both are plain text; a browser that still has this site's old language cookie gets it moved once (`hop_pref=2`), and when two `hop_lang` cookies arrive the newer one counts. Public bio pages keep their own theme.
-- Search engines: the home and info pages name one canonical address per language (`?lang=`), list the nine languages and `x-default`, share a PNG preview, and the home page describes BioHop as a web application (JSON-LD). The sitemap lists these pages with their languages before the public bio pages. Signed-in screens say `noindex`.
+- Search engines: the home and info pages name one canonical address per language (`?lang=`, English being the bare address), list the nine languages and `x-default`, share a PNG preview, and the home page describes BioHop as a web application (JSON-LD). The sitemap lists these pages with their languages before the public bio pages. Signed-in screens say `noindex`.
 
 ## [1.3.0] - 2026-11-12
 

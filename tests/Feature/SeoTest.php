@@ -36,6 +36,7 @@ function seoAttr(string $html, string $query, string $attr): array
 test('the canonical is APP_URL plus the path, keeping only a supported ?lang=', function () {
     $cases = [
         '/' => 'https://bio.hel.ink/',
+        '/?lang=en' => 'https://bio.hel.ink/',
         '/?lang=de' => 'https://bio.hel.ink/?lang=de',
         '/?lang=de&utm_source=x' => 'https://bio.hel.ink/?lang=de',
         '/?utm_source=x&page=2' => 'https://bio.hel.ink/',
@@ -63,9 +64,10 @@ test('the home and info pages carry the nine language alternates and x-default',
         expect(array_keys($links))->toBe([...Locales::codes(), 'x-default']);
         expect($links)->toHaveCount(10)->not->toHaveKey('ar');
         foreach (Locales::codes() as $code) {
-            expect($links[$code])->toBe($base.'?lang='.$code);
+            // English is the bare address (same as x-default); the other eight are ?lang=<code>
+            expect($links[$code])->toBe($code === 'en' ? $base : $base.'?lang='.$code);
         }
-        expect($links['x-default'])->toBe($base);
+        expect($links['x-default'])->toBe($base)->and($links['en'])->toBe($links['x-default']);
     }
 });
 
@@ -123,7 +125,7 @@ test('the sitemap lists every own public page once with its alternates, then the
     foreach ($own as $loc) {
         expect($urls)->toHaveKey($loc);
         expect(array_keys($urls[$loc]))->toBe([...Locales::codes(), 'x-default']);
-        expect($urls[$loc]['x-default'])->toBe($loc)->and($urls[$loc]['de'])->toBe($loc.'?lang=de');
+        expect($urls[$loc]['x-default'])->toBe($loc)->and($urls[$loc]['de'])->toBe($loc.'?lang=de')->and($urls[$loc]['en'])->toBe($loc);
         $this->get(parse_url($loc, PHP_URL_PATH))->assertOk();
     }
     expect($urls)->toHaveKey('https://hel.ink/b/open-page')
@@ -131,4 +133,22 @@ test('the sitemap lists every own public page once with its alternates, then the
     foreach (array_keys($urls) as $loc) {
         expect($loc)->not->toMatch('#/(bio|settings|dashboard|admin|login)(/|$)#')->not->toContain('?');
     }
+});
+
+test('?lang=en has the bare address as canonical and og:url, and still renders English', function () {
+    $html = $this->get('/features?lang=en&utm_source=x')->assertOk()->getContent();
+    expect(seoAttr($html, '//head/link[@rel="canonical"]', 'href'))->toBe(['https://bio.hel.ink/features']);
+    expect(seoAttr($html, '//head/meta[@property="og:url"]', 'content'))->toBe(['https://bio.hel.ink/features']);
+    expect(seoAttr($html, '//html', 'lang'))->toBe(['en']);
+});
+
+test('the en alternate equals x-default, in the head and in the sitemap, and the other eight keep ?lang=', function () {
+    $links = [];
+    foreach (seoDom($this->get('/')->assertOk()->getContent())->query('//head/link[@rel="alternate"][@hreflang]') as $link) {
+        $links[$link->getAttribute('hreflang')] = $link->getAttribute('href');
+    }
+    expect($links['en'])->toBe($links['x-default'])->toBe('https://bio.hel.ink/');
+    expect(collect($links)->except(['en', 'x-default'])->every(fn ($href) => str_contains($href, '?lang=')))->toBeTrue();
+    $sitemap = $this->get('/sitemap.xml')->assertOk()->getContent();
+    expect($sitemap)->not->toContain('?lang=en"')->toContain('hreflang="en" href="https://bio.hel.ink/"');
 });

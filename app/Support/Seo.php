@@ -16,13 +16,14 @@ final class Seo
 {
     public const NAME = 'BioHop';
 
-    /** The address of a path on this app, optionally in one language (?lang=). */
+    /** The address of a path on this app, optionally in one language (?lang=, except English: the bare address). */
     public static function url(string $path = '', ?string $locale = null): string
     {
         $path = trim($path, '/');
         $url = rtrim((string) config('app.url'), '/').($path === '' ? '/' : '/'.$path);
 
-        return $locale === null ? $url : $url.'?lang='.$locale;
+        // English lives at the bare address (the hub's rule): ?lang=en still renders English, but it is not a second address.
+        return $locale === null || $locale === 'en' ? $url : $url.'?lang='.$locale;
     }
 
     /** The canonical address of the page being served: its path, plus ?lang= when the request named one of the nine. */
