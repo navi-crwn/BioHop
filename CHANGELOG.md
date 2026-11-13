@@ -4,12 +4,34 @@ All notable changes to BioHop are listed here. The format follows [Keep a Change
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-11-14
+
+### Added
+- Adding a block: a "Back" button at the top of the new-block pop-up (also in the Text and Image pop-ups) returns to the list of block kinds, so a wrong pick no longer means closing the pop-up and opening "Add block" again. Asked for after using the editor.
+- Dashboard: a notice card at the top of the dashboard tells members who still have a WhatsApp rotator block that the block is being retired. It can be hidden for a week, and it names the end date only once one is decided.
+- Settings: the cards are grouped into four sections (Search & sharing, Privacy, Tools, Versions) instead of nine cards in one long list, and the search-engine preview sits next to the title and description on wide screens. A refused setting opens the section it belongs to. The page was too long to scan.
+
+### Changed
+- Editing a block: the pop-up is split into short sections (Content, Look, Schedule, Advanced). A section with nothing in it for that kind of block is not shown, and a divider or spacer has none. If saving is refused, the section that needs attention opens. One long form was hard to read, especially for links.
+- Block picker: there is one "Music" block for Spotify, SoundCloud, Apple Music and YouTube Music links instead of separate Spotify and SoundCloud blocks, and the app store link, RSS feed and poll blocks are no longer offered. Pages that already have these blocks keep them, and they can still be edited. The picker was long and several kinds overlapped.
+- WhatsApp rotator: no new rotator block can be made; blocks already on a page keep working and can be edited. Use a normal link block or a LinkHop link instead.
+- Socials tab: the position choice is one row of two buttons, and each social icon is one short row, so the list is shorter and easier to arrange.
+- Design tab: a panel with little in it keeps a readable width on wide screens instead of stretching into an empty card, and the Footer section is gone (see below).
+- Profile tab: the picture shape choice is hidden, with a short note, for the Hero and Cutout headers, which do not use it. Your choice is kept if you switch back.
+- "Part of Hop Easy Link" moved to the bottom left of the dashboard sidebar. It used to sit under the page content, where it landed in an odd place on long pages such as the editor.
+- Signed-in members: "Back" links on the info pages and the report page, the BioHop logo and the "Dashboard" button on the public pages now lead to the BioHop dashboard instead of the home page or the HOP ID dashboard. Visitors who are not signed in still go to the home page.
+- Public pages: the "Powered by BioHop" line is always shown, and the editor preview says the same. The switch for hiding it is gone, so pages that had hidden it show it again.
+
+### Fixed
+- Dragging blocks in two browser tabs: when the page was changed in another tab, saving the new block order is now refused with a clear message in your language instead of quietly replacing the other tab's changes. The editor now sends the page version it knows, which the server has been able to check since version 1.3.2.
+- The language list in the header of the public pages no longer runs off the right edge of a phone screen.
+
 ## [1.3.2] - 2026-11-14
 
 ### Fixed
 - Saving the order of your blocks is stricter on the server. It answers the same for a block that belongs to someone else and for one that does not exist, so block numbers of other pages cannot be guessed; it refuses a list that is too long, repeats a block, or carries a position outside the page's block limit; it saves the whole new order in one step or not at all; and it is rate-limited like the other editor actions. The editor you use today sends nothing that this refuses.
 - Blocks that share the same position are always listed in the same order, in the editor, on the public page and in the API.
-- When a request to save the order carries the page version it was made from, it is refused with "changed in another tab" if the page changed meanwhile, like saving the other fields. The editor does not send the version yet.
+- When a request to save the order carries the page version it was made from, it is refused with "changed in another tab" if the page changed meanwhile, like saving the other fields. The editor sends it from version 1.4.0 on.
 - An empty entry in the social icons list is refused on save and ignored when the page is read, so older data with an empty entry can no longer stop the editor from opening.
 
 ## [1.3.1] - 2026-11-12
