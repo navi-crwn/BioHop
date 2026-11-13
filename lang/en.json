@@ -775,5 +775,8 @@
     "Six digits, as published by the bank.": "Six digits, as published by the bank.",
     "Account number": "Account number",
     "Opens in the :app app on phones; computers and visitors without scripts get this address.": "Opens in the :app app on phones; computers and visitors without scripts get this address.",
-    "SVG cannot be used here. Use a PNG, JPG, WebP or GIF picture.": "SVG cannot be used here. Use a PNG, JPG, WebP or GIF picture."
+    "SVG cannot be used here. Use a PNG, JPG, WebP or GIF picture.": "SVG cannot be used here. Use a PNG, JPG, WebP or GIF picture.",
+    "That move could not be applied. The list was refreshed; try again.": "That move could not be applied. The list was refreshed; try again.",
+    "Your session expired. Reload the page and sign in again.": "Your session expired. Reload the page and sign in again.",
+    "A block of this page no longer exists. The page is reloading.": "A block of this page no longer exists. The page is reloading."
 }

@@ -2,7 +2,8 @@
 // the page's data comes in as JSON from <script id="bio-editor-config"> instead of being printed into the page.
 import { confirmDialog } from './dialogs';
 import { payCheck, emptyPay } from './pay-shared.js';
-import { orderByIds, itemIds, putBack } from './drop-move.js';
+import { orderByIds, sameOrder, dropStray, finishDrop } from './drop-move.js';
+import { addOnce, removeById, postToPreview } from './editor-safe.js';
 import PAY_FORMATS from '../pay/formats.json';
 
 const CONFIG = JSON.parse(document.getElementById('bio-editor-config').textContent);
@@ -589,8 +590,9 @@ window.bioEditorV2 = function() {
                 const blocksEl = document.getElementById('blocks-list');
                 if (blocksEl && !this.blocksSortable) {
                     this.blocksSortable = this.makeSortable(blocksEl, '.block-drag-handle', (ids) => {
-                        const next = orderByIds(Alpine.raw(this.blocks), ids); // raw entries: the preview message cannot carry Alpine proxies
-                        if (!next) return;
+                        const raw = Alpine.raw(this.blocks); // raw entries: the preview message cannot carry Alpine proxies
+                        const next = orderByIds(raw, ids);
+                        if (!next) return sameOrder(raw, ids) ? 'same' : this.dropRefused(blocksEl, raw, () => { this.blocks = [...raw]; });
                         this.blocks = next;
                         this.blocks.forEach((b, i) => b.order = i);
                         this._orderDirty = true; this.onModelChanged();
@@ -601,8 +603,10 @@ window.bioEditorV2 = function() {
                 const socialsEl = document.getElementById('socials-list');
                 if (socialsEl && !this.socialsSortable) {
                     this.socialsSortable = this.makeSortable(socialsEl, '.social-drag-handle', (ids) => {
-                        const next = orderByIds(Alpine.raw(this.bioPage.social_links || []), ids, s => s?._uid);
-                        if (next) this.bioPage.social_links = next;
+                        const raw = Alpine.raw(this.bioPage.social_links || []);
+                        const next = orderByIds(raw, ids, s => s?._uid);
+                        if (!next) return sameOrder(raw, ids, s => s?._uid) ? 'same' : this.dropRefused(socialsEl, raw, () => { this.bioPage.social_links = [...raw]; }, s => s?._uid);
+                        this.bioPage.social_links = next;
                     });
                 }
             });
@@ -612,6 +616,15 @@ window.bioEditorV2 = function() {
         // the node goes back where Alpine left it and the array is reordered, so x-for moves the DOM from the data.
         // Nothing thrown here may escape: an exception inside Sortable's end event left it mid-drag and every later
         // drag and save was ignored until a reload.
+        // A drop the data refused (the DOM and the data disagree): take out what the data does not know, render the list from
+        // the data again and say so once, so the next drag works without a reload. Returns 'refused'.
+        dropRefused(el, list, rerender, keyOf = (entry) => entry?.id) {
+            dropStray(el, list, keyOf);
+            rerender();
+            console.warn('Reorder: the list did not match its data; it was refreshed.');
+            this.showNotification((CONFIG.reorder || {}).refused || 'That move could not be applied. The list was refreshed; try again.', 'error');
+            return 'refused';
+        },
         makeSortable(el, handle, onDrop) {
             const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
             return Sortable.create(el, {
@@ -630,16 +643,8 @@ window.bioEditorV2 = function() {
                 // Alpine must not initialise it outside its x-for scope: the list ignores DOM changes while dragging.
                 onStart: (evt) => { el._x_ignoreMutationObserver = true; this._draggedId = evt.item?.dataset?.id; },
                 onEnd: (evt) => {
-                    try {
-                        const ids = itemIds(el);
-                        putBack(el, evt.item, evt.oldDraggableIndex);
-                        delete el._x_ignoreMutationObserver;
-                        onDrop(ids);
-                    } catch (error) {
-                        console.error('Reorder failed:', error);
-                    } finally {
-                        delete el._x_ignoreMutationObserver;
-                    }
+                    const done = finishDrop(el, evt, onDrop);
+                    if (done.error) console.error('Reorder failed:', done.error);
                 }
             });
         },
@@ -734,7 +739,7 @@ window.bioEditorV2 = function() {
                     if (json !== this._pvLast[part]) { this._pvLast[part] = json; data[part] = previewData[part]; }
                 }
                 if (!Object.keys(data).length) return;
-                frame.contentWindow.postMessage({ type: 'preview-update', data }, window.location.origin);
+                postToPreview(frame.contentWindow, { type: 'preview-update', data }, window.location.origin);
             } catch (e) {
                 console.warn('Preview update failed:', e);
             }
@@ -1663,7 +1668,7 @@ window.bioEditorV2 = function() {
             pending.forEach(id => this.dirtyBlockIds.delete(id));
             // New blocks got real ids: persist the full order once.
             if ((created || this._orderDirty) && !(await this.saveBlocksOrder())) {
-                throw new Error('The block order could not be saved');
+                throw new Error(this._orderFailMessage || 'The block order could not be saved');
             }
         },
         markBlockDirty(blockId) {
@@ -1683,6 +1688,9 @@ window.bioEditorV2 = function() {
             });
             const data = await response.json().catch(() => ({}));
             if (response.ok) {
+                // The list keys its elements by _key, so the real id replacing the temporary one does not make Alpine swap the
+                // element, which may be under someone's finger (B-1, H-1).
+                block._key ??= block.id;
                 block.id = data.block?.id || data.id;
                 this.noteRevision(data.page_updated_at);
             } else {
@@ -1731,7 +1739,7 @@ window.bioEditorV2 = function() {
                     },
                     body: JSON.stringify({ links: linksData })
                 });
-                if (!response.ok) throw new Error(response.status);
+                if (!response.ok) throw Object.assign(new Error(response.status), { status: response.status });
                 this.noteRevision((await response.json().catch(() => ({}))).page_updated_at);
                 // A drag made while this request was on its way is not saved yet: keep it pending for the next pass.
                 const now = this.blocks.filter(b => b.id < 1000000000).map(b => b.id).join(',');
@@ -1742,7 +1750,18 @@ window.bioEditorV2 = function() {
                 console.error('Reorder failed:', e);
                 this._orderDirty = true;
                 this.hasUnsavedChanges = true;
-                this.showNotification('Could not save the new order. Click Save to retry.', 'error');
+                const words = CONFIG.reorder || {};
+                let message = 'Could not save the new order. Click Save to retry.';
+                if (e.status === 419) {
+                    message = words.expired || 'Your session expired. Reload the page and sign in again.';
+                } else if (e.status === 422) {
+                    // a block of this list no longer exists (deleted in another tab): Save could never succeed, the list is stale
+                    message = words.gone || 'A block of this page no longer exists. The page is reloading.';
+                    this._autoBlocked = true;
+                    setTimeout(() => { window.onbeforeunload = null; window.location.reload(); }, 2500);
+                }
+                this._orderFailMessage = message; // the save that asked for the order says the same, not a generic line
+                this.showNotification(message, 'error');
                 return false;
             }
         },
@@ -1999,7 +2018,8 @@ window.bioEditorV2 = function() {
                 const res = await fetch(bioEditorUrl('/links/' + block.id + '/archive'), { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf(), 'Accept': 'application/json' } });
                 const data = await res.json();
                 if (!data.success) throw new Error(data.message || 'Archive failed');
-                this.blocks.splice(index, 1);
+                // by id: the list may have been reordered while the request was on its way
+                removeById(this.blocks, block.id);
                 this.blocks.forEach((b, i) => b.order = i);
                 this.archived.unshift(data.link);
                 if (!quiet) this.showNotification('Archived. Restore it any time from the archived list.', 'success');
@@ -2007,15 +2027,20 @@ window.bioEditorV2 = function() {
             } catch (e) { this.showNotification(e.message || 'Failed to archive', 'error'); }
         },
         async restoreBlock(item) {
+            // a second click while the first is on its way would put the same block in the list twice
+            this._restoring ||= new Set();
+            if (this._restoring.has(item.id)) return;
+            this._restoring.add(item.id);
             try {
                 const res = await fetch(bioEditorUrl('/links/' + item.id + '/restore'), { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf(), 'Accept': 'application/json' } });
                 const data = await res.json();
                 if (!data.success) throw new Error(data.message || 'Restore failed');
                 this.archived = this.archived.filter(a => a.id !== item.id);
-                this.blocks.push(data.link);
+                addOnce(this.blocks, data.link);
                 this.showNotification('Restored', 'success');
                 this.refreshPreview && this.refreshPreview();
             } catch (e) { this.showNotification(e.message || 'Failed to restore', 'error'); }
+            finally { this._restoring.delete(item.id); }
         },
         async deleteArchived(item, event) {
             if (!(await confirmDialog({ ...say('deleteArchived'), danger: true, subject: this.getBlockDisplayTitle(item), anchor: event?.currentTarget }))) return;
@@ -2067,9 +2092,10 @@ window.bioEditorV2 = function() {
             if (this.textEditorBlock) {
                 const index = this.blocks.findIndex(b => b.id === this.textEditorBlock.id);
                 if (index !== -1) {
-                    this.blocks[index] = { ...this.textEditorBlock };
+                    // a plain copy: spreading the editor's proxy leaves proxies in its nested fields (settings, faq_items)
+                    this.blocks[index] = JSON.parse(JSON.stringify(this.textEditorBlock));
                 } else {
-                    this.blocks.push(this.textEditorBlock);
+                    this.blocks.push(JSON.parse(JSON.stringify(this.textEditorBlock)));
                 }
                 if (this.editingBlock && this.editingBlock.id === this.textEditorBlock.id) {
                     this.editingBlock.content = this.textEditorBlock.content;

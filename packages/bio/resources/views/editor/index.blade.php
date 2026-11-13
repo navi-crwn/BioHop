@@ -35,6 +35,12 @@
         'familyHosts' => \App\Bio\FamilyUrls::hosts(),
         // Said before uploading an SVG where only pictures are taken (profile picture, images, cover, background, favicon).
         'uploads' => ['rasterOnly' => __('SVG cannot be used here. Use a PNG, JPG, WebP or GIF picture.')],
+        // Drag and drop of blocks and social icons: a refused drop, an expired session, a block that no longer exists.
+        'reorder' => [
+            'refused' => __('That move could not be applied. The list was refreshed; try again.'),
+            'expired' => __('Your session expired. Reload the page and sign in again.'),
+            'gone' => __('A block of this page no longer exists. The page is reloading.'),
+        ],
         // The link picker (LinkHop): what to say when the list cannot be loaded.
         'linkhop' => ['failed' => __('LinkHop is not reachable right now. You can still paste any URL.')],
         // "Choose from NoteHop" (BIO_NOTEHOP_PICKER) for a link block: the proxy route and its words; null = off.

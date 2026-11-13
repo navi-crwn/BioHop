@@ -775,5 +775,8 @@
     "Six digits, as published by the bank.": "銀行が公開している6桁の数字です。",
     "Account number": "口座番号",
     "Opens in the :app app on phones; computers and visitors without scripts get this address.": "スマートフォンでは :app アプリで開きます。パソコンやスクリプトなしの訪問者にはこのアドレスが使われます。",
-    "SVG cannot be used here. Use a PNG, JPG, WebP or GIF picture.": "ここでは SVG は使えません。PNG、JPG、WebP、GIF の画像を使ってください。"
+    "SVG cannot be used here. Use a PNG, JPG, WebP or GIF picture.": "ここでは SVG は使えません。PNG、JPG、WebP、GIF の画像を使ってください。",
+    "That move could not be applied. The list was refreshed; try again.": "この移動を反映できませんでした。リストを更新しました。もう一度お試しください。",
+    "Your session expired. Reload the page and sign in again.": "セッションの有効期限が切れました。ページを再読み込みして、もう一度ログインしてください。",
+    "A block of this page no longer exists. The page is reloading.": "このページのブロックが存在しなくなりました。ページを再読み込みしています。"
 }

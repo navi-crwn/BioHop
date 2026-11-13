@@ -775,5 +775,8 @@
     "Six digits, as published by the bank.": "Enam digit, sesuai yang diterbitkan bank.",
     "Account number": "Nomor rekening",
     "Opens in the :app app on phones; computers and visitors without scripts get this address.": "Di ponsel dibuka di aplikasi :app; komputer dan pengunjung tanpa skrip memakai alamat ini.",
-    "SVG cannot be used here. Use a PNG, JPG, WebP or GIF picture.": "SVG tidak bisa dipakai di sini. Pakai gambar PNG, JPG, WebP, atau GIF."
+    "SVG cannot be used here. Use a PNG, JPG, WebP or GIF picture.": "SVG tidak bisa dipakai di sini. Pakai gambar PNG, JPG, WebP, atau GIF.",
+    "That move could not be applied. The list was refreshed; try again.": "Pemindahan itu tidak dapat diterapkan. Daftar sudah disegarkan, coba lagi.",
+    "Your session expired. Reload the page and sign in again.": "Sesi Anda berakhir. Muat ulang halaman dan masuk lagi.",
+    "A block of this page no longer exists. The page is reloading.": "Salah satu blok di halaman ini sudah tidak ada. Halaman dimuat ulang."
 }

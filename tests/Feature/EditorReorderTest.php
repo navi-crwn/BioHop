@@ -17,7 +17,7 @@ test('the drop logic of the editor lists passes its JS tests', function () {
     if ($node === '') {
         $this->markTestSkipped('node is not installed');
     }
-    exec(escapeshellarg($node).' --test '.escapeshellarg(base_path('tests/js/drop-move.test.mjs')).' 2>&1', $out, $code);
+    exec(escapeshellarg($node).' --test '.escapeshellarg(base_path('tests/js/drop-move.test.mjs')).' '.escapeshellarg(base_path('tests/js/editor-safe.test.mjs')).' 2>&1', $out, $code);
     expect($code)->toBe(0, implode("\n", $out));
 });
 
@@ -43,27 +43,36 @@ test('the sortable lists hold nothing but the x-for template and items with an i
     }
 });
 
-test('the editor reorders by ids, keeps the drag clone inside the editor and never lets a drop throw', function () {
+test('the editor wires its lists to the id-based drop, keyed so that a new id cannot swap an element under a finger', function () {
     $js = file_get_contents(resource_path('js/editor.js'));
-    expect($js)->toContain("import { orderByIds, itemIds, putBack } from './drop-move.js';")
-        ->toContain('orderByIds(Alpine.raw(this.blocks), ids)')
-        ->toContain('orderByIds(Alpine.raw(this.bioPage.social_links || []), ids, s => s?._uid)')
+    // The behaviour itself is tested in tests/js (finishDrop, orderByIds, dropStray); this only checks that the editor
+    // uses it and has not gone back to positions.
+    expect($js)->toContain('finishDrop(el, evt, onDrop)')->toContain('orderByIds(raw, ids)')
+        ->not->toMatch('/(?:evt|event)\.(?:old|new)Index/')
         ->not->toContain('fallbackOnBody: true')
-        ->not->toContain('onMove(oldIndex, newIndex)')
         ->not->toContain('document.body._x_ignoreMutationObserver');
-    $makeSortable = substr($js, strpos($js, 'makeSortable(el, handle, onDrop)'), 2500);
-    expect($makeSortable)->toContain('try {')->toContain('} catch (error) {');
+    // createBlock swaps the temporary id for the real one: the list key must not follow it (H-1)
+    expect($js)->toMatch('/block\._key \?\?= block\.id;\s*block\.id = /');
+    expect(file_get_contents(base_path('packages/bio/resources/views/editor/links-tab.blade.php')))->toContain(':key="item._key ?? item.id"');
+    // every message to the preview goes through the guard that can resend a plain copy (S-1)
+    expect($js)->toContain('postToPreview(frame.contentWindow')->not->toMatch('/contentWindow\.postMessage\(\{ type: .preview-update/');
 });
 
 test('the reorder endpoint stores the order it is sent, for the page\'s own blocks only', function () {
     $user = User::factory()->create();
     $page = BioPage::create(['user_id' => $user->id, 'slug' => 'drag-save', 'title' => 'Drag']);
-    $ids = collect(['A', 'B', 'C'])->map(fn ($t, $i) => BioLink::create(['bio_page_id' => $page->id, 'type' => 'link', 'title' => $t, 'url' => 'https://example.com/'.$t, 'order' => $i])->id);
+    $ids = collect(['Alpha-one', 'Bravo-two', 'Charlie-three'])->map(fn ($t, $i) => BioLink::create(['bio_page_id' => $page->id, 'type' => 'link', 'title' => $t, 'url' => 'https://example.com/'.$t, 'order' => $i])->id);
     $other = BioLink::create(['bio_page_id' => BioPage::create(['user_id' => User::factory()->create()->id, 'slug' => 'not-mine', 'title' => 'X'])->id, 'type' => 'link', 'title' => 'X', 'url' => 'https://example.com/x', 'order' => 0]);
 
     $this->actingAs($user)->postJson('/bio/drag-save/links/reorder', ['links' => [['id' => $ids[2], 'order' => 0], ['id' => $ids[0], 'order' => 1], ['id' => $ids[1], 'order' => 2]]])->assertOk();
-    expect($page->links()->orderBy('order')->pluck('title')->all())->toBe(['C', 'A', 'B']);
+    expect($page->links()->orderBy('order')->pluck('title')->all())->toBe(['Charlie-three', 'Alpha-one', 'Bravo-two']);
     $this->actingAs($user)->postJson('/bio/drag-save/links/reorder', ['links' => [['id' => $other->id, 'order' => 5]]]);
     expect($other->fresh()->order)->toBe(0);
-    $this->get('/b/drag-save')->assertOk()->assertSeeInOrder(['C', 'A', 'B']);
+    $html = $this->get('/b/drag-save')->assertOk()->getContent();
+    $at = collect(['Charlie-three', 'Alpha-one', 'Bravo-two'])->map(fn ($t) => strpos($html, '>'.$t.'<') ?: strpos($html, $t));
+    expect($at->every(fn ($p) => $p !== false))->toBeTrue();
+    expect($at->all())->toBe($at->sort()->values()->all()); // the public page lists them in the saved order
+    $this->actingAs($user)->postJson('/bio/drag-save/links/reorder', ['links' => [['id' => $ids[0], 'order' => 0], ['id' => $ids[1], 'order' => 1], ['id' => $ids[2], 'order' => 2]]])->assertOk();
+    $back = $this->get('/b/drag-save')->getContent();
+    expect(strpos($back, 'Alpha-one'))->toBeLessThan(strpos($back, 'Bravo-two'))->and(strpos($back, 'Bravo-two'))->toBeLessThan(strpos($back, 'Charlie-three'));
 });

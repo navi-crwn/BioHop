@@ -775,5 +775,8 @@
     "Six digits, as published by the bank.": "六位数字,以银行公布的为准。",
     "Account number": "账号",
     "Opens in the :app app on phones; computers and visitors without scripts get this address.": "手机上会在 :app 应用中打开;电脑和未启用脚本的访客使用此地址。",
-    "SVG cannot be used here. Use a PNG, JPG, WebP or GIF picture.": "此处不能使用 SVG。请使用 PNG、JPG、WebP 或 GIF 图片。"
+    "SVG cannot be used here. Use a PNG, JPG, WebP or GIF picture.": "此处不能使用 SVG。请使用 PNG、JPG、WebP 或 GIF 图片。",
+    "That move could not be applied. The list was refreshed; try again.": "无法应用这次移动。列表已刷新，请再试一次。",
+    "Your session expired. Reload the page and sign in again.": "您的会话已过期。请重新加载页面并重新登录。",
+    "A block of this page no longer exists. The page is reloading.": "此页面的某个区块已不存在。页面正在重新加载。"
 }

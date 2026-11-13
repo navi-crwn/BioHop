@@ -775,5 +775,8 @@
     "Six digits, as published by the bank.": "Sechs Ziffern, wie von der Bank veröffentlicht.",
     "Account number": "Kontonummer",
     "Opens in the :app app on phones; computers and visitors without scripts get this address.": "Öffnet auf Smartphones in der App :app; Computer und Besucher ohne Skripte erhalten diese Adresse.",
-    "SVG cannot be used here. Use a PNG, JPG, WebP or GIF picture.": "SVG kann hier nicht verwendet werden. Verwende ein PNG-, JPG-, WebP- oder GIF-Bild."
+    "SVG cannot be used here. Use a PNG, JPG, WebP or GIF picture.": "SVG kann hier nicht verwendet werden. Verwende ein PNG-, JPG-, WebP- oder GIF-Bild.",
+    "That move could not be applied. The list was refreshed; try again.": "Diese Verschiebung konnte nicht übernommen werden. Die Liste wurde aktualisiert, bitte versuche es noch einmal.",
+    "Your session expired. Reload the page and sign in again.": "Deine Sitzung ist abgelaufen. Lade die Seite neu und melde dich erneut an.",
+    "A block of this page no longer exists. The page is reloading.": "Ein Block dieser Seite existiert nicht mehr. Die Seite wird neu geladen."
 }

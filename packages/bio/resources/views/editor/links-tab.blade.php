@@ -37,7 +37,7 @@
                 </div>
                 <!-- Blocks List (Sortable): only the x-for template and the blocks -->
                 <div id="blocks-list" class="space-y-2 mb-4" x-show="blocks.length > 0">
-                    <template x-for="(item, idx) in blocks" :key="item.id">
+                    <template x-for="(item, idx) in blocks" :key="item._key ?? item.id">
                         <div class="block-item" :data-id="item.id" :class="{ 'opacity-50': item && !item.is_active, 'is-collection': item.type === 'collection', 'in-collection': !!collectionOf(idx), 'is-last-member': !!collectionOf(idx) && (idx + 1 >= blocks.length || ['collection', 'divider'].includes(blocks[idx + 1]?.type)) }">
                             <template x-if="selectMode">
                                 <input type="checkbox" class="mr-2" :checked="selectedIds.includes(item.id)" @change="toggleSelected(item.id)" :aria-label="'Select ' + getBlockDisplayTitle(item)">
