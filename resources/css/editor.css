@@ -372,3 +372,18 @@
 .bio-editor .notehop-item-url { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px; color: var(--editor-accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bio-editor .notehop-item-meta { font-size: 11px; color: var(--editor-text-muted); }
 @media (prefers-reduced-motion: reduce) { .bio-editor .notehop-item { transition: none; } }
+
+/* The Back button in the head of the forms that add a block. */
+.be-backbtn { display: inline-flex; align-items: center; gap: 4px; margin-right: 6px; padding: 6px 10px 6px 6px; border-radius: 8px; border: 0; background: transparent; color: inherit; font-size: 13px; font-weight: 600; cursor: pointer; min-height: 36px; }
+.be-backbtn:hover { background: rgb(59 130 246 / .1); color: #2563eb; }
+.dark .be-backbtn:hover { color: #93c5fd; }
+.be-backbtn + .modal-title { margin-right: auto; }
+
+/* Social icons: a two-button choice on one row, and one short row per icon. */
+.be-seg { display: flex; gap: 4px; padding: 3px; border-radius: 12px; background: var(--editor-card-bg); border: 1px solid var(--editor-border); }
+.be-seg button { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 6px 10px; border: 0; border-radius: 9px; background: transparent; color: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.be-seg button.is-on { background: rgb(59 130 246 / .14); color: #1d4ed8; }
+.dark .be-seg button.is-on { color: #93c5fd; }
+.block-item.is-compact { padding: 6px 8px; gap: 8px; }
+.block-item.is-compact .block-icon { width: 32px; height: 32px; }
+.block-item.is-compact .form-input { padding-top: 6px; padding-bottom: 6px; }

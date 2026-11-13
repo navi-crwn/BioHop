@@ -5,23 +5,15 @@
         <div class="editor-card-header">
             <h3 class="editor-card-title">Position</h3>
         </div>
-        <div class="p-4">
-            <div class="grid grid-cols-2 gap-3">
-                <button @click="bioPage.social_icons_position = 'below_bio'" 
-                        :class="bioPage.social_icons_position === 'below_bio' || !bioPage.social_icons_position ? 'border-blue-500 bg-blue-900/20' : 'border-(--editor-border)'"
-                        data-tile class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all">
-                    <svg class="w-8 h-8" :class="bioPage.social_icons_position === 'below_bio' || !bioPage.social_icons_position ? 'text-blue-400' : 'editor-text-muted'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                    </svg>
-                    <span class="text-sm font-medium" :class="bioPage.social_icons_position === 'below_bio' || !bioPage.social_icons_position ? 'text-blue-400' : 'editor-text-muted'">Below Bio</span>
+        <div class="p-3">
+            <div class="be-seg" role="group" aria-label="{{ __('Position') }}">
+                <button type="button" @click="bioPage.social_icons_position = 'below_bio'" :aria-pressed="String(bioPage.social_icons_position === 'below_bio' || !bioPage.social_icons_position)" :class="{ 'is-on': bioPage.social_icons_position === 'below_bio' || !bioPage.social_icons_position }">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    Below Bio
                 </button>
-                <button @click="bioPage.social_icons_position = 'bottom_page'" 
-                        :class="bioPage.social_icons_position === 'bottom_page' ? 'border-blue-500 bg-blue-900/20' : 'border-(--editor-border)'"
-                        data-tile class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all">
-                    <svg class="w-8 h-8" :class="bioPage.social_icons_position === 'bottom_page' ? 'text-blue-400' : 'editor-text-muted'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
-                    </svg>
-                    <span class="text-sm font-medium" :class="bioPage.social_icons_position === 'bottom_page' ? 'text-blue-400' : 'editor-text-muted'">Bottom</span>
+                <button type="button" @click="bioPage.social_icons_position = 'bottom_page'" :aria-pressed="String(bioPage.social_icons_position === 'bottom_page')" :class="{ 'is-on': bioPage.social_icons_position === 'bottom_page' }">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+                    Bottom
                 </button>
             </div>
         </div>
@@ -36,7 +28,7 @@
             <!-- Social Links List -->
             <div id="socials-list" class="space-y-2 mb-4" x-show="bioPage.social_links && bioPage.social_links.length > 0">
                 <template x-for="(item, idx) in (bioPage.social_links || [])" :key="item._uid || (item.platform + '-' + idx)">
-                    <div class="block-item" :data-id="item._uid" x-show="item">
+                    <div class="block-item is-compact" :data-id="item._uid" x-show="item">
                         <!-- Drag Handle -->
                         <div class="social-drag-handle block-drag-handle" role="button" tabindex="0"
                              :aria-label="'Move ' + (platforms[item.platform]?.name || item.platform) + '. Use the up and down arrow keys.'"
@@ -46,7 +38,7 @@
                             </svg>
                         </div>
                         <!-- Icon -->
-                        <div class="block-icon" :style="{ backgroundColor: getPlatformColor(item.platform) }">
+                        <div class="block-icon" :title="platforms[item.platform]?.name || item.platform" :style="{ backgroundColor: getPlatformColor(item.platform) }">
                             <img :src="getPlatformIcon(item.platform)" alt="" class="w-5 h-5" style="filter: brightness(0) invert(1);" data-fallback="hide">
                         </div>
                         <!-- Input -->
@@ -60,7 +52,6 @@
                                    data-form-type="other"
                                    :aria-label="(platforms[item.platform]?.name || item.platform) + ' username or URL'"
                                    class="form-input">
-                            <div class="text-xs editor-text-muted" x-text="platforms[item.platform]?.name || item.platform"></div>
                         </div>
                         <!-- Actions -->
                         <div class="block-actions">

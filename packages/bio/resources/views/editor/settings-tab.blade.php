@@ -349,7 +349,6 @@
             <input id="bfsettin-9" type="url" x-model="bioPage.footer_url" class="form-input" placeholder="https://your-site.example/terms" autocomplete="off">
         </div>
     </div>
-    <p class="text-xs editor-text-muted mt-2">The "Powered by" line is in Design → Footer.</p>
 </div>
 <!-- Danger Zone -->
 <div class="editor-card border-red-200 dark:border-red-900">

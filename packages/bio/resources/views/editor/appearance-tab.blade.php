@@ -1,4 +1,4 @@
-<!-- Design tab: Header · Theme · Wallpaper · Text · Buttons · Footer as sub-tabs; one section shows at a time, so no long scroll. -->
+<!-- Design tab: Header · Theme · Wallpaper · Text · Buttons · as sub-tabs; one section shows at a time, so no long scroll. -->
 <div class="be-design" x-data="designTab()">
     <nav class="be-design-nav" role="tablist" aria-label="Design sections" @keydown.arrow-right.prevent="step(1)" @keydown.arrow-left.prevent="step(-1)">
         <template x-for="s in sections" :key="s[0]">
@@ -421,19 +421,6 @@
                         </div>
                     </div>
                 </div>
-        </div>
-    </section>
-    <section class="be-sec" id="design-footer" role="tabpanel" :aria-labelledby="'design-tab-footer'" x-show="current === 'footer'" x-cloak>
-        <div class="be-sec-head">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5h16v10H4zM8 19h8"/></svg>
-            <span class="be-sec-title">Footer</span>
-            <span class="be-sec-hint" x-text="bioPage.hide_branding ? 'Hidden' : 'Powered by'"></span>
-        </div>
-        <div class="be-sec-body" id="design-footer-body">
-            <label class="flex items-start gap-3 cursor-pointer">
-                <input type="checkbox" class="mt-0.5" :checked="!bioPage.hide_branding" @change="bioPage.hide_branding = !$event.target.checked">
-                <span><span class="text-sm font-medium block">Show "Powered by" at the bottom</span><span class="text-xs editor-text-muted">A small line that links to BioHop. You can switch it off; the page stays free either way.</span></span>
-            </label>
         </div>
     </section>
 </div>

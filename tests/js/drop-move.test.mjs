@@ -110,3 +110,15 @@ test('after a refused drop the nodes the data does not know, or knows twice, lea
     assert.equal(removed, 2);
     assert.ok(ghost.gone && twin.gone && !n11.gone && !n12.gone);
 });
+
+import { reorderRequest, reorderFailure } from '../../resources/js/drop-move.js';
+
+test('the order save carries the page revision, and leaves out blocks that are not saved yet', () => {
+    const list = [{ id: 11 }, { id: 1700000000000 }, { id: 12 }];
+    assert.deepEqual(reorderRequest(list, '2026-11-14T01:02:03.000000Z'), { links: [{ id: 11, order: 0 }, { id: 12, order: 1 }], base_updated_at: '2026-11-14T01:02:03.000000Z' });
+    assert.deepEqual(reorderRequest(list, null), { links: [{ id: 11, order: 0 }, { id: 12, order: 1 }] });
+});
+
+test('a refused order save says why: expired, changed in another tab, block gone, or plain failure', () => {
+    assert.deepEqual([419, 409, 422, 500, 0].map(reorderFailure), ['expired', 'conflict', 'gone', 'saveFailed', 'saveFailed']);
+});

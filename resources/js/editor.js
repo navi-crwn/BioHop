@@ -2,7 +2,7 @@
 // the page's data comes in as JSON from <script id="bio-editor-config"> instead of being printed into the page.
 import { confirmDialog } from './dialogs';
 import { payCheck, emptyPay } from './pay-shared.js';
-import { orderByIds, sameOrder, dropStray, finishDrop } from './drop-move.js';
+import { orderByIds, sameOrder, dropStray, finishDrop, reorderRequest, reorderFailure } from './drop-move.js';
 import { addOnce, removeById, postToPreview } from './editor-safe.js';
 import PAY_FORMATS from '../pay/formats.json';
 
@@ -47,8 +47,7 @@ const BLOCK_CATALOG = [
     ]],
     ['Media & embeds', [
         ['youtube', 'YouTube', 'A video that plays on the page', '#dc2626', 'M14.7 12L10 9v6l4.7-3zM21 12a9 9 0 11-18 0 9 9 0 0118 0z', 'add', 'video'],
-        ['spotify', 'Spotify', 'A track, album or playlist', '#16a34a', 'M9 19V6l12-3v13M9 19a3 3 0 11-6 0 3 3 0 016 0zm12-3a3 3 0 11-6 0 3 3 0 016 0z', 'add', 'music podcast'],
-        ['soundcloud', 'SoundCloud', 'A track or set', '#ea580c', 'M9 19V6l12-3v13M9 19a3 3 0 11-6 0 3 3 0 016 0zm12-3a3 3 0 11-6 0 3 3 0 016 0z', 'add', 'music audio'],
+        ['music', 'Music', 'Spotify, SoundCloud, Apple Music or YouTube Music', '#16a34a', 'M9 19V6l12-3v13M9 19a3 3 0 11-6 0 3 3 0 016 0zm12-3a3 3 0 11-6 0 3 3 0 016 0z', 'add', 'spotify soundcloud apple youtube music podcast audio track album playlist'],
         ['audio', 'Audio clip', 'Your own recording, up to 12 MB', '#c026d3', 'M12 3v10m0 0a3 3 0 100 6 3 3 0 000-6zm0 0V3m6 6v4a6 6 0 01-12 0V9', 'add', 'voice podcast sample mp3'],
         ['carousel', 'Picture carousel', 'Swipe through up to 10 pictures', '#ea580c', 'M4 16l4.6-4.6a2 2 0 012.8 0L16 16m-2-2l1.6-1.6a2 2 0 012.8 0L20 14M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z', 'add', 'gallery slider photos'],
         ['pdf', 'PDF document', 'A menu, price list or catalogue', '#dc2626', 'M7 21h10a2 2 0 002-2V9l-6-6H7a2 2 0 00-2 2v14a2 2 0 002 2zm6-18v6h6', 'add', 'file menu catalogue'],
@@ -58,14 +57,10 @@ const BLOCK_CATALOG = [
         ['collection', 'Collection', 'A titled group of blocks', '#d97706', 'M4 6h16M4 12h16M4 18h7', 'add', 'group section category'],
         ['goal', 'Goal bar', 'A progress bar toward a target', '#059669', 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6', 'add', 'progress fundraising'],
         ['pay', 'Receive payment', 'A QR code for your bank or wallet', '#0d9488', 'M3 7h18v10H3V7zm0 3h18M7 14h3', 'add', 'payment qr bank wallet donate tip paypal'],
-        ['app', 'App store link', 'iPhone, Android and web in one button', '#0284c7', 'M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z', 'add', 'ios android play download'],
     ]],
     ['Smart & conversion', [
-        ['whatsapp', 'WhatsApp rotator', 'Share chats between several numbers', '#16a34a', 'M21 11.5a8.4 8.4 0 01-12.4 7.4L3 21l2.1-5.4A8.4 8.4 0 1121 11.5z', 'add', 'chat customer service'],
         ['form', 'Sign-up form', 'Collect names, e-mails or numbers', '#4f46e5', 'M3 8l7.9 5.3a2 2 0 002.2 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z', 'add', 'lead newsletter subscribe contact'],
-        ['poll', 'Poll', 'Ask visitors to vote', '#65a30d', 'M9 19v-6H5v6h4zm0 0V9h4v10m-4 0h4m0 0V5h4v14h-4z', 'add', 'vote survey question'],
         ['countdown', 'Countdown', 'Time left to a launch or sale', '#0891b2', 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z', 'add', 'timer event launch'],
-        ['rss', 'Blog / podcast feed', 'The latest posts, kept up to date', '#d97706', 'M6 5c7.7 0 14 6.3 14 14M6 11a8 8 0 018 8M7 18a1 1 0 11-2 0 1 1 0 012 0z', 'add', 'rss atom articles news'],
         ['vcard', 'Contact card', 'A button that saves you to contacts', '#0d9488', 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z', 'add', 'vcard phone address book'],
         ['map', 'Location', 'A map with an address', '#0d9488', 'M17.7 16.7L13.4 20.9a2 2 0 01-2.8 0l-4.2-4.2a8 8 0 1111.3 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z', 'add', 'address place'],
         ['faq', 'FAQ', 'Questions that open to answers', '#6366f1', 'M8.2 9a3 3 0 115.8 1c-.7 1-2 1.3-2 2.5M12 17h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z', 'add', 'questions answers help'],
@@ -77,7 +72,7 @@ BLOCK_CATALOG.forEach(([, items]) => items.forEach((i) => { const t = (CONFIG.bl
 // The Design tab: six sub-tabs, one section at a time; the last one used is remembered per browser.
 window.designTab = function() {
     const KEY = 'bio-design-section';
-    const sections = [['header', 'Header'], ['theme', 'Theme'], ['wallpaper', 'Wallpaper'], ['text', 'Text'], ['buttons', 'Buttons'], ['footer', 'Footer']];
+    const sections = [['header', 'Header'], ['theme', 'Theme'], ['wallpaper', 'Wallpaper'], ['text', 'Text'], ['buttons', 'Buttons']];
     let saved = '';
     try { saved = localStorage.getItem(KEY) || ''; } catch (e) {}
     return {
@@ -114,6 +109,7 @@ window.bioEditorV2 = function() {
         announcement: '',
         pendingNavigation: null,
         editingBlock: null,
+        blockTab: 'content', // the section of the block form that shows: content | look | schedule | advanced
         showAddBlockModal: false,
         blockCategoryFilter: 'all',
         blockSearch: '',
@@ -191,6 +187,17 @@ window.bioEditorV2 = function() {
                 )
             );
         },
+        // The sections of the block form; a section with nothing in it for this kind of block is not offered.
+        blockTabs() {
+            const t = this.editingBlock?.type;
+            if (!t || ['divider', 'spacer'].includes(t)) return [];
+            const tabs = [['content'], ...(t === 'link' ? [['look']] : []), ['schedule'], ...(['link', 'product', 'whatsapp', 'app'].includes(t) ? [['advanced']] : [])];
+            return tabs;
+        },
+        blockTabLabel(key) {
+            const words = CONFIG.ui || {};
+            return { content: words.tabContent || 'Content', look: words.tabLook || 'Look', schedule: words.tabSchedule || 'Schedule', advanced: words.tabAdvanced || 'Advanced' }[key] || key;
+        },
         get isBlockValid() {
             if (!this.editingBlock) return false;
             if (this.editingBlock._urlError) return false;
@@ -263,6 +270,8 @@ window.bioEditorV2 = function() {
                     this.saveBioPage();
                 }
             });
+            // A block form always opens on its first section.
+            this.$watch(() => this.editingBlock?.id, () => { this.blockTab = 'content'; });
             this.$watch('previewOpen', open => { document.documentElement.style.overflow = open ? 'hidden' : ''; });
         },
         // hel.ink and the HOP apps (note, pixel, link, bio, ...): kept as typed, never wrapped in a short link.
@@ -943,6 +952,18 @@ window.bioEditorV2 = function() {
             delete this.editingBlock._longUrl;
             this.editingBlock._shortened = false;
         },
+        // "Back" in the form of a block that is not added yet (and in the Text and Image forms): drop it and return to
+        // the list of kinds, so a wrong pick costs one click instead of closing and reopening "Add block".
+        backToAddBlock() {
+            if (this.editingBlock?.is_new) this.closeBlockEditor();
+            this.showTextEditor = false;
+            this.textEditorBlock = null;
+            this.showImageUploader = false;
+            this.showAddBlockModal = true;
+        },
+        get textEditorIsNew() {
+            return !!this.textEditorBlock && !this.blocks.some(b => b.id === this.textEditorBlock.id);
+        },
         closeBlockEditor() {
             if (this.editingBlock) {
                 const index = this.blocks.findIndex(b => b.id === this.editingBlock.id);
@@ -955,8 +976,20 @@ window.bioEditorV2 = function() {
             }
             this.editingBlock = null;
         },
+        // A refused form stays open and shows the section that holds what has to be fixed (every check below is about
+        // the content, except the schedule's).
         async saveEditingBlock() {
+            await this.saveEditingBlockChecked();
+            if (this.editingBlock && this.blockTab !== 'schedule') this.blockTab = 'content';
+        },
+        async saveEditingBlockChecked() {
             if (!this.editingBlock) return;
+            const b = this.editingBlock;
+            if (b.publish_at && b.expire_at && new Date(b.expire_at).getTime() <= new Date(b.publish_at).getTime()) {
+                this.blockTab = 'schedule';
+                this.showNotification((CONFIG.ui || {}).scheduleOrder || 'The end time must be after the time it goes live.', 'error');
+                return;
+            }
             if (this.editingBlock.type === 'link') {
                 if (!this.editingBlock.title || !String(this.editingBlock.title).trim()) {
                     this.showNotification('Title is required', 'error');
@@ -1008,6 +1041,17 @@ window.bioEditorV2 = function() {
                 }
                 if (!this.editingBlock.embed_url.match(/soundcloud\.com/i)) {
                     this.showNotification('Please enter a valid SoundCloud URL', 'error');
+                    return;
+                }
+            }
+            if (this.editingBlock.type === 'music') {
+                const words = CONFIG.ui || {};
+                if (!this.editingBlock.embed_url || !this.editingBlock.embed_url.trim()) {
+                    this.showNotification(words.musicRequired || 'Music URL is required', 'error');
+                    return;
+                }
+                if (!this.editingBlock.embed_url.match(/(spotify|soundcloud|music.apple|music.youtube).com/i)) {
+                    this.showNotification(words.musicInvalid || 'Please enter a Spotify, SoundCloud, Apple Music or YouTube Music URL', 'error');
                     return;
                 }
             }
@@ -1729,9 +1773,8 @@ window.bioEditorV2 = function() {
             this.noteRevision((await response.json().catch(() => ({}))).page_updated_at);
         },
         async saveBlocksOrder() {
-            const linksData = this.blocks
-                .filter(b => b.id < 1000000000)
-                .map((b, idx) => ({ id: b.id, order: idx }));
+            const requestBody = reorderRequest(this.blocks, this._baseUpdatedAt);
+            const linksData = requestBody.links;
             if (linksData.length === 0) return true;
             try {
                 const response = await fetch(bioEditorUrl('/links/reorder'), {
@@ -1741,7 +1784,7 @@ window.bioEditorV2 = function() {
                         'X-CSRF-TOKEN': csrf(),
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify({ links: linksData })
+                    body: JSON.stringify(requestBody)
                 });
                 if (!response.ok) throw Object.assign(new Error(response.status), { status: response.status });
                 this.noteRevision((await response.json().catch(() => ({}))).page_updated_at);
@@ -1756,9 +1799,15 @@ window.bioEditorV2 = function() {
                 this.hasUnsavedChanges = true;
                 const words = CONFIG.reorder || {};
                 let message = words.saveFailed || 'Could not save the new order. Click Save to retry.';
-                if (e.status === 419) {
+                const why = reorderFailure(e.status);
+                if (why === 'expired') {
                     message = words.expired || 'Your session expired. Reload the page and sign in again.';
-                } else if (e.status === 422) {
+                } else if (why === 'conflict') {
+                    // The page was changed in another tab: saving again cannot help, and the new order stays on screen
+                    // (not lost) until the member reloads on purpose. Autosave stops so the message is not repeated.
+                    message = words.conflict || 'This page was changed in another tab or window. Reload the editor to get the latest version.';
+                    this._autoBlocked = true;
+                } else if (why === 'gone') {
                     // a block of this list no longer exists (deleted in another tab): Save could never succeed, the list is stale
                     message = words.gone || 'A block of this page no longer exists. The page is reloading.';
                     this._autoBlocked = true;

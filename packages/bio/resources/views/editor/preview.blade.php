@@ -1268,11 +1268,9 @@
         </template>
         <span class="preview-fab" x-show="settings.fab && settings.fab.type !== 'none'" x-text="(settings.fab && settings.fab.label) || (settings.fab && settings.fab.type === 'whatsapp' ? 'Chat' : 'Open')"></span>
         <!-- Footer -->
-        <template x-if="!settings.hideBranding">
-            <div class="footer">
-                <a href="/">Powered by Hel.ink</a>
-            </div>
-        </template>
+        <div class="footer">
+            <a href="/">Powered by BioHop</a>
+        </div>
     </div>
     @vite('resources/js/preview.js')
     <script nonce="{{ Vite::cspNonce() }}">
