@@ -12,11 +12,11 @@
 <body class="min-h-full bg-slate-50 text-slate-900 antialiased dark:bg-[#0e1322] dark:text-slate-100">
     <header class="border-b border-slate-200/80 bg-white/80 backdrop-blur dark:border-white/10 dark:bg-[#0e1322]/80">
         <div class="mx-auto flex h-16 max-w-3xl items-center justify-between px-5">
-            <a href="{{ route('home') }}" class="flex items-center gap-2.5 font-semibold" aria-label="BioHop home">
+            <a href="{{ auth()->check() ? route('bio.index') : route('home') }}" class="flex items-center gap-2.5 font-semibold" aria-label="BioHop home">
                 <img src="{{ route('brand.logo', ['v' => 'b10b1000']) }}" alt="" class="h-8 w-8 rounded-lg">
                 <span>BioHop</span>
             </a>
-            <a href="{{ route('home') }}" class="text-sm text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white">&larr; {{ __('Back to BioHop') }}</a>
+            <a href="{{ auth()->check() ? route('bio.index') : route('home') }}" class="text-sm text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white">&larr; {{ auth()->check() ? __('Back to dashboard') : __('Back to BioHop') }}</a>
         </div>
     </header>
 

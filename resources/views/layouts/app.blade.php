@@ -55,6 +55,8 @@
                             <span aria-hidden="true"> · </span>
                             <a href="https://github.com/navi-crwn/BioHop" rel="noopener" class="hover:underline">GitHub</a>
                         </div>
+                        {{-- Last in the sidebar, at the bottom left: the family line (it used to sit under the page content). --}}
+                        <div class="hop-family-side px-5 pb-4">@include('partials.family-row')</div>
                     </div>
                 </aside>
 
@@ -91,6 +93,20 @@
                                 <a href="{{ \App\Models\User::hubUrl('settings') }}" class="btn-soft btn-sm w-full sm:w-auto">{{ __('Open HOP ID') }}</a>
                             </div>
                         @endunless
+                        {{-- Announcements: one card, at the top of the content, the same look in every HOP dashboard. A reminder card, so
+                             hop-ui adds "Hide · Shows again next week". Nothing to say, no card and no gap. --}}
+                        @if (\App\Support\Reminders::whatsappRetiredNotice((int) $user->id))
+                            @php($retireDate = \App\Support\Reminders::whatsappRetireDate())
+                            <div class="glass flex flex-wrap items-center gap-3 rounded-2xl px-4 py-3 text-sm" data-announcement data-hop-remind="whatsapp-rotator-retired" data-hop-remind-url="{{ route('reminders.dismiss') }}">
+                                <span class="chip-blue">{{ __('Notice') }}</span>
+                                <span class="min-w-0 flex-1 text-muted">
+                                    <strong class="text-ink">{{ __('The WhatsApp rotator block is being retired.') }}</strong>
+                                    {{ $retireDate
+                                        ? __('The blocks you already have keep working until :date, but new ones cannot be added. Use a normal link block or a LinkHop link instead.', ['date' => $retireDate])
+                                        : __('The blocks you already have keep working for now, but new ones cannot be added. Use a normal link block or a LinkHop link instead.') }}
+                                </span>
+                            </div>
+                        @endif
                         @isset($header)
                             <div>{{ $header }}</div>
                         @endisset
@@ -101,7 +117,6 @@
                         @endif
                     </div>
                 </main>
-                <footer class="hop-family-footer">@include('partials.family-row')</footer>
             </div>
         @else
             <div class="min-h-screen">

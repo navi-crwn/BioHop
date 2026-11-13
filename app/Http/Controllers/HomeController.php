@@ -49,7 +49,6 @@ class HomeController extends Controller
     {
         return view('landing', [
             'user' => Auth::user(),
-            'hubUrl' => User::hubUrl('dashboard').'#biohop',
             'themes' => self::galleryThemes(),
         ]);
     }

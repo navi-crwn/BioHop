@@ -91,6 +91,33 @@ window.designTab = function() {
     };
 };
 
+// The Settings tab: its cards are grouped into sub-tabs; the last one used is remembered.
+window.settingsTab = function() {
+    const KEY = 'bio-settings-section';
+    const sections = [['search', 'Search & sharing'], ['privacy', 'Privacy'], ['tools', 'Tools'], ['safety', 'Versions']];
+    let saved = '';
+    try { saved = localStorage.getItem(KEY) || ''; } catch (e) {}
+    return {
+        sections,
+        group: sections.some(s => s[0] === saved) ? saved : 'search',
+        label(key) {
+            const words = CONFIG.ui || {};
+            return { search: words.setSearch, privacy: words.setPrivacy, tools: words.setTools, safety: words.setSafety }[key] || sections.find(s => s[0] === key)[1];
+        },
+        select(key) {
+            if (!sections.some(s => s[0] === key)) return;
+            this.group = key;
+            try { localStorage.setItem(KEY, key); } catch (e) {}
+        },
+        step(dir) {
+            const i = sections.findIndex(s => s[0] === this.group);
+            const next = sections[(i + dir + sections.length) % sections.length][0];
+            this.select(next);
+            this.$nextTick(() => document.getElementById('settings-tab-' + next)?.focus());
+        },
+    };
+};
+
 window.bioEditorV2 = function() {
     return {
         // State
@@ -1657,6 +1684,12 @@ window.bioEditorV2 = function() {
                 : /color|background|theme|font|shape|shadow|hover|animation|layout|custom_css|header/.test(base) ? 'appearance'
                 : 'settings';
             this.activeTab = tab;
+            // A refused setting opens the group of cards that holds its field.
+            if (tab === 'settings') {
+                const field = document.querySelector('[x-model="bioPage.' + String(key || '').split('.')[0] + '"]');
+                const section = field?.closest('[data-settings-section]')?.dataset.settingsSection;
+                if (section) window.dispatchEvent(new CustomEvent('settings-section', { detail: section }));
+            }
         },
         async savePageFields(keys) {
             const raw = Alpine.raw(this.bioPage), sentSnap = this.pageSnapshot(), body = {};

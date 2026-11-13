@@ -123,4 +123,4 @@
 .hop-family-row img { width: 20px; height: 20px; border-radius: 4px; flex: none; }
 .hop-family-row b { color: rgb(var(--ink)); font-weight: 500; }
 .hop-family-row:hover b { text-decoration: underline; text-underline-offset: 2px; }
-.hop-family-footer { max-width: 1180px; margin: 24px auto 0; padding: 16px 24px 24px; border-top: 1px solid rgb(var(--muted) / 0.2); }
+.hop-family-side { flex: none; }

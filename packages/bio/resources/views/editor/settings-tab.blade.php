@@ -1,21 +1,17 @@
-<!-- Settings Tab Content -->
+<!-- Settings Tab Content: Search & sharing · Privacy · Tools · Versions as sub-tabs, one group of cards at a time. -->
+<div x-data="settingsTab()" @settings-section.window="select($event.detail)">
+    <nav class="be-design-nav mb-3" role="tablist" aria-label="{{ __('Settings sections') }}" @keydown.arrow-right.prevent="step(1)" @keydown.arrow-left.prevent="step(-1)">
+        <template x-for="s in sections" :key="s[0]">
+            <button type="button" role="tab" :id="'settings-tab-' + s[0]" :aria-selected="String(group === s[0])" :tabindex="group === s[0] ? 0 : -1" :class="{ 'is-active': group === s[0] }" @click="select(s[0])" x-text="label(s[0])"></button>
+        </template>
+    </nav>
 <!-- SEO Settings with Google Preview -->
-<div class="editor-card">
+<div data-settings-section="search" x-show="group === 'search'" x-cloak class="editor-card">
     <div class="editor-card-header">
         <h3 class="editor-card-title">SEO Settings</h3>
     </div>
-    <div class="space-y-4">
-        <!-- Google Preview -->
-        <div class="bg-white border border-slate-200 rounded-lg p-4 dark:bg-slate-900 dark:border-(--editor-border)">
-            <p class="text-xs editor-text-muted mb-3 uppercase tracking-wide font-medium">Google Search Preview</p>
-            <div class="space-y-1">
-                <p class="text-sm text-blue-700 dark:text-blue-400 truncate" x-text="'{{ public_url('b') }}/' + bioPage.slug"></p>
-                <h4 class="text-lg text-blue-800 dark:text-blue-300 font-medium truncate hover:underline cursor-pointer" 
-                    x-text="(bioPage.seo_title || bioPage.title || 'Your Page Title') + ' | BioHop'"></h4>
-                <p class="text-sm text-slate-600 dark:text-slate-400 line-clamp-2" 
-                   x-text="bioPage.seo_description || bioPage.bio || 'Your page description appears here, under the title, in search results.'"></p>
-            </div>
-        </div>
+    <div class="grid gap-4 xl:grid-cols-2 xl:items-start">
+        <div class="space-y-4 min-w-0">
         <div class="form-group">
             <label for="bfsettin-1" class="form-label">Page Title</label>
             <input id="bfsettin-1" type="text" x-model="bioPage.seo_title" class="form-input" placeholder="Leave empty to use display name" maxlength="60" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-form-type="other">
@@ -34,10 +30,22 @@
             </div>
             <p class="be-field-error" x-show="fieldErrors.seo_description" x-cloak x-text="fieldErrors.seo_description"></p>
         </div>
+        </div>
+        <!-- Google Preview -->
+        <div class="min-w-0 bg-white border border-slate-200 rounded-lg p-4 dark:bg-slate-900 dark:border-(--editor-border)">
+            <p class="text-xs editor-text-muted mb-3 uppercase tracking-wide font-medium">Google Search Preview</p>
+            <div class="space-y-1">
+                <p class="text-sm text-blue-700 dark:text-blue-400 truncate" x-text="'{{ public_url('b') }}/' + bioPage.slug"></p>
+                <h4 class="text-lg text-blue-800 dark:text-blue-300 font-medium truncate hover:underline cursor-pointer" 
+                    x-text="(bioPage.seo_title || bioPage.title || 'Your Page Title') + ' | BioHop'"></h4>
+                <p class="text-sm text-slate-600 dark:text-slate-400 line-clamp-2" 
+                   x-text="bioPage.seo_description || bioPage.bio || 'Your page description appears here, under the title, in search results.'"></p>
+            </div>
+        </div>
     </div>
 </div>
 <!-- Sharing: picture and favicon -->
-<div class="editor-card">
+<div data-settings-section="search" x-show="group === 'search'" x-cloak class="editor-card">
     <div class="editor-card-header">
         <h3 class="editor-card-title">Sharing</h3>
     </div>
@@ -68,7 +76,7 @@
     </div>
 </div>
 <!-- Privacy & Visibility -->
-<div class="editor-card">
+<div data-settings-section="privacy" x-show="group === 'privacy'" x-cloak class="editor-card">
     <div class="editor-card-header">
         <h3 class="editor-card-title">Privacy & Visibility</h3>
     </div>
@@ -221,7 +229,7 @@
     </div>
 </div>
 <!-- Analytics -->
-<div class="editor-card">
+<div data-settings-section="tools" x-show="group === 'tools'" x-cloak class="editor-card">
     <div class="editor-card-header">
         <h3 class="editor-card-title">Analytics</h3>
     </div>
@@ -249,7 +257,7 @@
     </div>
 </div>
 <!-- Webhook -->
-<div class="editor-card" x-data="{ info: null, show: false, busy: false, msg: '',
+<div data-settings-section="tools" x-show="group === 'tools'" x-cloak class="editor-card" x-data="{ info: null, show: false, busy: false, msg: '',
         csrf() { return document.head.querySelector('meta[name=csrf-token]')?.content || ''; },
         async load() { try { const r = await fetch(bioEditorUrl('/webhook'), { headers: { 'Accept': 'application/json' } }); this.info = r.ok ? await r.json() : null; } catch (e) { this.info = null; } },
         when(iso) { return iso ? new Date(iso).toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''; },
@@ -288,7 +296,7 @@
     </template>
 </div>
 <!-- Versions -->
-<div class="editor-card" x-data="{ versions: [], loaded: false, label: '', busy: false,
+<div data-settings-section="safety" x-show="group === 'safety'" x-cloak class="editor-card" x-data="{ versions: [], loaded: false, label: '', busy: false,
         async load() { try { const r = await fetch(bioEditorUrl('/revisions'), { headers: { 'Accept': 'application/json' } }); this.versions = r.ok ? await r.json() : []; } catch (e) { this.versions = []; } this.loaded = true; },
         when(iso) { return new Date(iso).toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); },
         async save() { this.busy = true; await fetch(bioEditorUrl('/revisions'), { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.head.querySelector('meta[name=csrf-token]')?.content || '', 'Accept': 'application/json' }, body: JSON.stringify({ label: this.label }) }); this.label = ''; this.busy = false; await this.load(); },
@@ -312,7 +320,7 @@
     </ul>
 </div>
 <!-- Floating button -->
-<div class="editor-card">
+<div data-settings-section="tools" x-show="group === 'tools'" x-cloak class="editor-card">
     <div class="editor-card-header">
         <h3 class="editor-card-title">Floating button</h3>
     </div>
@@ -334,7 +342,7 @@
     </div>
 </div>
 <!-- Footer line -->
-<div class="editor-card">
+<div data-settings-section="tools" x-show="group === 'tools'" x-cloak class="editor-card">
     <div class="editor-card-header">
         <h3 class="editor-card-title">Footer</h3>
     </div>
@@ -351,7 +359,7 @@
     </div>
 </div>
 <!-- Danger Zone -->
-<div class="editor-card border-red-200 dark:border-red-900">
+<div data-settings-section="safety" x-show="group === 'safety'" x-cloak class="editor-card border-red-200 dark:border-red-900">
     <div class="editor-card-header">
         <h3 class="editor-card-title text-red-600">Danger Zone</h3>
     </div>
@@ -366,4 +374,5 @@
             </button>
         </div>
     </div>
+</div>
 </div>

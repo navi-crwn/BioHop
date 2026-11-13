@@ -5,7 +5,7 @@
     <header class="sticky top-0 z-40 border-b border-slate-200/80 bg-white/80 backdrop-blur-xl dark:border-white/10 dark:bg-[#0e1322]/80">
         <div class="mx-auto flex min-h-16 max-w-7xl flex-nowrap items-center justify-between gap-2 px-3 py-2 sm:px-6 lg:px-8">
             <!-- Brand -->
-            <a href="{{ route('home') }}" aria-label="BioHop by hel.ink" class="flex shrink-0 items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-violet-500 rounded-lg">
+            <a href="{{ auth()->check() ? route('bio.index') : route('home') }}" aria-label="BioHop by hel.ink" class="flex shrink-0 items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-violet-500 rounded-lg">
                 <img src="{{ route('brand.favicon', ['v' => 'b10b1000']) }}" alt="" width="36" height="36" class="h-9 w-9 rounded-xl">
                 <span class="hop-name hop-name-biohop text-lg tracking-tight max-[440px]:hidden">BioHop</span>
                 <span class="hidden sm:inline rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium tracking-wide text-slate-600 dark:bg-white/10 dark:text-slate-300">by hel.ink</span>
@@ -51,7 +51,7 @@
                 </button>
 
                 @auth
-                    <a href="{{ \App\Models\User::hubUrl('dashboard') }}#biohop" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 transition-colors">
+                    <a href="{{ route('bio.index') }}" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 transition-colors">
                         {{ __('Dashboard') }}
                     </a>
                 @else
