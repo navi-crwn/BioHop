@@ -848,5 +848,7 @@
     "Upload product picture": "上传商品图片",
     "Upload a picture (square looks best)": "上传图片（正方形效果最佳）",
     "Drag and drop or click to upload": "拖放文件或点击上传",
-    "Choose File": "选择文件"
+    "Choose File": "选择文件",
+    "Warning": "警告",
+    "Important": "重要"
 }

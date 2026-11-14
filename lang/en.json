@@ -848,5 +848,7 @@
     "Upload product picture": "Upload product picture",
     "Upload a picture (square looks best)": "Upload a picture (square looks best)",
     "Drag and drop or click to upload": "Drag and drop or click to upload",
-    "Choose File": "Choose File"
+    "Choose File": "Choose File",
+    "Warning": "Warning",
+    "Important": "Important"
 }

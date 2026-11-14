@@ -848,5 +848,7 @@
     "Upload product picture": "Téléverser l'image du produit",
     "Upload a picture (square looks best)": "Téléverser une image (carrée de préférence)",
     "Drag and drop or click to upload": "Glissez-déposez ou cliquez pour téléverser",
-    "Choose File": "Choisir un fichier"
+    "Choose File": "Choisir un fichier",
+    "Warning": "Avertissement",
+    "Important": "Important"
 }

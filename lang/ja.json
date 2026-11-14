@@ -848,5 +848,7 @@
     "Upload product picture": "商品画像をアップロード",
     "Upload a picture (square looks best)": "画像をアップロード（正方形がおすすめ）",
     "Drag and drop or click to upload": "ドラッグ＆ドロップまたはクリックしてアップロード",
-    "Choose File": "ファイルを選択"
+    "Choose File": "ファイルを選択",
+    "Warning": "警告",
+    "Important": "重要"
 }

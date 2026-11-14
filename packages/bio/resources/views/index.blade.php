@@ -21,7 +21,25 @@
 
     <x-flash />
 
-    {{-- The announcement: one card at the top of the dashboard home, the same look in every HOP dashboard. A reminder card, so hop-ui adds "Hide · Shows again next week". Nothing to say: no card and no gap. --}}
+    {{-- The announcement: one card at the top of the dashboard home, the same look in every HOP dashboard. It comes from the hub's family list (FamilyAnnouncements). A reminder card, so hop-ui adds "Hide · Shows again next week"; a critical one has no Hide. Nothing to say, or the hub away: no card and no gap. --}}
+    @php $announcement = \App\Support\FamilyAnnouncements::cardFor((int) auth()->id()); @endphp
+    @if ($announcement)
+        @php
+            $chip = ['info' => ['chip-blue', __('Notice')], 'warning' => ['chip-amber', __('Warning')], 'critical' => ['chip-red', __('Important')]][$announcement['level']];
+        @endphp
+        <div class="glass flex flex-wrap items-center gap-3 rounded-2xl px-4 py-3 text-sm" data-announcement data-announcement-level="{{ $announcement['level'] }}" @if ($announcement['level'] !== 'critical') data-hop-remind="{{ $announcement['key'] }}" data-hop-remind-url="{{ route('reminders.dismiss') }}" @endif>
+            <span class="{{ $chip[0] }}">{{ $chip[1] }}</span>
+            <span class="min-w-0 flex-1 text-muted">
+                @if ($announcement['url'])
+                    <a href="{{ $announcement['url'] }}" target="_blank" rel="noopener noreferrer" class="font-semibold text-ink underline-offset-2 hover:underline">{{ $announcement['title'] }}</a>
+                @else
+                    <strong class="text-ink">{{ $announcement['title'] }}</strong>
+                @endif
+                @if ($announcement['body'] !== '') {{ $announcement['body'] }} @endif
+            </span>
+        </div>
+    @endif
+
     @unless ($bioPages->isEmpty())
         <div class="mt-4 grid gap-3 md:grid-cols-3">
             <section class="glass-card flex flex-col justify-between gap-4 md:col-span-2">

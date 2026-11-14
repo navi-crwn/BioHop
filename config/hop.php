@@ -25,6 +25,8 @@ return [
     'official_video' => env('HOP_OFFICIAL_VIDEO', ''),
     'official_music' => env('HOP_OFFICIAL_MUSIC', ''),
     'official_contact' => env('HOP_OFFICIAL_CONTACT', ''),
+    // The family announcement card on the dashboard home (the hub's public list). false: the dashboard never asks the hub.
+    'announcements' => (bool) env('HOP_ANNOUNCEMENTS', true),
     // The hub (HOP ID). hop/auth reads the same value as hop-auth.hub_url.
     'hub_url' => rtrim((string) env('HOP_HUB_URL', 'https://hub.hel.ink'), '/'),
 

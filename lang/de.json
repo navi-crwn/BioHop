@@ -848,5 +848,7 @@
     "Upload product picture": "Produktbild hochladen",
     "Upload a picture (square looks best)": "Bild hochladen (quadratisch sieht am besten aus)",
     "Drag and drop or click to upload": "Datei hierher ziehen oder klicken zum Hochladen",
-    "Choose File": "Datei wählen"
+    "Choose File": "Datei wählen",
+    "Warning": "Warnung",
+    "Important": "Wichtig"
 }

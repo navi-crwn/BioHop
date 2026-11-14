@@ -848,5 +848,7 @@
     "Upload product picture": "Загрузить изображение товара",
     "Upload a picture (square looks best)": "Загрузить изображение (лучше квадратное)",
     "Drag and drop or click to upload": "Перетащите файл или нажмите, чтобы загрузить",
-    "Choose File": "Выбрать файл"
+    "Choose File": "Выбрать файл",
+    "Warning": "Предупреждение",
+    "Important": "Важно"
 }

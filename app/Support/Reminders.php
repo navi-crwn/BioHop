@@ -17,6 +17,12 @@ class Reminders
     /** The cards this app has. Anything else is refused, so the table cannot be filled with made-up keys. */
     public const KEYS = ['setup-checklist'];
 
+    /** A key that may be hidden: one of the cards above, or the key of an announcement the hub lists right now (ann-<id>, never a critical one). */
+    public static function accepts(string $key): bool
+    {
+        return in_array($key, self::KEYS, true) || (str_starts_with($key, 'ann-') && FamilyAnnouncements::isLiveKey($key));
+    }
+
     public const HIDE_DAYS = 7;
 
     public static function dismiss(int $userId, string $key): CarbonInterface

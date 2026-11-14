@@ -848,5 +848,7 @@
     "Upload product picture": "Subir imagen del producto",
     "Upload a picture (square looks best)": "Subir una imagen (cuadrada queda mejor)",
     "Drag and drop or click to upload": "Arrastra y suelta o haz clic para subir",
-    "Choose File": "Elegir archivo"
+    "Choose File": "Elegir archivo",
+    "Warning": "Aviso",
+    "Important": "Importante"
 }
