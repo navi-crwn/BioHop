@@ -32,5 +32,24 @@
     };
     var t = theme();
     if (t === 'dark' || (!t && w.matchMedia && w.matchMedia('(prefers-color-scheme: dark)').matches)) d.documentElement.classList.add('dark');
-    w.hopPrefs = { theme: theme, setTheme: setTheme };
+    // The colour palette (classic | mist | sand), a family setting in the cookie hop_palette, written like hop_theme and only by script.
+    // No cookie or any other value is classic, which sets no attribute. Only a signed-in member's screens carry it (the layout
+    // marks them with data-member); public pages stay classic.
+    var palette = function () {
+        var c = cookie('hop_palette');
+        try { c = c === null ? null : decodeURIComponent(c); } catch (e) { c = null; }
+        return c === 'mist' || c === 'sand' ? c : 'classic';
+    };
+    var applyPalette = function (p) {
+        var el = d.documentElement;
+        if (!el.hasAttribute('data-member') || p === 'classic') el.removeAttribute('data-palette');
+        else el.setAttribute('data-palette', p);
+    };
+    var setPalette = function (p) {
+        p = p === 'mist' || p === 'sand' ? p : 'classic';
+        write('hop_palette', p);
+        applyPalette(p);
+    };
+    applyPalette(palette());
+    w.hopPrefs = { theme: theme, setTheme: setTheme, palette: palette, setPalette: setPalette };
 })(window, document);

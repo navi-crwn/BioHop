@@ -853,5 +853,8 @@
     "Important": "Важно",
     "Announcement": "Объявление",
     "More": "Ещё",
-    "This block was changed on the Manage page or in another editor tab. Reload the editor to see the latest values; nothing was saved.": "Этот блок изменили на странице «Управление» или в другой вкладке редактора. Обновите редактор, чтобы увидеть актуальные значения; ничего не сохранено."
+    "This block was changed on the Manage page or in another editor tab. Reload the editor to see the latest values; nothing was saved.": "Этот блок изменили на странице «Управление» или в другой вкладке редактора. Обновите редактор, чтобы увидеть актуальные значения; ничего не сохранено.",
+    "Classic": "Классика",
+    "Mist": "Дымка",
+    "Sand": "Песок"
 }

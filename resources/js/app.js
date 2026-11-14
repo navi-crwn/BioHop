@@ -14,6 +14,18 @@ Alpine.plugin(modal);
 Alpine.data('manageRow', manageRow);
 window.Alpine = Alpine;
 window.Sortable = Sortable;
+// The colour palette picker in the sidebar (hop_palette cookie, see hop-prefs.js): mark the current one, switch on click.
+const markPalette = () => {
+    const now = window.hopPrefs ? window.hopPrefs.palette() : 'classic';
+    document.querySelectorAll('[data-palette-choice]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.paletteChoice === now ? 'true' : 'false'));
+};
+markPalette();
+document.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-palette-choice]');
+    if (!b || !window.hopPrefs) return;
+    window.hopPrefs.setPalette(b.dataset.paletteChoice);
+    markPalette();
+});
 // data-call="fn" buttons call window.fn without inline on* handlers (CSP).
 installInlineActions();
 // Two frames later, so inline scripts in blade templates have run before Alpine starts.

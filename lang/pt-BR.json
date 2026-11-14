@@ -853,5 +853,8 @@
     "Important": "Importante",
     "Announcement": "Aviso",
     "More": "Mais",
-    "This block was changed on the Manage page or in another editor tab. Reload the editor to see the latest values; nothing was saved.": "Este bloco foi alterado na página Gerenciar ou em outra aba do editor. Recarregue o editor para ver os valores mais recentes; nada foi salvo."
+    "This block was changed on the Manage page or in another editor tab. Reload the editor to see the latest values; nothing was saved.": "Este bloco foi alterado na página Gerenciar ou em outra aba do editor. Recarregue o editor para ver os valores mais recentes; nada foi salvo.",
+    "Classic": "Clássico",
+    "Mist": "Névoa",
+    "Sand": "Areia"
 }

@@ -37,6 +37,11 @@
         },
         {
           "type": "added",
+          "where": "Dashboard, colours",
+          "text": "The bottom of the sidebar has three colour samples, Classic, Mist and Sand. Mist and Sand change the accent colour and the soft background and panel colours of your dashboard, and the choice is remembered and shared with the other HOP apps. Classic is the look you already know and does not change. Your public bio pages are never recoloured. Reason: one colour choice for the whole HOP family."
+        },
+        {
+          "type": "added",
           "where": "Dashboard, sidebar footer",
           "text": "The footer links are Help, Terms, Privacy, Changelog, GitHub and Announcement, one under the other, followed by \"Part of Hop Easy Link\". On a phone they scroll together with the menu. Reason: every HOP app now has the same footer."
         },

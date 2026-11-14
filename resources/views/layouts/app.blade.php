@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" @auth data-member @endauth>
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -53,7 +53,15 @@
                                 @include('partials.nav', ['isAdmin' => $isAdmin])
                             </nav>
                             {{-- The footer of every HOP dashboard: the same six links in the same order (Help, Terms, Privacy, Changelog, GitHub, Announcement), then the family line. --}}
-                            <nav class="hop-side-links mt-auto pt-6" aria-label="{{ __('More') }}">
+                            <div class="hop-pal mt-auto pt-6" role="group" aria-label="{{ __('Colours') }}">
+                                <p class="hop-pal-label">{{ __('Colours') }}</p>
+                                <div class="hop-pal-row">
+                                    @foreach (['classic' => 'Classic', 'mist' => 'Mist', 'sand' => 'Sand'] as $key => $label)
+                                        <button type="button" data-palette-choice="{{ $key }}" aria-pressed="{{ $key === 'classic' ? 'true' : 'false' }}"><i class="sw-{{ $key }}"></i><span>{{ __($label) }}</span></button>
+                                    @endforeach
+                                </div>
+                            </div>
+                            <nav class="hop-side-links" aria-label="{{ __('More') }}">
                                 <ul>
                                     <li><a href="{{ route('pages.help') }}">{{ __('Help') }}</a></li>
                                     <li><a href="{{ route('pages.terms') }}">{{ __('Terms') }}</a></li>
