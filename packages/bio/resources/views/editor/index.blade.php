@@ -735,16 +735,16 @@
                         <template x-if="editingBlock?.type === 'product'">
                             <div class="space-y-4">
                                 <div class="form-group">
-                                    <label for="bfindex-p1" class="form-label">Product name</label>
+                                    <label for="bfindex-p1" class="form-label">{{ __('Product name') }}</label>
                                     <input maxlength="100" id="bfindex-p1" type="text" x-model="editingBlock.title" class="form-input" placeholder="Linen shirt">
                                 </div>
                                 <div class="grid grid-cols-3 gap-3">
                                     <div class="form-group col-span-2">
-                                        <label for="bfindex-p2" class="form-label">Price</label>
+                                        <label for="bfindex-p2" class="form-label">{{ __('Price') }}</label>
                                         <input id="bfindex-p2" type="number" min="0" step="0.01" inputmode="decimal" :value="editingBlock.settings?.price ?? ''" @input="editingBlock.settings = Object.assign({}, editingBlock.settings, { price: $event.target.value })" class="form-input" placeholder="120000">
                                     </div>
                                     <div class="form-group">
-                                        <label for="bfindex-p3" class="form-label">Currency</label>
+                                        <label for="bfindex-p3" class="form-label">{{ __('Currency') }}</label>
                                         <select id="bfindex-p3" :value="editingBlock.settings?.currency ?? 'IDR'" @change="editingBlock.settings = Object.assign({}, editingBlock.settings, { currency: $event.target.value })" class="form-input">
                                             <template x-for="c in ['IDR','USD','EUR','GBP','JPY','SGD','MYR','AUD','BRL','CNY','KRW','INR']" :key="c"><option :value="c" x-text="c"></option></template>
                                         </select>
@@ -752,62 +752,62 @@
                                 </div>
                                 <div class="grid grid-cols-2 gap-3">
                                     <div class="form-group">
-                                        <label for="bfindex-p6" class="form-label">Was price <span class="editor-text-muted font-normal">(optional)</span></label>
+                                        <label for="bfindex-p6" class="form-label">{{ __('Was price') }} <span class="editor-text-muted font-normal">{{ __('(optional)') }}</span></label>
                                         <input id="bfindex-p6" type="number" min="0" step="0.01" inputmode="decimal" :value="editingBlock.settings?.compare_price ?? ''" @input="setProductSetting('compare_price', $event.target.value)" class="form-input" placeholder="150000">
-                                        <p class="text-xs editor-text-muted mt-1">Shown struck through next to the price.</p>
+                                        <p class="text-xs editor-text-muted mt-1">{{ __('Shown struck through next to the price.') }}</p>
                                     </div>
                                     <div class="form-group">
-                                        <label for="bfindex-p7" class="form-label">Stock <span class="editor-text-muted font-normal">(optional)</span></label>
-                                        <input id="bfindex-p7" type="number" min="0" step="1" inputmode="numeric" :value="editingBlock.settings?.stock ?? ''" @input="setProductSetting('stock', $event.target.value)" class="form-input" placeholder="Leave empty if unlimited">
-                                        <p class="text-xs editor-text-muted mt-1">0 shows "Sold out"; 1–5 shows "Only n left".</p>
+                                        <label for="bfindex-p7" class="form-label">{{ __('Stock') }} <span class="editor-text-muted font-normal">{{ __('(optional)') }}</span></label>
+                                        <input id="bfindex-p7" type="number" min="0" step="1" inputmode="numeric" :value="editingBlock.settings?.stock ?? ''" @input="setProductSetting('stock', $event.target.value)" class="form-input" placeholder="{{ __('Leave empty if unlimited') }}">
+                                        <p class="text-xs editor-text-muted mt-1">{{ __('0 shows "Sold out"; 1–5 shows "Only n left".') }}</p>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <div class="flex items-center justify-between">
-                                        <label class="form-label mb-0">Variants <span class="editor-text-muted font-normal">(sizes, colours…)</span></label>
-                                        <button type="button" class="btn btn-secondary text-xs py-1 px-2" @click="addVariant()" x-show="(editingBlock.settings?.variants || []).length < 20">+ Add variant</button>
+                                        <label class="form-label mb-0">{{ __('Variants') }} <span class="editor-text-muted font-normal">{{ __('(sizes, colours…)') }}</span></label>
+                                        <button type="button" class="btn btn-secondary text-xs py-1 px-2" @click="addVariant()" x-show="(editingBlock.settings?.variants || []).length < 20">{{ __('+ Add variant') }}</button>
                                     </div>
-                                    <p class="text-xs editor-text-muted mt-1" x-show="!(editingBlock.settings?.variants || []).length">Each variant can have its own price, stock and buy address. Without them the product's own are used.</p>
+                                    <p class="text-xs editor-text-muted mt-1" x-show="!(editingBlock.settings?.variants || []).length">{{ __("Each variant can have its own price, stock and buy address. Without them the product's own are used.") }}</p>
                                     <div class="mt-2 space-y-2">
                                         <template x-for="(v, i) in (editingBlock.settings?.variants || [])" :key="i">
                                             <div class="be-variant">
-                                                <input type="text" maxlength="40" :value="v.name" @input="setVariant(i, 'name', $event.target.value)" class="form-input" placeholder="Size M" :aria-label="'Variant ' + (i + 1) + ' name'">
-                                                <input type="number" min="0" step="0.01" inputmode="decimal" :value="v.price ?? ''" @input="setVariant(i, 'price', $event.target.value)" class="form-input" placeholder="Price" :aria-label="'Variant ' + (i + 1) + ' price'">
-                                                <input type="number" min="0" step="1" inputmode="numeric" :value="v.stock ?? ''" @input="setVariant(i, 'stock', $event.target.value)" class="form-input" placeholder="Stock" :aria-label="'Variant ' + (i + 1) + ' stock'">
-                                                <input type="url" :value="v.url ?? ''" @input="setVariant(i, 'url', $event.target.value)" class="form-input" placeholder="https://… (optional)" :aria-label="'Variant ' + (i + 1) + ' address'">
-                                                <button type="button" class="icon-btn" @click="removeVariant(i)" :aria-label="'Remove variant ' + (i + 1)" title="Remove"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                                                <input type="text" maxlength="40" :value="v.name" @input="setVariant(i, 'name', $event.target.value)" class="form-input" placeholder="Size M" :aria-label="@js(__('Variant :n name')).replace(':n', i + 1)">
+                                                <input type="number" min="0" step="0.01" inputmode="decimal" :value="v.price ?? ''" @input="setVariant(i, 'price', $event.target.value)" class="form-input" placeholder="{{ __('Price') }}" :aria-label="@js(__('Variant :n price')).replace(':n', i + 1)">
+                                                <input type="number" min="0" step="1" inputmode="numeric" :value="v.stock ?? ''" @input="setVariant(i, 'stock', $event.target.value)" class="form-input" placeholder="{{ __('Stock') }}" :aria-label="@js(__('Variant :n stock')).replace(':n', i + 1)">
+                                                <input type="url" :value="v.url ?? ''" @input="setVariant(i, 'url', $event.target.value)" class="form-input" placeholder="https://…" :aria-label="@js(__('Variant :n address')).replace(':n', i + 1)">
+                                                <button type="button" class="icon-btn" @click="removeVariant(i)" :aria-label="@js(__('Remove variant :n')).replace(':n', i + 1)" title="{{ __('Remove') }}"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
                                             </div>
                                         </template>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="bfindex-p4" class="form-label">Where to buy (address)</label>
+                                    <label for="bfindex-p4" class="form-label">{{ __('Where to buy (address)') }}</label>
                                     <input id="bfindex-p4" type="url" x-model="editingBlock.url" class="form-input" placeholder="https://your-shop.com/linen-shirt">
-                                    <p class="text-xs editor-text-muted mt-1">Your own shop, a marketplace listing or an affiliate link. Visitors open it in a new tab.</p>
+                                    <p class="text-xs editor-text-muted mt-1">{{ __('Your own shop, a marketplace listing or an affiliate link. Visitors open it in a new tab.') }}</p>
                                     <div class="mt-2 flex flex-wrap items-center gap-2">
-                                        <button type="button" class="btn btn-secondary text-xs py-1 px-2" :disabled="productFetch.busy || !/^https?:\/\//i.test(editingBlock.url || '')" @click="fillProductFromAddress()" x-text="productFetch.busy ? 'Reading the page…' : 'Fill the details from this address'"></button>
+                                        <button type="button" class="btn btn-secondary text-xs py-1 px-2" :disabled="productFetch.busy || !/^https?:\/\//i.test(editingBlock.url || '')" @click="fillProductFromAddress()" x-text="productFetch.busy ? @js(__('Reading the page…')) : @js(__('Fill the details from this address'))"></button>
                                         <span class="text-xs" :class="productFetch.ok ? 'text-emerald-600' : 'editor-text-muted'" x-show="productFetch.message" x-text="productFetch.message" role="status"></span>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="bfindex-p5" class="form-label">Short description</label>
+                                    <label for="bfindex-p5" class="form-label">{{ __('Short description') }}</label>
                                     <input maxlength="500" id="bfindex-p5" type="text" x-model="editingBlock.description" class="form-input" placeholder="Organic linen, three colours">
                                 </div>
                                 <div class="form-group" x-show="editingBlock?.thumbnail_url">
-                                    <label class="form-label">Picture</label>
+                                    <label class="form-label">{{ __('Picture') }}</label>
                                     <div class="relative w-full h-40 rounded-lg overflow-hidden" style="background: var(--editor-input-bg);">
                                         <img :src="editingBlock?.thumbnail_url" class="w-full h-full object-cover">
-                                        <button aria-label="Remove picture" type="button" @click="editingBlock.thumbnail_url = ''; editingBlock.content = ''" class="absolute top-2 right-2 p-1.5 bg-red-600 hover:bg-red-700 rounded-full text-white">
+                                        <button aria-label="{{ __('Remove picture') }}" type="button" @click="editingBlock.thumbnail_url = ''; editingBlock.content = ''" class="absolute top-2 right-2 p-1.5 bg-red-600 hover:bg-red-700 rounded-full text-white">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                                         </button>
                                     </div>
                                 </div>
                                 <label class="block p-4 border-2 border-dashed border-(--editor-border) hover:border-indigo-500 rounded-lg cursor-pointer transition-colors text-center">
-                                    <input aria-label="Upload product picture" type="file" class="hidden" accept="image/png,image/jpeg,image/gif,image/webp,image/bmp" @change="uploadBlockImage($event, editingBlock)">
-                                    <span class="text-sm editor-text-muted">Upload a picture (square looks best)</span>
+                                    <input aria-label="{{ __('Upload product picture') }}" type="file" class="hidden" accept="image/png,image/jpeg,image/gif,image/webp,image/bmp" @change="uploadBlockImage($event, editingBlock)">
+                                    <span class="text-sm editor-text-muted">{{ __('Upload a picture (square looks best)') }}</span>
                                 </label>
                                 <label class="flex items-center gap-2 text-sm">
-                                    <input type="checkbox" :checked="!!editingBlock.settings?.sold_out" @change="editingBlock.settings = Object.assign({}, editingBlock.settings, { sold_out: $event.target.checked })"> Sold out
+                                    <input type="checkbox" :checked="!!editingBlock.settings?.sold_out" @change="editingBlock.settings = Object.assign({}, editingBlock.settings, { sold_out: $event.target.checked })"> {{ __('Sold out') }}
                                 </label>
                             </div>
                         </template>

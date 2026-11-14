@@ -1,6 +1,7 @@
 <?php
 
 use Hop\Bio\Http\Controllers\BioLinkController;
+use Hop\Bio\Http\Controllers\BioManageController;
 use Hop\Bio\Http\Controllers\BioMediaController;
 use Hop\Bio\Http\Controllers\BioPageController;
 use Hop\Bio\Http\Controllers\BioRevisionController;
@@ -42,6 +43,9 @@ Route::middleware(['web', 'ip.ban', 'hop.auth', UploadStorageGate::class])->pref
     Route::post('/', [BioPageController::class, 'store'])->middleware('verified')->name('store');
     Route::post('/wizard', [BioPageController::class, 'storeWizard'])->middleware('verified')->name('wizard');
     Route::get('/import', [BioPageController::class, 'importForm'])->name('import');
+    // Prices, stock and goal figures of all the member's pages in one place; polls and forms to read.
+    Route::get('/manage', [BioManageController::class, 'index'])->name('manage');
+    Route::patch('/manage/{bioLink}', [BioManageController::class, 'update'])->middleware(['verified', 'throttle:120,1'])->name('manage.update');
     // The member's own PixelHop pictures for the "Choose from PixelHop" picker, fetched server to server
     // (BIO_PIXELHOP_PICKER; 404 while it is off).
     Route::get('/media/pixelhop', [BioMediaController::class, 'pixelhop'])->middleware('throttle:60,1')->name('media.pixelhop');

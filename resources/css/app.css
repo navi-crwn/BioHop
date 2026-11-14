@@ -176,6 +176,17 @@
     /* Keep room for the select chevron that @tailwindcss/forms draws. */
     select.input { padding-right: 2.25rem; }
     .label { @apply mb-1.5 block text-xs font-medium; color: rgb(var(--muted)); }
+    /* The Manage page: a product or goal row. Two columns on a phone (name and buttons full width), one line from 768 px. */
+    .manage-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: end; gap: 0.75rem; }
+    .manage-name, .manage-act, .manage-msg { grid-column: 1 / -1; }
+    .manage-check { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; min-height: 2.25rem; }
+    @media (min-width: 768px) {
+        .manage-row { grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.8fr) 4.5rem 4.5rem 5rem; }
+        .manage-goal { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.8fr) 5rem; }
+        .manage-name, .manage-act { grid-column: auto; }
+        .manage-check { justify-content: center; }
+        .manage-act { text-align: right; }
+    }
 
     /* Chips / badges */
     .chip, .chip-green, .chip-gray, .chip-red, .chip-blue, .chip-amber { @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold; }

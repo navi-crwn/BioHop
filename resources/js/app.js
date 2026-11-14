@@ -3,6 +3,7 @@ import Alpine from 'alpinejs';
 import collapse from '@alpinejs/collapse';
 import Sortable from 'sortablejs';
 import modal from './modal';
+import manageRow from './manage';
 import installInlineActions from './inline-actions';
 import './turnstile';
 import './showcase';
@@ -10,6 +11,7 @@ import './lazy-libs';
 
 Alpine.plugin(collapse);
 Alpine.plugin(modal);
+Alpine.data('manageRow', manageRow);
 window.Alpine = Alpine;
 window.Sortable = Sortable;
 // data-call="fn" buttons call window.fn without inline on* handlers (CSP).

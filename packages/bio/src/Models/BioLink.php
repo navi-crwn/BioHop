@@ -307,6 +307,15 @@ class BioLink extends Model
         return $out;
     }
 
+    /**
+     * A fingerprint of what the block holds, without the click count and the update time (a click moves both).
+     * A page that edits the block sends the one it was shown, and the block is refused when it no longer matches.
+     */
+    public function contentVersion(): string
+    {
+        return sha1(json_encode(Arr::except($this->getAttributes(), ['click_count', 'updated_at'])));
+    }
+
     public function scopeNotArchived($query)
     {
         return $query->whereNull('archived_at');
