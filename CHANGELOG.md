@@ -29,6 +29,10 @@ All notable changes to BioHop are listed here, written for the people who use it
 - **Editor, dragging blocks in two tabs.** When the page was changed in another tab, saving the new block order is now refused with a clear message in your language, instead of quietly replacing the other tab's changes. The editor now sends the page version it knows, which the server has been able to check since version 1.3.2.
 - **Public pages, language list.** The language list in the header no longer runs off the right edge of a phone screen.
 
+### Removed
+
+- **Editor, link block.** The "Choose from NoteHop" button is gone, so a NoteHop note can no longer be connected to a page from the editor. Effect: fewer buttons in the link form; to write on a page, use the Text block. Links to notes that were added earlier keep working and can still be edited. Reason: the Text block already covers it and the button was rarely needed.
+
 ## [1.3.2] - 2026-11-14 - Safer saving of the block order
 
 ### Fixed

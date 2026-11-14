@@ -84,6 +84,11 @@
           "type": "fixed",
           "where": "Public pages, language list",
           "text": "The language list in the header no longer runs off the right edge of a phone screen."
+        },
+        {
+          "type": "removed",
+          "where": "Editor, link block",
+          "text": "The \"Choose from NoteHop\" button is gone, so a NoteHop note can no longer be connected to a page from the editor. Effect: fewer buttons in the link form; to write on a page, use the Text block. Links to notes that were added earlier keep working and can still be edited. Reason: the Text block already covers it and the button was rarely needed."
         }
       ]
     },

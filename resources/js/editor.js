@@ -155,8 +155,6 @@ window.bioEditorV2 = function() {
         imageBlockAlt: '',
         imageBlockLink: '',
         // "Choose from PixelHop" (CONFIG.pixelhop is null while the picker is off): target says where a pick goes.
-        // "Choose from NoteHop" (CONFIG.notehop is null while the picker is off): public notes with a read-only link.
-        notehop: { open: false, q: '', items: [], next: '', loading: false, loaded: false, error: '', unavailable: false, turn: 0 },
         pixelhop: { open: false, target: null, type: 'image', items: [], next: '', total: 0, loading: false, loaded: false, error: '', hotlinksBlocked: false, picked: [], unavailable: false },
         textEditorBlock: null,
         iconPickerBlock: null,
@@ -366,7 +364,7 @@ window.bioEditorV2 = function() {
         isComposing() {
             return !!(this.editingBlock || this.showTextEditor || this.showImageUploader || this.showSocialEditor
                 || this.showIconPicker || this.showAddBlockModal || this.showLinkLibraryModal || this.showSocialPicker
-                || this.showDiscardModal || this.pixelhop.open || this.notehop.open || this.saving);
+                || this.showDiscardModal || this.pixelhop.open || this.saving);
         },
         scheduleAutosave() {
             clearTimeout(this._autoTimeout);
@@ -2268,69 +2266,6 @@ window.bioEditorV2 = function() {
             } finally {
                 this.saving = false;
             }
-        },
-        // ---- "Choose from NoteHop": a public note (read-only link) as the link block's address ----
-        notehopAvailable() {
-            return !!CONFIG.notehop && !this.notehop.unavailable;
-        },
-        notehopStrings() {
-            return (CONFIG.notehop && CONFIG.notehop.strings) || {};
-        },
-        openNoteHop() {
-            if (!this.notehopAvailable() || !this.editingBlock) return;
-            Object.assign(this.notehop, { open: true, q: '', items: [], next: '', loaded: false, error: '' });
-            this.loadNoteHop();
-        },
-        closeNoteHop() {
-            this.notehop.open = false;
-        },
-        async loadNoteHop(more = false) {
-            const turn = ++this.notehop.turn;
-            this.notehop.loading = true;
-            this.notehop.error = '';
-            const params = new URLSearchParams({ limit: '20' });
-            if (this.notehop.q.trim()) params.set('q', this.notehop.q.trim().slice(0, 100));
-            if (more && this.notehop.next) params.set('cursor', this.notehop.next);
-            try {
-                const res = await fetch(CONFIG.notehop.url + '?' + params.toString(), { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
-                const data = await res.json().catch(() => ({}));
-                if (turn !== this.notehop.turn) return; // a newer search is on its way
-                if (!res.ok) {
-                    // 404 no_account: the member never signed in to NoteHop. Anything else: NoteHop is down; the
-                    // button goes away for this editing session and the address field keeps working.
-                    this.notehop.error = data.message || this.notehopStrings().failed;
-                    if (res.status !== 404 && res.status !== 422) this.notehop.unavailable = true;
-                    return;
-                }
-                this.notehop.items = more ? this.notehop.items.concat(data.items || []) : (data.items || []);
-                this.notehop.next = data.next || '';
-                this.notehop.loaded = true;
-            } catch (e) {
-                if (turn !== this.notehop.turn) return;
-                this.notehop.error = this.notehopStrings().failed;
-                this.notehop.unavailable = true;
-            } finally {
-                if (turn === this.notehop.turn) {
-                    this.notehop.loading = false;
-                    // A result that had focus may be gone after a new search: keep the keyboard in the dialog.
-                    this.$nextTick(() => {
-                        const dialog = document.querySelector('.notehop-picker');
-                        if (this.notehop.open && dialog && !dialog.contains(document.activeElement)) document.getElementById('notehop-search')?.focus();
-                    });
-                }
-            }
-        },
-        pickNoteHop(item) {
-            // The server only lists NoteHop addresses without a fragment; never keep anything after a #.
-            if (!item || !this.editingBlock || typeof item.url !== 'string' || item.url.includes('#')) return;
-            this.linkInputMode = 'create';
-            this.editingBlock.url = item.url;
-            if (!this.editingBlock.title || !String(this.editingBlock.title).trim()) {
-                this.editingBlock.title = item.title || this.notehopStrings().untitled;
-            }
-            this.editingBlock._urlError = null;
-            this.showNotification(this.notehopStrings().picked, 'success');
-            this.closeNoteHop();
         },
         // ---- "Choose from PixelHop": pictures the member already uploaded there; the page keeps the address ----
         pixelhopAvailable() {

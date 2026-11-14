@@ -21,36 +21,31 @@ function signedWith(ClientRequest $request, string $secret): bool
 
 function pickersOn(): void
 {
-    config(['bio.notehop_picker' => true, 'bio.notehop_url' => 'https://note.test',
-        'bio.pixelhop_picker' => true, 'bio.pixelhop_url' => 'https://pixel.test', 'bio.pixelhop_hosts' => ['pixel.test']]);
+    config(['bio.pixelhop_picker' => true, 'bio.pixelhop_url' => 'https://pixel.test', 'bio.pixelhop_hosts' => ['pixel.test']]);
     Http::fake([
-        'https://note.test/*' => Http::response(['ok' => true, 'data' => ['items' => [], 'next' => '']]),
         'https://pixel.test/*' => Http::response(['success' => true, 'data' => ['items' => [], 'next' => '', 'total' => 0, 'hotlinks_blocked' => false]]),
     ]);
 }
 
-test('without HOP_PICKER_SECRET both pickers sign with the SSO secret, as before', function () {
+test('without HOP_PICKER_SECRET the picker signs with the SSO secret, as before', function () {
     pickersOn();
     config(['bio.picker_secret' => null]);
     $user = User::factory()->create();
-    $this->actingAs($user)->getJson('/bio/media/notehop')->assertOk();
     $this->actingAs($user)->getJson('/bio/media/pixelhop')->assertOk();
     expect(PickerSecret::dedicated())->toBeFalse();
-    Http::assertSentCount(2);
+    Http::assertSentCount(1);
     Http::assertSent(fn (ClientRequest $r) => signedWith($r, PICKER_SSO_SECRET));
 });
 
-test('with HOP_PICKER_SECRET both pickers sign with it and never with the SSO secret', function () {
+test('with HOP_PICKER_SECRET the picker signs with it and never with the SSO secret', function () {
     pickersOn();
     $picker = str_repeat('p', 40);
     config(['bio.picker_secret' => $picker]);
     $user = User::factory()->create();
-    $this->actingAs($user)->getJson('/bio/media/notehop')->assertOk();
     $this->actingAs($user)->getJson('/bio/media/pixelhop')->assertOk();
     expect(PickerSecret::dedicated())->toBeTrue();
-    Http::assertSentCount(2);
+    Http::assertSentCount(1);
     Http::assertNotSent(fn (ClientRequest $r) => signedWith($r, PICKER_SSO_SECRET));
-    Http::assertSent(fn (ClientRequest $r) => str_starts_with($r->url(), 'https://note.test/') && signedWith($r, $picker));
     Http::assertSent(fn (ClientRequest $r) => str_starts_with($r->url(), 'https://pixel.test/') && signedWith($r, $picker));
 });
 

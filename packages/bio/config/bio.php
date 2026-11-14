@@ -36,10 +36,6 @@ return [
     'pixelhop_hosts' => array_values(array_filter(array_map('trim', explode(',', (string) env('BIO_PIXELHOP_HOSTS', 'pixel.hel.ink,p.hel.ink'))))),
     // Seconds to wait for PixelHop's list before the editor is told to upload instead.
     'pixelhop_timeout' => (int) env('BIO_PIXELHOP_TIMEOUT', 6),
-    // "Choose from NoteHop" for a link block: one of the member's public notes that has a read-only link. NoteHop
-    // never lists an encrypted note (its key stays in the member's browser). Off until NoteHop's
-    // GET /api/v1/me/notes is deployed with this app in NOTEHOP_NOTES_CLIENTS.
-    'notehop_picker' => (bool) env('BIO_NOTEHOP_PICKER', false),
     // NoteHop's address: the server-to-server call goes there and a picked note must be on it.
     'notehop_url' => env('BIO_NOTEHOP_URL', 'https://note.hel.ink'),
     'notehop_timeout' => (int) env('BIO_NOTEHOP_TIMEOUT', 6),
