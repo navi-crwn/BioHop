@@ -70,14 +70,14 @@ The screenshots below come from a local install with made-up sample data (a cera
 - Drag to reorder. A select mode shows, hides, archives or deletes several blocks together. An archived block leaves the page but keeps its clicks.
 - Versions: the editor saves a version before each editing session. You can also name a version and restore any of them.
 - Pages can be duplicated. By default an account has 3 pages and a page has 100 blocks (see the settings below).
-- Design: four header layouts (classic, hero, banner with a cover picture, cutout), 17 theme presets in the picker, wallpaper as colour, gradient or picture, button and block styles, fonts served from the app, custom CSS per page and a switch for the "Powered by" line.
+- Design: four header layouts (classic, hero, banner with a cover picture, cutout), 17 theme presets in the picker, wallpaper as colour, gradient or picture, button and block styles, fonts served from the app and custom CSS per page.
 - The interface is available in English, 简体中文, Deutsch, Bahasa Indonesia, 日本語, Português (Brasil), Español, Français and Русский.
 
 ### Blocks
 
-BioHop has 29 block kinds: link, text, header, divider, spacer, image, carousel, PDF, audio, video, YouTube, Spotify, SoundCloud, music, map, countdown, FAQ, HTML, code, contact card, email, WhatsApp, app store link, goal bar, product, collection, sign-up form, poll and RSS or Atom feed.
+BioHop offers 19 block kinds when you add a block: link, text, header, image, divider, YouTube, music (Spotify, SoundCloud, Apple Music or YouTube Music), audio clip, picture carousel, PDF, product, collection, goal bar, receive payment, sign-up form, countdown, contact card, location and FAQ. Blocks of five retired kinds (WhatsApp rotator, app store link, SoundCloud, RSS feed, poll) that a page already has keep working and can be edited, but cannot be added again.
 
-- A WhatsApp block rotates through up to 10 numbers, in turn or by weight.
+- The WhatsApp rotator block is retired: a page that has one keeps it (it rotates through up to 10 numbers, in turn or by weight), and no new one can be made.
 - An app block sends the visitor to the store that matches their system.
 - Any block can have a publish and an expiry time.
 - A link can send visitors elsewhere by country, device, system or hour of the day, and it can have its own PIN.

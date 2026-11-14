@@ -201,7 +201,7 @@ class BioLinkController extends Controller
         $this->authorize('update', $bioPage);
         BioRevisions::maybeSnapshot($bioPage);
         $validated = $request->validate([
-            'type' => 'required|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code,product,collection,whatsapp,app,goal,audio,carousel,pdf,form,rss,poll,pay',
+            'type' => 'required|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code,product,collection,app,goal,audio,carousel,pdf,form,rss,poll,pay',
             'title' => 'nullable|string|max:100',
             'url' => 'nullable|string|max:500',
             'content' => 'nullable|string|max:5000',

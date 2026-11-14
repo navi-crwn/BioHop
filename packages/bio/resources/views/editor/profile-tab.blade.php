@@ -36,7 +36,8 @@
                     <button type="button" class="btn btn-secondary text-xs py-1.5 px-3" x-show="pixelhopAvailable()" @click="openPixelHop('avatar')">{{ __('Choose from PixelHop') }}</button>
                     @endif
                     <!-- Avatar Shape buttons - horizontal below avatar -->
-                    <div class="flex flex-col items-center gap-1 mt-1">
+                    <p class="text-xs editor-text-muted text-center mt-1" x-show="['hero', 'cutout'].includes(bioPage.header_layout)" x-cloak>{{ __('The shape is not used by this header style.') }}</p>
+                    <div class="flex flex-col items-center gap-1 mt-1" x-show="!['hero', 'cutout'].includes(bioPage.header_layout)">
                         <span class="text-xs editor-text-muted">Shape</span>
                         <div class="flex items-center gap-2">
                             <button aria-label="Circle avatar" @click="bioPage.avatar_shape = 'circle'" 

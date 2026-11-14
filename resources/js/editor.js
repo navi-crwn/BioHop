@@ -2,7 +2,7 @@
 // the page's data comes in as JSON from <script id="bio-editor-config"> instead of being printed into the page.
 import { confirmDialog } from './dialogs';
 import { payCheck, emptyPay } from './pay-shared.js';
-import { orderByIds, sameOrder, dropStray, finishDrop } from './drop-move.js';
+import { orderByIds, sameOrder, dropStray, finishDrop, reorderRequest, reorderFailure } from './drop-move.js';
 import { addOnce, removeById, postToPreview } from './editor-safe.js';
 import PAY_FORMATS from '../pay/formats.json';
 
@@ -47,8 +47,7 @@ const BLOCK_CATALOG = [
     ]],
     ['Media & embeds', [
         ['youtube', 'YouTube', 'A video that plays on the page', '#dc2626', 'M14.7 12L10 9v6l4.7-3zM21 12a9 9 0 11-18 0 9 9 0 0118 0z', 'add', 'video'],
-        ['spotify', 'Spotify', 'A track, album or playlist', '#16a34a', 'M9 19V6l12-3v13M9 19a3 3 0 11-6 0 3 3 0 016 0zm12-3a3 3 0 11-6 0 3 3 0 016 0z', 'add', 'music podcast'],
-        ['soundcloud', 'SoundCloud', 'A track or set', '#ea580c', 'M9 19V6l12-3v13M9 19a3 3 0 11-6 0 3 3 0 016 0zm12-3a3 3 0 11-6 0 3 3 0 016 0z', 'add', 'music audio'],
+        ['music', 'Music', 'Spotify, SoundCloud, Apple Music or YouTube Music', '#16a34a', 'M9 19V6l12-3v13M9 19a3 3 0 11-6 0 3 3 0 016 0zm12-3a3 3 0 11-6 0 3 3 0 016 0z', 'add', 'spotify soundcloud apple youtube music podcast audio track album playlist'],
         ['audio', 'Audio clip', 'Your own recording, up to 12 MB', '#c026d3', 'M12 3v10m0 0a3 3 0 100 6 3 3 0 000-6zm0 0V3m6 6v4a6 6 0 01-12 0V9', 'add', 'voice podcast sample mp3'],
         ['carousel', 'Picture carousel', 'Swipe through up to 10 pictures', '#ea580c', 'M4 16l4.6-4.6a2 2 0 012.8 0L16 16m-2-2l1.6-1.6a2 2 0 012.8 0L20 14M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z', 'add', 'gallery slider photos'],
         ['pdf', 'PDF document', 'A menu, price list or catalogue', '#dc2626', 'M7 21h10a2 2 0 002-2V9l-6-6H7a2 2 0 00-2 2v14a2 2 0 002 2zm6-18v6h6', 'add', 'file menu catalogue'],
@@ -58,14 +57,10 @@ const BLOCK_CATALOG = [
         ['collection', 'Collection', 'A titled group of blocks', '#d97706', 'M4 6h16M4 12h16M4 18h7', 'add', 'group section category'],
         ['goal', 'Goal bar', 'A progress bar toward a target', '#059669', 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6', 'add', 'progress fundraising'],
         ['pay', 'Receive payment', 'A QR code for your bank or wallet', '#0d9488', 'M3 7h18v10H3V7zm0 3h18M7 14h3', 'add', 'payment qr bank wallet donate tip paypal'],
-        ['app', 'App store link', 'iPhone, Android and web in one button', '#0284c7', 'M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z', 'add', 'ios android play download'],
     ]],
     ['Smart & conversion', [
-        ['whatsapp', 'WhatsApp rotator', 'Share chats between several numbers', '#16a34a', 'M21 11.5a8.4 8.4 0 01-12.4 7.4L3 21l2.1-5.4A8.4 8.4 0 1121 11.5z', 'add', 'chat customer service'],
         ['form', 'Sign-up form', 'Collect names, e-mails or numbers', '#4f46e5', 'M3 8l7.9 5.3a2 2 0 002.2 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z', 'add', 'lead newsletter subscribe contact'],
-        ['poll', 'Poll', 'Ask visitors to vote', '#65a30d', 'M9 19v-6H5v6h4zm0 0V9h4v10m-4 0h4m0 0V5h4v14h-4z', 'add', 'vote survey question'],
         ['countdown', 'Countdown', 'Time left to a launch or sale', '#0891b2', 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z', 'add', 'timer event launch'],
-        ['rss', 'Blog / podcast feed', 'The latest posts, kept up to date', '#d97706', 'M6 5c7.7 0 14 6.3 14 14M6 11a8 8 0 018 8M7 18a1 1 0 11-2 0 1 1 0 012 0z', 'add', 'rss atom articles news'],
         ['vcard', 'Contact card', 'A button that saves you to contacts', '#0d9488', 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z', 'add', 'vcard phone address book'],
         ['map', 'Location', 'A map with an address', '#0d9488', 'M17.7 16.7L13.4 20.9a2 2 0 01-2.8 0l-4.2-4.2a8 8 0 1111.3 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z', 'add', 'address place'],
         ['faq', 'FAQ', 'Questions that open to answers', '#6366f1', 'M8.2 9a3 3 0 115.8 1c-.7 1-2 1.3-2 2.5M12 17h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z', 'add', 'questions answers help'],
@@ -77,7 +72,7 @@ BLOCK_CATALOG.forEach(([, items]) => items.forEach((i) => { const t = (CONFIG.bl
 // The Design tab: six sub-tabs, one section at a time; the last one used is remembered per browser.
 window.designTab = function() {
     const KEY = 'bio-design-section';
-    const sections = [['header', 'Header'], ['theme', 'Theme'], ['wallpaper', 'Wallpaper'], ['text', 'Text'], ['buttons', 'Buttons'], ['footer', 'Footer']];
+    const sections = [['header', 'Header'], ['theme', 'Theme'], ['wallpaper', 'Wallpaper'], ['text', 'Text'], ['buttons', 'Buttons']];
     let saved = '';
     try { saved = localStorage.getItem(KEY) || ''; } catch (e) {}
     return {
@@ -92,6 +87,33 @@ window.designTab = function() {
             const next = sections[(i + dir + sections.length) % sections.length][0];
             this.select(next);
             this.$nextTick(() => document.getElementById('design-tab-' + next)?.focus());
+        },
+    };
+};
+
+// The Settings tab: its cards are grouped into sub-tabs; the last one used is remembered.
+window.settingsTab = function() {
+    const KEY = 'bio-settings-section';
+    const sections = [['search', 'Search & sharing'], ['privacy', 'Privacy'], ['tools', 'Tools'], ['safety', 'Versions']];
+    let saved = '';
+    try { saved = localStorage.getItem(KEY) || ''; } catch (e) {}
+    return {
+        sections,
+        group: sections.some(s => s[0] === saved) ? saved : 'search',
+        label(key) {
+            const words = CONFIG.ui || {};
+            return { search: words.setSearch, privacy: words.setPrivacy, tools: words.setTools, safety: words.setSafety }[key] || sections.find(s => s[0] === key)[1];
+        },
+        select(key) {
+            if (!sections.some(s => s[0] === key)) return;
+            this.group = key;
+            try { localStorage.setItem(KEY, key); } catch (e) {}
+        },
+        step(dir) {
+            const i = sections.findIndex(s => s[0] === this.group);
+            const next = sections[(i + dir + sections.length) % sections.length][0];
+            this.select(next);
+            this.$nextTick(() => document.getElementById('settings-tab-' + next)?.focus());
         },
     };
 };
@@ -114,6 +136,7 @@ window.bioEditorV2 = function() {
         announcement: '',
         pendingNavigation: null,
         editingBlock: null,
+        blockTab: 'content', // the section of the block form that shows: content | look | schedule | advanced
         showAddBlockModal: false,
         blockCategoryFilter: 'all',
         blockSearch: '',
@@ -132,8 +155,6 @@ window.bioEditorV2 = function() {
         imageBlockAlt: '',
         imageBlockLink: '',
         // "Choose from PixelHop" (CONFIG.pixelhop is null while the picker is off): target says where a pick goes.
-        // "Choose from NoteHop" (CONFIG.notehop is null while the picker is off): public notes with a read-only link.
-        notehop: { open: false, q: '', items: [], next: '', loading: false, loaded: false, error: '', unavailable: false, turn: 0 },
         pixelhop: { open: false, target: null, type: 'image', items: [], next: '', total: 0, loading: false, loaded: false, error: '', hotlinksBlocked: false, picked: [], unavailable: false },
         textEditorBlock: null,
         iconPickerBlock: null,
@@ -190,6 +211,17 @@ window.bioEditorV2 = function() {
                     val.name.toLowerCase().includes(search) || key.includes(search)
                 )
             );
+        },
+        // The sections of the block form; a section with nothing in it for this kind of block is not offered.
+        blockTabs() {
+            const t = this.editingBlock?.type;
+            if (!t || ['divider', 'spacer'].includes(t)) return [];
+            const tabs = [['content'], ...(t === 'link' ? [['look']] : []), ['schedule'], ...(['link', 'product', 'whatsapp', 'app'].includes(t) ? [['advanced']] : [])];
+            return tabs;
+        },
+        blockTabLabel(key) {
+            const words = CONFIG.ui || {};
+            return { content: words.tabContent || 'Content', look: words.tabLook || 'Look', schedule: words.tabSchedule || 'Schedule', advanced: words.tabAdvanced || 'Advanced', aria: words.blockTabs || 'Block sections' }[key] || key;
         },
         get isBlockValid() {
             if (!this.editingBlock) return false;
@@ -263,6 +295,8 @@ window.bioEditorV2 = function() {
                     this.saveBioPage();
                 }
             });
+            // A block form always opens on its first section.
+            this.$watch(() => this.editingBlock?.id, () => { this.blockTab = 'content'; });
             this.$watch('previewOpen', open => { document.documentElement.style.overflow = open ? 'hidden' : ''; });
         },
         // hel.ink and the HOP apps (note, pixel, link, bio, ...): kept as typed, never wrapped in a short link.
@@ -330,7 +364,7 @@ window.bioEditorV2 = function() {
         isComposing() {
             return !!(this.editingBlock || this.showTextEditor || this.showImageUploader || this.showSocialEditor
                 || this.showIconPicker || this.showAddBlockModal || this.showLinkLibraryModal || this.showSocialPicker
-                || this.showDiscardModal || this.pixelhop.open || this.notehop.open || this.saving);
+                || this.showDiscardModal || this.pixelhop.open || this.saving);
         },
         scheduleAutosave() {
             clearTimeout(this._autoTimeout);
@@ -943,6 +977,18 @@ window.bioEditorV2 = function() {
             delete this.editingBlock._longUrl;
             this.editingBlock._shortened = false;
         },
+        // "Back" in the form of a block that is not added yet (and in the Text and Image forms): drop it and return to
+        // the list of kinds, so a wrong pick costs one click instead of closing and reopening "Add block".
+        backToAddBlock() {
+            if (this.editingBlock?.is_new) this.closeBlockEditor();
+            this.showTextEditor = false;
+            this.textEditorBlock = null;
+            this.showImageUploader = false;
+            this.showAddBlockModal = true;
+        },
+        get textEditorIsNew() {
+            return !!this.textEditorBlock && !this.blocks.some(b => b.id === this.textEditorBlock.id);
+        },
         closeBlockEditor() {
             if (this.editingBlock) {
                 const index = this.blocks.findIndex(b => b.id === this.editingBlock.id);
@@ -955,8 +1001,20 @@ window.bioEditorV2 = function() {
             }
             this.editingBlock = null;
         },
+        // A refused form stays open and shows the section that holds what has to be fixed (every check below is about
+        // the content, except the schedule's).
         async saveEditingBlock() {
+            await this.saveEditingBlockChecked();
+            if (this.editingBlock && this.blockTab !== 'schedule') this.blockTab = 'content';
+        },
+        async saveEditingBlockChecked() {
             if (!this.editingBlock) return;
+            const b = this.editingBlock;
+            if (b.publish_at && b.expire_at && new Date(b.expire_at).getTime() <= new Date(b.publish_at).getTime()) {
+                this.blockTab = 'schedule';
+                this.showNotification((CONFIG.ui || {}).scheduleOrder || 'The end time must be after the time it goes live.', 'error');
+                return;
+            }
             if (this.editingBlock.type === 'link') {
                 if (!this.editingBlock.title || !String(this.editingBlock.title).trim()) {
                     this.showNotification('Title is required', 'error');
@@ -1008,6 +1066,17 @@ window.bioEditorV2 = function() {
                 }
                 if (!this.editingBlock.embed_url.match(/soundcloud\.com/i)) {
                     this.showNotification('Please enter a valid SoundCloud URL', 'error');
+                    return;
+                }
+            }
+            if (this.editingBlock.type === 'music') {
+                const words = CONFIG.ui || {};
+                if (!this.editingBlock.embed_url || !this.editingBlock.embed_url.trim()) {
+                    this.showNotification(words.musicRequired || 'Music URL is required', 'error');
+                    return;
+                }
+                if (!this.editingBlock.embed_url.match(/(spotify|soundcloud|music.apple|music.youtube).com/i)) {
+                    this.showNotification(words.musicInvalid || 'Please enter a Spotify, SoundCloud, Apple Music or YouTube Music URL', 'error');
                     return;
                 }
             }
@@ -1613,6 +1682,12 @@ window.bioEditorV2 = function() {
                 : /color|background|theme|font|shape|shadow|hover|animation|layout|custom_css|header/.test(base) ? 'appearance'
                 : 'settings';
             this.activeTab = tab;
+            // A refused setting opens the group of cards that holds its field.
+            if (tab === 'settings') {
+                const field = document.querySelector('[x-model="bioPage.' + String(key || '').split('.')[0] + '"]');
+                const section = field?.closest('[data-settings-section]')?.dataset.settingsSection;
+                if (section) window.dispatchEvent(new CustomEvent('settings-section', { detail: section }));
+            }
         },
         async savePageFields(keys) {
             const raw = Alpine.raw(this.bioPage), sentSnap = this.pageSnapshot(), body = {};
@@ -1729,9 +1804,8 @@ window.bioEditorV2 = function() {
             this.noteRevision((await response.json().catch(() => ({}))).page_updated_at);
         },
         async saveBlocksOrder() {
-            const linksData = this.blocks
-                .filter(b => b.id < 1000000000)
-                .map((b, idx) => ({ id: b.id, order: idx }));
+            const requestBody = reorderRequest(this.blocks, this._baseUpdatedAt);
+            const linksData = requestBody.links;
             if (linksData.length === 0) return true;
             try {
                 const response = await fetch(bioEditorUrl('/links/reorder'), {
@@ -1741,7 +1815,7 @@ window.bioEditorV2 = function() {
                         'X-CSRF-TOKEN': csrf(),
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify({ links: linksData })
+                    body: JSON.stringify(requestBody)
                 });
                 if (!response.ok) throw Object.assign(new Error(response.status), { status: response.status });
                 this.noteRevision((await response.json().catch(() => ({}))).page_updated_at);
@@ -1756,9 +1830,15 @@ window.bioEditorV2 = function() {
                 this.hasUnsavedChanges = true;
                 const words = CONFIG.reorder || {};
                 let message = words.saveFailed || 'Could not save the new order. Click Save to retry.';
-                if (e.status === 419) {
+                const why = reorderFailure(e.status);
+                if (why === 'expired') {
                     message = words.expired || 'Your session expired. Reload the page and sign in again.';
-                } else if (e.status === 422) {
+                } else if (why === 'conflict') {
+                    // The page was changed in another tab: saving again cannot help, and the new order stays on screen
+                    // (not lost) until the member reloads on purpose. Autosave stops so the message is not repeated.
+                    message = words.conflict || 'This page was changed in another tab or window. Reload the editor to get the latest version.';
+                    this._autoBlocked = true;
+                } else if (why === 'gone') {
                     // a block of this list no longer exists (deleted in another tab): Save could never succeed, the list is stale
                     message = words.gone || 'A block of this page no longer exists. The page is reloading.';
                     this._autoBlocked = true;
@@ -2186,69 +2266,6 @@ window.bioEditorV2 = function() {
             } finally {
                 this.saving = false;
             }
-        },
-        // ---- "Choose from NoteHop": a public note (read-only link) as the link block's address ----
-        notehopAvailable() {
-            return !!CONFIG.notehop && !this.notehop.unavailable;
-        },
-        notehopStrings() {
-            return (CONFIG.notehop && CONFIG.notehop.strings) || {};
-        },
-        openNoteHop() {
-            if (!this.notehopAvailable() || !this.editingBlock) return;
-            Object.assign(this.notehop, { open: true, q: '', items: [], next: '', loaded: false, error: '' });
-            this.loadNoteHop();
-        },
-        closeNoteHop() {
-            this.notehop.open = false;
-        },
-        async loadNoteHop(more = false) {
-            const turn = ++this.notehop.turn;
-            this.notehop.loading = true;
-            this.notehop.error = '';
-            const params = new URLSearchParams({ limit: '20' });
-            if (this.notehop.q.trim()) params.set('q', this.notehop.q.trim().slice(0, 100));
-            if (more && this.notehop.next) params.set('cursor', this.notehop.next);
-            try {
-                const res = await fetch(CONFIG.notehop.url + '?' + params.toString(), { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
-                const data = await res.json().catch(() => ({}));
-                if (turn !== this.notehop.turn) return; // a newer search is on its way
-                if (!res.ok) {
-                    // 404 no_account: the member never signed in to NoteHop. Anything else: NoteHop is down; the
-                    // button goes away for this editing session and the address field keeps working.
-                    this.notehop.error = data.message || this.notehopStrings().failed;
-                    if (res.status !== 404 && res.status !== 422) this.notehop.unavailable = true;
-                    return;
-                }
-                this.notehop.items = more ? this.notehop.items.concat(data.items || []) : (data.items || []);
-                this.notehop.next = data.next || '';
-                this.notehop.loaded = true;
-            } catch (e) {
-                if (turn !== this.notehop.turn) return;
-                this.notehop.error = this.notehopStrings().failed;
-                this.notehop.unavailable = true;
-            } finally {
-                if (turn === this.notehop.turn) {
-                    this.notehop.loading = false;
-                    // A result that had focus may be gone after a new search: keep the keyboard in the dialog.
-                    this.$nextTick(() => {
-                        const dialog = document.querySelector('.notehop-picker');
-                        if (this.notehop.open && dialog && !dialog.contains(document.activeElement)) document.getElementById('notehop-search')?.focus();
-                    });
-                }
-            }
-        },
-        pickNoteHop(item) {
-            // The server only lists NoteHop addresses without a fragment; never keep anything after a #.
-            if (!item || !this.editingBlock || typeof item.url !== 'string' || item.url.includes('#')) return;
-            this.linkInputMode = 'create';
-            this.editingBlock.url = item.url;
-            if (!this.editingBlock.title || !String(this.editingBlock.title).trim()) {
-                this.editingBlock.title = item.title || this.notehopStrings().untitled;
-            }
-            this.editingBlock._urlError = null;
-            this.showNotification(this.notehopStrings().picked, 'success');
-            this.closeNoteHop();
         },
         // ---- "Choose from PixelHop": pictures the member already uploaded there; the page keeps the address ----
         pixelhopAvailable() {

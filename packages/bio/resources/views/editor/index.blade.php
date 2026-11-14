@@ -20,7 +20,7 @@
         'socialMax' => \Hop\Bio\Models\BioPage::SOCIAL_MAX,
         // The editor's confirm dialogs (resources/js/dialogs.js): titles and messages in the member's language.
         // Block picker texts that come from the server so they are translated (the rest of the catalogue is in editor.js).
-        'blockText' => ['whatsapp' => [__('WhatsApp rotator'), __('Share chats between several numbers')], 'pay' => [__('Receive payment'), __('A QR code for your bank or wallet')]],
+        'blockText' => ['music' => [__('Music'), __('Spotify, SoundCloud, Apple Music or YouTube Music')], 'pay' => [__('Receive payment'), __('A QR code for your bank or wallet')]],
         // The receive-payment block: the module's own format list with its forms (resources/pay/formats.json), and the words for them.
         'pay' => ['labels' => \Hop\Bio\Support\PayBlock::labels(), 'msgs' => \Hop\Bio\Support\PayBlock::messages()],
         'dialogs' => [
@@ -43,20 +43,17 @@
             'gone' => __('A block of this page no longer exists. The page is reloading.'),
             'saveFailed' => __('Could not save the new order. Click Save to retry.'),
             'moved' => __(':name moved to position :position of :total'),
+            'conflict' => __('This page was changed in another tab or window. Reload the editor to get the latest version.'),
+        ],
+        // Words of the block form's sections and its checks, and of the Settings sections.
+        'ui' => [
+            'tabContent' => __('Content'), 'tabLook' => __('Look'), 'tabSchedule' => __('Schedule'), 'tabAdvanced' => __('Advanced'), 'blockTabs' => __('Block sections'),
+            'scheduleOrder' => __('The end time must be after the time it goes live.'),
+            'musicRequired' => __('Music URL is required'), 'musicInvalid' => __('Please enter a Spotify, SoundCloud, Apple Music or YouTube Music URL'),
+            'setSearch' => __('Search & sharing'), 'setPrivacy' => __('Privacy'), 'setTools' => __('Tools'), 'setSafety' => __('Versions'),
         ],
         // The link picker (LinkHop): what to say when the list cannot be loaded.
         'linkhop' => ['failed' => __('LinkHop is not reachable right now. You can still paste any URL.')],
-        // "Choose from NoteHop" (BIO_NOTEHOP_PICKER) for a link block: the proxy route and its words; null = off.
-        'notehop' => \Hop\Bio\Support\NoteHopNotes::enabled() ? [
-            'url' => route('bio.media.notehop'),
-            'strings' => [
-                'empty' => __('No public notes in NoteHop yet. Share one there with a read-only link.'),
-                'noMatch' => __('No notes match your search.'),
-                'failed' => __('NoteHop is not reachable right now. You can still paste a note address.'),
-                'picked' => __('Note added from NoteHop'),
-                'untitled' => __('Untitled'),
-            ],
-        ] : null,
         // "Choose from PixelHop" (BIO_PIXELHOP_PICKER): the proxy route and the words the dialog needs; null = uploads only.
         'pixelhop' => \Hop\Bio\Support\PixelHopMedia::enabled() ? [
             'url' => route('bio.media.pixelhop'),
@@ -263,6 +260,10 @@
     <div class="modal-overlay" @click.self="closeBlockEditor()">
         <div class="modal-content" x-modal="editingBlock" data-modal-close="closeBlockEditor()" @click.stop>
             <div class="modal-header">
+                <button type="button" x-show="editingBlock?.is_new" @click="backToAddBlock()" class="be-backbtn" x-cloak>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    {{ __('Back') }}
+                </button>
                 <h3 class="modal-title">Edit Block</h3>
                 <button @click="closeBlockEditor()" class="modal-close" aria-label="Close">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -273,6 +274,12 @@
             <div class="modal-body">
                 <template x-if="editingBlock">
                     <div class="space-y-4">
+                        <nav class="be-design-nav" role="tablist" :aria-label="blockTabLabel('aria')" x-show="blockTabs().length > 1" x-cloak>
+                            <template x-for="t in blockTabs()" :key="t[0]">
+                                <button type="button" role="tab" :id="'block-tab-' + t[0]" :aria-selected="String(blockTab === t[0])" :tabindex="blockTab === t[0] ? 0 : -1" :class="{ 'is-active': blockTab === t[0] }" @click="blockTab = t[0]" x-text="blockTabLabel(t[0])"></button>
+                            </template>
+                        </nav>
+                        <div x-show="blockTab === 'content'" class="space-y-4">
                         <div class="flex items-center gap-3 p-3 rounded-lg" style="background: var(--editor-card-bg)">
                             <div class="w-10 h-10 rounded-lg flex items-center justify-center" 
                                  :style="{ backgroundColor: editingBlock?.brand ? getPlatformColor(editingBlock?.brand) : '#6366f1' }">
@@ -337,9 +344,6 @@
                                             <button type="button" class="btn btn-secondary text-sm py-2 w-full mt-2" x-show="canShortenEditing()" :disabled="shortening" @click="shortenEditingUrl()" data-shorten-url>
                                                 <span x-text="shortening ? @js(__('Asking LinkHop…')) : @js(__('Shorten this URL'))"></span>
                                             </button>
-                                            @if (\Hop\Bio\Support\NoteHopNotes::enabled())
-                                            <button type="button" class="btn btn-secondary text-sm py-2 w-full mt-2" x-show="notehopAvailable() && !editingBlock?.brand" @click="openNoteHop()">{{ __('Choose from NoteHop') }}</button>
-                                            @endif
                                         </div>
                                     </template>
                                     <!-- Select Existing Mode -->
@@ -432,130 +436,6 @@
                                         </button>
                                     </div>
                                 </template>
-                                <div class="form-group" x-data="{ showButtonStyle: true }">
-                                    <button type="button" @click="showButtonStyle = !showButtonStyle" 
-                                            data-tile class="w-full flex items-center justify-between p-3 option-btn rounded-lg transition-colors">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-10 h-10 rounded-lg flex items-center justify-center border-2"
-                                                 :style="{
-                                                     backgroundColor: isBlockAutoStyle(editingBlock) ? getEffectiveButtonBg() : (editingBlock?.btn_bg_color || getEffectiveButtonBg()),
-                                                     borderColor: editingBlock?.btn_border_color || 'transparent'
-                                                 }">
-                                                <svg class="w-5 h-5" :style="{ color: isBlockAutoStyle(editingBlock) ? getEffectiveButtonText() : (editingBlock?.btn_text_color || getEffectiveButtonText()) }" fill="currentColor" viewBox="0 0 24 24">
-                                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                                                </svg>
-                                            </div>
-                                            <div class="text-left">
-                                                <div class="text-sm font-medium editor-text">Button Style</div>
-                                                <div class="text-xs editor-text-muted" x-text="isBlockAutoStyle(editingBlock) ? 'Auto (following theme)' : 'Custom style'"></div>
-                                            </div>
-                                        </div>
-                                        <svg class="w-5 h-5 editor-text-muted transition-transform" :class="{ 'rotate-180': showButtonStyle }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                        </svg>
-                                    </button>
-                                    <div x-show="showButtonStyle" x-collapse class="mt-3 space-y-3 p-3 editor-card-bg rounded-lg" style="border: 1px solid var(--editor-border);">
-                                        <div class="form-group">
-                                            <label class="form-label text-xs">Preview</label>
-                                            <div class="flex justify-center p-4 rounded-lg" style="background: var(--editor-bg);">
-                                                <div class="px-6 py-3 rounded-lg font-semibold text-center min-w-[200px] flex items-center justify-center gap-2 transition-all"
-                                                     :style="{
-                                                         backgroundColor: isBlockAutoStyle(editingBlock) ? getEffectiveButtonBg() : (editingBlock?.btn_bg_color || getEffectiveButtonBg()),
-                                                         color: isBlockAutoStyle(editingBlock) ? getEffectiveButtonText() : (editingBlock?.btn_text_color || getEffectiveButtonText()),
-                                                         border: isBlockAutoStyle(editingBlock) ? 'none' : (editingBlock?.btn_border_color ? '1px solid ' + editingBlock?.btn_border_color : 'none')
-                                                     }">
-                                                    <template x-if="editingBlock?.brand || editingBlock?.custom_icon">
-                                                        <img :src="editingBlock?.custom_icon || getPlatformIcon(editingBlock?.brand)" 
-                                                             class="w-5 h-5" 
-                                                             :style="{ filter: isBlockAutoStyle(editingBlock) ? getAutoIconFilter() : (editingBlock?.btn_icon_invert == true ? 'brightness(0) invert(1)' : 'none') }">
-                                                    </template>
-                                                    <span x-text="editingBlock?.title || 'Button Preview'"></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <!-- Auto Style Checkbox -->
-                                        <div class="flex items-center justify-between py-2 px-3 rounded-lg" style="background: var(--editor-bg);">
-                                            <div class="flex items-center gap-3">
-                                                <label class="flex items-center gap-2 cursor-pointer">
-                                                    <input type="checkbox" 
-                                                           :checked="isBlockAutoStyle(editingBlock)"
-                                                           @change="toggleBlockAutoStyle(editingBlock, $event.target.checked)"
-                                                           class="w-4 h-4 rounded-sm border-gray-600 text-indigo-500 focus:ring-indigo-500 focus:ring-offset-0">
-                                                    <span class="text-sm font-medium editor-text">Auto (Follow Theme)</span>
-                                                </label>
-                                            </div>
-                                            <span class="text-xs editor-text-muted">Uncheck to manually edit</span>
-                                        </div>
-                                        <!-- Manual Style Options - only shown when Auto is OFF -->
-                                        <template x-if="!isBlockAutoStyle(editingBlock)">
-                                            <div class="space-y-3">
-                                                <div class="grid grid-cols-2 gap-3">
-                                                    <div>
-                                                        <label for="bfindex-3" class="form-label text-xs">Background</label>
-                                                        <div class="flex items-center gap-2">
-                                                            <input id="bfindex-3" type="color" x-model="editingBlock.btn_bg_color" 
-                                                                   :value="editingBlock.btn_bg_color || getEffectiveButtonBg()"
-                                                                   class="w-10 h-10 rounded-sm cursor-pointer border-0 bg-transparent"
-                                                                   @input="markBlockDirty(editingBlock.id)">
-                                                            <input maxlength="30" aria-label="Button background hex value" type="text" x-model="editingBlock.btn_bg_color" 
-                                                                   class="form-input text-xs font-mono flex-1" 
-                                                                   :placeholder="getEffectiveButtonBg()"
-                                                                   @change="markBlockDirty(editingBlock.id)">
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <div class="flex items-center gap-2 mb-1">
-                                                            <label class="form-label text-xs mb-0">Text Color</label>
-                                                            <button type="button" 
-                                                                    @click="editingBlock.btn_text_color = getContrastColor(editingBlock.btn_bg_color || getEffectiveButtonBg()); markBlockDirty(editingBlock.id)"
-                                                                    class="text-[10px] px-1.5 py-0.5 rounded-sm bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors"
-                                                                    title="Auto-detect best text color">
-                                                                Auto
-                                                            </button>
-                                                        </div>
-                                                        <div class="flex items-center gap-2">
-                                                            <input aria-label="Button text color" type="color" x-model="editingBlock.btn_text_color" 
-                                                                   :value="editingBlock.btn_text_color || getEffectiveButtonText()"
-                                                                   class="w-10 h-10 rounded-sm cursor-pointer border-0 bg-transparent">
-                                                            <input maxlength="30" aria-label="Button text color hex value" type="text" x-model="editingBlock.btn_text_color" 
-                                                                   class="form-input text-xs font-mono flex-1" 
-                                                                   :placeholder="getEffectiveButtonText()">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="grid grid-cols-2 gap-3">
-                                                    <div>
-                                                        <label for="bfindex-4" class="form-label text-xs">Border Color</label>
-                                                        <div class="flex items-center gap-2">
-                                                            <input id="bfindex-4" type="color" x-model="editingBlock.btn_border_color" 
-                                                                   :value="editingBlock.btn_border_color || '#ffffff'"
-                                                                   class="w-10 h-10 rounded-sm cursor-pointer border-0 bg-transparent">
-                                                            <input maxlength="30" aria-label="Button border color hex value" type="text" x-model="editingBlock.btn_border_color" 
-                                                                   class="form-input text-xs font-mono flex-1" placeholder="None">
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <label class="form-label text-xs">Icon Style</label>
-                                                        <label class="toggle-switch mt-2">
-                                                            <input type="checkbox" x-model="editingBlock.btn_icon_invert" aria-label="White icon">
-                                                            <span class="toggle-slider"></span>
-                                                        </label>
-                                                        <span class="text-xs editor-text-muted ml-2">White icon</span>
-                                                    </div>
-                                                </div>
-                                                <div class="flex justify-end pt-2 border-t border-(--editor-border)">
-                                                    <button type="button" @click="resetBlockToTheme(editingBlock)" 
-                                                            class="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                                                        </svg>
-                                                        Reset to Theme Default
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </template>
-                                    </div>
-                                </div>
                             </div>
                         </template>
                         <template x-if="editingBlock?.type === 'text'">
@@ -649,6 +529,15 @@
                                 <div class="form-group">
                                     <label for="bfindex-12" class="form-label">Title (Optional)</label>
                                     <input maxlength="100" id="bfindex-12" type="text" x-model="editingBlock.title" class="form-input" placeholder="My Track">
+                                </div>
+                            </div>
+                        </template>
+                        <template x-if="editingBlock?.type === 'music'">
+                            <div class="space-y-4">
+                                <div class="form-group">
+                                    <label for="bfindex-music" class="form-label">{{ __('Music URL') }}</label>
+                                    <input maxlength="500" id="bfindex-music" type="url" x-model="editingBlock.embed_url" class="form-input" placeholder="https://open.spotify.com/track/...">
+                                    <p class="text-xs editor-text-muted mt-1">{{ __('Paste a Spotify, SoundCloud, Apple Music or YouTube Music link') }}</p>
                                 </div>
                             </div>
                         </template>
@@ -1024,9 +913,138 @@
                                 </div>
                             </div>
                         </template>
+                        </div>
+                        <template x-if="editingBlock?.type === 'link'">
+                            <div x-show="blockTab === 'look'" class="space-y-4">
+                                <div class="form-group" x-data="{ showButtonStyle: true }">
+                                    <button type="button" @click="showButtonStyle = !showButtonStyle" 
+                                            data-tile class="w-full flex items-center justify-between p-3 option-btn rounded-lg transition-colors">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-lg flex items-center justify-center border-2"
+                                                 :style="{
+                                                     backgroundColor: isBlockAutoStyle(editingBlock) ? getEffectiveButtonBg() : (editingBlock?.btn_bg_color || getEffectiveButtonBg()),
+                                                     borderColor: editingBlock?.btn_border_color || 'transparent'
+                                                 }">
+                                                <svg class="w-5 h-5" :style="{ color: isBlockAutoStyle(editingBlock) ? getEffectiveButtonText() : (editingBlock?.btn_text_color || getEffectiveButtonText()) }" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                                </svg>
+                                            </div>
+                                            <div class="text-left">
+                                                <div class="text-sm font-medium editor-text">Button Style</div>
+                                                <div class="text-xs editor-text-muted" x-text="isBlockAutoStyle(editingBlock) ? 'Auto (following theme)' : 'Custom style'"></div>
+                                            </div>
+                                        </div>
+                                        <svg class="w-5 h-5 editor-text-muted transition-transform" :class="{ 'rotate-180': showButtonStyle }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        </svg>
+                                    </button>
+                                    <div x-show="showButtonStyle" x-collapse class="mt-3 space-y-3 p-3 editor-card-bg rounded-lg" style="border: 1px solid var(--editor-border);">
+                                        <div class="form-group">
+                                            <label class="form-label text-xs">Preview</label>
+                                            <div class="flex justify-center p-4 rounded-lg" style="background: var(--editor-bg);">
+                                                <div class="px-6 py-3 rounded-lg font-semibold text-center min-w-[200px] flex items-center justify-center gap-2 transition-all"
+                                                     :style="{
+                                                         backgroundColor: isBlockAutoStyle(editingBlock) ? getEffectiveButtonBg() : (editingBlock?.btn_bg_color || getEffectiveButtonBg()),
+                                                         color: isBlockAutoStyle(editingBlock) ? getEffectiveButtonText() : (editingBlock?.btn_text_color || getEffectiveButtonText()),
+                                                         border: isBlockAutoStyle(editingBlock) ? 'none' : (editingBlock?.btn_border_color ? '1px solid ' + editingBlock?.btn_border_color : 'none')
+                                                     }">
+                                                    <template x-if="editingBlock?.brand || editingBlock?.custom_icon">
+                                                        <img :src="editingBlock?.custom_icon || getPlatformIcon(editingBlock?.brand)" 
+                                                             class="w-5 h-5" 
+                                                             :style="{ filter: isBlockAutoStyle(editingBlock) ? getAutoIconFilter() : (editingBlock?.btn_icon_invert == true ? 'brightness(0) invert(1)' : 'none') }">
+                                                    </template>
+                                                    <span x-text="editingBlock?.title || 'Button Preview'"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Auto Style Checkbox -->
+                                        <div class="flex items-center justify-between py-2 px-3 rounded-lg" style="background: var(--editor-bg);">
+                                            <div class="flex items-center gap-3">
+                                                <label class="flex items-center gap-2 cursor-pointer">
+                                                    <input type="checkbox" 
+                                                           :checked="isBlockAutoStyle(editingBlock)"
+                                                           @change="toggleBlockAutoStyle(editingBlock, $event.target.checked)"
+                                                           class="w-4 h-4 rounded-sm border-gray-600 text-indigo-500 focus:ring-indigo-500 focus:ring-offset-0">
+                                                    <span class="text-sm font-medium editor-text">Auto (Follow Theme)</span>
+                                                </label>
+                                            </div>
+                                            <span class="text-xs editor-text-muted">Uncheck to manually edit</span>
+                                        </div>
+                                        <!-- Manual Style Options - only shown when Auto is OFF -->
+                                        <template x-if="!isBlockAutoStyle(editingBlock)">
+                                            <div class="space-y-3">
+                                                <div class="grid grid-cols-2 gap-3">
+                                                    <div>
+                                                        <label for="bfindex-3" class="form-label text-xs">Background</label>
+                                                        <div class="flex items-center gap-2">
+                                                            <input id="bfindex-3" type="color" x-model="editingBlock.btn_bg_color" 
+                                                                   :value="editingBlock.btn_bg_color || getEffectiveButtonBg()"
+                                                                   class="w-10 h-10 rounded-sm cursor-pointer border-0 bg-transparent"
+                                                                   @input="markBlockDirty(editingBlock.id)">
+                                                            <input maxlength="30" aria-label="Button background hex value" type="text" x-model="editingBlock.btn_bg_color" 
+                                                                   class="form-input text-xs font-mono flex-1" 
+                                                                   :placeholder="getEffectiveButtonBg()"
+                                                                   @change="markBlockDirty(editingBlock.id)">
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <div class="flex items-center gap-2 mb-1">
+                                                            <label class="form-label text-xs mb-0">Text Color</label>
+                                                            <button type="button" 
+                                                                    @click="editingBlock.btn_text_color = getContrastColor(editingBlock.btn_bg_color || getEffectiveButtonBg()); markBlockDirty(editingBlock.id)"
+                                                                    class="text-[10px] px-1.5 py-0.5 rounded-sm bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors"
+                                                                    title="Auto-detect best text color">
+                                                                Auto
+                                                            </button>
+                                                        </div>
+                                                        <div class="flex items-center gap-2">
+                                                            <input aria-label="Button text color" type="color" x-model="editingBlock.btn_text_color" 
+                                                                   :value="editingBlock.btn_text_color || getEffectiveButtonText()"
+                                                                   class="w-10 h-10 rounded-sm cursor-pointer border-0 bg-transparent">
+                                                            <input maxlength="30" aria-label="Button text color hex value" type="text" x-model="editingBlock.btn_text_color" 
+                                                                   class="form-input text-xs font-mono flex-1" 
+                                                                   :placeholder="getEffectiveButtonText()">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="grid grid-cols-2 gap-3">
+                                                    <div>
+                                                        <label for="bfindex-4" class="form-label text-xs">Border Color</label>
+                                                        <div class="flex items-center gap-2">
+                                                            <input id="bfindex-4" type="color" x-model="editingBlock.btn_border_color" 
+                                                                   :value="editingBlock.btn_border_color || '#ffffff'"
+                                                                   class="w-10 h-10 rounded-sm cursor-pointer border-0 bg-transparent">
+                                                            <input maxlength="30" aria-label="Button border color hex value" type="text" x-model="editingBlock.btn_border_color" 
+                                                                   class="form-input text-xs font-mono flex-1" placeholder="None">
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <label class="form-label text-xs">Icon Style</label>
+                                                        <label class="toggle-switch mt-2">
+                                                            <input type="checkbox" x-model="editingBlock.btn_icon_invert" aria-label="White icon">
+                                                            <span class="toggle-slider"></span>
+                                                        </label>
+                                                        <span class="text-xs editor-text-muted ml-2">White icon</span>
+                                                    </div>
+                                                </div>
+                                                <div class="flex justify-end pt-2 border-t border-(--editor-border)">
+                                                    <button type="button" @click="resetBlockToTheme(editingBlock)" 
+                                                            class="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                                        </svg>
+                                                        Reset to Theme Default
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
                         <!-- Animation Settings - Only for link type blocks -->
                         <template x-if="editingBlock && !['divider', 'spacer'].includes(editingBlock.type)">
-                            <div class="p-3 rounded-lg space-y-3" style="background: var(--editor-card-bg)">
+                            <div x-show="blockTab === 'schedule'" class="p-3 rounded-lg space-y-3" style="background: var(--editor-card-bg)">
                                 <div class="flex items-center gap-2">
                                     <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                                     <span class="text-sm font-medium editor-text">Schedule</span>
@@ -1043,6 +1061,10 @@
                                     </div>
                                 </div>
                                 <p class="text-[10px] editor-text-muted">Leave both empty to show it always. Times are in your time zone; outside the window the block is hidden from the page and its address stops working.</p>
+                            </div>
+                        </template>
+                        <template x-if="editingBlock && ['link', 'product', 'whatsapp', 'app'].includes(editingBlock.type)">
+                            <div x-show="blockTab === 'advanced'" class="p-3 rounded-lg space-y-3" style="background: var(--editor-card-bg)">
                                 <div x-show="['link', 'product', 'whatsapp', 'app'].includes(editingBlock.type)">
                                     <label for="bfindex-s3" class="form-label text-xs mb-1">PIN <span class="editor-text-muted font-normal">(optional, 4–8 digits)</span></label>
                                     <input id="bfindex-s3" type="text" inputmode="numeric" pattern="[0-9]{4,8}" maxlength="8" :value="editingBlock.settings?.pin ?? ''" @input="setProductSetting('pin', $event.target.value.replace(/\D/g, ''))" class="form-input text-xs" placeholder="e.g. 2468" autocomplete="off">
@@ -1051,7 +1073,7 @@
                             </div>
                         </template>
                         <template x-if="editingBlock?.type === 'link'">
-                            <div class="p-3 rounded-lg space-y-3" style="background: var(--editor-card-bg)">
+                            <div x-show="blockTab === 'advanced'" class="p-3 rounded-lg space-y-3" style="background: var(--editor-card-bg)">
                                 <div class="flex items-center justify-between gap-2">
                                     <div class="flex items-center gap-2">
                                         <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4M16 17H4m0 0l4 4m-4-4l4-4"/></svg>
@@ -1073,7 +1095,7 @@
                             </div>
                         </template>
                         <template x-if="editingBlock?.type === 'link'">
-                            <div class="p-3 rounded-lg space-y-4" style="background: var(--editor-card-bg)">
+                            <div x-show="blockTab === 'look'" class="p-3 rounded-lg space-y-4" style="background: var(--editor-card-bg)">
                                 <div class="flex items-center gap-2 mb-2">
                                     <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
@@ -1330,6 +1352,10 @@
     <div class="modal-overlay" @click.self="showTextEditor = false">
         <div class="modal-content" x-modal="showTextEditor" style="max-width: 600px;" @click.stop>
             <div class="modal-header">
+                <button type="button" x-show="textEditorIsNew" @click="backToAddBlock()" class="be-backbtn" x-cloak>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    {{ __('Back') }}
+                </button>
                 <h3 class="modal-title">Edit Text Block</h3>
                 <button @click="showTextEditor = false" class="modal-close" aria-label="Close">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1406,6 +1432,10 @@
     <div class="modal-overlay" @click.self="showImageUploader = false">
         <div class="modal-content" x-modal="showImageUploader" style="max-width: 500px;" @click.stop>
             <div class="modal-header">
+                <button type="button" x-show="true" @click="backToAddBlock()" class="be-backbtn" x-cloak>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    {{ __('Back') }}
+                </button>
                 <h3 class="modal-title">Add Image</h3>
                 <button @click="showImageUploader = false" class="modal-close" aria-label="Close">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1461,46 +1491,6 @@
         </div>
     </div>
     </template>
-    @if (\Hop\Bio\Support\NoteHopNotes::enabled())
-    {{-- "Choose from NoteHop": the member's public notes with a read-only link, listed through /bio/media/notehop. Never an encrypted note. --}}
-    <template x-if="notehop.open">
-    <div class="modal-overlay" @click.self="closeNoteHop()">
-        <div class="modal-content notehop-picker" x-modal="notehop.open" data-modal-close="closeNoteHop()" style="max-width: 560px;" @click.stop>
-            <div class="modal-header">
-                <h3 class="modal-title">{{ __('Choose from NoteHop') }}</h3>
-                <button type="button" @click="closeNoteHop()" class="modal-close" aria-label="{{ __('Close') }}">
-                    <svg aria-hidden="true" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p class="text-xs editor-text-muted mb-3">{{ __('Only your public notes with a read-only link are listed. Encrypted notes are never offered: their key stays with you.') }}</p>
-                <label for="notehop-search" class="sr-only">{{ __('Search your notes') }}</label>
-                <input id="notehop-search" type="search" autocomplete="off" class="form-input w-full mb-3" autofocus
-                       x-model="notehop.q" @input.debounce.300ms="loadNoteHop()" placeholder="{{ __('Search your notes') }}">
-                <p x-show="notehop.error" x-cloak role="alert" class="mb-3 rounded-lg bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300" x-text="notehop.error"></p>
-                <p x-show="!notehop.loading && !notehop.error && notehop.loaded && notehop.items.length === 0" x-cloak class="text-sm editor-text-muted" role="status"
-                   x-text="notehop.q ? notehopStrings().noMatch : notehopStrings().empty"></p>
-                <ul class="notehop-list" x-show="notehop.items.length" role="list">
-                    <template x-for="item in notehop.items" :key="item.id">
-                        <li>
-                            <button type="button" class="notehop-item" @click="pickNoteHop(item)">
-                                <span class="notehop-item-title" x-text="item.title || notehopStrings().untitled"></span>
-                                <span class="notehop-item-url" x-text="item.url.replace(/^https?:\/\//, '')"></span>
-                                <span class="notehop-item-meta" x-show="item.updated" x-text="item.updated ? new Date(item.updated).toLocaleDateString(document.documentElement.lang || undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : ''"></span>
-                            </button>
-                        </li>
-                    </template>
-                </ul>
-                <p x-show="notehop.loading" x-cloak class="text-sm editor-text-muted mt-3" role="status">{{ __('Loading…') }}</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" x-show="notehop.next && !notehop.loading" x-cloak @click="loadNoteHop(true)" class="btn btn-secondary">{{ __('Load more') }}</button>
-                <button type="button" @click="closeNoteHop()" class="btn btn-secondary">{{ __('Cancel') }}</button>
-            </div>
-        </div>
-    </div>
-    </template>
-    @endif
     @if (\Hop\Bio\Support\PixelHopMedia::enabled())
     {{-- "Choose from PixelHop": the member's own PixelHop pictures, listed through /bio/media/pixelhop. The file stays in PixelHop. --}}
     <template x-if="pixelhop.open">

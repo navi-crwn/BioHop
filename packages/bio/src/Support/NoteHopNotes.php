@@ -22,9 +22,14 @@ class NoteHopNotes
 {
     public const PATH = '/api/v1/me/notes';
 
+    /**
+     * Always false: the picker is retired (a note is shared from NoteHop itself, and the Text block writes on a page), so no
+     * button, dialog or route answers, whatever BIO_NOTEHOP_PICKER says. Kept as a method so the code that is left over
+     * (the proxy route, listNotes) can be removed in one later step; isNoteUrl below is still used by address checks.
+     */
     public static function enabled(): bool
     {
-        return (bool) config('bio.notehop_picker') && self::baseUrl() !== '';
+        return false;
     }
 
     public static function baseUrl(): string

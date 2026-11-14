@@ -70,14 +70,14 @@ Die folgenden Screenshots stammen aus einer lokalen Installation mit erfundenen 
 - Per Drag-and-drop sortieren. Ein Auswahlmodus blendet mehrere Blöcke zusammen ein oder aus, archiviert oder löscht sie. Ein archivierter Block verschwindet von der Seite, behält aber seine Klicks.
 - Versionen: Der Editor speichert vor jeder Bearbeitungssitzung eine Version. Du kannst Versionen auch benennen und jede davon wiederherstellen.
 - Seiten lassen sich duplizieren. Standardmäßig hat ein Konto 3 Seiten und eine Seite 100 Blöcke (siehe die Einstellungen unten).
-- Gestaltung: vier Kopfbereich-Layouts (klassisch, Hero, Banner mit Titelbild, Cutout), 17 Themes in der Auswahl, Hintergrund als Farbe, Verlauf oder Bild, Button- und Blockstile, Schriften, die von der App selbst ausgeliefert werden, eigenes CSS pro Seite und ein Schalter für die Zeile „Powered by“.
+- Gestaltung: vier Kopfbereich-Layouts (klassisch, Hero, Banner mit Titelbild, Cutout), 17 Themes in der Auswahl, Hintergrund als Farbe, Verlauf oder Bild, Button- und Blockstile, Schriften, die von der App selbst ausgeliefert werden und eigenes CSS pro Seite.
 - Die Oberfläche gibt es auf English, 简体中文, Deutsch, Bahasa Indonesia, 日本語, Português (Brasil), Español, Français und Русский.
 
 ### Blöcke
 
-BioHop kennt 29 Blockarten: Link, Text, Überschrift, Trennlinie, Abstand, Bild, Karussell, PDF, Audio, Video, YouTube, Spotify, SoundCloud, Musik, Karte, Countdown, FAQ, HTML, Code, Kontaktkarte, E-Mail, WhatsApp, App-Store-Link, Zielbalken, Produkt, Sammlung, Anmeldeformular, Umfrage und RSS- oder Atom-Feed.
+BioHop bietet beim Hinzufügen 19 Blockarten: Link, Text, Überschrift, Bild, Trennlinie, YouTube, Musik (Spotify, SoundCloud, Apple Music oder YouTube Music), Audioclip, Bildkarussell, PDF, Produkt, Sammlung, Zielbalken, Zahlung empfangen, Anmeldeformular, Countdown, Kontaktkarte, Standort und FAQ. Blöcke von fünf eingestellten Arten (WhatsApp-Rotator, App-Store-Link, SoundCloud, RSS-Feed, Umfrage), die eine Seite schon hat, funktionieren weiter und lassen sich bearbeiten, aber nicht neu hinzufügen.
 
-- Ein WhatsApp-Block wechselt zwischen bis zu 10 Nummern, der Reihe nach oder nach Gewichtung.
+- Der WhatsApp-Rotator-Block ist eingestellt: Eine Seite, die einen hat, behält ihn (er wechselt zwischen bis zu 10 Nummern, der Reihe nach oder nach Gewichtung), neue lassen sich nicht mehr anlegen.
 - Ein App-Block schickt Besucher in den Store, der zu ihrem System passt.
 - Jeder Block kann eine Veröffentlichungs- und eine Ablaufzeit haben.
 - Ein Link kann Besucher nach Land, Gerät, System oder Tageszeit woandershin schicken und eine eigene PIN haben.

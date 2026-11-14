@@ -340,10 +340,10 @@ step "Front end (npm)" npm ci --no-audit --no-fund --loglevel=error
 step "Building the front end" npm run build --silent
 STAGE=4; step "Updating the database tables" "$PHP_BIN" artisan migrate --force
 step "Linking the storage folder" "$PHP_BIN" artisan storage:link --force
-# The /changelog page reads storage/app/changelog.json when it exists (else the snapshot in the repository). Needs
-# python3 and an authenticated gh; without them, or when GitHub is unreachable, the committed snapshot stays in use.
-if [ "$DRY" != 1 ] && have python3 && have gh; then
-  if python3 scripts/build-changelog.py --repo BioHop --out storage/app/changelog.json; then ok "Changelog built from GitHub"; else warn "Could not build the changelog (see the message above); the committed one is shown."; fi
+# The /changelog page reads storage/app/changelog.json when it exists (else the snapshot in the repository). It is built
+# from CHANGELOG.md in this folder (python3 only: no GitHub, no network); without python3 the committed snapshot stays in use.
+if [ "$DRY" != 1 ] && have python3; then
+  if python3 scripts/build-changelog.py --repo BioHop --output storage/app/changelog.json; then ok "Changelog built from CHANGELOG.md"; else warn "Could not build the changelog (see the message above); the committed one is shown."; fi
 fi
 step "Clearing and warming caches" "$PHP_BIN" artisan optimize:clear
 step "Warming caches" "$PHP_BIN" artisan optimize

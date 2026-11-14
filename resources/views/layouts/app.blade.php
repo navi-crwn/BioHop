@@ -55,6 +55,8 @@
                             <span aria-hidden="true"> · </span>
                             <a href="https://github.com/navi-crwn/BioHop" rel="noopener" class="hover:underline">GitHub</a>
                         </div>
+                        {{-- Last in the sidebar, at the bottom left: the family line (it used to sit under the page content). --}}
+                        <div class="hop-family-side px-5 pb-4">@include('partials.family-row')</div>
                     </div>
                 </aside>
 
@@ -101,7 +103,6 @@
                         @endif
                     </div>
                 </main>
-                <footer class="hop-family-footer">@include('partials.family-row')</footer>
             </div>
         @else
             <div class="min-h-screen">

@@ -70,14 +70,14 @@ Tangkapan layar di bawah berasal dari instalasi lokal dengan data contoh rekaan 
 - Seret untuk mengurutkan. Mode pilih menampilkan, menyembunyikan, mengarsipkan, atau menghapus beberapa blok sekaligus. Blok yang diarsipkan hilang dari halaman tetapi tetap menyimpan kliknya.
 - Versi: editor menyimpan satu versi sebelum setiap sesi penyuntingan. Anda juga dapat memberi nama pada versi dan memulihkan versi mana pun.
 - Halaman dapat diduplikasi. Secara bawaan satu akun punya 3 halaman dan satu halaman punya 100 blok (lihat pengaturan di bawah).
-- Desain: empat tata letak header (klasik, hero, banner dengan gambar sampul, cutout), 17 preset tema di pemilih, wallpaper berupa warna, gradien, atau gambar, gaya tombol dan blok, font yang disajikan dari aplikasi sendiri, CSS khusus per halaman, dan sakelar untuk baris "Powered by".
+- Desain: empat tata letak header (klasik, hero, banner dengan gambar sampul, cutout), 17 preset tema di pemilih, wallpaper berupa warna, gradien, atau gambar, gaya tombol dan blok, font yang disajikan dari aplikasi sendiri dan CSS khusus per halaman.
 - Antarmukanya tersedia dalam English, 简体中文, Deutsch, Bahasa Indonesia, 日本語, Português (Brasil), Español, Français, dan Русский.
 
 ### Blok
 
-BioHop punya 29 jenis blok: tautan, teks, judul, pemisah, spasi, gambar, carousel, PDF, audio, video, YouTube, Spotify, SoundCloud, musik, peta, hitung mundur, FAQ, HTML, kode, kartu kontak, email, WhatsApp, tautan toko aplikasi, bilah target, produk, koleksi, formulir pendaftaran, polling, dan feed RSS atau Atom.
+BioHop menawarkan 19 jenis blok saat menambah blok: tautan, teks, judul, gambar, pemisah, YouTube, musik (Spotify, SoundCloud, Apple Music, atau YouTube Music), klip audio, carousel gambar, PDF, produk, koleksi, bilah target, terima pembayaran, formulir pendaftaran, hitung mundur, kartu kontak, lokasi, dan FAQ. Blok dari lima jenis yang dihentikan (rotator WhatsApp, tautan toko aplikasi, SoundCloud, feed RSS, polling) yang sudah ada di sebuah halaman tetap berjalan dan bisa disunting, tetapi tidak bisa ditambahkan lagi.
 
-- Blok WhatsApp memutar hingga 10 nomor, bergiliran atau menurut bobot.
+- Blok rotator WhatsApp dihentikan: halaman yang sudah punya tetap memilikinya (berputar di antara maksimal 10 nomor, bergiliran atau berdasarkan bobot), dan yang baru tidak bisa dibuat.
 - Blok aplikasi mengarahkan pengunjung ke toko yang sesuai dengan sistem mereka.
 - Blok apa pun dapat diberi waktu terbit dan waktu berakhir.
 - Tautan dapat mengarahkan pengunjung ke tempat lain menurut negara, perangkat, sistem, atau jam dalam sehari, dan dapat memiliki PIN sendiri.

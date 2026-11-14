@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Support\ReservedSlugs;
 use Hop\Bio\Models\BioPage;
 use Illuminate\Http\JsonResponse;
@@ -49,7 +48,6 @@ class HomeController extends Controller
     {
         return view('landing', [
             'user' => Auth::user(),
-            'hubUrl' => User::hubUrl('dashboard').'#biohop',
             'themes' => self::galleryThemes(),
         ]);
     }

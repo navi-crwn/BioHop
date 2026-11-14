@@ -76,3 +76,18 @@ export function finishDrop(listEl, evt, onDrop, draggable = '.block-item') {
         delete listEl._x_ignoreMutationObserver;
     }
 }
+
+// The request that saves the order of the blocks: every saved block (a temporary id is not saved yet) in list order,
+// with the page revision this tab last saw, so the server can refuse it when the page was changed in another tab.
+export function reorderRequest(blocks, baseUpdatedAt) {
+    const links = blocks.filter((b) => b.id < 1000000000).map((b, idx) => ({ id: b.id, order: idx }));
+    const body = { links };
+    if (baseUpdatedAt) body.base_updated_at = baseUpdatedAt;
+    return body;
+}
+
+// Which message a refused order save needs: 419 expired session, 409 the page changed in another tab (retrying cannot
+// help), 422 a block of the list no longer exists, anything else a plain "could not save".
+export function reorderFailure(status) {
+    return status === 419 ? 'expired' : status === 409 ? 'conflict' : status === 422 ? 'gone' : 'saveFailed';
+}

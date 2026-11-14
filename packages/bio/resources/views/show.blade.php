@@ -1307,7 +1307,7 @@
                     @if($bioPage->footer_url)<a href="{{ \Hop\Safety\SafeContent::url($bioPage->footer_url) }}" target="_blank" rel="nofollow noopener" class="underline">{{ $bioPage->footer_note }}</a>@else{{ $bioPage->footer_note }}@endif
                 </p>
                 @endif
-                @unless($bioPage->hide_branding)
+                {{-- The "Powered by" line is always shown; hide_branding is kept only so old revisions still restore. --}}
                 <div class="{{ trim((string) $bioPage->footer_note) !== '' ? 'mt-3' : 'mt-8' }} text-center">
                     <a href="{{ url('/') }}" class="powered-link inline-flex items-center gap-2 text-sm transition-colors">
                         <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
@@ -1316,7 +1316,6 @@
                         Powered by BioHop
                     </a>
                 </div>
-                @endunless
             </div>
         </div>
     </div>
