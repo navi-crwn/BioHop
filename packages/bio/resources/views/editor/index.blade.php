@@ -232,6 +232,9 @@
                                class="flex-1 text-sm editor-text-muted file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white file:font-medium hover:file:bg-blue-700">
                     </div>
                     <p class="text-xs editor-text-muted mt-1">PNG, JPG, or SVG. Max 1MB.</p>
+                    @if (\Hop\Bio\Support\PixelHopMedia::enabled())
+                    <button type="button" x-show="pixelhopAvailable()" @click="openPixelHop('icon')" class="btn btn-secondary w-full text-sm py-2 mt-2">{{ __('Choose from PixelHop') }}</button>
+                    @endif
                 </div>
                 <!-- Search -->
                 <div class="p-4" style="border-bottom: 1px solid var(--editor-border);">
@@ -806,6 +809,9 @@
                                     <input aria-label="{{ __('Upload product picture') }}" type="file" class="hidden" accept="image/png,image/jpeg,image/gif,image/webp,image/bmp" @change="uploadBlockImage($event, editingBlock)">
                                     <span class="text-sm editor-text-muted">{{ __('Upload a picture (square looks best)') }}</span>
                                 </label>
+                                @if (\Hop\Bio\Support\PixelHopMedia::enabled())
+                                <button type="button" x-show="pixelhopAvailable()" @click="openPixelHop('product')" class="btn btn-secondary w-full text-sm py-2">{{ __('Choose from PixelHop') }}</button>
+                                @endif
                                 <label class="flex items-center gap-2 text-sm">
                                     <input type="checkbox" :checked="!!editingBlock.settings?.sold_out" @change="editingBlock.settings = Object.assign({}, editingBlock.settings, { sold_out: $event.target.checked })"> {{ __('Sold out') }}
                                 </label>
@@ -1437,13 +1443,14 @@
                     @endif
                 </div>
                 <div x-show="imageUploadTab === 'upload'">
-                    <div class="border-2 border-dashed border-(--editor-border) rounded-xl p-8 text-center">
+                    <div class="border-2 border-dashed border-(--editor-border) rounded-xl p-8 text-center" :class="{ 'border-indigo-500': imageDropOver }"
+                         @dragover.prevent="imageDropOver = true" @dragleave="imageDropOver = false" @drop.prevent="imageDropOver = false; dropImageBlock($event)">
                         <input aria-label="Upload image" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/bmp" class="hidden" x-ref="imageBlockInput" @change="uploadImageBlock($event)">
                         <svg class="w-12 h-12 mx-auto editor-text-muted mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                         </svg>
-                        <p class="editor-text-muted mb-2">Drag and drop or click to upload</p>
-                        <button @click="$refs.imageBlockInput.click()" class="btn btn-secondary">Choose File</button>
+                        <p class="editor-text-muted mb-2">{{ __('Drag and drop or click to upload') }}</p>
+                        <button @click="$refs.imageBlockInput.click()" class="btn btn-secondary">{{ __('Choose File') }}</button>
                     </div>
                 </div>
                 <!-- URL Tab -->

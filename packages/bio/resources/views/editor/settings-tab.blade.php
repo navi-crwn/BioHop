@@ -56,6 +56,9 @@
             <input aria-label="Upload share picture" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/bmp" class="hidden" x-ref="ogInput" @change="uploadPageImage('og_image', $event)">
             <div class="flex items-center gap-2">
                 <button type="button" @click="$refs.ogInput.click()" class="btn btn-secondary text-sm py-2 flex-1">Upload picture</button>
+                @if (\Hop\Bio\Support\PixelHopMedia::enabled())
+                <button type="button" x-show="pixelhopAvailable()" @click="openPixelHop('og')" class="btn btn-secondary text-sm py-2 flex-1">{{ __('Choose from PixelHop') }}</button>
+                @endif
                 <button type="button" x-show="bioPage.og_image" @click="bioPage.og_image = ''" class="btn btn-secondary text-sm py-2">Remove</button>
             </div>
             <template x-if="bioPage.og_image"><img :src="pageImageUrl(bioPage.og_image)" alt="Share picture" class="mt-2 w-full h-24 object-cover rounded-lg"></template>

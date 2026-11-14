@@ -243,3 +243,57 @@ test('deleting a page never touches a PixelHop file address', function () {
     Http::assertNothingSent();
     expect(BioPage::where('slug', 'pickdelete')->exists())->toBeFalse();
 });
+
+test('every place that takes a picture offers the picker, and none of them while the switch is off', function () {
+    $user = User::factory()->create();
+    $page = BioPage::create(['user_id' => $user->id, 'slug' => 'pickplaces', 'title' => 'T']);
+    $places = ['avatar', 'cover', 'favicon', 'image-block', 'image-new', 'carousel', 'background', 'og', 'product', 'icon'];
+
+    $off = $this->actingAs($user)->get('/bio/pickplaces/edit')->assertOk()->getContent();
+    foreach ($places as $place) {
+        expect($off)->not->toContain("openPixelHop('{$place}')");
+    }
+
+    pickerOn();
+    $on = $this->get('/bio/pickplaces/edit')->assertOk()->getContent();
+    foreach ($places as $place) {
+        expect($on)->toContain("openPixelHop('{$place}')");
+    }
+    // the picture of the quick-add uploader takes a dropped file, and the words promise nothing else
+    expect($on)->toContain('dropImageBlock($event)')->toContain('Drag and drop or click to upload');
+    // the editor script knows every place it opens the dialog for
+    $js = file_get_contents(base_path('resources/js/editor.js'));
+    foreach (['avatar', 'cover', 'favicon', 'image-block', 'image-new', 'carousel', 'background', 'og', 'product', 'icon'] as $place) {
+        expect($js)->toContain("case '{$place}'");
+    }
+});
+
+test('a PixelHop picture is kept as the product picture and the block icon, and a stranger host stays what it was', function () {
+    pickerOn();
+    $user = User::factory()->create();
+    $page = BioPage::create(['user_id' => $user->id, 'slug' => 'pickprod', 'title' => 'T', 'is_published' => true]);
+    $this->actingAs($user);
+    $url = 'https://p.test/i/shirt-abc123.jpg';
+    $icon = 'https://p.test/i/ico-abc123.png';
+
+    $product = $this->postJson('/bio/pickprod/links', ['type' => 'product', 'title' => 'Shirt', 'url' => 'https://shop.example/s', 'thumbnail_url' => $url, 'content' => $url, 'settings' => ['price' => 10, 'currency' => 'IDR']])->assertOk();
+    $link = $this->postJson('/bio/pickprod/links', ['type' => 'link', 'title' => 'Site', 'url' => 'https://example.com/', 'custom_icon' => $icon])->assertOk();
+    $product = BioLink::where('bio_page_id', $page->id)->where('type', 'product')->value('id');
+    $link = BioLink::where('bio_page_id', $page->id)->where('type', 'link')->value('id');
+    expect(BioLink::find($product)->thumbnail_url)->toBe($url)->and(BioLink::find($link)->custom_icon)->toBe($icon);
+
+    // saving again from the editor keeps them
+    $this->putJson("/bio/pickprod/links/{$link}", ['custom_icon' => $icon, 'title' => 'Site'])->assertOk();
+    expect(BioLink::find($link)->custom_icon)->toBe($icon);
+
+    $html = $this->get('/b/pickprod')->assertOk()->getContent();
+    expect($html)->toContain($icon);
+    $this->get('/b/shop/pickprod')->assertOk()->assertSee($url, false);
+
+    // the page's background and share picture: the address is kept on the page, as for the cover
+    $this->putJson('/bio/pickprod', ['background_type' => 'image', 'background_image' => 'https://p.test/i/bg-abc123.jpg', 'background_value' => 'https://p.test/i/bg-abc123.jpg', 'og_image' => 'https://p.test/i/og-abc123.jpg'])->assertOk();
+    $saved = BioPage::where('slug', 'pickprod')->first();
+    expect($saved->background_value)->toBe('https://p.test/i/bg-abc123.jpg')->and($saved->og_image)->toBe('https://p.test/i/og-abc123.jpg');
+    // a file address on a host that is not allowed is refused for the picture inputs that check hosts
+    $this->putJson('/bio/pickprod', ['cover_image' => 'http://evil.example/i/x.jpg'])->assertStatus(422);
+});

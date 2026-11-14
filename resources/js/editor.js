@@ -146,6 +146,7 @@ window.bioEditorV2 = function() {
         editingSocial: null,
         showTextEditor: false,
         showImageUploader: false,
+        imageDropOver: false,
         showIconPicker: false,
         showPassword: false,
         socialSearch: '',
@@ -2265,6 +2266,12 @@ window.bioEditorV2 = function() {
         pixelhopStrings() {
             return (CONFIG.pixelhop && CONFIG.pixelhop.strings) || {};
         },
+        // A file dropped on the quick-add uploader: the same handler as the file chooser, with the dropped files.
+        dropImageBlock(event) {
+            const files = event.dataTransfer && event.dataTransfer.files;
+            if (!files || !files.length) return;
+            this.uploadImageBlock({ target: { files, value: '' } });
+        },
         openPixelHop(target) {
             if (!this.pixelhopAvailable()) return;
             Object.assign(this.pixelhop, { open: true, target, type: 'image', items: [], next: '', total: 0, loaded: false, error: '', hotlinksBlocked: false, picked: [] });
@@ -2328,6 +2335,37 @@ window.bioEditorV2 = function() {
                 case 'favicon':
                     this.bioPage.favicon = url;
                     break;
+                case 'background':
+                    // an https address also serves the preview; a developer's plain-http PixelHop only the page (background_image)
+                    this.bioPage.background_image = url;
+                    this.bioPage.background_value = /^https:/i.test(url) ? url : '';
+                    this.bioPage.background_type = 'image';
+                    break;
+                case 'og':
+                    this.bioPage.og_image = url;
+                    break;
+                case 'product':
+                    if (!this.editingBlock) return;
+                    this.editingBlock.content = this.editingBlock.thumbnail_url = url;
+                    this.markBlockDirty(this.editingBlock.id);
+                    break;
+                case 'icon': {
+                    const block = this.iconPickerBlock || this.editingBlock;
+                    if (!block) return;
+                    block.custom_icon = url;
+                    block.brand = null;
+                    if (this.iconPickerBlock) {
+                        const index = this.blocks.findIndex(b => b.id === this.iconPickerBlock.id);
+                        if (index !== -1) {
+                            this.blocks[index].custom_icon = url;
+                            this.blocks[index].brand = null;
+                            this.markBlockDirty(this.blocks[index].id);
+                        }
+                    }
+                    this.showIconPicker = false;
+                    this.iconPickerBlock = null;
+                    break;
+                }
                 case 'image-block':
                     if (!this.editingBlock) return;
                     this.editingBlock.content = this.editingBlock.thumbnail_url = url;

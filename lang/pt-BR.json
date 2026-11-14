@@ -846,5 +846,7 @@
     "Picture": "Imagem",
     "Remove picture": "Remover imagem",
     "Upload product picture": "Enviar imagem do produto",
-    "Upload a picture (square looks best)": "Enviar uma imagem (quadrada fica melhor)"
+    "Upload a picture (square looks best)": "Enviar uma imagem (quadrada fica melhor)",
+    "Drag and drop or click to upload": "Arraste e solte ou clique para enviar",
+    "Choose File": "Escolher arquivo"
 }

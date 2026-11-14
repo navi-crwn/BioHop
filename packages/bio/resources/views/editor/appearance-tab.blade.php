@@ -160,7 +160,12 @@
                     <!-- Image -->
                     <div x-show="bioPage.background_type === 'image'">
                         <input aria-label="Upload background image" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/bmp" class="hidden" x-ref="bgImageInput" @change="uploadBackgroundImage($event)">
-                        <button @click="$refs.bgImageInput.click()" class="btn btn-secondary w-full text-sm py-2">Upload Image</button>
+                        <div class="flex items-center gap-2">
+                            <button type="button" @click="$refs.bgImageInput.click()" class="btn btn-secondary flex-1 text-sm py-2">Upload Image</button>
+                            @if (\Hop\Bio\Support\PixelHopMedia::enabled())
+                            <button type="button" x-show="pixelhopAvailable()" @click="openPixelHop('background')" class="btn btn-secondary flex-1 text-sm py-2">{{ __('Choose from PixelHop') }}</button>
+                            @endif
+                        </div>
                         <template x-if="bioPage.background_value && bioPage.background_type === 'image' && bioPage.background_value.length > 0">
                             <div class="mt-2 relative rounded-lg overflow-hidden">
                                 <img :src="bioPage.background_value" 

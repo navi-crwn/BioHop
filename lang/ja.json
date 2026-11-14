@@ -846,5 +846,7 @@
     "Picture": "画像",
     "Remove picture": "画像を削除",
     "Upload product picture": "商品画像をアップロード",
-    "Upload a picture (square looks best)": "画像をアップロード（正方形がおすすめ）"
+    "Upload a picture (square looks best)": "画像をアップロード（正方形がおすすめ）",
+    "Drag and drop or click to upload": "ドラッグ＆ドロップまたはクリックしてアップロード",
+    "Choose File": "ファイルを選択"
 }
