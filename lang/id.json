@@ -852,5 +852,6 @@
     "Warning": "Peringatan",
     "Important": "Penting",
     "Announcement": "Pengumuman",
-    "More": "Lainnya"
+    "More": "Lainnya",
+    "This block was changed on the Manage page or in another editor tab. Reload the editor to see the latest values; nothing was saved.": "Blok ini diubah di halaman Kelola atau di tab editor lain. Muat ulang editor untuk melihat nilai terbaru; tidak ada yang tersimpan."
 }

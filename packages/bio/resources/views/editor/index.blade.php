@@ -10,7 +10,7 @@
 @php
     $editorConfig = [
         'bioPage' => \Illuminate\Support\Arr::except($bioPage->toArray(), ['links']),
-        'blocks' => $bioPage->links->whereNull('archived_at')->sortBy('order')->values(),
+        'blocks' => $bioPage->links->whereNull('archived_at')->sortBy('order')->values()->each(fn ($l) => in_array($l->type, ['product', 'goal'], true) ? $l->setAttribute('content_version', $l->contentVersion()) : null),
         'archived' => $bioPage->links->whereNotNull('archived_at')->sortByDesc('archived_at')->values(),
         'platforms' => config('brands.platforms', []),
         'themes' => \Hop\Bio\Support\BioThemes::picker(),

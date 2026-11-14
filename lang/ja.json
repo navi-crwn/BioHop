@@ -852,5 +852,6 @@
     "Warning": "警告",
     "Important": "重要",
     "Announcement": "お知らせ",
-    "More": "その他"
+    "More": "その他",
+    "This block was changed on the Manage page or in another editor tab. Reload the editor to see the latest values; nothing was saved.": "このブロックは「管理」ページまたは別のエディタのタブで変更されました。エディタを再読み込みして最新の値を確認してください。今回は何も保存されていません。"
 }

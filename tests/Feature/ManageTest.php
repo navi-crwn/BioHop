@@ -2,6 +2,7 @@
 
 use App\Models\AbuseFlag;
 use App\Models\User;
+use Hop\Bio\Contracts\UrlSafety;
 use Hop\Bio\Jobs\PurgeEdgeCache;
 use Hop\Bio\Models\BioLink;
 use Hop\Bio\Models\BioPage;
@@ -9,6 +10,7 @@ use Hop\Bio\Models\BioPollVote;
 use Hop\Bio\Models\BioRevision;
 use Hop\Ui\Locales;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 
 /*
@@ -156,12 +158,84 @@ test('a block that changed since the page was opened is not overwritten: 409', f
     expect($goal->fresh()->settings['current'])->toBe(43);
 });
 
-test('the other direction: an editor that was open before keeps its copy of the block and replaces what Manage saved', function () {
-    // The editor sends the whole block, like it always did. This pins that behaviour down so a change to it is noticed.
+test('the other direction: an editor that was open before cannot overwrite what Manage saved', function () {
     [$owner, , $shirt] = manageSetup('reverse');
-    $this->actingAs($owner)->patchJson("/bio/manage/{$shirt->id}", manageBody($shirt, ['price' => 50000, 'stock' => 8, 'compare_price' => 150000]))->assertOk();
-    $this->putJson("/bio/reverse/links/{$shirt->id}", ['title' => 'Linen shirt', 'settings' => ['price' => 120000, 'currency' => 'IDR']])->assertOk();
+    $this->actingAs($owner);
+    // what the editor was given when it opened (the editor page hands out the version of product and goal blocks)
+    $html = $this->get('/bio/reverse/edit')->assertOk()->getContent();
+    preg_match('/<script type="application\/json" id="bio-editor-config">(.*?)<\/script>/s', $html, $m);
+    $blocks = collect(json_decode($m[1], true)['blocks'])->keyBy('id');
+    expect($blocks[$shirt->id]['content_version'])->toBe($shirt->fresh()->contentVersion());
+    expect($blocks->firstWhere('type', 'poll'))->not->toHaveKey('content_version');
+    $stale = $blocks[$shirt->id]['content_version'];
+
+    $this->patchJson("/bio/manage/{$shirt->id}", manageBody($shirt, ['price' => 50000, 'stock' => 8, 'compare_price' => 150000]))->assertOk();
+    $put = $this->putJson("/bio/reverse/links/{$shirt->id}", ['title' => 'Linen shirt', 'content_version' => $stale, 'settings' => ['price' => 120000, 'currency' => 'IDR']]);
+    $put->assertStatus(409)->assertJsonPath('conflict', true);
+    expect($put->json('message'))->toContain('Manage page');
+    expect($shirt->fresh()->settings['price'])->toBe(50000);
+
+    // an editor that sends the version it has now saves, and gets the next one back for its following save
+    $fresh = $shirt->fresh()->contentVersion();
+    $ok = $this->putJson("/bio/reverse/links/{$shirt->id}", ['title' => 'Linen shirt', 'content_version' => $fresh, 'settings' => ['price' => 60000, 'currency' => 'IDR']])->assertOk();
+    $next = $ok->json('content_version');
+    expect($next)->toBe($shirt->fresh()->contentVersion())->not->toBe($fresh);
+    $this->putJson("/bio/reverse/links/{$shirt->id}", ['title' => 'Linen shirt', 'content_version' => $next, 'settings' => ['price' => 61000, 'currency' => 'IDR']])->assertOk();
+    // a client that sends no version (an old editor tab) is treated as before
+    $this->putJson("/bio/reverse/links/{$shirt->id}", ['title' => 'Linen shirt', 'settings' => ['price' => 62000, 'currency' => 'IDR']])->assertOk();
+    // other kinds of block are not checked
+    $link = BioLink::create(['bio_page_id' => $shirt->bio_page_id, 'type' => 'link', 'title' => 'L', 'url' => 'https://example.com/', 'order' => 5, 'is_active' => true]);
+    $this->putJson("/bio/reverse/links/{$link->id}", ['title' => 'L2', 'content_version' => 'whatever'])->assertOk();
+});
+
+test('the product name goes through the same safety checks as in the editor', function () {
+    [$owner, , $shirt] = manageSetup('safename');
+    $this->actingAs($owner);
+    $fake = Mockery::mock(UrlSafety::class);
+    $fake->shouldReceive('rejectionReason')->andReturn(null);
+    $fake->shouldReceive('assess')->withArgs(fn ($url, $text) => str_contains((string) $text, 'Totally Blocked Name'))->andReturn(['signals' => ['phishing'], 'score' => 90]);
+    $fake->shouldReceive('assess')->andReturn(['signals' => [], 'score' => 0]);
+    app()->instance(UrlSafety::class, $fake);
+    config(['safety.block_categories' => ['phishing']]);
+
+    $this->patchJson("/bio/manage/{$shirt->id}", manageBody($shirt, ['price' => 1], ['title' => 'Totally Blocked Name']))->assertStatus(422)->assertJsonValidationErrors('title');
+    $this->patchJson("/bio/manage/{$shirt->id}", manageBody($shirt, ['price' => 1], ['title' => 'Buy at https://note.hel.ink/AbC123xyz0#k=FAKEKEY0notehop0s2audit0000000000000000000']))->assertStatus(422)->assertJsonValidationErrors('title');
+    expect($shirt->fresh()->title)->toBe('Linen shirt')->and($shirt->fresh()->settings['price'])->toBe(120000);
+    $this->patchJson("/bio/manage/{$shirt->id}", manageBody($shirt, ['price' => 1], ['title' => 'Plain shirt']))->assertOk();
+});
+
+test('two saves with the same version cannot both go through, even when the block changes right after it was loaded', function () {
+    [$owner, , $shirt] = manageSetup('race');
+    $this->actingAs($owner);
+    $body = manageBody($shirt, ['price' => 77000, 'stock' => 8, 'compare_price' => 150000]);
+    // another request writes the block right after this one loaded it (the first load is the route binding)
+    $loads = 0;
+    BioLink::retrieved(function (BioLink $l) use (&$loads, $shirt) {
+        if ($l->id === $shirt->id && ++$loads === 1) {
+            DB::table('bio_links')->where('id', $shirt->id)->update(['description' => 'changed by somebody else']);
+        }
+    });
+    $this->patchJson("/bio/manage/{$shirt->id}", $body)->assertStatus(409);
     expect($shirt->fresh()->settings['price'])->toBe(120000);
+    // the same body twice in a row: the second one is stale
+    BioLink::flushEventListeners();
+    $again = manageBody($shirt, ['price' => 78000, 'stock' => 8, 'compare_price' => 150000]);
+    $this->patchJson("/bio/manage/{$shirt->id}", $again)->assertOk();
+    $this->patchJson("/bio/manage/{$shirt->id}", $again)->assertStatus(409);
+});
+
+test('settings and fields that belong to the editor are ignored when sent to Manage', function () {
+    [$owner, , $shirt, $goal] = manageSetup('ignored');
+    $this->actingAs($owner);
+    $before = $shirt->fresh();
+    $this->patchJson("/bio/manage/{$shirt->id}", manageBody($shirt, ['price' => 111, 'currency' => 'USD', 'variants' => [['name' => 'X']], 'foo' => 'bar', 'url' => 'https://evil.example/'], ['url' => 'https://evil.example/', 'type' => 'link', 'description' => 'hacked', 'order' => 99, 'thumbnail_url' => 'https://evil.example/x.png']))->assertOk();
+    $after = $shirt->fresh();
+    expect($after->settings['price'])->toBe(111)
+        ->and($after->settings['currency'])->toBe('IDR')->and($after->settings['variants'])->toBe($before->settings['variants'])->and($after->settings)->not->toHaveKey('foo')->and($after->settings)->not->toHaveKey('url')
+        ->and($after->url)->toBe($before->url)->and($after->type)->toBe('product')->and($after->description)->toBe($before->description)->and($after->order)->toBe($before->order)->and($after->thumbnail_url)->toBe($before->thumbnail_url);
+    $this->patchJson("/bio/manage/{$goal->id}", manageBody($goal, ['current' => 5, 'target' => 10, 'unit' => 'USD', 'mode' => 'x', 'images' => [1]], ['title' => 'Renamed', 'is_active' => false]))->assertOk();
+    $g = $goal->fresh();
+    expect($g->settings)->toBe(['current' => 5, 'target' => 10, 'unit' => 'USD'])->and($g->title)->toBe('New camera')->and($g->is_active)->toBeTrue();
 });
 
 test('a block the moderators switched off stays off', function () {

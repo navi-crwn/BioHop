@@ -852,5 +852,6 @@
     "Warning": "Warnung",
     "Important": "Wichtig",
     "Announcement": "Ankündigung",
-    "More": "Mehr"
+    "More": "Mehr",
+    "This block was changed on the Manage page or in another editor tab. Reload the editor to see the latest values; nothing was saved.": "Dieser Block wurde auf der Seite „Verwalten“ oder in einem anderen Editor-Tab geändert. Lade den Editor neu, um die aktuellen Werte zu sehen. Es wurde nichts gespeichert."
 }

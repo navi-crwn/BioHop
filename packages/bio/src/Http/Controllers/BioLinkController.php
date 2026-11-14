@@ -30,7 +30,7 @@ class BioLinkController extends Controller
     /**
      * Reject unsafe URL schemes, blacklisted or abusive destinations.
      */
-    private function assertSafe(array $data): void
+    public function assertSafe(array $data): void
     {
         NoteKeys::assertNone($data);
         $safety = app(UrlSafety::class);
@@ -336,6 +336,7 @@ class BioLinkController extends Controller
         return response()->json([
             'success' => true,
             'block' => $link,
+            'content_version' => $link->fresh()->contentVersion(),
             'page_updated_at' => $this->touchPage($bioPage),
         ]);
     }
@@ -343,6 +344,11 @@ class BioLinkController extends Controller
     public function update(Request $request, BioPage $bioPage, BioLink $bioLink)
     {
         $this->authorize('update', $bioPage);
+        // A product or goal block that the Manage page (or another editor tab) changed after this editor loaded it is not overwritten.
+        $seen = $request->input('content_version');
+        if (is_string($seen) && $seen !== '' && in_array($bioLink->type, ['product', 'goal'], true) && ! hash_equals($bioLink->contentVersion(), $seen)) {
+            return response()->json(['success' => false, 'conflict' => true, 'message' => __('This block was changed on the Manage page or in another editor tab. Reload the editor to see the latest values; nothing was saved.')], 409);
+        }
         BioRevisions::maybeSnapshot($bioPage);
         $validated = $request->validate([
             'type' => 'nullable|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code,product,collection,app,goal,audio,carousel,pdf,form,rss,poll,pay',
@@ -445,6 +451,7 @@ class BioLinkController extends Controller
         return response()->json([
             'success' => true,
             'block' => $bioLink,
+            'content_version' => $bioLink->fresh()->contentVersion(),
             'page_updated_at' => $this->touchPage($bioPage),
         ]);
     }

@@ -9,6 +9,7 @@ use Hop\Bio\Support\BioRevisions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 /**
  * "Manage": the prices, stock and goal figures of every bio page of the member in one place, without opening the editor,
@@ -33,7 +34,6 @@ class BioManageController extends Controller
         abort_unless($page && $request->user()->can('update', $page) && in_array($bioLink->type, ['product', 'goal'], true), 404);
 
         $rules = ['base_version' => 'required|string|max:64'];
-        $settings = $bioLink->settings ?? [];
         if ($bioLink->type === 'product') {
             $rules += [
                 'title' => 'required|string|max:100',
@@ -53,31 +53,45 @@ class BioManageController extends Controller
             ];
         }
         $data = $request->validate($rules);
-        if ($data['base_version'] !== $bioLink->contentVersion()) {
-            return response()->json(['success' => false, 'conflict' => true, 'message' => __('This block was changed somewhere else (for example in the editor). Reload this page to see the latest values; nothing was saved.')], 409);
+        // The same safety checks as the editor's save (blocked phrases, NoteHop key links), before anything is written.
+        if ($bioLink->type === 'product') {
+            app(BioLinkController::class)->assertSafe(['title' => trim($data['title'])]);
         }
-        if ($bioLink->type === 'product' && $data['is_active'] && ! $bioLink->is_active && AbuseFlag::locks('bio_link', $bioLink->id)) {
-            return response()->json(['success' => false, 'message' => __('This block was disabled by moderation.')], 422);
-        }
-
-        // Only the figures this page owns are written, the rest of settings (currency, variants, ...) stays.
         $keys = $bioLink->type === 'product' ? ['price', 'compare_price', 'stock', 'sold_out'] : ['current', 'target', 'unit'];
-        foreach ($keys as $key) {
-            $value = $data['settings'][$key] ?? null;
-            if ($value === null || $value === '') {
-                unset($settings[$key]);
-            } else {
-                // numbers are stored as numbers, like the editor's own figures, so 12 and "12" never differ
-                $settings[$key] = $key === 'unit' || is_bool($value) ? $value : $value + 0;
-            }
-        }
-        BioRevisions::maybeSnapshot($page);
-        $bioLink->update(($bioLink->type === 'product' ? ['title' => trim($data['title']), 'is_active' => (bool) $data['is_active']] : []) + ['settings' => $settings]);
-        // The same two steps as every small block change of the editor: the page counts as changed (an editor tab open
-        // on it meets a conflict, not a silent overwrite) and a reader's cached copy goes (the edge copy is purged by the model).
-        $page->touch();
-        Cache::forget('bio-stateless:'.strtolower($page->slug));
 
-        return response()->json(['success' => true, 'version' => $bioLink->fresh()->contentVersion(), 'message' => __('Saved')]);
+        // Check and write in one step on the locked row, so two saves at the same moment (or an editor save in between) cannot both pass.
+        $conflict = response()->json(['success' => false, 'conflict' => true, 'message' => __('This block was changed somewhere else (for example in the editor). Reload this page to see the latest values; nothing was saved.')], 409);
+        $result = DB::transaction(function () use ($bioLink, $page, $data, $keys, $conflict) {
+            $block = BioLink::query()->whereKey($bioLink->getKey())->lockForUpdate()->first();
+            if (! $block || $data['base_version'] !== $block->contentVersion()) {
+                return $conflict;
+            }
+            if ($block->type === 'product' && $data['is_active'] && ! $block->is_active && AbuseFlag::locks('bio_link', $block->id)) {
+                return response()->json(['success' => false, 'message' => __('This block was disabled by moderation.')], 422);
+            }
+            // Only the figures this page owns are written, the rest of settings (currency, variants, ...) stays.
+            $settings = $block->settings ?? [];
+            foreach ($keys as $key) {
+                $value = $data['settings'][$key] ?? null;
+                if ($value === null || $value === '') {
+                    unset($settings[$key]);
+                } else {
+                    // numbers are stored as numbers, like the editor's own figures, so 12 and "12" never differ
+                    $settings[$key] = $key === 'unit' || is_bool($value) ? $value : $value + 0;
+                }
+            }
+            BioRevisions::maybeSnapshot($page);
+            $block->update(($block->type === 'product' ? ['title' => trim($data['title']), 'is_active' => (bool) $data['is_active']] : []) + ['settings' => $settings]);
+            // The page counts as changed (an editor tab open on it meets a conflict) and a reader's cached copy goes (the edge copy is purged by the model).
+            $page->touch();
+            Cache::forget('bio-stateless:'.strtolower($page->slug));
+
+            return $block->fresh();
+        });
+        if ($result instanceof JsonResponse) {
+            return $result;
+        }
+
+        return response()->json(['success' => true, 'version' => $result->contentVersion(), 'message' => __('Saved')]);
     }
 }

@@ -852,5 +852,6 @@
     "Warning": "警告",
     "Important": "重要",
     "Announcement": "公告",
-    "More": "更多"
+    "More": "更多",
+    "This block was changed on the Manage page or in another editor tab. Reload the editor to see the latest values; nothing was saved.": "此区块已在“管理”页面或另一个编辑器标签页中被修改。请重新加载编辑器查看最新值；本次未保存。"
 }

@@ -336,7 +336,7 @@ window.bioEditorV2 = function() {
         blockKey(block) {
             const out = {};
             for (const key of Object.keys(block)) {
-                if (key[0] === '_' || key === 'is_new' || key === 'order' || key === 'id') continue;
+                if (key[0] === '_' || key === 'is_new' || key === 'order' || key === 'id' || key === 'content_version') continue;
                 out[key] = block[key];
             }
             return JSON.stringify(out);
@@ -1763,6 +1763,7 @@ window.bioEditorV2 = function() {
                 // element, which may be under someone's finger (B-1, H-1).
                 block._key ??= block.id;
                 block.id = data.block?.id || data.id;
+                if (data.content_version) block.content_version = data.content_version;
                 this.noteRevision(data.page_updated_at);
             } else {
                 throw new Error(data.message || 'Failed to create block');
@@ -1782,6 +1783,8 @@ window.bioEditorV2 = function() {
             if (!response.ok) {
                 throw new Error(data.message || 'Failed to update block');
             }
+            // the next save of this block starts from what the server holds now (a product or goal block; the Manage page checks it)
+            if (data.content_version) block.content_version = data.content_version;
             this.noteRevision(data.page_updated_at);
         },
         async deleteBlockFromServer(blockId) {

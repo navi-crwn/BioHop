@@ -852,5 +852,6 @@
     "Warning": "Warning",
     "Important": "Important",
     "Announcement": "Announcement",
-    "More": "More"
+    "More": "More",
+    "This block was changed on the Manage page or in another editor tab. Reload the editor to see the latest values; nothing was saved.": "This block was changed on the Manage page or in another editor tab. Reload the editor to see the latest values; nothing was saved."
 }
