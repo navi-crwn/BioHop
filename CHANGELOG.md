@@ -4,6 +4,24 @@ All notable changes to BioHop are listed here, written for the people who use it
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-11-15 - Manage prices and goals without the editor
+
+### Added
+
+- **Manage page.** A new "Manage" entry in the menu opens one page with the products and goal bars of all your bio pages. Change the price, the old price, the stock, sold out, shown or hidden of a product, or the "so far", goal and unit of a goal bar, and save each row without opening the editor. Polls (votes per choice) and forms (number of entries, CSV download) are listed there to read. Effect: a quick price or stock change takes seconds, and the public page follows at once. If the same block was changed in the editor in the meantime, the row says so and saves nothing. Reason: opening the editor to change one number was slow.
+- **Dashboard, announcement card.** The card at the top of the dashboard home now shows news from HOP, such as planned maintenance. One card at a time, it can be hidden for a week, and an urgent one stays until it is over. If the news cannot be reached, the dashboard shows no card and opens as fast as before. Reason: one place for news to all HOP apps.
+- **Editor, Choose from PixelHop.** The "Choose from PixelHop" button now also appears for the page background, the share picture, a product picture and a block icon (where your PixelHop pictures are switched on). Effect: no need to download a picture and upload it again. Reason: it only worked for some places.
+- **Editor, Quick Add image box.** A picture dropped on the image box is uploaded, as the box always said. Reason: the box promised drag and drop, but only clicking worked.
+- **Dashboard, sidebar footer.** The footer links are Help, Terms, Privacy, Changelog, GitHub and Announcement, one under the other, followed by "Part of Hop Easy Link". On a phone they scroll together with the menu. Reason: every HOP app now has the same footer.
+
+### Changed
+
+- **Editor, product form.** The labels and hints of the product form are translated in all nine languages. Reason: they were English only.
+
+### Removed
+
+- **Editor, WhatsApp rotator.** The rotator block is gone, together with its notice on the dashboard. A page that still has an old one no longer shows it to visitors, and its owner can delete it from the block list. Reason: nobody uses it.
+
 ## [1.4.0] - 2026-11-14 - A calmer editor and dashboard
 
 ### Added
