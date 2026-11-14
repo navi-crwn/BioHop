@@ -1475,7 +1475,7 @@
     @if (\Hop\Bio\Support\PixelHopMedia::enabled())
     {{-- "Choose from PixelHop": the member's own PixelHop pictures, listed through /bio/media/pixelhop. The file stays in PixelHop. --}}
     <template x-if="pixelhop.open">
-    <div class="modal-overlay" @click.self="closePixelHop()">
+    <div class="modal-overlay" @click.self="closePixelHop()" style="z-index: 10002;"> {{-- above the icon dialog (10001), which also offers the picker --}}
         <div class="modal-content pixelhop-picker" x-modal="pixelhop.open" data-modal-close="closePixelHop()" style="max-width: 640px;" @click.stop>
             <div class="modal-header">
                 <h3 class="modal-title">{{ __('Choose from PixelHop') }}</h3>

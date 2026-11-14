@@ -259,6 +259,8 @@ test('every place that takes a picture offers the picker, and none of them while
     foreach ($places as $place) {
         expect($on)->toContain("openPixelHop('{$place}')");
     }
+    // the dialog sits above the icon dialog (z-index 10001), which also offers it
+    expect($on)->toContain('z-index: 10002');
     // the picture of the quick-add uploader takes a dropped file, and the words promise nothing else
     expect($on)->toContain('dropImageBlock($event)')->toContain('Drag and drop or click to upload');
     // the editor script knows every place it opens the dialog for

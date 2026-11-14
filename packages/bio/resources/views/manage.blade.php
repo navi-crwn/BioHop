@@ -57,7 +57,7 @@
                                         <label class="label md:sr-only" for="mp-was-{{ $p->id }}">{{ __('Was price') }}</label>
                                         <input id="mp-was-{{ $p->id }}" class="input" type="text" inputmode="decimal" maxlength="12" x-model="f.compare_price">
                                     </div>
-                                    <div>
+                                    <div class="manage-stock">
                                         <label class="label md:sr-only" for="mp-stock-{{ $p->id }}">{{ __('Stock') }}</label>
                                         <input id="mp-stock-{{ $p->id }}" class="input" type="text" inputmode="numeric" maxlength="6" placeholder="{{ __('Unlimited') }}" x-model="f.stock">
                                     </div>
