@@ -60,6 +60,8 @@ test('the palettes carry the frozen family values: surfaces and accents, light a
             expect($body)->toContain("--{$token}: {$rgb($hex)};");
         }
     }
+    // the picker looks like the other apps': a small capital heading, three equal boxes in one row
+    expect($css)->toContain('text-transform: uppercase')->toContain('grid-template-columns: repeat(3, 1fr)');
     // classic is no attribute: nothing in the file is written for it
     expect($css)->not->toContain('data-palette="classic"');
 });
