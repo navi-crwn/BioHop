@@ -213,10 +213,12 @@ window.bioEditorV2 = function() {
             );
         },
         // The sections of the block form; a section with nothing in it for this kind of block is not offered.
+        get retiredTypes() { return ['whatsapp']; },
         blockTabs() {
             const t = this.editingBlock?.type;
             if (!t || ['divider', 'spacer'].includes(t)) return [];
-            const tabs = [['content'], ...(t === 'link' ? [['look']] : []), ['schedule'], ...(['link', 'product', 'whatsapp', 'app'].includes(t) ? [['advanced']] : [])];
+            if (this.retiredTypes.includes(t)) return [['content']];
+            const tabs = [['content'], ...(t === 'link' ? [['look']] : []), ['schedule'], ...(['link', 'product', 'app'].includes(t) ? [['advanced']] : [])];
             return tabs;
         },
         blockTabLabel(key) {
@@ -815,11 +817,10 @@ window.bioEditorV2 = function() {
                 faq_items: type === 'faq' ? [{ question: '', answer: '' }] : [],
                 html_content: '',
                 description: '',
-                settings: type === 'pay' ? { pay: emptyPay(PAY_FORMATS) } : type === 'product' ? { price: '', currency: 'IDR', sold_out: false } : (type === 'collection' ? { layout: 'stack' } : (type === 'whatsapp' ? { text: '', mode: 'round_robin', numbers: [{ number: '', label: '', weight: 1 }] } : (type === 'goal' ? { target: '', current: '', unit: '' } : (type === 'poll' ? { options: [{ text: '' }, { text: '' }] } : type === 'rss' ? { count: 5 } : type === 'form' ? { ask_name: true, ask_email: true, ask_phone: false, button: '', thanks: '', consent: '', retention_days: 90 } : type === 'app' ? { ios: '', android: '', web: '' } : (type === 'carousel' ? { images: [] } : null)))))
+                settings: type === 'pay' ? { pay: emptyPay(PAY_FORMATS) } : type === 'product' ? { price: '', currency: 'IDR', sold_out: false } : (type === 'collection' ? { layout: 'stack' } : (type === 'goal' ? { target: '', current: '', unit: '' } : (type === 'poll' ? { options: [{ text: '' }, { text: '' }] } : type === 'rss' ? { count: 5 } : type === 'form' ? { ask_name: true, ask_email: true, ask_phone: false, button: '', thanks: '', consent: '', retention_days: 90 } : type === 'app' ? { ios: '', android: '', web: '' } : (type === 'carousel' ? { images: [] } : null))))
             };
-            if (type === 'whatsapp') newBlock.brand = 'whatsapp';
             this.blocks.push(newBlock);
-            if (['link', 'header', 'text', 'video', 'music', 'vcard', 'html', 'countdown', 'map', 'faq', 'youtube', 'spotify', 'soundcloud', 'code', 'image', 'product', 'collection', 'whatsapp', 'app', 'goal', 'audio', 'carousel', 'pdf', 'form', 'rss', 'poll', 'pay'].includes(type)) {
+            if (['link', 'header', 'text', 'video', 'music', 'vcard', 'html', 'countdown', 'map', 'faq', 'youtube', 'spotify', 'soundcloud', 'code', 'image', 'product', 'collection', 'app', 'goal', 'audio', 'carousel', 'pdf', 'form', 'rss', 'poll', 'pay'].includes(type)) {
                 this.editingBlock = JSON.parse(JSON.stringify(newBlock));
             }
             this.showAddBlockModal = false;
@@ -837,7 +838,6 @@ window.bioEditorV2 = function() {
                 'faq': 'FAQ',
                 'product': 'Product',
                 'collection': 'Collection',
-                'whatsapp': 'Chat on WhatsApp',
                 'app': 'Get the app',
                 'goal': 'Our goal',
                 'audio': 'Listen',
@@ -1379,15 +1379,6 @@ window.bioEditorV2 = function() {
         },
         setFaqItem(i, key, value) {
             this.editingBlock.faq_items = (this.editingBlock.faq_items || []).map((item, k) => k === i ? Object.assign({}, item, { [key]: value }) : item);
-        },
-        addWaNumber() {
-            this.setProductSetting('numbers', [...(this.editingBlock.settings?.numbers || []), { number: '', label: '', weight: 1 }]);
-        },
-        removeWaNumber(i) {
-            this.setProductSetting('numbers', (this.editingBlock.settings?.numbers || []).filter((_, k) => k !== i));
-        },
-        setWaNumber(i, key, value) {
-            this.setProductSetting('numbers', (this.editingBlock.settings?.numbers || []).map((n, k) => k === i ? Object.assign({}, n, { [key]: value }) : n));
         },
         // Audio clip / PDF: uploaded to bio-audio/ or bio-files/; the block keeps the /storage address in content.
         uploadBlockMedia(event) {

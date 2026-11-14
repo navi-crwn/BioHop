@@ -726,36 +726,10 @@
                                 </div>
                             </div>
                         </template>
-                        <template x-if="editingBlock?.type === 'whatsapp'">
-                            <div class="space-y-4">
-                                <div class="form-group">
-                                    <label for="bfindex-w2" class="form-label">{{ __('Pre-filled message') }} <span class="editor-text-muted font-normal">{{ __('(optional)') }}</span></label>
-                                    <input maxlength="500" id="bfindex-w2" type="text" :value="editingBlock.settings?.text ?? ''" @input="setProductSetting('text', $event.target.value)" class="form-input" placeholder="{{ __('Hi, I came from your bio page…') }}">
-                                </div>
-                                <div class="form-group">
-                                    <div class="flex items-center justify-between">
-                                        <label class="form-label mb-0">{{ __('Numbers') }} <span class="editor-text-muted font-normal">{{ __('(each click goes to one of them)') }}</span></label>
-                                        <button type="button" class="btn btn-secondary text-xs py-1 px-2" @click="addWaNumber()" x-show="(editingBlock.settings?.numbers || []).length < 10">{{ __('+ Add number') }}</button>
-                                    </div>
-                                    <div class="mt-2 space-y-2">
-                                        <template x-for="(n, i) in (editingBlock.settings?.numbers || [])" :key="i">
-                                            <div class="be-wa-row">
-                                                <input type="tel" maxlength="24" :value="n.number" @input="setWaNumber(i, 'number', $event.target.value)" class="form-input" placeholder="+62 812 3456 7890" :aria-label="@js(__('Number :n')).replace(':n', i + 1)">
-                                                <input type="text" maxlength="40" :value="n.label ?? ''" @input="setWaNumber(i, 'label', $event.target.value)" class="form-input" placeholder="{{ __('Label, e.g. CS Rina') }}" :aria-label="@js(__('Label :n')).replace(':n', i + 1)">
-                                                <input type="number" min="1" max="100" :value="n.weight ?? 1" @input="setWaNumber(i, 'weight', $event.target.value)" class="form-input" placeholder="{{ __('Weight') }}" :aria-label="@js(__('Weight :n')).replace(':n', i + 1)" x-show="editingBlock.settings?.mode === 'weighted'">
-                                                <button type="button" class="icon-btn" @click="removeWaNumber(i)" :aria-label="@js(__('Remove number :n')).replace(':n', i + 1)" title="{{ __('Remove') }}"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
-                                            </div>
-                                        </template>
-                                    </div>
-                                    <p class="text-xs editor-text-muted mt-1">{{ __('With country code, digits only are kept. One number works too.') }}</p>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">{{ __('How clicks are shared') }}</label>
-                                    <div class="flex gap-2">
-                                        <button type="button" class="btn btn-secondary text-xs py-1.5 flex-1" :class="{ 'ring-2 ring-blue-500': (editingBlock.settings?.mode || 'round_robin') === 'round_robin' }" @click="setProductSetting('mode', 'round_robin')">{{ __('In turn (round robin)') }}</button>
-                                        <button type="button" class="btn btn-secondary text-xs py-1.5 flex-1" :class="{ 'ring-2 ring-blue-500': editingBlock.settings?.mode === 'weighted' }" @click="setProductSetting('mode', 'weighted')">{{ __('By weight') }}</button>
-                                    </div>
-                                </div>
+                        <template x-if="editingBlock && retiredTypes.includes(editingBlock.type)">
+                            <div class="space-y-2">
+                                <p class="text-sm editor-text">{{ __('This block type has been retired. It no longer appears on your page.') }}</p>
+                                <p class="text-xs editor-text-muted">{{ __('You can delete it from the list of blocks.') }}</p>
                             </div>
                         </template>
                         <template x-if="editingBlock?.type === 'product'">
@@ -1063,9 +1037,9 @@
                                 <p class="text-[10px] editor-text-muted">Leave both empty to show it always. Times are in your time zone; outside the window the block is hidden from the page and its address stops working.</p>
                             </div>
                         </template>
-                        <template x-if="editingBlock && ['link', 'product', 'whatsapp', 'app'].includes(editingBlock.type)">
+                        <template x-if="editingBlock && ['link', 'product', 'app'].includes(editingBlock.type)">
                             <div x-show="blockTab === 'advanced'" class="p-3 rounded-lg space-y-3" style="background: var(--editor-card-bg)">
-                                <div x-show="['link', 'product', 'whatsapp', 'app'].includes(editingBlock.type)">
+                                <div x-show="['link', 'product', 'app'].includes(editingBlock.type)">
                                     <label for="bfindex-s3" class="form-label text-xs mb-1">PIN <span class="editor-text-muted font-normal">(optional, 4–8 digits)</span></label>
                                     <input id="bfindex-s3" type="text" inputmode="numeric" pattern="[0-9]{4,8}" maxlength="8" :value="editingBlock.settings?.pin ?? ''" @input="setProductSetting('pin', $event.target.value.replace(/\D/g, ''))" class="form-input text-xs" placeholder="e.g. 2468" autocomplete="off">
                                     <p class="text-[10px] editor-text-muted mt-1">Visitors enter it once before the address opens. Share the PIN yourself (a story, a newsletter).</p>

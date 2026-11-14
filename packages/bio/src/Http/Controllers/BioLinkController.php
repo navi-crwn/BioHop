@@ -255,11 +255,6 @@ class BioLinkController extends Controller
             'settings.images' => 'nullable|array|max:10',
             'settings.images.*.url' => self::carouselImageRule(),
             'settings.images.*.caption' => 'nullable|string|max:100',
-            'settings.mode' => 'nullable|in:'.implode(',', BioLink::WHATSAPP_MODES),
-            'settings.numbers' => 'nullable|array|max:10',
-            'settings.numbers.*.number' => ['required_with:settings.numbers', 'string', 'max:24', 'regex:/^\+?[0-9 .()-]{6,24}$/'],
-            'settings.numbers.*.label' => 'nullable|string|max:40',
-            'settings.numbers.*.weight' => 'nullable|integer|min:1|max:100',
             'settings.pay' => 'nullable|array',
             'publish_at' => 'nullable|date',
             'expire_at' => ['nullable', 'date', function ($attribute, $value, $fail) use ($request) {
@@ -350,7 +345,7 @@ class BioLinkController extends Controller
         $this->authorize('update', $bioPage);
         BioRevisions::maybeSnapshot($bioPage);
         $validated = $request->validate([
-            'type' => 'nullable|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code,product,collection,whatsapp,app,goal,audio,carousel,pdf,form,rss,poll,pay',
+            'type' => 'nullable|in:link,image,text,header,divider,spacer,video,music,vcard,html,countdown,map,faq,youtube,spotify,soundcloud,email,code,product,collection,app,goal,audio,carousel,pdf,form,rss,poll,pay',
             'title' => 'nullable|string|max:100',
             'url' => 'nullable|string|max:500',
             'content' => 'nullable|string|max:5000',
@@ -404,11 +399,6 @@ class BioLinkController extends Controller
             'settings.images' => 'nullable|array|max:10',
             'settings.images.*.url' => self::carouselImageRule(),
             'settings.images.*.caption' => 'nullable|string|max:100',
-            'settings.mode' => 'nullable|in:'.implode(',', BioLink::WHATSAPP_MODES),
-            'settings.numbers' => 'nullable|array|max:10',
-            'settings.numbers.*.number' => ['required_with:settings.numbers', 'string', 'max:24', 'regex:/^\+?[0-9 .()-]{6,24}$/'],
-            'settings.numbers.*.label' => 'nullable|string|max:40',
-            'settings.numbers.*.weight' => 'nullable|integer|min:1|max:100',
             'settings.pay' => 'nullable|array',
             'publish_at' => 'nullable|date',
             'expire_at' => ['nullable', 'date', function ($attribute, $value, $fail) use ($request) {

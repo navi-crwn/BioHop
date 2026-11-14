@@ -77,7 +77,7 @@ The screenshots below come from a local install with made-up sample data (a cera
 
 BioHop offers 19 block kinds when you add a block: link, text, header, image, divider, YouTube, music (Spotify, SoundCloud, Apple Music or YouTube Music), audio clip, picture carousel, PDF, product, collection, goal bar, receive payment, sign-up form, countdown, contact card, location and FAQ. Blocks of five retired kinds (WhatsApp rotator, app store link, SoundCloud, RSS feed, poll) that a page already has keep working and can be edited, but cannot be added again.
 
-- The WhatsApp rotator block is retired: a page that has one keeps it (it rotates through up to 10 numbers, in turn or by weight), and no new one can be made.
+- The WhatsApp rotator block is gone: no new one can be made, and an old one left in the data is skipped on the public page and can be deleted in the editor.
 - An app block sends the visitor to the store that matches their system.
 - Any block can have a publish and an expiry time.
 - A link can send visitors elsewhere by country, device, system or hour of the day, and it can have its own PIN.

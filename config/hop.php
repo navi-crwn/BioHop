@@ -25,9 +25,6 @@ return [
     'official_video' => env('HOP_OFFICIAL_VIDEO', ''),
     'official_music' => env('HOP_OFFICIAL_MUSIC', ''),
     'official_contact' => env('HOP_OFFICIAL_CONTACT', ''),
-    // The day the retired WhatsApp rotator block stops working for good (YYYY-MM-DD). Empty: no date is named yet, and the
-    // notice on the dashboard does not mention one.
-    'whatsapp_retire_on' => env('BIO_WHATSAPP_RETIRE_ON', ''),
     // The hub (HOP ID). hop/auth reads the same value as hop-auth.hub_url.
     'hub_url' => rtrim((string) env('HOP_HUB_URL', 'https://hub.hel.ink'), '/'),
 

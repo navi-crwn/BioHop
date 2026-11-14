@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class BioLink extends Model
@@ -188,7 +187,8 @@ class BioLink extends Model
         return $this->expire_at && $this->expire_at->lte(now()) ? 'expired' : null;
     }
 
-    public const WHATSAPP_MODES = ['round_robin', 'weighted'];
+    /** Block types that can no longer be made or shown. Old rows stay in the table; the public page skips them and the owner can delete them. */
+    public const RETIRED_TYPES = ['whatsapp'];
 
     /** @return array<int, array{country:array<int,string>, device:string, os:string, from:?int, to:?int, url:string}> */
     public function routingRules(): array
@@ -307,50 +307,6 @@ class BioLink extends Model
         return $out;
     }
 
-    /** @return array<int, array{number:string, label:string, weight:int}> the rotator's numbers, digits only */
-    public function whatsappNumbers(): array
-    {
-        $out = [];
-        foreach ((array) ($this->settings['numbers'] ?? []) as $n) {
-            $digits = preg_replace('/\D+/', '', (string) ($n['number'] ?? ''));
-            if (is_array($n) && strlen($digits) >= 6) {
-                $out[] = ['number' => $digits, 'label' => trim((string) ($n['label'] ?? '')), 'weight' => max(1, (int) ($n['weight'] ?? 1))];
-            }
-        }
-
-        return $out;
-    }
-
-    /**
-     * The wa.me address for this click: round robin (one counter per block in the cache) or weighted random.
-     * Null when the block has no usable number.
-     */
-    public function whatsappTarget(): ?string
-    {
-        $numbers = $this->whatsappNumbers();
-        if ($numbers === []) {
-            return null;
-        }
-        if (($this->settings['mode'] ?? 'round_robin') === 'weighted' && count($numbers) > 1) {
-            $total = array_sum(array_column($numbers, 'weight'));
-            $pick = random_int(1, $total);
-            $chosen = $numbers[0];
-            foreach ($numbers as $n) {
-                $pick -= $n['weight'];
-                if ($pick <= 0) {
-                    $chosen = $n;
-                    break;
-                }
-            }
-        } else {
-            $i = Cache::increment('wa_rotator:'.$this->id) - 1;
-            $chosen = $numbers[$i % count($numbers)];
-        }
-        $text = trim((string) ($this->settings['text'] ?? ''));
-
-        return 'https://wa.me/'.$chosen['number'].($text !== '' ? '?text='.rawurlencode($text) : '');
-    }
-
     public function scopeNotArchived($query)
     {
         return $query->whereNull('archived_at');
@@ -392,7 +348,7 @@ class BioLink extends Model
         'link' => 'Link', 'image' => 'Image', 'text' => 'Text', 'header' => 'Header',
         'divider' => 'Divider', 'spacer' => 'Spacer', 'video' => 'Video', 'youtube' => 'YouTube',
         'music' => 'Music', 'spotify' => 'Spotify', 'soundcloud' => 'SoundCloud', 'vcard' => 'Contact card',
-        'html' => 'HTML', 'countdown' => 'Countdown', 'map' => 'Map', 'faq' => 'FAQ', 'product' => 'Product', 'collection' => 'Collection', 'whatsapp' => 'WhatsApp', 'app' => 'App', 'form' => 'Form', 'rss' => 'Feed', 'poll' => 'Poll', 'goal' => 'Goal', 'audio' => 'Audio', 'carousel' => 'Carousel', 'pdf' => 'PDF', 'pay' => 'Payment',
+        'html' => 'HTML', 'countdown' => 'Countdown', 'map' => 'Map', 'faq' => 'FAQ', 'product' => 'Product', 'collection' => 'Collection', 'app' => 'App', 'form' => 'Form', 'rss' => 'Feed', 'poll' => 'Poll', 'goal' => 'Goal', 'audio' => 'Audio', 'carousel' => 'Carousel', 'pdf' => 'PDF', 'pay' => 'Payment',
         'email' => 'Email', 'code' => 'Code',
     ];
 

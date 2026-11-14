@@ -3,8 +3,6 @@
 namespace App\Support;
 
 use Carbon\CarbonInterface;
-use Hop\Bio\Models\BioLink;
-use Hop\Bio\Models\BioPage;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 class Reminders
 {
     /** The cards this app has. Anything else is refused, so the table cannot be filled with made-up keys. */
-    public const KEYS = ['setup-checklist', 'whatsapp-rotator-retired'];
+    public const KEYS = ['setup-checklist'];
 
     public const HIDE_DAYS = 7;
 
@@ -30,32 +28,6 @@ class Reminders
         );
 
         return $now->copy()->addDays(self::HIDE_DAYS);
-    }
-
-    /**
-     * The announcement that the WhatsApp rotator block is being retired: shown to members who still have such a block
-     * (the block cannot be added any more; old ones keep working), until they hide it for a week.
-     */
-    public static function whatsappRetiredNotice(int $userId): bool
-    {
-        $has = BioLink::query()->where('type', 'whatsapp')
-            ->whereIn('bio_page_id', BioPage::query()->where('user_id', $userId)->select('id'))->exists();
-
-        return $has && ! self::hidden($userId, 'whatsapp-rotator-retired');
-    }
-
-    /** The day the rotator stops for good, as a date in the member's language; null while the owner has not set one. */
-    public static function whatsappRetireDate(): ?string
-    {
-        $on = trim((string) config('hop.whatsapp_retire_on'));
-        if ($on === '') {
-            return null;
-        }
-        try {
-            return Carbon::parse($on)->locale(app()->getLocale())->translatedFormat('j F Y');
-        } catch (\Throwable) {
-            return null;
-        }
     }
 
     /** True while the card must not be shown: hidden less than seven days ago, or hidden and its task is done. */

@@ -12,7 +12,7 @@ Legend: **have** = in BioHop today (feat/home-p8); **partly** = a piece exists; 
 | 2 | Deep linking / in-app browser bypass | build | Small: for known hosts (Shopee, Tokopedia, TikTok, Instagram, YouTube) emit the app scheme or intent URL on the click route when the user agent is an in-app browser. Needs a per-host table and a fallback. |
 | 3 | Geo / device / time routing | build (M) | The click route already knows country, device and time. A "rules" setting per link: list of `[condition → url]`, first match wins. |
 | 4 | Fallback links when the main one is down or blocked | later | Needs a background checker (queue + scheduler) and a notion of "blocked by ISP", which is hard to measure from one server. Do the checker first (#55), then this. |
-| 5 | WhatsApp rotator | have | `whatsapp` block: up to 10 numbers, in turn (one cache counter per block) or by weight, pre-filled text; the number is picked on the click route. |
+| 5 | WhatsApp rotator | removed | The block is gone from the code; an old row is skipped on the public page and can be deleted in the editor. |
 | 6 | Link scheduling | have | `publish_at` / `expire_at` on every block kind (Schedule section in the block form); hidden on the page and the preview outside the window, the click address answers 404, the list shows Scheduled / Expired chips. |
 | 7 | Spotlight / priority link animation | have | Per-link "Attention animation" (pulse, bounce, shake, wiggle, glow, heartbeat) and entrance animations already existed in the link form. |
 | 8 | Built-in shortener and cloaking | have | LinkHop short links from the editor (`/bio/shorten`), via the member's token. |
