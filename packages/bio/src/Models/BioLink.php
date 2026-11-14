@@ -313,7 +313,8 @@ class BioLink extends Model
      */
     public function contentVersion(): string
     {
-        return sha1(json_encode(Arr::except($this->getAttributes(), ['click_count', 'updated_at'])));
+        // only the table's own content columns: a count added by withCount() or a loaded relation must not change it
+        return sha1(json_encode(Arr::except(Arr::only($this->getAttributes(), array_merge(['id'], $this->getFillable())), ['click_count'])));
     }
 
     public function scopeNotArchived($query)

@@ -216,3 +216,22 @@ test('every word of the Manage page and the product form exists in all nine lang
     // the product form of the editor is no longer plain English
     expect($form)->not->toContain('>Product name<')->not->toContain('>Where to buy (address)<');
 });
+
+test('the version the Manage page hands out is the one the server accepts, for a product and a goal', function () {
+    [$owner, , $shirt, $goal] = manageSetup('handed');
+    $html = $this->actingAs($owner)->get('/bio/manage')->assertOk()->getContent();
+    $dom = new DOMDocument;
+    @$dom->loadHTML('<?xml encoding="utf-8"?>'.$html, LIBXML_NOERROR);
+    $handed = collect();
+    foreach ((new DOMXPath($dom))->query('//form[@data-manage-row]') as $form) {
+        // x-data="manageRow(JSON.parse('...'))": the quoted part is a JS string literal that holds the JSON
+        preg_match("/^manageRow\(JSON\.parse\('(.*)'\)\)$/s", $form->getAttribute('x-data'), $literal);
+        $cfg = json_decode(json_decode('"'.$literal[1].'"'), true);
+        $handed[(int) basename($cfg['url'])] = $cfg['version'];
+    }
+    expect($handed->keys()->all())->toEqualCanonicalizing([$shirt->id, $goal->id]);
+    // the page loads the blocks with their entry counts; that must not make the version differ from the one the save computes
+    $this->patchJson("/bio/manage/{$shirt->id}", ['base_version' => $handed[$shirt->id], 'title' => 'Linen shirt', 'is_active' => true, 'settings' => ['price' => 99000, 'sold_out' => false]])->assertOk();
+    $this->patchJson("/bio/manage/{$goal->id}", ['base_version' => $handed[$goal->id], 'settings' => ['current' => 50, 'target' => 100]])->assertOk();
+    expect($shirt->fresh()->settings['price'])->toBe(99000)->and($goal->fresh()->settings['current'])->toBe(50);
+});
