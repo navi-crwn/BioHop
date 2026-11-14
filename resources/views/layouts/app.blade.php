@@ -47,16 +47,25 @@
                                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M6 6l12 12M18 6 6 18"/></svg>
                             </button>
                         </div>
-                        <nav class="flex-1 overflow-y-auto px-3 pb-3">
-                            @include('partials.nav', ['isAdmin' => $isAdmin])
-                        </nav>
-                        <div class="border-t border-slate-500/10 px-5 py-3 text-xs text-muted">
-                            <a href="{{ route('changelog') }}" class="hover:underline">{{ __('Changelog') }}</a>
-                            <span aria-hidden="true"> · </span>
-                            <a href="https://github.com/navi-crwn/BioHop" rel="noopener" class="hover:underline">GitHub</a>
+                        {{-- One scroll area for the menu, the footer list and the family line, so on a phone the footer scrolls with the menu. --}}
+                        <div class="flex min-h-0 flex-1 flex-col overflow-y-auto px-3 pb-3">
+                            <nav>
+                                @include('partials.nav', ['isAdmin' => $isAdmin])
+                            </nav>
+                            {{-- The footer of every HOP dashboard: the same six links in the same order (Help, Terms, Privacy, Changelog, GitHub, Announcement), then the family line. --}}
+                            <nav class="hop-side-links mt-auto pt-6" aria-label="{{ __('More') }}">
+                                <ul>
+                                    <li><a href="{{ route('pages.help') }}">{{ __('Help') }}</a></li>
+                                    <li><a href="{{ route('pages.terms') }}">{{ __('Terms') }}</a></li>
+                                    <li><a href="{{ route('pages.privacy') }}">{{ __('Privacy') }}</a></li>
+                                    <li><a href="{{ route('changelog') }}">{{ __('Changelog') }}</a></li>
+                                    <li><a href="https://github.com/navi-crwn/BioHop" rel="noopener">GitHub</a></li>
+                                    <li><a href="https://hel.ink/announcements" rel="noopener">{{ __('Announcement') }}</a></li>
+                                </ul>
+                            </nav>
+                            {{-- Last in the sidebar, at the bottom left: the family line (it used to sit under the page content). --}}
+                            <div class="hop-family-side px-2 pt-2">@include('partials.family-row')</div>
                         </div>
-                        {{-- Last in the sidebar, at the bottom left: the family line (it used to sit under the page content). --}}
-                        <div class="hop-family-side px-5 pb-4">@include('partials.family-row')</div>
                     </div>
                 </aside>
 
