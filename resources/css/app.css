@@ -2,9 +2,9 @@
 @import './showcase.css';
 @import './profile-hero.css';
 @import './editor.css';
+@import './palettes.css';
 @import './controls.css';
 @import './coss.css';
-@import './palettes.css';
 
 @plugin '@tailwindcss/forms';
 
