@@ -41,6 +41,7 @@
         <env name="SUPERADMIN_EMAIL" value="admin@hel.ink"/>
         <env name="HOP_APP" value="biohop"/>
         <env name="HOP_HUB_URL" value="https://hub.test"/>
+        <env name="HOP_ANNOUNCEMENTS" value="false"/>
         <env name="HOP_SSO_SECRET" value="test-secret-test-secret-test-secret-1234"/>
         <env name="LINKHOP_URL" value="https://link.test"/>
         <env name="BIO_PIXELHOP_PICKER" value="false"/>

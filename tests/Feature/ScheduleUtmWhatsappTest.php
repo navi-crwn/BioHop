@@ -40,31 +40,3 @@ test('auto UTM adds parameters only to http links that have none', function () {
     $this->actingAs($user)->putJson('/bio/utm', ['auto_utm' => true])->assertOk();
     $this->get(route('bio.public.click', $link->public_id))->assertRedirect('https://a.example/?utm_source=biohop&utm_medium=bio&utm_campaign=utm');
 });
-
-test('a WhatsApp rotator hands clicks to its numbers in turn, or by weight, with the message filled in', function () {
-    [$user, $page] = smallPage('warot');
-    $this->actingAs($user);
-    // The rotator can no longer be made (it is being retired), so the block comes from the data, as an old one does.
-    $block = BioLink::create(['bio_page_id' => $page->id, 'type' => 'whatsapp', 'title' => 'Chat', 'brand' => 'whatsapp', 'order' => 0, 'is_active' => true, 'settings' => ['text' => 'Hi from bio', 'mode' => 'round_robin', 'numbers' => [['number' => '+62 812-0000-0001', 'label' => 'Rina'], ['number' => '6281200000002', 'label' => 'Budi']]]]);
-    $this->get('/b/warot')->assertOk()->assertSee('Chat')->assertSee(route('bio.public.click', $block->public_id), false);
-    $targets = collect(range(1, 4))->map(fn () => $this->get(route('bio.public.click', $block->public_id))->headers->get('Location'))->all();
-    expect($targets)->toBe(['https://wa.me/6281200000001?text=Hi%20from%20bio', 'https://wa.me/6281200000002?text=Hi%20from%20bio', 'https://wa.me/6281200000001?text=Hi%20from%20bio', 'https://wa.me/6281200000002?text=Hi%20from%20bio']);
-
-    $this->putJson("/bio/{$page->slug}/links/{$block->id}", ['settings' => ['text' => '', 'mode' => 'weighted', 'numbers' => [['number' => '6281200000001', 'weight' => 1], ['number' => '6281200000002', 'weight' => 100]]]])->assertOk();
-    $seen = collect(range(1, 30))->map(fn () => $this->get(route('bio.public.click', $block->public_id))->headers->get('Location'))->unique();
-    expect($seen->contains('https://wa.me/6281200000002'))->toBeTrue()->and($seen->every(fn ($t) => str_starts_with($t, 'https://wa.me/62812')))->toBeTrue();
-    $this->putJson("/bio/{$page->slug}/links/{$block->id}", ['settings' => ['numbers' => [['number' => 'abc']]]])->assertStatus(422);
-});
-
-test('a WhatsApp rotator can no longer be made, and an old one can still be saved', function () {
-    [$user, $page] = smallPage('warot-new');
-    $this->actingAs($user);
-    $this->postJson("/bio/{$page->slug}/links", ['type' => 'whatsapp', 'title' => 'Chat', 'settings' => ['mode' => 'round_robin', 'numbers' => [['number' => '6281200000001']]]])
-        ->assertStatus(422)->assertJsonValidationErrors('type');
-    expect(BioLink::where('bio_page_id', $page->id)->count())->toBe(0);
-    // an ordinary block and the other retired kinds are still taken by the endpoint (only the picker drops them)
-    $this->postJson("/bio/{$page->slug}/links", ['type' => 'link', 'title' => 'Shop', 'url' => 'https://example.com/'])->assertOk();
-    $old = BioLink::create(['bio_page_id' => $page->id, 'type' => 'whatsapp', 'title' => 'Old chat', 'brand' => 'whatsapp', 'order' => 5, 'is_active' => true, 'settings' => ['mode' => 'round_robin', 'numbers' => [['number' => '6281200000001']]]]);
-    $this->putJson("/bio/{$page->slug}/links/{$old->id}", ['type' => 'whatsapp', 'title' => 'Renamed chat', 'settings' => ['mode' => 'round_robin', 'numbers' => [['number' => '6281200000002']]]])->assertOk();
-    expect($old->fresh()->title)->toBe('Renamed chat');
-});

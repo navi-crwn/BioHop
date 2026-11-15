@@ -77,7 +77,7 @@ Die folgenden Screenshots stammen aus einer lokalen Installation mit erfundenen 
 
 BioHop bietet beim Hinzufügen 19 Blockarten: Link, Text, Überschrift, Bild, Trennlinie, YouTube, Musik (Spotify, SoundCloud, Apple Music oder YouTube Music), Audioclip, Bildkarussell, PDF, Produkt, Sammlung, Zielbalken, Zahlung empfangen, Anmeldeformular, Countdown, Kontaktkarte, Standort und FAQ. Blöcke von fünf eingestellten Arten (WhatsApp-Rotator, App-Store-Link, SoundCloud, RSS-Feed, Umfrage), die eine Seite schon hat, funktionieren weiter und lassen sich bearbeiten, aber nicht neu hinzufügen.
 
-- Der WhatsApp-Rotator-Block ist eingestellt: Eine Seite, die einen hat, behält ihn (er wechselt zwischen bis zu 10 Nummern, der Reihe nach oder nach Gewichtung), neue lassen sich nicht mehr anlegen.
+- Den WhatsApp-Rotator-Block gibt es nicht mehr: Neue lassen sich nicht anlegen, ein alter Eintrag in den Daten wird auf der öffentlichen Seite übersprungen und lässt sich im Editor löschen.
 - Ein App-Block schickt Besucher in den Store, der zu ihrem System passt.
 - Jeder Block kann eine Veröffentlichungs- und eine Ablaufzeit haben.
 - Ein Link kann Besucher nach Land, Gerät, System oder Tageszeit woandershin schicken und eine eigene PIN haben.

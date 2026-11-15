@@ -944,7 +944,7 @@
                             @endif
                             @continue
                         @endif
-                        @if(in_array($link->type, ['link', 'whatsapp', 'app'], true))
+                        @if(in_array($link->type, ['link', 'app'], true))
                             @php
                                 $hasThumbnail = $link->thumbnail_url || $link->thumbnail;
                                 $hasBrand = $link->brand;
@@ -976,7 +976,7 @@
                                 $borderStyle = $link->btn_border_color ? 'border: 1px solid '.$link->btn_border_color.';' : ($themeLinkBorder ? 'border: 1px solid '.$themeLinkBorder.';' : '');
                                 $linkRel = $getLinkRel($link->url);
                                 // http(s) links go through the click tracker; mailto/tel/sms stay direct
-                                $linkHref = in_array($link->type, ['whatsapp', 'app'], true) || preg_match('#^https?://#i', trim((string) $link->url))
+                                $linkHref = $link->type === 'app' || preg_match('#^https?://#i', trim((string) $link->url))
                                     ? $clickHref($link->public_id)
                                     : \Hop\Safety\SafeContent::url($link->url);
                                 $entranceAnim = $link->entrance_animation ?? 'none';

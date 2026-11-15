@@ -124,6 +124,10 @@
 .hop-family-row b { color: rgb(var(--ink)); font-weight: 500; }
 .hop-family-row:hover b { text-decoration: underline; text-underline-offset: 2px; }
 .hop-family-side { flex: none; }
+/* Sidebar footer: a plain list, one link per row, small and quiet; the same markup and look in every HOP dashboard (PayHop is the model). */
+.hop-side-links ul { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.hop-side-links a { display: flex; align-items: center; height: 30px; padding: 0 8px; border-radius: 8px; font-size: 13px; font-weight: 400; color: rgb(var(--muted)); text-decoration: none; }
+.hop-side-links a:hover, .hop-side-links a:focus-visible { color: rgb(var(--ink)); background: rgb(var(--glass) / 0.6); }
 /* A reminder card that is a plain block (the setup checklist): the shared "Hide" button is positioned at the right and the card
    keeps 220px of padding on that side for it, so on a narrow card the list items were cut short with room to spare.
    Put the button in the flow, above the content, and give the content the whole card. */

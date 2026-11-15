@@ -50,12 +50,11 @@ test('a Music block takes Spotify, SoundCloud, Apple Music and YouTube Music and
     $this->get('/bio/polish-music/edit')->assertOk()->assertSee("editingBlock?.type === 'music'", false)->assertSee('Music URL');
 });
 
-test('blocks of the retired kinds that exist already can still be edited, saved and seen', function () {
+test('blocks of the retired kinds that stay (not the rotator, see RetiredRotatorTest) can still be edited, saved and seen', function () {
     [$user, $page] = polishPage('polish-old');
     $this->actingAs($user);
     $make = fn (string $type, array $extra) => BioLink::create(['bio_page_id' => $page->id, 'type' => $type, 'title' => 'Old '.$type, 'order' => 0, 'is_active' => true] + $extra);
     $old = [
-        $make('whatsapp', ['brand' => 'whatsapp', 'settings' => ['mode' => 'round_robin', 'numbers' => [['number' => '6281200000001']]]]),
         $make('app', ['url' => 'https://apps.apple.com/app/id284882215', 'settings' => ['ios' => 'https://apps.apple.com/app/id284882215']]),
         $make('soundcloud', ['embed_url' => 'https://soundcloud.com/forss/flickermood']),
         $make('rss', ['url' => 'https://example.com/feed.xml', 'settings' => ['count' => 3]]),
@@ -65,43 +64,13 @@ test('blocks of the retired kinds that exist already can still be edited, saved 
         $this->putJson('/bio/polish-old/links/'.$block->id, ['type' => $block->type, 'title' => 'Renamed '.$block->type])->assertOk();
         expect($block->fresh()->title)->toBe('Renamed '.$block->type);
     }
-    $this->get('/b/polish-old')->assertOk()->assertSee('Renamed whatsapp')->assertSee('Renamed poll');
-    // the editor still opens the forms of all five, and Imperium still reads the kind names
+    $this->get('/b/polish-old')->assertOk()->assertSee('Renamed poll');
+    // the editor still opens the forms of the four, and Imperium still reads the kind names
     $editor = $this->get('/bio/polish-old/edit')->assertOk()->getContent();
-    foreach (['whatsapp', 'app', 'soundcloud', 'rss', 'poll'] as $type) {
+    foreach (['app', 'soundcloud', 'rss', 'poll'] as $type) {
         expect($editor)->toContain("editingBlock?.type === '".$type."'");
     }
-    expect(array_keys(BioLink::TYPE_NAMES))->toContain('whatsapp', 'app', 'soundcloud', 'rss', 'poll');
-});
-
-test('the retired-rotator notice shows only to members who have such a block, can be hidden, and names a date only when one is set', function () {
-    [$owner, $page] = polishPage('polish-note');
-    [$other] = polishPage('polish-note-2');
-    BioLink::create(['bio_page_id' => $page->id, 'type' => 'whatsapp', 'title' => 'Chat', 'order' => 0, 'is_active' => true, 'settings' => ['numbers' => [['number' => '6281200000001']]]]);
-
-    $without = $this->actingAs($other)->get(route('bio.index'))->assertOk()->getContent();
-    expect($without)->not->toContain('data-announcement');
-
-    $html = $this->actingAs($owner)->get(route('bio.index'))->assertOk()->getContent();
-    expect($html)->toContain('data-announcement')->toContain('data-hop-remind="whatsapp-rotator-retired"')->toContain('The WhatsApp rotator block is being retired.')->not->toContain('keep working until');
-    // the card is the first thing in the content, above the page's own sections
-    $x = dom($html);
-    expect($x->query('//main//*[@data-announcement]'))->toHaveCount(1);
-    expect($x->query('//main//*[@data-announcement]/preceding::*[@data-checklist]'))->toHaveCount(0);
-
-    config(['hop.whatsapp_retire_on' => '2027-03-01']);
-    $this->get(route('bio.index'))->assertSee('keep working until 1 March 2027');
-
-    // it is on the dashboard home only: the editor, the settings and the analytics do not carry it, and "Hide" hides it for a week
-    foreach (['/bio/polish-note/edit', route('settings'), '/bio/polish-note/analytics'] as $other) {
-        $this->get($other)->assertDontSee('data-announcement', false);
-    }
-    $this->postJson(route('reminders.dismiss'), ['key' => 'whatsapp-rotator-retired'])->assertOk();
-    $this->get(route('bio.index'))->assertDontSee('data-announcement', false);
-    $this->travel(8)->days();
-    $this->get(route('bio.index'))->assertSee('data-announcement', false);
-    $this->travelBack();
-    $this->postJson(route('reminders.dismiss'), ['key' => 'made-up'])->assertStatus(422);
+    expect(array_keys(BioLink::TYPE_NAMES))->toContain('app', 'soundcloud', 'rss', 'poll');
 });
 
 test('the family line is the last thing in the sidebar and appears once, and not under the content', function () {
@@ -171,9 +140,7 @@ test('the block form has sections, and the new messages exist in all nine langua
         'Please enter a Spotify, SoundCloud, Apple Music or YouTube Music URL', 'The end time must be after the time it goes live.',
         'This page was changed in another tab or window. Reload the editor to get the latest version.',
         'The shape is not used by this header style.', 'Position', 'Search & sharing', 'Tools', 'Versions', 'Settings sections', 'Notice',
-        'The WhatsApp rotator block is being retired.', 'Back to dashboard', 'Back',
-        'The blocks you already have keep working for now, but new ones cannot be added. Use a normal link block or a LinkHop link instead.',
-        'The blocks you already have keep working until :date, but new ones cannot be added. Use a normal link block or a LinkHop link instead.',
+        'Back to dashboard', 'Back',
     ];
     foreach (['zh-CN', 'de', 'id', 'ja', 'pt-BR', 'es', 'fr', 'ru'] as $locale) {
         $lang = json_decode(file_get_contents(lang_path($locale.'.json')), true);

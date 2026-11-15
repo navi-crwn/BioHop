@@ -24,7 +24,7 @@ test('the eight translations differ from English where the words do', function (
     $en = json_decode(file_get_contents(base_path('lang/en.json')), true);
     foreach (['id', 'de', 'ja', 'ru', 'zh-CN'] as $lang) {
         $data = json_decode(file_get_contents(base_path("lang/{$lang}.json")), true);
-        foreach (['My bio pages', 'Settings', 'Export my bio pages', 'Shorten this URL', 'Add question', 'Copied'] as $key) {
+        foreach (['My bio pages', 'Manage', 'Settings', 'Export my bio pages', 'Shorten this URL', 'Add question', 'Copied'] as $key) {
             expect($data[$key])->not->toBe($en[$key], "{$lang}: {$key} is still English");
         }
     }

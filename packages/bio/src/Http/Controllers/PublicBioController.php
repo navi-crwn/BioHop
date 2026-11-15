@@ -56,7 +56,7 @@ class PublicBioController extends Controller
     public function show(Request $request, string $slug)
     {
         $bioPage = BioPage::with(['links' => function ($query) {
-            $query->active()->ordered();
+            $query->active()->whereNotIn('type', BioLink::RETIRED_TYPES)->ordered();
         }])
             ->where('slug', $slug)
             ->first();
@@ -176,9 +176,9 @@ class PublicBioController extends Controller
         // Disabled blocks / hidden pages must not keep redirecting.
         $bioPage = $bioLink->bioPage;
         $ua = app(UserAgentParser::class)->parse(request()->userAgent());
-        // A WhatsApp rotator picks one of its numbers per click, an app block the store for the visitor's system; other blocks go to their address.
+        // An app block goes to the store for the visitor's system; other blocks go to their address. Retired types never redirect.
         $target = match ($bioLink->type) {
-            'whatsapp' => $bioLink->whatsappTarget() ?? '#',
+            'whatsapp' => '#',
             'app' => $bioLink->appTarget((string) ($ua['os'] ?? '')) ?? '#',
             default => SafeContent::url($bioLink->url),
         };

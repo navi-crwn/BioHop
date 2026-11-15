@@ -70,25 +70,6 @@ test('the filehop slug is reserved like the other HOP apps', function () {
         ->and(ReservedSlugs::isReserved('FileHop'))->toBeTrue();
 });
 
-test('the whatsapp block of the editor is translated in every language', function () {
-    $src = (string) file_get_contents(base_path('packages/bio/resources/views/editor/index.blade.php'));
-    $start = strpos($src, "editingBlock?.type === 'whatsapp'");
-    $block = substr($src, $start, strpos($src, "editingBlock?.type === 'product'") - $start);
-    preg_match_all("/__\\('((?:[^'\\\\]|\\\\.)*)'\\)/", $block, $m);
-    $keys = array_map(fn ($k) => stripslashes($k), $m[1]);
-    $keys[] = 'WhatsApp rotator';
-    $keys[] = 'Share chats between several numbers';
-
-    expect(count($keys))->toBeGreaterThan(18);
-    foreach (['de', 'es', 'fr', 'id', 'ja', 'pt-BR', 'ru', 'zh-CN'] as $lang) {
-        $d = json_decode((string) file_get_contents(base_path("lang/$lang.json")), true);
-        foreach ($keys as $k) {
-            expect($d)->toHaveKey($k);
-            expect($d[$k])->not->toBe('');
-        }
-    }
-});
-
 test('the "Save contact" label exists in every language', function () {
     foreach (['en', 'de', 'es', 'fr', 'id', 'ja', 'pt-BR', 'ru', 'zh-CN'] as $lang) {
         $d = json_decode((string) file_get_contents(base_path("lang/$lang.json")), true);

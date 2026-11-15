@@ -77,7 +77,7 @@ Tangkapan layar di bawah berasal dari instalasi lokal dengan data contoh rekaan 
 
 BioHop menawarkan 19 jenis blok saat menambah blok: tautan, teks, judul, gambar, pemisah, YouTube, musik (Spotify, SoundCloud, Apple Music, atau YouTube Music), klip audio, carousel gambar, PDF, produk, koleksi, bilah target, terima pembayaran, formulir pendaftaran, hitung mundur, kartu kontak, lokasi, dan FAQ. Blok dari lima jenis yang dihentikan (rotator WhatsApp, tautan toko aplikasi, SoundCloud, feed RSS, polling) yang sudah ada di sebuah halaman tetap berjalan dan bisa disunting, tetapi tidak bisa ditambahkan lagi.
 
-- Blok rotator WhatsApp dihentikan: halaman yang sudah punya tetap memilikinya (berputar di antara maksimal 10 nomor, bergiliran atau berdasarkan bobot), dan yang baru tidak bisa dibuat.
+- Blok rotator WhatsApp sudah tidak ada: yang baru tidak bisa dibuat, dan baris lama yang tersisa di data dilewati di halaman publik serta bisa dihapus di editor.
 - Blok aplikasi mengarahkan pengunjung ke toko yang sesuai dengan sistem mereka.
 - Blok apa pun dapat diberi waktu terbit dan waktu berakhir.
 - Tautan dapat mengarahkan pengunjung ke tempat lain menurut negara, perangkat, sistem, atau jam dalam sehari, dan dapat memiliki PIN sendiri.

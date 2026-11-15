@@ -995,8 +995,8 @@
         <div class="blocks-container" :class="'shape-' + (design.buttonShape || 'rounded-sm') + ' shadow-' + (design.buttonShadow || 'md')" x-ref="blocksContainer">
             <template x-for="(block, blockIndex) in blocks.filter(b => b.is_active && isLive(b))" :key="block.id">
                 <div>
-                    <!-- Link Block (a WhatsApp rotator looks the same; the number is picked on click) -->
-                    <template x-if="['link', 'whatsapp', 'app'].includes(block.type)">
+                    <!-- Link Block -->
+                    <template x-if="['link', 'app'].includes(block.type)">
                         <a :href="block.url || '#'" class="link-block" :class="[
                             blockThumb(block) ? 'has-thumbnail' : '',
                             (block.brand || block.custom_icon) && !blockThumb(block) ? 'has-icon' : '',
