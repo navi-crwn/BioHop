@@ -856,5 +856,9 @@
     "This block was changed on the Manage page or in another editor tab. Reload the editor to see the latest values; nothing was saved.": "Ce bloc a été modifié sur la page Gérer ou dans un autre onglet de l'éditeur. Rechargez l'éditeur pour voir les dernières valeurs ; rien n'a été enregistré.",
     "Classic": "Classique",
     "Mist": "Brume",
-    "Sand": "Sable"
+    "Sand": "Sable",
+    "Feedback": "Avis",
+    "Send feedback": "Envoyer un avis",
+    "The Feedback link opens a form on the HOP ID site this app is connected to. This app receives nothing from that form; what the form stores and for how long is described in the :link.": "Le lien Avis ouvre un formulaire sur le site HOP ID auquel cette appli est connectée. Cette appli ne reçoit rien de ce formulaire ; ce que le formulaire conserve et pendant combien de temps est décrit dans la :link.",
+    "HOP ID privacy policy": "politique de confidentialité de HOP ID"
 }

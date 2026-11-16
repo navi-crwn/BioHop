@@ -52,7 +52,7 @@
                             <nav>
                                 @include('partials.nav', ['isAdmin' => $isAdmin])
                             </nav>
-                            {{-- The footer of every HOP dashboard: the same six links in the same order (Help, Terms, Privacy, Changelog, GitHub, Announcement), then the family line. --}}
+                            {{-- The footer of every HOP dashboard: the same links in the same order (Help, Feedback, Terms, Privacy, Changelog, GitHub, Announcement; Feedback only where a hub address is set), then the family line. --}}
                             <div class="hop-pal mt-auto pt-6" role="group" aria-label="{{ __('Colours') }}">
                                 <p class="hop-pal-label">{{ __('Colours') }}</p>
                                 <div class="hop-pal-row">
@@ -64,6 +64,9 @@
                             <nav class="hop-side-links" aria-label="{{ __('More') }}">
                                 <ul>
                                     <li><a href="{{ route('pages.help') }}">{{ __('Help') }}</a></li>
+                                    @if ($feedbackUrl = \App\Support\Feedback::url())
+                                        <li><a href="{{ $feedbackUrl }}" target="_blank" rel="noopener">{{ __('Feedback') }}</a></li>
+                                    @endif
                                     <li><a href="{{ route('pages.terms') }}">{{ __('Terms') }}</a></li>
                                     <li><a href="{{ route('pages.privacy') }}">{{ __('Privacy') }}</a></li>
                                     <li><a href="{{ route('changelog') }}">{{ __('Changelog') }}</a></li>

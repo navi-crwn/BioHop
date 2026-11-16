@@ -856,5 +856,9 @@
     "This block was changed on the Manage page or in another editor tab. Reload the editor to see the latest values; nothing was saved.": "Этот блок изменили на странице «Управление» или в другой вкладке редактора. Обновите редактор, чтобы увидеть актуальные значения; ничего не сохранено.",
     "Classic": "Классика",
     "Mist": "Дымка",
-    "Sand": "Песок"
+    "Sand": "Песок",
+    "Feedback": "Отзыв",
+    "Send feedback": "Отправить отзыв",
+    "The Feedback link opens a form on the HOP ID site this app is connected to. This app receives nothing from that form; what the form stores and for how long is described in the :link.": "Ссылка «Отзыв» открывает форму на сайте HOP ID, к которому подключено это приложение. Это приложение ничего не получает из этой формы; что форма сохраняет и как долго, описано в :link.",
+    "HOP ID privacy policy": "политике конфиденциальности HOP ID"
 }

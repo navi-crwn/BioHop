@@ -4,6 +4,16 @@ All notable changes to BioHop are listed here, written for the people who use it
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-11-16 - A Feedback link in the sidebar and the footer
+
+### Added
+
+- **Dashboard, sidebar footer.** A new "Feedback" link sits right under "Help" and opens the HOP ID feedback form in a new tab, so what you were doing here stays open. Reason: you can now tell us about a problem or an idea from inside the app, without sending an email.
+- **Public pages, footer.** The footer of the home page, Help, FAQ, Contact, About, Features, Status, Terms, Privacy and Changelog has the same "Feedback" link next to "Help". Reason: visitors who are not signed in can reach the form too. Your own bio pages do not get the link, because they are your pages, not ours.
+- **Help and Contact pages.** One "Send feedback" link on each page opens the same form. Reason: these are the places where people look for a way to reach us.
+- **Privacy page.** One sentence says that the Feedback link opens a form on the HOP ID site, that BioHop itself receives nothing from it, and points to the HOP ID privacy policy for what the form keeps and for how long. Reason: the form belongs to HOP ID, not to BioHop, so its rules are written there.
+- **All nine languages.** The new words are translated into every language BioHop offers. Reason: the link should read naturally for everyone.
+
 ## [1.5.1] - 2026-11-16 - One address per bio page, thin pages out of search
 
 ### Changed

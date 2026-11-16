@@ -856,5 +856,9 @@
     "This block was changed on the Manage page or in another editor tab. Reload the editor to see the latest values; nothing was saved.": "This block was changed on the Manage page or in another editor tab. Reload the editor to see the latest values; nothing was saved.",
     "Classic": "Classic",
     "Mist": "Mist",
-    "Sand": "Sand"
+    "Sand": "Sand",
+    "Feedback": "Feedback",
+    "Send feedback": "Send feedback",
+    "The Feedback link opens a form on the HOP ID site this app is connected to. This app receives nothing from that form; what the form stores and for how long is described in the :link.": "The Feedback link opens a form on the HOP ID site this app is connected to. This app receives nothing from that form; what the form stores and for how long is described in the :link.",
+    "HOP ID privacy policy": "HOP ID privacy policy"
 }

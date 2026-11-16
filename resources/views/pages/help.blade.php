@@ -32,5 +32,9 @@
                 <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">{!! __('Use the <a href=":url">report form</a> with the page\'s address.', ['url' => route('report.create')]) !!}</p>
             </section>
         </div>
+
+        @if ($feedbackUrl = \App\Support\Feedback::url())
+            <p class="text-sm text-slate-600 dark:text-slate-400"><a href="{{ $feedbackUrl }}" target="_blank" rel="noopener" class="font-medium text-violet-600 underline dark:text-violet-400">{{ __('Send feedback') }}</a></p>
+        @endif
     </div>
 </x-info-page>

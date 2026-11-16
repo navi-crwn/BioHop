@@ -856,5 +856,9 @@
     "This block was changed on the Manage page or in another editor tab. Reload the editor to see the latest values; nothing was saved.": "Blok ini diubah di halaman Kelola atau di tab editor lain. Muat ulang editor untuk melihat nilai terbaru; tidak ada yang tersimpan.",
     "Classic": "Klasik",
     "Mist": "Kabut",
-    "Sand": "Pasir"
+    "Sand": "Pasir",
+    "Feedback": "Masukan",
+    "Send feedback": "Kirim masukan",
+    "The Feedback link opens a form on the HOP ID site this app is connected to. This app receives nothing from that form; what the form stores and for how long is described in the :link.": "Tautan Masukan membuka formulir di situs HOP ID yang terhubung dengan aplikasi ini. Aplikasi ini tidak menerima apa pun dari formulir itu; apa yang disimpan formulir dan berapa lama dijelaskan di :link.",
+    "HOP ID privacy policy": "kebijakan privasi HOP ID"
 }

@@ -856,5 +856,9 @@
     "This block was changed on the Manage page or in another editor tab. Reload the editor to see the latest values; nothing was saved.": "このブロックは「管理」ページまたは別のエディタのタブで変更されました。エディタを再読み込みして最新の値を確認してください。今回は何も保存されていません。",
     "Classic": "クラシック",
     "Mist": "ミスト",
-    "Sand": "サンド"
+    "Sand": "サンド",
+    "Feedback": "フィードバック",
+    "Send feedback": "フィードバックを送る",
+    "The Feedback link opens a form on the HOP ID site this app is connected to. This app receives nothing from that form; what the form stores and for how long is described in the :link.": "「フィードバック」リンクは、このアプリが接続している HOP ID サイト上のフォームを開きます。このアプリはそのフォームから何も受け取りません。フォームが何をどれだけの期間保存するかは、:linkに記載されています。",
+    "HOP ID privacy policy": "HOP ID のプライバシーポリシー"
 }

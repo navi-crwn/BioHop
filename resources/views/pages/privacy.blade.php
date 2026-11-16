@@ -17,5 +17,8 @@
     </ul>
     <h2>{{ __('Your data') }}</h2>
     <p>{!! __('Export your page from BioHop\'s settings, and download or delete your account at <a href=":url">HOP ID</a>. Deleting the account deletes your pages too.', ['url' => \App\Models\User::hubUrl('settings')]) !!}</p>
+    @if ($feedbackPolicy = \App\Support\Feedback::privacyUrl())
+        <p>{!! __('The Feedback link opens a form on the HOP ID site this app is connected to. This app receives nothing from that form; what the form stores and for how long is described in the :link.', ['link' => '<a href="'.e($feedbackPolicy).'" rel="noopener">'.e(__('HOP ID privacy policy')).'</a>']) !!}</p>
+    @endif
     <p>{!! __('The full policy: <a href="https://hel.ink/privacy">hel.ink/privacy</a>. Questions or deletion requests: <!--email_off--><a href="mailto:support@hel.ink">support@hel.ink</a><!--/email_off-->.') !!}</p>
 </x-info-page>
