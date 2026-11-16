@@ -56,6 +56,8 @@ test('a public Linktree page becomes a draft page with links, a header, a collec
         ->and($blocks[5]->brand)->toBe('youtube');
     expect(collect($page->social_links)->pluck('platform')->all())->toBe(['instagram', 'x', 'email']);
     expect(session('success'))->toContain('7 blocks')->toContain('3 social icons');
+    // an imported page is a new page too: out of search until the owner says otherwise, and the notice follows
+    expect($page->allow_indexing)->toBeFalse()->and(session('bio_indexing_notice'))->toBeTrue();
 });
 
 test('a missing, locked or non-Linktree page is reported without creating anything', function () {

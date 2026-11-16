@@ -4,7 +4,7 @@ All notable changes to BioHop are listed here, written for the people who use it
 
 ## [Unreleased]
 
-## [1.6.0] - 2026-11-16 - A Feedback link in the sidebar and the footer
+## [1.7.0] - 2026-11-16 - A Feedback link, and page reports reach the right queue
 
 ### Added
 
@@ -13,6 +13,24 @@ All notable changes to BioHop are listed here, written for the people who use it
 - **Help and Contact pages.** One "Send feedback" link on each page opens the same form. Reason: these are the places where people look for a way to reach us.
 - **Privacy page.** One sentence says that the Feedback link opens a form on the HOP ID site, that BioHop itself receives nothing from it, and points to the HOP ID privacy policy for what the form keeps and for how long. Reason: the form belongs to HOP ID, not to BioHop, so its rules are written there.
 - **All nine languages.** The new words are translated into every language BioHop offers. Reason: the link should read naturally for everyone.
+- **Report a bio page, moderators.** A report sent from the "Report a bio page" form now shows up in BioHop's list of reports in the HOP control panel, with the page, the reason and the e-mail address of the person who reported it. A moderator can mark it as being looked into, close it, or hide the page and close the report in one step. A page of the HOP owner is never hidden this way. Reason: reports used to land in the short link list under the wrong label, and nobody could act on the page from there.
+
+### Changed
+
+- **Report a bio page, messages.** The thank-you message and the two refusal messages of the form (security check failed, too many reports) now appear in your language like the rest of the form. Reason: they were always in English.
+
+## [1.6.0] - 2026-11-16 - New bio pages start out of Google
+
+### Added
+
+- **Editor, new page notice.** After you create a page (with the guide, the plain form, an import or "duplicate"), the editor opens with a short notice that the page is not on Google yet, with a button that takes you to the switch. It shows once. Reason: a new page is now off by default and people should hear it at the moment they make the page.
+- **Editor, adult and sensitive pages.** For a page marked adult or sensitive, the search engine switch is greyed out and off, with the reason next to it, and the server refuses to turn it on. Effect: such a page can never be offered to search engines, and an old adult or sensitive page that still said "yes" now shows "off" when you open it. Reason: these pages were already kept out of the sitemap, and now the setting says the same.
+
+### Changed
+
+- **Bio pages, search engines.** A new bio page is no longer offered to search engines at first. Its owner turns it on with the "Search engine indexing" switch in Settings, under Search & sharing. Pages that already exist keep the setting they have, so pages that are on Google stay there. A copy of a page counts as a new page and starts switched off. Reason: empty or purely promotional pages should not lower how much Google trusts the rest of hel.ink, and the owner of a page should choose to be found.
+- **Editor, search engine switch.** The switch moved from Privacy to Search & sharing, next to the search title and description, and has a short explanation in all nine languages. Reason: that is where people look for it.
+
 
 ## [1.5.1] - 2026-11-16 - One address per bio page, thin pages out of search
 

@@ -3,6 +3,7 @@
 use App\Models\AbuseReport;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Schema;
 
 uses(RefreshDatabase::class);
 
@@ -39,7 +40,36 @@ test('a report is stored in the shared abuse_reports table', function () {
     $report = AbuseReport::sole();
     expect($report->slug)->toBe('some-page')
         ->and($report->status)->toBe('open')
-        ->and($report->email)->toBe('reporter@example.com');
+        ->and($report->email)->toBe('reporter@example.com')
+        ->and($report->source)->toBe('biohop');
+});
+
+test('a report is still saved before the shared table has the source column', function () {
+    Schema::table('abuse_reports', function ($table) {
+        $table->dropIndex(['source']);
+        $table->dropColumn('source');
+    });
+
+    $this->from('/report-abuse')->post('/report-abuse', [
+        'slug' => 'some-page',
+        'email' => 'reporter@example.com',
+        'reason' => 'This page pretends to be my bank.',
+    ])->assertRedirect('/report-abuse')->assertSessionHas('status');
+
+    expect(AbuseReport::sole()->slug)->toBe('some-page');
+});
+
+test('the thank-you and refusal messages follow the visitor language', function () {
+    $payload = ['email' => 'reporter@example.com', 'reason' => 'This page pretends to be my bank.'];
+
+    $this->from('/report-abuse')->post('/report-abuse?lang=de', $payload)
+        ->assertSessionHas('status', 'Danke. Deine Meldung wurde an die Moderatoren geschickt.');
+
+    foreach (range(1, 2) as $i) {
+        $this->from('/report-abuse')->post('/report-abuse?lang=de', $payload);
+    }
+    $this->from('/report-abuse')->post('/report-abuse?lang=de', $payload)
+        ->assertSessionHasErrors(['reason' => 'Zu viele Meldungen aus deinem Netzwerk, bitte versuche es später noch einmal.']);
 });
 
 test('reports are validated', function () {

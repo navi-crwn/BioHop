@@ -7,6 +7,7 @@ use App\Services\TurnstileService;
 use Hop\Safety\EncryptedNoteLink;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
 class AbuseReportController extends Controller
@@ -36,7 +37,7 @@ class AbuseReportController extends Controller
         }
         if (! $this->turnstile->verify($request->input('cf-turnstile-response'), $request->ip())) {
             return back()
-                ->withErrors(['turnstile' => 'Security verification failed, please try again.'])
+                ->withErrors(['turnstile' => __('Security verification failed, please try again.')])
                 ->withInput();
         }
         $data = $request->validate([
@@ -50,10 +51,13 @@ class AbuseReportController extends Controller
             ->where('created_at', '>=', now()->subMinutes(30))
             ->count();
         if ($recent >= 3) {
-            return back()->withErrors(['reason' => 'Too many reports from your network, please try again later.'])->withInput();
+            return back()->withErrors(['reason' => __('Too many reports from your network, please try again later.')])->withInput();
         }
-        AbuseReport::create([...$data, 'ip_address' => $ip, 'status' => 'open']);
+        // `source` tells the HOP control panel which app the report is about. The column is added by LinkHop's
+        // migration (it owns the shared table), so a report made before that has run is saved without it.
+        $source = Schema::hasColumn('abuse_reports', 'source') ? ['source' => 'biohop'] : [];
+        AbuseReport::create([...$data, ...$source, 'ip_address' => $ip, 'status' => 'open']);
 
-        return back()->with('status', 'Thank you. Your report was sent to the moderators.');
+        return back()->with('status', __('Thank you. Your report was sent to the moderators.'));
     }
 }

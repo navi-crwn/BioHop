@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Middleware\VerifyHubRequest;
 use App\Models\AbuseFlag;
+use App\Models\AbuseReport;
 use App\Models\HopApp;
 use App\Models\HopAudit;
 use App\Models\User;
@@ -16,8 +17,10 @@ use Hop\Bio\Models\BioClick;
 use Hop\Bio\Models\BioLink;
 use Hop\Bio\Models\BioPage;
 use Hop\Bio\Support\BioUploads;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -29,6 +32,12 @@ use Illuminate\Support\Facades\Schema;
  */
 class HopBioController extends Controller
 {
+    /** A visitor report waits for a decision while it is open or being investigated. */
+    private const REPORT_PENDING = ['open', 'investigating'];
+
+    /** Ids of visitor reports carry this prefix, so they never clash with the numeric ids of findings (abuse_flags). */
+    private const REPORT_ID_PREFIX = 'report-';
+
     /** GET /api/hop/health */
     public function health(): JsonResponse
     {
@@ -76,6 +85,8 @@ class HopBioController extends Controller
                 'icon' => 'id-card',
                 'base_url' => config('app.url'),
                 'capabilities' => ['admin_api', 'events', 'metrics', 'reports', 'settings', 'search'],
+                // Buttons of a visitor report row (kind bio_report). Findings (kind flag) keep Imperium's own confirm/restore.
+                'actions' => ['report' => ['investigate', 'close', 'unpublish_page']],
                 'content_types' => [
                     [
                         'type' => 'page',
@@ -121,6 +132,7 @@ class HopBioController extends Controller
         $reportsOpen = Schema::hasTable('abuse_flags')
             ? AbuseFlag::whereIn('subject_type', ['bio_page', 'bio_link'])->where('status', AbuseFlag::STATUS_OPEN)->count()
             : 0;
+        $reportsOpen += $this->visitorReportQuery('open')?->count() ?? 0;
 
         $totals = [
             'pages' => $pagesTotal,
@@ -296,17 +308,11 @@ class HopBioController extends Controller
                 return $this->fail('not_found', 'no such bio page', 404);
             }
             if ($p->user && $p->user->isOwner() && in_array($action, ['unpublish', 'delete'], true)) {
-                return $this->fail('owner_protected', "The owner's pages are not moderated through the API.", 403);
+                return $this->ownerPageRefused();
             }
             switch ($action) {
                 case 'unpublish':
-                    $p->forceFill(['is_published' => false])->save();
-                    if (Schema::hasTable('abuse_flags')) {
-                        AbuseFlag::firstOrCreate(
-                            ['subject_type' => 'bio_page', 'subject_id' => $p->id, 'action' => AbuseFlag::ACTION_DISABLED, 'status' => AbuseFlag::STATUS_CONFIRMED],
-                            ['user_id' => $p->user_id, 'score' => 100, 'signals' => [], 'summary' => 'Unpublished by an admin']
-                        );
-                    }
+                    $this->unpublishPage($p, 'Unpublished by an admin');
                     break;
                 case 'publish':
                     $p->forceFill(['is_published' => true])->save();
@@ -401,17 +407,37 @@ class HopBioController extends Controller
                 ->get()
                 ->map(fn (AbuseFlag $f) => $this->flagRow($f));
         }
+        // What visitors reported through bio.hel.ink/report-abuse, newest first together with the findings.
+        $visitor = $this->visitorReports($status, $limit);
+        $pages = $this->pagesForReports($visitor);
+        $rows = $flags->concat($visitor->map(fn (AbuseReport $r) => $this->visitorReportRow($r, $pages[$this->reportSlug($r)] ?? null)))
+            ->sortByDesc('created_at')
+            ->take($limit)
+            ->values();
 
-        return response()->json(['ok' => true, 'data' => $flags->values()->all(), 'page' => ['next' => null, 'total' => $flags->count()]]);
+        return response()->json(['ok' => true, 'data' => $rows->all(), 'page' => ['next' => null, 'total' => $rows->count()]]);
     }
 
-    /** POST /api/hop/reports/{kind}/{id}/actions and POST /api/hop/reports/{id}/actions */
-    public function reportAct(Request $request, string $kindOrId, ?int $maybeId = null): JsonResponse
+    /**
+     * POST /api/hop/reports/{kind}/{id}/actions and POST /api/hop/reports/{id}/actions.
+     * Findings (flag) have numeric ids. Visitor reports (bio_report) have ids like "report-12", so the route without a
+     * kind, which is the only one Imperium uses for kinds it does not know, still reaches the right table.
+     */
+    public function reportAct(Request $request, string $kindOrId, ?string $maybeId = null): JsonResponse
     {
         $kind = $maybeId === null ? 'flag' : $kindOrId;
-        $id = $maybeId ?? (int) $kindOrId;
+        $raw = $maybeId ?? $kindOrId;
+        if (str_starts_with($raw, self::REPORT_ID_PREFIX)) {
+            $kind = 'bio_report';
+            $raw = substr($raw, strlen(self::REPORT_ID_PREFIX));
+        }
+        $id = (int) $raw;
         $action = (string) $request->input('action', '');
         $audit = $this->auditBase($request, $action, $kind, (string) $id, $request->input('reason'));
+
+        if ($kind === 'bio_report') {
+            return $this->visitorReportAct($request, $id, $action, $audit);
+        }
 
         if ($kind === 'flag') {
             $f = AbuseFlag::find($id);
@@ -437,7 +463,129 @@ class HopBioController extends Controller
             return response()->json(['ok' => true, 'data' => $this->flagRow($f->fresh('user'))]);
         }
 
-        return $this->fail('unknown_type', 'kind must be flag', 422);
+        return $this->fail('unknown_type', 'kind must be flag or bio_report', 422);
+    }
+
+    /** @param array<string, mixed> $audit */
+    private function visitorReportAct(Request $request, int $id, string $action, array $audit): JsonResponse
+    {
+        $report = $this->visitorReportQuery()?->find($id);
+        if (! $report) {
+            return $this->fail('not_found', 'no such report', 404);
+        }
+        $status = ['investigate' => 'investigating', 'close' => 'closed', 'reopen' => 'open'][$action] ?? null;
+        $params = [];
+
+        if ($action === 'unpublish_page') {
+            $page = $this->pagesForReports(collect([$report]))[$this->reportSlug($report)] ?? null;
+            if (! $page) {
+                return $this->fail('page_not_found', 'The reported bio page no longer exists. Close the report instead.', 404);
+            }
+            if ($page->user && $page->user->isOwner()) {
+                return $this->ownerPageRefused();
+            }
+            $this->unpublishPage($page, 'Unpublished after a visitor report');
+            $this->recordAudit($this->auditBase($request, 'unpublish', 'page', (string) $page->id, $request->input('reason')) + ['params' => ['report' => $id]]);
+            $status = 'closed';
+            $params = ['page' => (string) $page->id, 'slug' => $page->slug];
+        } elseif ($status === null) {
+            return $this->fail('unknown_action', 'investigate, close, reopen or unpublish_page', 422);
+        }
+
+        $report->update(['status' => $status]);
+        $this->recordAudit($audit + ['params' => $params]);
+        $page ??= $this->pagesForReports(collect([$report]))[$this->reportSlug($report)] ?? null;
+
+        return response()->json(['ok' => true, 'data' => $this->visitorReportRow($report, $page)]);
+    }
+
+    /**
+     * Reports visitors sent from BioHop's own form (abuse_reports.source = biohop). The column is added by LinkHop's
+     * migration, which owns the shared table, so until it has run there are none.
+     *
+     * @return Builder<AbuseReport>|null null when the column is not there yet
+     */
+    private function visitorReportQuery(?string $status = null): ?Builder
+    {
+        if (! Schema::hasTable('abuse_reports') || ! Schema::hasColumn('abuse_reports', 'source')) {
+            return null;
+        }
+
+        return AbuseReport::query()->where('source', 'biohop')
+            ->when($status === 'open', fn ($q) => $q->whereIn('status', self::REPORT_PENDING))
+            ->when($status === 'closed', fn ($q) => $q->whereNotIn('status', self::REPORT_PENDING));
+    }
+
+    /** @return Collection<int, AbuseReport> */
+    private function visitorReports(string $status, int $limit): Collection
+    {
+        return $this->visitorReportQuery($status)?->latest('id')->limit($limit)->get() ?? collect();
+    }
+
+    /** The slug the visitor reported: the form's slug, or the one in the pasted address (…/b/<slug>) when the slug is empty. */
+    private function reportSlug(AbuseReport $r): string
+    {
+        $slug = (string) $r->slug;
+        if ($slug === '' && preg_match('#/b/([A-Za-z0-9_-]+)#', (string) $r->url, $m)) {
+            $slug = $m[1];
+        }
+
+        return mb_strtolower($slug);
+    }
+
+    /**
+     * The bio pages the given reports are about, found by slug without regard to letter case and keyed by lower case slug.
+     *
+     * @param  Collection<int, AbuseReport>  $reports
+     * @return Collection<string, BioPage>
+     */
+    private function pagesForReports(Collection $reports): Collection
+    {
+        $slugs = $reports->map(fn (AbuseReport $r) => $this->reportSlug($r))->filter()->unique()->values();
+        if ($slugs->isEmpty()) {
+            return collect();
+        }
+
+        return BioPage::with('user')->whereIn(DB::raw('LOWER(slug)'), $slugs->all())->get()
+            ->keyBy(fn (BioPage $p) => mb_strtolower($p->slug));
+    }
+
+    private function visitorReportRow(AbuseReport $r, ?BioPage $page): array
+    {
+        $slug = $page?->slug ?? ($this->reportSlug($r) ?: null);
+
+        return [
+            'kind' => 'bio_report',
+            'id' => self::REPORT_ID_PREFIX.$r->id,
+            'subject' => [
+                'type' => 'bio_page',
+                'id' => $page ? (string) $page->id : null,
+                'slug' => $slug,
+                'url' => $page ? public_url('b/'.$page->slug) : $r->url,
+            ],
+            'owner' => $page?->user ? ['sub' => (string) $page->user->id, 'username' => $page->user->username] : null,
+            'reason' => $r->reason,
+            'reporter' => $r->email,
+            'status' => $r->status,
+            'created_at' => $r->created_at?->toIso8601String(),
+        ];
+    }
+
+    /** The same change as the page action "unpublish": hidden at once, and a confirmed finding keeps it out of search. */
+    private function unpublishPage(BioPage $p, string $summary): void
+    {
+        $p->forceFill(['is_published' => false])->save();
+        if (Schema::hasTable('abuse_flags')) {
+            AbuseFlag::firstOrCreate(
+                ['subject_type' => 'bio_page', 'subject_id' => $p->id, 'action' => AbuseFlag::ACTION_DISABLED, 'status' => AbuseFlag::STATUS_CONFIRMED],
+                ['user_id' => $p->user_id, 'score' => 100, 'signals' => [], 'summary' => $summary]
+            );
+        }
+    }
+
+    private function ownerPageRefused(): JsonResponse
+    {
+        return $this->fail('owner_protected', "The owner's pages are not moderated through the API.", 403);
     }
 
     /** GET /api/hop/settings */

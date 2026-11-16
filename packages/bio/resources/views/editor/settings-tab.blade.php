@@ -12,6 +12,25 @@
     </div>
     <div class="grid gap-4 xl:grid-cols-2 xl:items-start">
         <div class="space-y-4 min-w-0">
+        <!-- Search engine indexing: off for a new page; adult and sensitive pages cannot switch it on -->
+        <div class="flex items-center justify-between gap-4" data-indexing-switch>
+            <div class="min-w-0">
+                <p id="bfsettin-idx" class="font-medium text-slate-900 dark:text-white">{{ __('Search engine indexing') }}</p>
+                <p id="bfsettin-idx-hint" class="text-sm editor-text-muted" x-show="!indexingLocked()">{{ __('Off for new pages. Turn it on to let Google and other search engines list this page.') }}</p>
+                <p id="bfsettin-idx-why" class="text-sm editor-text-muted" x-show="indexingLocked()" x-cloak>{{ __('Pages with adult or sensitive content are not offered to search engines.') }}</p>
+                <p class="text-xs editor-text-muted" x-show="!indexingLocked()">{{ __('A page with fewer than :blocks enabled blocks or a description under :chars characters stays out of search until it is filled in.', ['blocks' => \App\Support\BioIndexability::MIN_BLOCKS, 'chars' => \App\Support\BioIndexability::MIN_DESCRIPTION_CHARS]) }}</p>
+                <p class="be-field-error" x-show="fieldErrors.allow_indexing" x-cloak x-text="fieldErrors.allow_indexing"></p>
+            </div>
+            <label class="toggle-switch shrink-0" x-show="!indexingLocked()">
+                <input type="checkbox" x-model="bioPage.allow_indexing" aria-labelledby="bfsettin-idx" aria-describedby="bfsettin-idx-hint">
+                <span class="toggle-slider"></span>
+            </label>
+            {{-- Locked: a switch that is off and cannot be changed, with the reason read out with it. --}}
+            <label class="toggle-switch is-locked shrink-0" x-show="indexingLocked()" x-cloak>
+                <input type="checkbox" disabled aria-labelledby="bfsettin-idx" aria-describedby="bfsettin-idx-why">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
         <div class="form-group">
             <label for="bfsettin-1" class="form-label">Page Title</label>
             <input id="bfsettin-1" type="text" x-model="bioPage.seo_title" class="form-input" placeholder="Leave empty to use display name" maxlength="60" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-form-type="other">
@@ -94,17 +113,6 @@
                 <span class="toggle-slider"></span>
             </label>
         </div>
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="font-medium text-slate-900 dark:text-white">Search Engine Indexing</p>
-                <p class="text-sm editor-text-muted">Allow search engines to index this page</p>
-                <p class="text-xs editor-text-muted">A page with fewer than {{ \App\Support\BioIndexability::MIN_BLOCKS }} enabled blocks or a description under {{ \App\Support\BioIndexability::MIN_DESCRIPTION_CHARS }} characters stays out of search until it is filled in.</p>
-            </div>
-            <label class="toggle-switch">
-                <input type="checkbox" x-model="bioPage.allow_indexing" aria-label="Search engine indexing">
-                <span class="toggle-slider"></span>
-            </label>
-        </div>
         <!-- Unlisted: not in search engines, not in the directory; the address still works -->
         <div class="flex items-center justify-between">
             <div>
@@ -112,7 +120,7 @@
                 <p class="text-xs text-slate-500 dark:text-slate-400">Only people who have the address can find the page. Search engines do not index it and it is not listed in the directory.</p>
             </div>
             <label class="toggle-switch">
-                <input type="checkbox" :checked="!bioPage.allow_indexing && !bioPage.show_in_directory" @change="bioPage.allow_indexing = !$event.target.checked; bioPage.show_in_directory = !$event.target.checked" aria-label="Unlisted">
+                <input type="checkbox" :checked="!bioPage.allow_indexing && !bioPage.show_in_directory" @change="bioPage.allow_indexing = !$event.target.checked && !indexingLocked(); bioPage.show_in_directory = !$event.target.checked" aria-label="Unlisted">
                 <span class="toggle-slider"></span>
             </label>
         </div>
