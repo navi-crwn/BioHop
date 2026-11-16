@@ -856,5 +856,13 @@
     "This block was changed on the Manage page or in another editor tab. Reload the editor to see the latest values; nothing was saved.": "Blok ini diubah di halaman Kelola atau di tab editor lain. Muat ulang editor untuk melihat nilai terbaru; tidak ada yang tersimpan.",
     "Classic": "Klasik",
     "Mist": "Kabut",
-    "Sand": "Pasir"
+    "Sand": "Pasir",
+    "Search engine indexing": "Pengindeksan mesin pencari",
+    "Off for new pages. Turn it on to let Google and other search engines list this page.": "Mati untuk halaman baru. Nyalakan agar Google dan mesin pencari lain boleh mendaftarkan halaman ini.",
+    "A page with fewer than :blocks enabled blocks or a description under :chars characters stays out of search until it is filled in.": "Halaman dengan blok aktif kurang dari :blocks atau deskripsi kurang dari :chars karakter tidak muncul di pencarian sampai dilengkapi.",
+    "Pages with adult or sensitive content are not offered to search engines.": "Halaman dengan konten dewasa atau sensitif tidak ditawarkan ke mesin pencari.",
+    "Your page is not on Google yet": "Halamanmu belum ada di Google",
+    "New bio pages are not listed by Google by default. To turn it on, go to Settings, then Search & sharing, and switch on \"Search engine indexing\".": "Halaman bio baru tidak didaftarkan Google secara bawaan. Untuk menyalakannya, buka Pengaturan, lalu Pencarian & berbagi, dan nyalakan \"Pengindeksan mesin pencari\".",
+    "Open SEO settings": "Buka pengaturan SEO",
+    "Got it": "Mengerti"
 }

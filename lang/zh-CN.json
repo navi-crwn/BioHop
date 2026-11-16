@@ -856,5 +856,13 @@
     "This block was changed on the Manage page or in another editor tab. Reload the editor to see the latest values; nothing was saved.": "此区块已在“管理”页面或另一个编辑器标签页中被修改。请重新加载编辑器查看最新值；本次未保存。",
     "Classic": "经典",
     "Mist": "薄雾",
-    "Sand": "沙色"
+    "Sand": "沙色",
+    "Search engine indexing": "搜索引擎收录",
+    "Off for new pages. Turn it on to let Google and other search engines list this page.": "新页面默认关闭。开启后，Google 等搜索引擎可以收录此页面。",
+    "A page with fewer than :blocks enabled blocks or a description under :chars characters stays out of search until it is filled in.": "启用的区块少于 :blocks 个，或描述少于 :chars 个字符的页面，在补全之前不会出现在搜索结果中。",
+    "Pages with adult or sensitive content are not offered to search engines.": "含有成人或敏感内容的页面不会提供给搜索引擎。",
+    "Your page is not on Google yet": "你的页面还没有被 Google 收录",
+    "New bio pages are not listed by Google by default. To turn it on, go to Settings, then Search & sharing, and switch on \"Search engine indexing\".": "新的 Bio 页面默认不会被 Google 收录。要开启，请前往“设置”，然后进入“搜索与分享”，打开“搜索引擎收录”。",
+    "Open SEO settings": "打开 SEO 设置",
+    "Got it": "知道了"
 }

@@ -156,6 +156,9 @@
 .bio-editor .toggle-slider::before { content: ''; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: transform .2s; }
 .bio-editor .toggle-switch input:checked + .toggle-slider { background: var(--editor-accent); }
 .bio-editor .toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
+/* A switch that cannot be changed (indexing of an adult or sensitive page): greyed, off, and the reason sits next to it. */
+.bio-editor .toggle-switch.is-locked { opacity: .5; cursor: not-allowed; }
+.bio-editor .toggle-switch.is-locked .toggle-slider { cursor: not-allowed; }
 .bio-editor .color-picker-input { width: 36px; height: 36px; padding: 2px; border: 2px solid var(--editor-border); border-radius: 8px; cursor: pointer; background: transparent; }
 .bio-editor .color-picker-input::-webkit-color-swatch-wrapper { padding: 0; }
 .bio-editor .color-picker-input::-webkit-color-swatch { border: none; border-radius: 4px; }

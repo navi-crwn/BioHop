@@ -76,6 +76,17 @@ class BioPage extends Model
         return in_array($this->header_layout, self::HEADER_LAYOUTS, true) ? $this->header_layout : 'classic';
     }
 
+    /** A new page is not offered to search engines until its owner turns indexing on; rows already stored keep their value. */
+    protected $attributes = [
+        'allow_indexing' => false,
+    ];
+
+    /** Whether the page may be offered to search engines at all: adult and sensitive pages never are. */
+    public function indexingLocked(): bool
+    {
+        return (bool) $this->is_adult_content || ! in_array($this->content_warning ?: 'none', ['none'], true);
+    }
+
     protected $fillable = [
         'user_id',
         'slug',

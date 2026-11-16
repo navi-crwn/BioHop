@@ -1,9 +1,42 @@
 {
   "schema": 2,
   "sources": {
-    "BioHop": "1.5.1"
+    "BioHop": "1.6.0"
   },
   "entries": [
+    {
+      "kind": "tag",
+      "date": "2026-11-16T00:00:00Z",
+      "title": "New bio pages start out of Google",
+      "url": "https://github.com/navi-crwn/BioHop/releases/tag/v1.6.0",
+      "id": "v1.6.0",
+      "app": "BioHop",
+      "repo": "BioHop",
+      "version": "1.6.0",
+      "summary": "",
+      "items": [
+        {
+          "type": "added",
+          "where": "Editor, new page notice",
+          "text": "After you create a page (with the guide, the plain form, an import or \"duplicate\"), the editor opens with a short notice that the page is not on Google yet, with a button that takes you to the switch. It shows once. Reason: a new page is now off by default and people should hear it at the moment they make the page."
+        },
+        {
+          "type": "added",
+          "where": "Editor, adult and sensitive pages",
+          "text": "For a page marked adult or sensitive, the search engine switch is greyed out and off, with the reason next to it, and the server refuses to turn it on. Effect: such a page can never be offered to search engines, and an old adult or sensitive page that still said \"yes\" now shows \"off\" when you open it. Reason: these pages were already kept out of the sitemap, and now the setting says the same."
+        },
+        {
+          "type": "changed",
+          "where": "Bio pages, search engines",
+          "text": "A new bio page is no longer offered to search engines at first. Its owner turns it on with the \"Search engine indexing\" switch in Settings, under Search & sharing. Pages that already exist keep the setting they have, so pages that are on Google stay there. A copy of a page counts as a new page and starts switched off. Reason: empty or purely promotional pages should not lower how much Google trusts the rest of hel.ink, and the owner of a page should choose to be found."
+        },
+        {
+          "type": "changed",
+          "where": "Editor, search engine switch",
+          "text": "The switch moved from Privacy to Search & sharing, next to the search title and description, and has a short explanation in all nine languages. Reason: that is where people look for it."
+        }
+      ]
+    },
     {
       "kind": "tag",
       "date": "2026-11-16T00:00:00Z",
