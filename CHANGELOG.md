@@ -4,6 +4,8 @@ All notable changes to BioHop are listed here, written for the people who use it
 
 ## [Unreleased]
 
+## [1.5.1] - 2026-11-16 - One address per bio page, thin pages out of search
+
 ### Changed
 
 - **Public bio pages, search engines.** Every public page now names one official address (the lower case address on hel.ink), and link previews use the same address. The upper case address and the address with a slash at the end send visitors on to it. Effect: Google counts one page instead of four copies. Reason: the same page used to open under several addresses and Google had to guess.

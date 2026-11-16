@@ -1,9 +1,42 @@
 {
   "schema": 2,
   "sources": {
-    "BioHop": "1.5.0"
+    "BioHop": "1.5.1"
   },
   "entries": [
+    {
+      "kind": "tag",
+      "date": "2026-11-16T00:00:00Z",
+      "title": "One address per bio page, thin pages out of search",
+      "url": "https://github.com/navi-crwn/BioHop/releases/tag/v1.5.1",
+      "id": "v1.5.1",
+      "app": "BioHop",
+      "repo": "BioHop",
+      "version": "1.5.1",
+      "summary": "",
+      "items": [
+        {
+          "type": "changed",
+          "where": "Public bio pages, search engines",
+          "text": "Every public page now names one official address (the lower case address on hel.ink), and link previews use the same address. The upper case address and the address with a slash at the end send visitors on to it. Effect: Google counts one page instead of four copies. Reason: the same page used to open under several addresses and Google had to guess."
+        },
+        {
+          "type": "changed",
+          "where": "Public bio pages, thin pages",
+          "text": "A page with fewer than 3 enabled blocks, a description shorter than 50 characters, or a finding of the automatic abuse check is no longer offered to search engines: it leaves the sitemap and tells search engines not to list it. Anyone with the link can still open it, and it joins the sitemap on its own once it is filled in. Reason: a few empty or promotional pages should not lower how much Google trusts the rest of hel.ink."
+        },
+        {
+          "type": "fixed",
+          "where": "Link clicks, search engines",
+          "text": "The click addresses of a page (the ones that send visitors to your own links) are now closed to search engines. Effect: crawlers no longer follow them to outside sites. Reason: they only exist to count a click and pass the visitor on."
+        },
+        {
+          "type": "fixed",
+          "where": "Public bio pages, link previews",
+          "text": "If the share picture or profile picture of a page is missing from storage, the preview shows the BioHop picture instead of a broken image. Reason: a deleted file left chat and social previews without a picture."
+        }
+      ]
+    },
     {
       "kind": "tag",
       "date": "2026-11-15T00:00:00Z",
