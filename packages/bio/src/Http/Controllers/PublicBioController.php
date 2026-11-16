@@ -55,6 +55,13 @@ class PublicBioController extends Controller
 
     public function show(Request $request, string $slug)
     {
+        // One address per page: lower case, no trailing slash (the canonical link names it). Only for reading (GET, HEAD); the
+        // password and age gates post to the address they were shown on. Relative, so the visitor stays on the host they used.
+        if (in_array($request->getMethod(), ['GET', 'HEAD'], true) && ($slug !== strtolower($slug) || str_ends_with((string) parse_url($request->getRequestUri(), PHP_URL_PATH), '/'))) {
+            $query = $request->getQueryString();
+
+            return new RedirectResponse('/b/'.strtolower($slug).($query !== null ? '?'.$query : ''), 301);
+        }
         $bioPage = BioPage::with(['links' => function ($query) {
             $query->active()->whereNotIn('type', BioLink::RETIRED_TYPES)->ordered();
         }])
@@ -231,7 +238,8 @@ class PublicBioController extends Controller
             // The country lookup can take seconds for a new IP; record after the redirect is sent.
             defer(fn () => $bioLink->recordClick($click + ['country' => $this->getCountryFromIp($ipAddress)]));
         }
-        $response = redirect()->away($target)->header('Referrer-Policy', 'strict-origin-when-cross-origin');
+        // A click redirect is for visitors, never for search engines (robots.txt also closes /b/click/).
+        $response = redirect()->away($target)->header('Referrer-Policy', 'strict-origin-when-cross-origin')->header('X-Robots-Tag', 'noindex, nofollow');
         if ($newVisitorId !== null) {
             // The click just made under IP + User-Agent also covers the new cookie, so it is not counted twice.
             Cache::put("bio_click:{$bioLink->id}:{$newVisitorId}", true, now()->addMinutes(10));

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 if (! function_exists('public_url')) {
     /**
@@ -55,6 +56,36 @@ if (! function_exists('bio_media_url')) {
         }
 
         return bio_asset_origin().'/storage/'.$path;
+    }
+}
+if (! function_exists('bio_share_image')) {
+    /**
+     * The picture for link previews (og:image): the page's share picture, else its profile picture, as full addresses.
+     * A stored file that no longer exists is skipped (a missing picture gives a preview without one), and when nothing
+     * is left BioHop's own share image is used.
+     */
+    function bio_share_image(?string ...$candidates): string
+    {
+        foreach ($candidates as $path) {
+            $path = trim((string) $path);
+            if ($path === '') {
+                continue;
+            }
+            // Only files on this install can be checked; an address on another host is taken as it is.
+            if (! preg_match('#^(https?:)?//#i', $path) && ! str_starts_with($path, 'data:')) {
+                $local = preg_replace('#^/?storage/#', '', $path);
+                $exists = str_starts_with($path, '/') && ! str_starts_with($path, '/storage/')
+                    ? is_file(public_path($path))
+                    : Storage::disk('public')->exists($local);
+                if (! $exists) {
+                    continue;
+                }
+            }
+
+            return (string) bio_media_url($path);
+        }
+
+        return bio_asset_origin().'/images/brand/og.png';
     }
 }
 if (! function_exists('bio_enabled')) {

@@ -22,9 +22,18 @@
         <meta name="robots" content="noindex">
     @endif
     <title>{{ $bioPage->seo_title ?? $bioPage->title }} | BioHop</title>
-    <meta name="description" content="{{ $bioPage->seo_description ?? $bioPage->bio ?? 'Check out my links' }}">
+    <meta name="description" content="{{ \App\Support\BioIndexability::description($bioPage) }}">
+    @php
+        // The one address of this page (lower case, on the public host) and whether search engines may index it.
+        $canonicalUrl = public_url('b/'.strtolower($bioPage->slug));
+        $blockCount = $bioPage->links->whereNotIn('type', \App\Support\BioIndexability::DECORATION_TYPES)->count();
+    @endphp
+    <link rel="canonical" href="{{ $canonicalUrl }}">
     @if(!($bioPage->allow_indexing ?? true))
         <meta name="robots" content="noindex, nofollow">
+    @elseif(!\App\Support\BioIndexability::passes($bioPage, $blockCount))
+        {{-- A thin page (few blocks, short description) stays reachable by link but out of search, like the sitemap. --}}
+        <meta name="robots" content="noindex">
     @endif
     @php
         // Files live on the asset host (bio.hel.ink) while this page is served from the public host (hel.ink/b/...),
@@ -34,7 +43,7 @@
         $cardColors = array_slice($cardMatches[0] ?? [], 0, 3) ?: ['#6366f1', '#a855f7'];
         $srcTag = in_array(request()->query('src'), \Hop\Bio\Http\Controllers\PublicBioController::SOURCES, true) ? request()->query('src') : null;
         $clickHref = fn ($publicId) => route('bio.public.click', ['bioLink' => $publicId] + ($srcTag ? ['s' => $srcTag] : []));
-        $ogImage = bio_media_url($bioPage->og_image) ?: bio_media_url($bioPage->avatar_url);
+        $ogImage = bio_share_image($bioPage->og_image, $bioPage->avatar_url);
     @endphp
     <link rel="icon" href="{{ bio_media_url($bioPage->favicon) ?: route('brand.favicon') }}">
     {{-- Same host as the page: a manifest from another host is blocked by CSP and its start_url would be ignored. --}}
@@ -42,12 +51,10 @@
     @if($bioPage->avatar_url)<link rel="apple-touch-icon" href="{{ bio_media_url($bioPage->avatar_url) }}">@endif
     <meta name="apple-mobile-web-app-title" content="{{ \Illuminate\Support\Str::limit($bioPage->title, 12, '') }}">
     <meta property="og:title" content="{{ $bioPage->seo_title ?? $bioPage->title }} | BioHop">
-    <meta property="og:description" content="{{ $bioPage->seo_description ?? $bioPage->bio ?? 'Check out my links' }}">
-    @if($ogImage)
-        <meta property="og:image" content="{{ $ogImage }}">
-        <meta name="twitter:card" content="summary_large_image">
-    @endif
-    <meta property="og:url" content="{{ public_url('b/'.$bioPage->slug) }}">
+    <meta property="og:description" content="{{ \App\Support\BioIndexability::description($bioPage) }}">
+    <meta property="og:image" content="{{ $ogImage }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta property="og:url" content="{{ $canonicalUrl }}">
     <meta property="og:type" content="profile">
     @vite(['resources/css/public.css', 'resources/js/public.js'])
     @php

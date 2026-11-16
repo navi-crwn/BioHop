@@ -7,7 +7,7 @@ use Hop\Bio\Support\LinktreeImport;
 test('the sitemap lists no page of a suspended owner (that page answers 404)', function () {
     $ok = User::factory()->create();
     $gone = User::factory()->create(['status' => 'suspended']);
-    BioPage::create(['user_id' => $ok->id, 'slug' => 'liveone', 'title' => 'Live', 'is_published' => true, 'allow_indexing' => true]);
+    indexablePage($ok, 'liveone');
     BioPage::create(['user_id' => $gone->id, 'slug' => 'goneone', 'title' => 'Gone', 'is_published' => true, 'allow_indexing' => true]);
     $this->get('/b/goneone')->assertNotFound();
     $this->get('/sitemap.xml')->assertOk()->assertSee('/b/liveone')->assertDontSee('/b/goneone');

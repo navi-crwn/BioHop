@@ -17,5 +17,6 @@ test('robots.txt is answered by the app, so the sitemap line carries this instal
         ->toContain("Disallow: /auth/\n")
         ->toContain("Disallow: /internal/\n")
         ->not->toMatch('#^Disallow:\s*$#m')
-        ->not->toContain('Disallow: /b/');
+        ->toContain("Disallow: /b/click/\n")
+        ->not->toContain("Disallow: /b/\n");
 });
