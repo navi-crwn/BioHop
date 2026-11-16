@@ -107,7 +107,7 @@ Per page: views, link clicks, click rate, clicks over time, devices, countries, 
 ### Safety and operations
 
 - `abuse:scan` checks bio pages and blocks with the rules and the shared `domain_blacklist` from `hop/safety`. It runs hourly over what changed and once a day over everything. Google Safe Browsing, abuse.ch URLhaus and Spamhaus DBL lookups are optional.
-- Visitors can report a page at `/report-abuse` (Cloudflare Turnstile protects the form when its keys are set).
+- Visitors can report a page at `/report-abuse` (Cloudflare Turnstile protects the form when its keys are set). The report is saved in the shared `abuse_reports` table with `source = biohop` and shows up in BioHop's queue in Imperium, where an admin can mark it investigating or closed, or unpublish the reported page and close the report in one step (pages of the HOP owner are never unpublished this way). Until LinkHop's migration has added the `source` column, reports are still saved but do not reach BioHop's queue.
 - Admin work happens in Imperium, the HOP control panel. BioHop answers its signed `/api/hop/*` requests, and `/admin` sends admins there.
 - Uploads are refused with a 507 when the disk is nearly full (see [`docs/UPLOAD-STORAGE.md`](docs/UPLOAD-STORAGE.md)). Uploaded pictures are shrunk to WebP. SVG is taken only for custom block icons and the QR logo, and is rebuilt from an allowlist before it is stored; the profile picture, images, cover, background, share picture and favicon take PNG, JPG, GIF, WebP or BMP.
 - The feed reader and the webhook sender connect to the addresses they checked, so a name cannot resolve to a different address between the check and the request.

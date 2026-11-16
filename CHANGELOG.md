@@ -4,6 +4,14 @@ All notable changes to BioHop are listed here, written for the people who use it
 
 ## [Unreleased]
 
+### Added
+
+- **Report a bio page, moderators.** A report sent from the "Report a bio page" form now shows up in BioHop's list of reports in the HOP control panel, with the page, the reason and the e-mail address of the person who reported it. A moderator can mark it as being looked into, close it, or hide the page and close the report in one step. A page of the HOP owner is never hidden this way. Reason: reports used to land in the short link list under the wrong label, and nobody could act on the page from there.
+
+### Changed
+
+- **Report a bio page, messages.** The thank-you message and the two refusal messages of the form (security check failed, too many reports) now appear in your language like the rest of the form. Reason: they were always in English.
+
 ## [1.6.0] - 2026-11-16 - New bio pages start out of Google
 
 ### Added
