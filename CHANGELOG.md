@@ -8,8 +8,8 @@ All notable changes to BioHop are listed here, written for the people who use it
 
 ### Added
 
-- **Editor, new page notice.** After you create a page (with the guide, the plain form or an import), the editor opens with a short notice that the page is not on Google yet, with a button that takes you to the switch. It shows once. Reason: a new page is now off by default and people should hear it at the moment they make the page.
-- **Editor, adult and sensitive pages.** For a page marked adult or sensitive, the search engine switch is greyed out and off, with the reason next to it, and the server refuses to turn it on. Effect: such a page can never be offered to search engines. Reason: these pages were already kept out of the sitemap, and now the setting says the same.
+- **Editor, new page notice.** After you create a page (with the guide, the plain form, an import or "duplicate"), the editor opens with a short notice that the page is not on Google yet, with a button that takes you to the switch. It shows once. Reason: a new page is now off by default and people should hear it at the moment they make the page.
+- **Editor, adult and sensitive pages.** For a page marked adult or sensitive, the search engine switch is greyed out and off, with the reason next to it, and the server refuses to turn it on. Effect: such a page can never be offered to search engines, and an old adult or sensitive page that still said "yes" now shows "off" when you open it. Reason: these pages were already kept out of the sitemap, and now the setting says the same.
 
 ### Changed
 

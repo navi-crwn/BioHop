@@ -18,12 +18,12 @@
         {
           "type": "added",
           "where": "Editor, new page notice",
-          "text": "After you create a page (with the guide, the plain form or an import), the editor opens with a short notice that the page is not on Google yet, with a button that takes you to the switch. It shows once. Reason: a new page is now off by default and people should hear it at the moment they make the page."
+          "text": "After you create a page (with the guide, the plain form, an import or \"duplicate\"), the editor opens with a short notice that the page is not on Google yet, with a button that takes you to the switch. It shows once. Reason: a new page is now off by default and people should hear it at the moment they make the page."
         },
         {
           "type": "added",
           "where": "Editor, adult and sensitive pages",
-          "text": "For a page marked adult or sensitive, the search engine switch is greyed out and off, with the reason next to it, and the server refuses to turn it on. Effect: such a page can never be offered to search engines. Reason: these pages were already kept out of the sitemap, and now the setting says the same."
+          "text": "For a page marked adult or sensitive, the search engine switch is greyed out and off, with the reason next to it, and the server refuses to turn it on. Effect: such a page can never be offered to search engines, and an old adult or sensitive page that still said \"yes\" now shows \"off\" when you open it. Reason: these pages were already kept out of the sitemap, and now the setting says the same."
         },
         {
           "type": "changed",

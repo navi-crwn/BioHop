@@ -53,6 +53,28 @@ test('a copy of an indexed page is a new page: it starts out of search and the o
         ->and($page->fresh()->allow_indexing)->toBeTrue();
 });
 
+test('after a copy the editor opens with the "not on Google yet" notice, once', function () {
+    $user = User::factory()->create();
+    indexablePage($user, 'noticecopy');
+    $this->actingAs($user)->post('/bio/noticecopy/duplicate')->assertRedirect();
+    $this->get('/bio/noticecopycopy/edit')->assertOk()->assertSee('"indexingNotice":true', false);
+    $this->get('/bio/noticecopycopy/edit')->assertOk()->assertSee('"indexingNotice":false', false);
+});
+
+test('the editor shows indexing off from the start for a locked page, before it takes its first snapshot', function () {
+    // An old adult page may still hold "yes". The server stores "no" on the next save and the editor never hears of it,
+    // so the editor sets it itself in init(), before the snapshot that a save is compared with.
+    $js = file_get_contents(base_path('resources/js/editor.js'));
+    $set = strpos($js, 'if (this.indexingLocked()) this.bioPage.allow_indexing = false;');
+    $snap = strpos($js, 'this._pageSnap = this.pageSnapshot();');
+    expect($set)->not->toBeFalse()->and($snap)->not->toBeFalse()->and($set)->toBeLessThan($snap);
+
+    // and the page data it starts from still says "yes" for such a page: the case the line above exists for
+    $user = User::factory()->create();
+    BioPage::create(['user_id' => $user->id, 'slug' => 'oldadultui', 'title' => 'Old', 'allow_indexing' => true, 'content_warning' => 'adult', 'is_adult_content' => true]);
+    $this->actingAs($user)->get('/bio/oldadultui/edit')->assertOk()->assertSee('"allow_indexing":true', false);
+});
+
 test('pages that exist stay as they are: the new default touches no stored row, and running it again changes nothing', function () {
     $user = User::factory()->create();
     $indexed = indexablePage($user, 'oldyes');

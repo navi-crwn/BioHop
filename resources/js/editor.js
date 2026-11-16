@@ -252,6 +252,9 @@ window.bioEditorV2 = function() {
             // Stable client-side keys for x-for / drag sorting (stripped before saving)
             this.bioPage.social_links.forEach(s => { s._uid ??= this.uid(); });
             this._baseUpdatedAt = this.bioPage.updated_at || null;
+            // An old adult or sensitive page may still hold "yes" from before the rule. The server stores "no" for it and the
+            // page is not offered anyway, so the switch shows "no" from the start (before the snapshot: not an unsaved change).
+            if (this.indexingLocked()) this.bioPage.allow_indexing = false;
             // What the server has, per page field: a save sends only the fields that differ from this.
             this._pageSnap = this.pageSnapshot();
             this._blockSnap = {};

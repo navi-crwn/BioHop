@@ -843,7 +843,7 @@ class BioPageController extends Controller
             $newLink->save();
         }
 
-        return redirect()->route('bio.edit', $newBioPage)->with('success', 'Bio page duplicated successfully!');
+        return redirect()->route('bio.edit', $newBioPage)->with('success', 'Bio page duplicated successfully!')->with('bio_indexing_notice', true);
     }
 
     /**
