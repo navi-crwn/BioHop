@@ -867,5 +867,9 @@
     "Your page is not on Google yet": "Sua página ainda não está no Google",
     "New bio pages are not listed by Google by default. To turn it on, go to Settings, then Search & sharing, and switch on \"Search engine indexing\".": "Páginas bio novas não são listadas pelo Google por padrão. Para ativar, vá em Configurações, depois Busca e compartilhamento, e ative \"Indexação por mecanismos de busca\".",
     "Open SEO settings": "Abrir configurações de SEO",
-    "Got it": "Entendi"
+    "Got it": "Entendi",
+    "Feedback": "Feedback",
+    "Send feedback": "Enviar feedback",
+    "The Feedback link opens a form on the HOP ID site this app is connected to. This app receives nothing from that form; what the form stores and for how long is described in the :link.": "O link Feedback abre um formulário no site HOP ID ao qual este app está conectado. Este app não recebe nada desse formulário; o que o formulário guarda e por quanto tempo está descrito na :link.",
+    "HOP ID privacy policy": "política de privacidade do HOP ID"
 }

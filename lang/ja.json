@@ -867,5 +867,9 @@
     "Your page is not on Google yet": "このページはまだ Google に載っていません",
     "New bio pages are not listed by Google by default. To turn it on, go to Settings, then Search & sharing, and switch on \"Search engine indexing\".": "新しい bio ページは、既定では Google に掲載されません。オンにするには、「設定」の「検索と共有」で「検索エンジンへのインデックス」をオンにしてください。",
     "Open SEO settings": "SEO 設定を開く",
-    "Got it": "わかりました"
+    "Got it": "わかりました",
+    "Feedback": "フィードバック",
+    "Send feedback": "フィードバックを送る",
+    "The Feedback link opens a form on the HOP ID site this app is connected to. This app receives nothing from that form; what the form stores and for how long is described in the :link.": "「フィードバック」リンクは、このアプリが接続している HOP ID サイト上のフォームを開きます。このアプリはそのフォームから何も受け取りません。フォームが何をどれだけの期間保存するかは、:linkに記載されています。",
+    "HOP ID privacy policy": "HOP ID のプライバシーポリシー"
 }

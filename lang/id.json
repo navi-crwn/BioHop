@@ -867,5 +867,9 @@
     "Your page is not on Google yet": "Halamanmu belum ada di Google",
     "New bio pages are not listed by Google by default. To turn it on, go to Settings, then Search & sharing, and switch on \"Search engine indexing\".": "Halaman bio baru tidak didaftarkan Google secara bawaan. Untuk menyalakannya, buka Pengaturan, lalu Pencarian & berbagi, dan nyalakan \"Pengindeksan mesin pencari\".",
     "Open SEO settings": "Buka pengaturan SEO",
-    "Got it": "Mengerti"
+    "Got it": "Mengerti",
+    "Feedback": "Masukan",
+    "Send feedback": "Kirim masukan",
+    "The Feedback link opens a form on the HOP ID site this app is connected to. This app receives nothing from that form; what the form stores and for how long is described in the :link.": "Tautan Masukan membuka formulir di situs HOP ID yang terhubung dengan aplikasi ini. Aplikasi ini tidak menerima apa pun dari formulir itu; apa yang disimpan formulir dan berapa lama dijelaskan di :link.",
+    "HOP ID privacy policy": "kebijakan privasi HOP ID"
 }

@@ -867,5 +867,9 @@
     "Your page is not on Google yet": "Вашей страницы ещё нет в Google",
     "New bio pages are not listed by Google by default. To turn it on, go to Settings, then Search & sharing, and switch on \"Search engine indexing\".": "Google по умолчанию не показывает новые страницы bio. Чтобы включить, откройте «Настройки», затем «Поиск и публикация» и включите «Индексация поисковыми системами».",
     "Open SEO settings": "Открыть настройки SEO",
-    "Got it": "Понятно"
+    "Got it": "Понятно",
+    "Feedback": "Отзыв",
+    "Send feedback": "Отправить отзыв",
+    "The Feedback link opens a form on the HOP ID site this app is connected to. This app receives nothing from that form; what the form stores and for how long is described in the :link.": "Ссылка «Отзыв» открывает форму на сайте HOP ID, к которому подключено это приложение. Это приложение ничего не получает из этой формы; что форма сохраняет и как долго, описано в :link.",
+    "HOP ID privacy policy": "политике конфиденциальности HOP ID"
 }

@@ -867,5 +867,9 @@
     "Your page is not on Google yet": "你的页面还没有被 Google 收录",
     "New bio pages are not listed by Google by default. To turn it on, go to Settings, then Search & sharing, and switch on \"Search engine indexing\".": "新的 Bio 页面默认不会被 Google 收录。要开启，请前往“设置”，然后进入“搜索与分享”，打开“搜索引擎收录”。",
     "Open SEO settings": "打开 SEO 设置",
-    "Got it": "知道了"
+    "Got it": "知道了",
+    "Feedback": "反馈",
+    "Send feedback": "发送反馈",
+    "The Feedback link opens a form on the HOP ID site this app is connected to. This app receives nothing from that form; what the form stores and for how long is described in the :link.": "“反馈”链接会打开本应用所连接的 HOP ID 站点上的表单。本应用不会从该表单接收任何内容；表单保存什么、保存多久，详见:link。",
+    "HOP ID privacy policy": "HOP ID 隐私政策"
 }

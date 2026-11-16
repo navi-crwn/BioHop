@@ -1,9 +1,57 @@
 {
   "schema": 2,
   "sources": {
-    "BioHop": "1.6.0"
+    "BioHop": "1.7.0"
   },
   "entries": [
+    {
+      "kind": "tag",
+      "date": "2026-11-16T00:00:00Z",
+      "title": "A Feedback link, and page reports reach the right queue",
+      "url": "https://github.com/navi-crwn/BioHop/releases/tag/v1.7.0",
+      "id": "v1.7.0",
+      "app": "BioHop",
+      "repo": "BioHop",
+      "version": "1.7.0",
+      "summary": "",
+      "items": [
+        {
+          "type": "added",
+          "where": "Dashboard, sidebar footer",
+          "text": "A new \"Feedback\" link sits right under \"Help\" and opens the HOP ID feedback form in a new tab, so what you were doing here stays open. Reason: you can now tell us about a problem or an idea from inside the app, without sending an email."
+        },
+        {
+          "type": "added",
+          "where": "Public pages, footer",
+          "text": "The footer of the home page, Help, FAQ, Contact, About, Features, Status, Terms, Privacy and Changelog has the same \"Feedback\" link next to \"Help\". Reason: visitors who are not signed in can reach the form too. Your own bio pages do not get the link, because they are your pages, not ours."
+        },
+        {
+          "type": "added",
+          "where": "Help and Contact pages",
+          "text": "One \"Send feedback\" link on each page opens the same form. Reason: these are the places where people look for a way to reach us."
+        },
+        {
+          "type": "added",
+          "where": "Privacy page",
+          "text": "One sentence says that the Feedback link opens a form on the HOP ID site, that BioHop itself receives nothing from it, and points to the HOP ID privacy policy for what the form keeps and for how long. Reason: the form belongs to HOP ID, not to BioHop, so its rules are written there."
+        },
+        {
+          "type": "added",
+          "where": "All nine languages",
+          "text": "The new words are translated into every language BioHop offers. Reason: the link should read naturally for everyone."
+        },
+        {
+          "type": "added",
+          "where": "Report a bio page, moderators",
+          "text": "A report sent from the \"Report a bio page\" form now shows up in BioHop's list of reports in the HOP control panel, with the page, the reason and the e-mail address of the person who reported it. A moderator can mark it as being looked into, close it, or hide the page and close the report in one step. A page of the HOP owner is never hidden this way. Reason: reports used to land in the short link list under the wrong label, and nobody could act on the page from there."
+        },
+        {
+          "type": "changed",
+          "where": "Report a bio page, messages",
+          "text": "The thank-you message and the two refusal messages of the form (security check failed, too many reports) now appear in your language like the rest of the form. Reason: they were always in English."
+        }
+      ]
+    },
     {
       "kind": "tag",
       "date": "2026-11-16T00:00:00Z",

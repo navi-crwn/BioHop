@@ -3,6 +3,9 @@
         <div class="rounded-3xl border border-slate-200/80 bg-white/70 p-6 dark:border-white/10 dark:bg-white/[0.03]">
             <h2 class="text-base font-bold text-slate-900 dark:text-white">{{ __('Issues & Ideas') }}</h2>
             <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">{!! __('<strong>Found a bug or have an idea?</strong> <a href=":url" rel="noopener">Open an issue</a>.', ['url' => 'https://github.com/navi-crwn/BioHop/issues/new/choose']) !!}</p>
+            @if ($feedbackUrl = \App\Support\Feedback::url())
+                <p class="mt-2 text-sm text-slate-600 dark:text-slate-400"><a href="{{ $feedbackUrl }}" target="_blank" rel="noopener" class="font-medium text-violet-600 underline dark:text-violet-400">{{ __('Send feedback') }}</a></p>
+            @endif
         </div>
 
         <div class="rounded-3xl border border-slate-200/80 bg-white/70 p-6 dark:border-white/10 dark:bg-white/[0.03]">

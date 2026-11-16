@@ -867,5 +867,9 @@
     "Your page is not on Google yet": "Your page is not on Google yet",
     "New bio pages are not listed by Google by default. To turn it on, go to Settings, then Search & sharing, and switch on \"Search engine indexing\".": "New bio pages are not listed by Google by default. To turn it on, go to Settings, then Search & sharing, and switch on \"Search engine indexing\".",
     "Open SEO settings": "Open SEO settings",
-    "Got it": "Got it"
+    "Got it": "Got it",
+    "Feedback": "Feedback",
+    "Send feedback": "Send feedback",
+    "The Feedback link opens a form on the HOP ID site this app is connected to. This app receives nothing from that form; what the form stores and for how long is described in the :link.": "The Feedback link opens a form on the HOP ID site this app is connected to. This app receives nothing from that form; what the form stores and for how long is described in the :link.",
+    "HOP ID privacy policy": "HOP ID privacy policy"
 }
