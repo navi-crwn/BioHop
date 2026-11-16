@@ -4,6 +4,7 @@ use App\Models\User;
 use Hop\Bio\Models\BioClick;
 use Hop\Bio\Models\BioLink;
 use Hop\Bio\Models\BioPage;
+use Illuminate\Support\Facades\Storage;
 
 function settingsPage(string $slug, array $extra = []): array
 {
@@ -15,6 +16,8 @@ function settingsPage(string $slug, array $extra = []): array
 
 test('share picture, favicon, tag manager and the footer line reach the public page', function () {
     [$user, $page] = settingsPage('pset');
+    Storage::fake('public');
+    Storage::disk('public')->put('bio-images/share.png', 'x');
     $this->actingAs($user)->putJson('/bio/pset', ['og_image' => 'bio-images/share.png', 'favicon' => 'bio-images/fav.png', 'gtm_id' => 'GTM-AB12CD3', 'footer_note' => 'Prices in IDR', 'footer_url' => 'https://example.com/terms'])->assertOk();
     $html = $this->get('/b/pset')->assertOk()->getContent();
     expect($html)->toContain('property="og:image" content="')->toContain('/storage/bio-images/share.png')

@@ -156,14 +156,7 @@ class ContentWarningGateTest extends TestCase
 
     public function test_sitemap_excludes_sensitive_and_adult_pages(): void
     {
-        BioPage::create([
-            'user_id' => $this->user->id,
-            'slug' => 'public-clean',
-            'title' => 'Public Bio',
-            'is_published' => true,
-            'allow_indexing' => true,
-            'content_warning' => 'none',
-        ]);
+        indexablePage($this->user, 'public-clean', ['title' => 'Public Bio', 'content_warning' => 'none']);
 
         BioPage::create([
             'user_id' => $this->user->id,

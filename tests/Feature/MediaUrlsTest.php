@@ -28,6 +28,8 @@ function mediaPage(array $attributes = []): BioPage
 }
 
 test('every picture, icon and file on a public page is addressed in full on the asset host', function () {
+    Storage::fake('public');
+    Storage::disk('public')->put('bio-images/og.webp', 'x'); // a share picture that is missing falls back to BioHop's own
     mediaPage([
         'avatar_url' => 'avatars/me.webp', 'cover_image' => '/storage/bio-images/cover.webp', 'favicon' => '/storage/bio-images/fav.png',
         'og_image' => '/storage/bio-images/og.webp', 'header_layout' => 'banner',
@@ -63,6 +65,8 @@ test('every picture, icon and file on a public page is addressed in full on the 
 });
 
 test('the og image falls back to the profile picture and stays absolute', function () {
+    Storage::fake('public');
+    Storage::disk('public')->put('avatars/me.webp', 'x');
     mediaPage(['avatar_url' => 'avatars/me.webp']);
 
     $this->get('/b/media')->assertOk()->assertSee('property="og:image" content="https://bio.hel.test/storage/avatars/me.webp"', false);

@@ -56,11 +56,11 @@ Route::get('/check-slug-public', [HomeController::class, 'checkSlug'])->middlewa
 Route::get('/dashboard', fn () => redirect()->route('bio.index'))->name('dashboard');
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
-// robots.txt is an answer, not a static file, so the Sitemap line carries this install's address. Public bio pages (/b/...) stay open;
+// robots.txt is an answer, not a static file, so the Sitemap line carries this install's address. Public bio pages (/b/...) stay open, but the click redirects (/b/click/: they count a click and lead to the owner's outside link) are closed;
 // the sign-in-only areas are kept out of search.
 Route::get('/robots.txt', fn () => response(
     "User-agent: *\n"
-    ."Disallow: /bio/\nDisallow: /settings\nDisallow: /dashboard\nDisallow: /admin\nDisallow: /auth/\nDisallow: /login\nDisallow: /logout\nDisallow: /internal/\nDisallow: /hop/\nDisallow: /api/\n"
+    ."Disallow: /bio/\nDisallow: /settings\nDisallow: /dashboard\nDisallow: /admin\nDisallow: /auth/\nDisallow: /login\nDisallow: /logout\nDisallow: /internal/\nDisallow: /hop/\nDisallow: /api/\nDisallow: /b/click/\n"
     .'Sitemap: '.route('sitemap')."\n",
     200,
     ['Content-Type' => 'text/plain; charset=UTF-8'],

@@ -98,6 +98,7 @@
             <div>
                 <p class="font-medium text-slate-900 dark:text-white">Search Engine Indexing</p>
                 <p class="text-sm editor-text-muted">Allow search engines to index this page</p>
+                <p class="text-xs editor-text-muted">A page with fewer than {{ \App\Support\BioIndexability::MIN_BLOCKS }} enabled blocks or a description under {{ \App\Support\BioIndexability::MIN_DESCRIPTION_CHARS }} characters stays out of search until it is filled in.</p>
             </div>
             <label class="toggle-switch">
                 <input type="checkbox" x-model="bioPage.allow_indexing" aria-label="Search engine indexing">

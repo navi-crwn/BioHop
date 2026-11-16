@@ -40,7 +40,7 @@ test('abuse:scan unpublishes a spam bio page and records the finding', function 
 
 test('the sitemap lists indexable public bio pages on the public host', function () {
     $owner = User::factory()->create();
-    BioPage::create(['user_id' => $owner->id, 'slug' => 'listed', 'title' => 'L', 'theme' => 'default', 'is_published' => true, 'allow_indexing' => true]);
+    indexablePage($owner, 'listed', ['theme' => 'default']);
     BioPage::create(['user_id' => $owner->id, 'slug' => 'hidden', 'title' => 'H', 'theme' => 'default', 'is_published' => true, 'allow_indexing' => false]);
     $this->get('/sitemap.xml')->assertOk()->assertHeader('Content-Type', 'application/xml')
         ->assertSee('http://localhost/b/listed')->assertDontSee('/b/hidden');

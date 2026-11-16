@@ -103,7 +103,7 @@ test('signed-in screens are noindex, carry no language alternates and are not in
 test('the sitemap lists every own public page once with its alternates, then the indexable bio pages', function () {
     config(['hop.public_url' => 'https://hel.ink']);
     $user = User::factory()->create();
-    BioPage::create(['user_id' => $user->id, 'slug' => 'open-page', 'title' => 'Open', 'is_published' => true]);
+    indexablePage($user, 'open-page');
     BioPage::create(['user_id' => $user->id, 'slug' => 'hidden-page', 'title' => 'Hidden', 'is_published' => true, 'allow_indexing' => false]);
     BioPage::create(['user_id' => $user->id, 'slug' => 'adult-page', 'title' => 'Adult', 'is_published' => true, 'content_warning' => 'adult', 'is_adult_content' => true]);
 

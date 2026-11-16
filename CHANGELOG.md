@@ -4,6 +4,16 @@ All notable changes to BioHop are listed here, written for the people who use it
 
 ## [Unreleased]
 
+### Changed
+
+- **Public bio pages, search engines.** Every public page now names one official address (the lower case address on hel.ink), and link previews use the same address. The upper case address and the address with a slash at the end send visitors on to it. Effect: Google counts one page instead of four copies. Reason: the same page used to open under several addresses and Google had to guess.
+- **Public bio pages, thin pages.** A page with fewer than 3 enabled blocks, a description shorter than 50 characters, or a finding of the automatic abuse check is no longer offered to search engines: it leaves the sitemap and tells search engines not to list it. Anyone with the link can still open it, and it joins the sitemap on its own once it is filled in. Reason: a few empty or promotional pages should not lower how much Google trusts the rest of hel.ink.
+
+### Fixed
+
+- **Link clicks, search engines.** The click addresses of a page (the ones that send visitors to your own links) are now closed to search engines. Effect: crawlers no longer follow them to outside sites. Reason: they only exist to count a click and pass the visitor on.
+- **Public bio pages, link previews.** If the share picture or profile picture of a page is missing from storage, the preview shows the BioHop picture instead of a broken image. Reason: a deleted file left chat and social previews without a picture.
+
 ## [1.5.0] - 2026-11-15 - Manage prices and goals without the editor
 
 ### Added
