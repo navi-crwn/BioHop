@@ -859,5 +859,13 @@
     "This block was changed on the Manage page or in another editor tab. Reload the editor to see the latest values; nothing was saved.": "Этот блок изменили на странице «Управление» или в другой вкладке редактора. Обновите редактор, чтобы увидеть актуальные значения; ничего не сохранено.",
     "Classic": "Классика",
     "Mist": "Дымка",
-    "Sand": "Песок"
+    "Sand": "Песок",
+    "Search engine indexing": "Индексация поисковыми системами",
+    "Off for new pages. Turn it on to let Google and other search engines list this page.": "Для новых страниц выключена. Включите, чтобы Google и другие поисковые системы могли показывать эту страницу.",
+    "A page with fewer than :blocks enabled blocks or a description under :chars characters stays out of search until it is filled in.": "Страница, на которой меньше :blocks включённых блоков или описание короче :chars символов, остаётся вне поиска, пока её не заполнят.",
+    "Pages with adult or sensitive content are not offered to search engines.": "Страницы с контентом для взрослых или чувствительным контентом не передаются поисковым системам.",
+    "Your page is not on Google yet": "Вашей страницы ещё нет в Google",
+    "New bio pages are not listed by Google by default. To turn it on, go to Settings, then Search & sharing, and switch on \"Search engine indexing\".": "Google по умолчанию не показывает новые страницы bio. Чтобы включить, откройте «Настройки», затем «Поиск и публикация» и включите «Индексация поисковыми системами».",
+    "Open SEO settings": "Открыть настройки SEO",
+    "Got it": "Понятно"
 }

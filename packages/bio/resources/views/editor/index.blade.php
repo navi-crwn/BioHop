@@ -18,6 +18,8 @@
         'previewUrl' => route('bio.preview', $bioPage),
         'publicBase' => public_url('b'),
         'socialMax' => \Hop\Bio\Models\BioPage::SOCIAL_MAX,
+        // Set for one request by the pages that create a page: the editor then opens with the "not on Google yet" notice.
+        'indexingNotice' => (bool) session('bio_indexing_notice'),
         // The editor's confirm dialogs (resources/js/dialogs.js): titles and messages in the member's language.
         // Block picker texts that come from the server so they are translated (the rest of the catalogue is in editor.js).
         'blockText' => ['music' => [__('Music'), __('Spotify, SoundCloud, Apple Music or YouTube Music')], 'pay' => [__('Receive payment'), __('A QR code for your bank or wallet')]],
@@ -1154,6 +1156,22 @@
                     <button @click="confirmDiscard()" class="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors">
                         Discard Changes
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    </template>
+    {{-- Shown once, right after a page is created (wizard, plain form, import): new pages are not on Google until the owner says so. --}}
+    <template x-if="indexingNotice">
+    <div class="modal-overlay" style="z-index: 9998;" @click.self="indexingNotice = false">
+        <div class="modal-content" x-modal="indexingNotice" data-modal-close="indexingNotice = false" style="max-width: 440px;" @click.stop>
+            <div class="p-6">
+                <h3 class="text-lg font-semibold editor-text mb-2">{{ __('Your page is not on Google yet') }}</h3>
+                <p class="editor-text-muted mb-5" x-show="!indexingLocked()">{{ __('New bio pages are not listed by Google by default. To turn it on, go to Settings, then Search & sharing, and switch on "Search engine indexing".') }}</p>
+                <p class="editor-text-muted mb-5" x-show="indexingLocked()" x-cloak>{{ __('Pages with adult or sensitive content are not offered to search engines.') }}</p>
+                <div class="flex flex-wrap justify-end gap-3">
+                    <button type="button" @click="indexingNotice = false" class="btn btn-secondary">{{ __('Got it') }}</button>
+                    <button type="button" x-show="!indexingLocked()" @click="openIndexingSettings()" class="btn btn-primary">{{ __('Open SEO settings') }}</button>
                 </div>
             </div>
         </div>

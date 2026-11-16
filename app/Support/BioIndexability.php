@@ -69,8 +69,7 @@ final class BioIndexability
      */
     public static function passes(BioPage $page, ?int $blocks = null, ?bool $flagged = null): bool
     {
-        if (! $page->is_published || ! $page->allow_indexing || $page->is_adult_content
-            || ! in_array($page->content_warning ?: 'none', ['none'], true)) {
+        if (! $page->is_published || ! $page->allow_indexing || $page->indexingLocked()) {
             return false;
         }
         $blocks ??= $page->links()->tap(self::countableBlocks())->count();

@@ -859,5 +859,13 @@
     "This block was changed on the Manage page or in another editor tab. Reload the editor to see the latest values; nothing was saved.": "Este bloco foi alterado na página Gerenciar ou em outra aba do editor. Recarregue o editor para ver os valores mais recentes; nada foi salvo.",
     "Classic": "Clássico",
     "Mist": "Névoa",
-    "Sand": "Areia"
+    "Sand": "Areia",
+    "Search engine indexing": "Indexação por mecanismos de busca",
+    "Off for new pages. Turn it on to let Google and other search engines list this page.": "Desativada em páginas novas. Ative para que o Google e outros mecanismos de busca listem esta página.",
+    "A page with fewer than :blocks enabled blocks or a description under :chars characters stays out of search until it is filled in.": "Uma página com menos de :blocks blocos ativos ou com descrição de menos de :chars caracteres fica fora da busca até ser preenchida.",
+    "Pages with adult or sensitive content are not offered to search engines.": "Páginas com conteúdo adulto ou sensível não são oferecidas aos mecanismos de busca.",
+    "Your page is not on Google yet": "Sua página ainda não está no Google",
+    "New bio pages are not listed by Google by default. To turn it on, go to Settings, then Search & sharing, and switch on \"Search engine indexing\".": "Páginas bio novas não são listadas pelo Google por padrão. Para ativar, vá em Configurações, depois Busca e compartilhamento, e ative \"Indexação por mecanismos de busca\".",
+    "Open SEO settings": "Abrir configurações de SEO",
+    "Got it": "Entendi"
 }

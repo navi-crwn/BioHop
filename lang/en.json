@@ -859,5 +859,13 @@
     "This block was changed on the Manage page or in another editor tab. Reload the editor to see the latest values; nothing was saved.": "This block was changed on the Manage page or in another editor tab. Reload the editor to see the latest values; nothing was saved.",
     "Classic": "Classic",
     "Mist": "Mist",
-    "Sand": "Sand"
+    "Sand": "Sand",
+    "Search engine indexing": "Search engine indexing",
+    "Off for new pages. Turn it on to let Google and other search engines list this page.": "Off for new pages. Turn it on to let Google and other search engines list this page.",
+    "A page with fewer than :blocks enabled blocks or a description under :chars characters stays out of search until it is filled in.": "A page with fewer than :blocks enabled blocks or a description under :chars characters stays out of search until it is filled in.",
+    "Pages with adult or sensitive content are not offered to search engines.": "Pages with adult or sensitive content are not offered to search engines.",
+    "Your page is not on Google yet": "Your page is not on Google yet",
+    "New bio pages are not listed by Google by default. To turn it on, go to Settings, then Search & sharing, and switch on \"Search engine indexing\".": "New bio pages are not listed by Google by default. To turn it on, go to Settings, then Search & sharing, and switch on \"Search engine indexing\".",
+    "Open SEO settings": "Open SEO settings",
+    "Got it": "Got it"
 }

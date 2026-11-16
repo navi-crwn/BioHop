@@ -80,6 +80,7 @@ class OfficialPage extends Command
             'seo_description' => 'LinkHop, BioHop, PixelHop, NoteHop, FileHop and PayHop: short links, bio pages, images, private notes, file conversion and payment QR codes with one free HOP ID.',
             'is_published' => true,
             'is_public' => true,
+            'allow_indexing' => true, // the family's own page: new pages start out of search, this one is meant to be found
             'password_enabled' => false,
             'content_warning' => 'none',
         ];

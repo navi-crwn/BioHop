@@ -132,6 +132,8 @@ window.bioEditorV2 = function() {
         autosave: true,
         copied: false, // "Copy page link" just succeeded; the button shows a check for a moment
         previewOpen: false,
+        // The one-time notice after a page is created: it is not offered to search engines until the owner turns that on.
+        indexingNotice: !!CONFIG.indexingNotice,
         showDiscardModal: false,
         announcement: '',
         pendingNavigation: null,
@@ -301,6 +303,19 @@ window.bioEditorV2 = function() {
             // A block form always opens on its first section.
             this.$watch(() => this.editingBlock?.id, () => { this.blockTab = 'content'; });
             this.$watch('previewOpen', open => { document.documentElement.style.overflow = open ? 'hidden' : ''; });
+            // A page that becomes adult or sensitive in the editor goes out of search at once (the server refuses it otherwise).
+            this.$watch(() => this.indexingLocked(), locked => { if (locked) this.bioPage.allow_indexing = false; });
+        },
+        // Adult and sensitive pages cannot be offered to search engines.
+        indexingLocked() {
+            const warning = this.bioPage.content_warning || (this.bioPage.is_adult_content ? 'adult' : 'none');
+            return !!this.bioPage.is_adult_content || warning !== 'none';
+        },
+        // "Open SEO settings" in the notice: the Settings tab, on its search group, where the switch is.
+        openIndexingSettings() {
+            this.indexingNotice = false;
+            this.activeTab = 'settings';
+            this.$nextTick(() => window.dispatchEvent(new CustomEvent('settings-section', { detail: 'search' })));
         },
         // hel.ink and the HOP apps (note, pixel, link, bio, ...): kept as typed, never wrapped in a short link.
         isFamilyUrl(url) {
