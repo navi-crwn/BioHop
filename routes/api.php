@@ -20,8 +20,8 @@ Route::middleware(['hop.signed', 'throttle:600,1,hop', 'hop.admin_client'])->pre
     Route::get('/content/{type}/{id}', [HopBioController::class, 'show'])->where(['type' => 'page|bio|block', 'id' => '[0-9]+']);
     Route::post('/content/{type}/{id}/actions', [HopBioController::class, 'act'])->where(['type' => 'page|bio|block', 'id' => '[0-9]+']);
     Route::get('/reports', [HopBioController::class, 'reports']);
-    Route::post('/reports/{kind}/{id}/actions', [HopBioController::class, 'reportAct'])->where(['kind' => 'flag|report', 'id' => '[0-9]+']);
-    Route::post('/reports/{id}/actions', [HopBioController::class, 'reportAct'])->where(['id' => '[0-9]+']);
+    Route::post('/reports/{kind}/{id}/actions', [HopBioController::class, 'reportAct'])->where(['kind' => 'flag|report|bio_report', 'id' => '(?:report-)?[0-9]+']);
+    Route::post('/reports/{id}/actions', [HopBioController::class, 'reportAct'])->where(['id' => '(?:report-)?[0-9]+']);
     Route::get('/settings', [HopBioController::class, 'settings']);
     Route::put('/settings', [HopBioController::class, 'saveSettings']);
     Route::get('/search', [HopBioController::class, 'search']);

@@ -144,6 +144,8 @@ return new class extends Migration
             $table->text('reason')->nullable();
             $table->string('ip_address', 45)->nullable();
             $table->string('status', 20)->default('open')->index();
+            // Added to the shared table by LinkHop's migration (2026_11_16_000001): which app the report is about.
+            $table->string('source', 20)->default('linkhop')->index();
             $table->timestamps();
         });
         Schema::create('apps', function (Blueprint $table) {
