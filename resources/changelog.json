@@ -34,6 +34,11 @@
           "type": "fixed",
           "where": "Public bio pages, link previews",
           "text": "If the share picture or profile picture of a page is missing from storage, the preview shows the BioHop picture instead of a broken image. Reason: a deleted file left chat and social previews without a picture."
+        },
+        {
+          "type": "fixed",
+          "where": "Public bio pages, description",
+          "text": "A page whose search description was left empty now shows its bio text as the description instead of an empty one. Reason: the empty description gave search results and previews no text."
         }
       ]
     },

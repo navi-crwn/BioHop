@@ -15,6 +15,7 @@ All notable changes to BioHop are listed here, written for the people who use it
 
 - **Link clicks, search engines.** The click addresses of a page (the ones that send visitors to your own links) are now closed to search engines. Effect: crawlers no longer follow them to outside sites. Reason: they only exist to count a click and pass the visitor on.
 - **Public bio pages, link previews.** If the share picture or profile picture of a page is missing from storage, the preview shows the BioHop picture instead of a broken image. Reason: a deleted file left chat and social previews without a picture.
+- **Public bio pages, description.** A page whose search description was left empty now shows its bio text as the description instead of an empty one. Reason: the empty description gave search results and previews no text.
 
 ## [1.5.0] - 2026-11-15 - Manage prices and goals without the editor
 

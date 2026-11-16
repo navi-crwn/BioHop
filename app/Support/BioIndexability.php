@@ -47,14 +47,25 @@ final class BioIndexability
             ->pluck('subject_id')->all();
     }
 
+    /** Whether the abuse scan holds a finding against this page that an admin has not dismissed (one cheap query). */
+    public static function isFlagged(BioPage $page): bool
+    {
+        return AbuseFlag::where('subject_type', 'bio_page')->where('subject_id', $page->id)
+            ->where('status', '!=', AbuseFlag::STATUS_DISMISSED)->exists();
+    }
+
+    /**
+     * The description a page prints (meta description and og:description) and the quality bar measures: the SEO
+     * description, else the bio text, else a stock line. An empty or blank SEO description counts as missing.
+     */
     public static function description(BioPage $page): string
     {
-        return trim((string) ($page->seo_description ?: $page->bio));
+        return trim((string) $page->seo_description) ?: (trim((string) $page->bio) ?: 'Check out my links');
     }
 
     /**
      * @param  int|null  $blocks  countable blocks, when the caller already counted them
-     * @param  bool|null  $flagged  whether the abuse scan flagged the page, when the caller already knows
+     * @param  bool|null  $flagged  whether the abuse scan flagged the page, when the caller already knows (the sitemap loads all flags once)
      */
     public static function passes(BioPage $page, ?int $blocks = null, ?bool $flagged = null): bool
     {
@@ -63,7 +74,7 @@ final class BioIndexability
             return false;
         }
         $blocks ??= $page->links()->tap(self::countableBlocks())->count();
-        $flagged ??= in_array($page->id, self::flaggedPageIds(), true);
+        $flagged ??= self::isFlagged($page);
 
         return $blocks >= self::MIN_BLOCKS
             && mb_strlen(self::description($page)) >= self::MIN_DESCRIPTION_CHARS

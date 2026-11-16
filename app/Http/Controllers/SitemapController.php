@@ -28,14 +28,23 @@ class SitemapController extends Controller
         }
 
         $flagged = BioIndexability::flaggedPageIds();
-        $bioPages = BioIndexability::scopeAllowed(BioPage::query())
+        // The bar is checked while walking the pages, newest first, until 1000 indexable ones are found: thin pages
+        // must not use up the slots that good pages need.
+        // Public bio pages listed at most: hop.sitemap_bio_pages (default 1000).
+        $bioPages = collect();
+        BioIndexability::scopeAllowed(BioPage::query())
             ->whereHas('user', fn ($q) => $q->where('status', '!=', User::STATUS_SUSPENDED))
             ->withCount(['links as blocks_count' => BioIndexability::countableBlocks()])
-            ->latest('updated_at')
-            ->limit(1000)
-            ->get(['id', 'slug', 'bio', 'seo_description', 'is_published', 'allow_indexing', 'is_adult_content', 'content_warning', 'updated_at'])
-            // The quality bar is shared with the page's own robots tag (BioIndexability): thin pages stay out of the sitemap.
-            ->filter(fn (BioPage $p) => BioIndexability::passes($p, $p->blocks_count, in_array($p->id, $flagged, true)));
+            ->latest('updated_at')->latest('id')
+            ->select(['id', 'slug', 'bio', 'seo_description', 'is_published', 'allow_indexing', 'is_adult_content', 'content_warning', 'updated_at'])
+            ->lazy(200)
+            ->each(function (BioPage $p) use ($bioPages, $flagged) {
+                if (BioIndexability::passes($p, $p->blocks_count, in_array($p->id, $flagged, true))) {
+                    $bioPages->push($p);
+                }
+
+                return $bioPages->count() < (int) config('hop.sitemap_bio_pages', 1000);
+            });
         foreach ($bioPages as $bio) {
             $xml .= '  <url>';
             $xml .= '<loc>'.htmlspecialchars(public_url('b/'.strtolower($bio->slug))).'</loc>';

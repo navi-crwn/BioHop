@@ -22,7 +22,7 @@
         <meta name="robots" content="noindex">
     @endif
     <title>{{ $bioPage->seo_title ?? $bioPage->title }} | BioHop</title>
-    <meta name="description" content="{{ $bioPage->seo_description ?? $bioPage->bio ?? 'Check out my links' }}">
+    <meta name="description" content="{{ \App\Support\BioIndexability::description($bioPage) }}">
     @php
         // The one address of this page (lower case, on the public host) and whether search engines may index it.
         $canonicalUrl = public_url('b/'.strtolower($bioPage->slug));
@@ -51,7 +51,7 @@
     @if($bioPage->avatar_url)<link rel="apple-touch-icon" href="{{ bio_media_url($bioPage->avatar_url) }}">@endif
     <meta name="apple-mobile-web-app-title" content="{{ \Illuminate\Support\Str::limit($bioPage->title, 12, '') }}">
     <meta property="og:title" content="{{ $bioPage->seo_title ?? $bioPage->title }} | BioHop">
-    <meta property="og:description" content="{{ $bioPage->seo_description ?? $bioPage->bio ?? 'Check out my links' }}">
+    <meta property="og:description" content="{{ \App\Support\BioIndexability::description($bioPage) }}">
     <meta property="og:image" content="{{ $ogImage }}">
     <meta name="twitter:card" content="summary_large_image">
     <meta property="og:url" content="{{ $canonicalUrl }}">

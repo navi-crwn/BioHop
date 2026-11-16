@@ -55,9 +55,9 @@ class PublicBioController extends Controller
 
     public function show(Request $request, string $slug)
     {
-        // One address per page: lower case, no trailing slash (the canonical link names it). Only for reading; the
+        // One address per page: lower case, no trailing slash (the canonical link names it). Only for reading (GET, HEAD); the
         // password and age gates post to the address they were shown on. Relative, so the visitor stays on the host they used.
-        if ($request->isMethod('GET') && ($slug !== strtolower($slug) || str_ends_with((string) parse_url($request->getRequestUri(), PHP_URL_PATH), '/'))) {
+        if (in_array($request->getMethod(), ['GET', 'HEAD'], true) && ($slug !== strtolower($slug) || str_ends_with((string) parse_url($request->getRequestUri(), PHP_URL_PATH), '/'))) {
             $query = $request->getQueryString();
 
             return new RedirectResponse('/b/'.strtolower($slug).($query !== null ? '?'.$query : ''), 301);

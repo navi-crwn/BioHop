@@ -7,6 +7,7 @@ use Hop\Bio\Models\BioLink;
 use Hop\Bio\Models\BioPage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 // Search engines and public bio pages: one canonical address, a quality bar shared by the sitemap and the page's robots
@@ -135,4 +136,47 @@ test('a share picture that is gone from storage falls back to the BioHop picture
     seoPage('farpic', 3, ['avatar_url' => 'https://img.example/a.png']);
     $this->get('/b/farpic')->assertOk()->assertSee('property="og:image" content="https://img.example/a.png"', false);
     expect(is_file(public_path('images/brand/og.png')))->toBeTrue();
+});
+
+test('a page render asks the abuse table about this page only, not for every finding', function () {
+    seoFlag(seoPage('someoneelse'), AbuseFlag::STATUS_OPEN);
+    $page = seoPage('lookedat');
+    DB::enableQueryLog();
+    $this->get('/b/lookedat')->assertOk();
+    $flagQueries = collect(DB::getQueryLog())->pluck('query')->filter(fn ($q) => str_contains($q, 'abuse_flags'));
+    expect($flagQueries)->toHaveCount(1)->and($flagQueries->first())->toContain('subject_id');
+    expect(BioIndexability::isFlagged($page))->toBeFalse();
+});
+
+test('thin pages do not use up the places that good pages need in the sitemap', function () {
+    config(['hop.sitemap_bio_pages' => 2]);
+    foreach (['goodold1', 'goodold2'] as $slug) {
+        seoPage($slug)->forceFill(['updated_at' => now()->subDays(5)])->saveQuietly();
+    }
+    foreach (['thinnew1', 'thinnew2', 'thinnew3'] as $slug) {
+        seoPage($slug, 1);
+    }
+    $this->get('/sitemap.xml')->assertOk()
+        ->assertSee('/b/goodold1')->assertSee('/b/goodold2')->assertDontSee('/b/thinnew');
+});
+
+test('a HEAD request to a non-canonical address is redirected like a GET', function () {
+    seoPage('headpage');
+    $this->call('HEAD', '/b/HEADPAGE')->assertStatus(301)->assertRedirect('/b/headpage');
+    $res = app()->handle(Request::create('/b/headpage/', 'HEAD'));
+    expect($res->getStatusCode())->toBe(301)->and($res->headers->get('Location'))->toBe('/b/headpage');
+});
+
+test('the page prints the same description the quality bar measures, also when the SEO description is empty', function () {
+    seoPage('blankseo', 3, ['seo_description' => '', 'bio' => seoDescription()]);
+    $html = $this->get('/b/blankseo')->assertOk()->getContent();
+    expect($html)->toContain('<meta name="description" content="'.seoDescription().'">')
+        ->and($html)->toContain('<meta property="og:description" content="'.seoDescription().'">')
+        ->and($html)->not->toContain('name="robots"');
+    $this->get('/sitemap.xml')->assertSee('/b/blankseo');
+
+    seoPage('nodesc', 3, ['seo_description' => '', 'bio' => 'Short']);
+    $html = $this->get('/b/nodesc')->assertOk()->getContent();
+    expect($html)->toContain('<meta name="description" content="Short">')->toContain('<meta name="robots" content="noindex">');
+    $this->get('/sitemap.xml')->assertDontSee('/b/nodesc');
 });
