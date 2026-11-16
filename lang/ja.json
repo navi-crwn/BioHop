@@ -856,5 +856,13 @@
     "This block was changed on the Manage page or in another editor tab. Reload the editor to see the latest values; nothing was saved.": "このブロックは「管理」ページまたは別のエディタのタブで変更されました。エディタを再読み込みして最新の値を確認してください。今回は何も保存されていません。",
     "Classic": "クラシック",
     "Mist": "ミスト",
-    "Sand": "サンド"
+    "Sand": "サンド",
+    "Search engine indexing": "検索エンジンへのインデックス",
+    "Off for new pages. Turn it on to let Google and other search engines list this page.": "新しいページではオフです。オンにすると、Google などの検索エンジンがこのページを掲載できます。",
+    "A page with fewer than :blocks enabled blocks or a description under :chars characters stays out of search until it is filled in.": "有効なブロックが :blocks 個未満、または説明が :chars 文字未満のページは、内容を充実させるまで検索に表示されません。",
+    "Pages with adult or sensitive content are not offered to search engines.": "アダルトまたはセンシティブな内容のページは、検索エンジンに提供されません。",
+    "Your page is not on Google yet": "このページはまだ Google に載っていません",
+    "New bio pages are not listed by Google by default. To turn it on, go to Settings, then Search & sharing, and switch on \"Search engine indexing\".": "新しい bio ページは、既定では Google に掲載されません。オンにするには、「設定」の「検索と共有」で「検索エンジンへのインデックス」をオンにしてください。",
+    "Open SEO settings": "SEO 設定を開く",
+    "Got it": "わかりました"
 }

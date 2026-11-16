@@ -67,7 +67,7 @@ Legend: **have** = in BioHop today (feat/home-p8); **partly** = a piece exists; 
 | 42 | A/B testing | build (M) | Two titles/colours per block, visitor bucket by keyed hash, click counts per variant. |
 | 43 | Multiple pages per account | have | Up to the page limit; dashboard home lists them. |
 | 44 | Team roles | later | HOP ID would need shared workspaces; a BioHop-only "editor" invitation is possible but belongs in the hub's account model. |
-| 45 | SEO and Open Graph | have | SEO title, description, noindex; OG image is the avatar. A custom OG image upload: small. |
+| 45 | SEO and Open Graph | have | SEO title, description, an indexing switch (off for new pages, never on for adult or sensitive pages); OG image is the avatar. A custom OG image upload: small. |
 | 46 | Phishing/malware/porn scanner | have | hop/safety on every address (blacklist, patterns); periodic re-check of stored links: build (S) with the checker from #55. |
 | 47 | Anti-bot and click fraud | have | Rate limits on click and shorten, Turnstile on public forms, keyed visitor hash. |
 | 48 | Edge caching, fast SSR | partly | Pages are server-rendered Blade with no CDN scripts; the official page is cached. Full-page cache per slug (invalidate on save): build (S). |

@@ -856,5 +856,13 @@
     "This block was changed on the Manage page or in another editor tab. Reload the editor to see the latest values; nothing was saved.": "Dieser Block wurde auf der Seite „Verwalten“ oder in einem anderen Editor-Tab geändert. Lade den Editor neu, um die aktuellen Werte zu sehen. Es wurde nichts gespeichert.",
     "Classic": "Klassisch",
     "Mist": "Dunst",
-    "Sand": "Sand"
+    "Sand": "Sand",
+    "Search engine indexing": "Indexierung durch Suchmaschinen",
+    "Off for new pages. Turn it on to let Google and other search engines list this page.": "Bei neuen Seiten ausgeschaltet. Schalte sie ein, damit Google und andere Suchmaschinen diese Seite listen dürfen.",
+    "A page with fewer than :blocks enabled blocks or a description under :chars characters stays out of search until it is filled in.": "Eine Seite mit weniger als :blocks aktiven Blöcken oder einer Beschreibung unter :chars Zeichen bleibt aus der Suche, bis sie ausgefüllt ist.",
+    "Pages with adult or sensitive content are not offered to search engines.": "Seiten mit nicht jugendfreien oder sensiblen Inhalten werden Suchmaschinen nicht angeboten.",
+    "Your page is not on Google yet": "Deine Seite ist noch nicht bei Google",
+    "New bio pages are not listed by Google by default. To turn it on, go to Settings, then Search & sharing, and switch on \"Search engine indexing\".": "Neue Bio-Seiten werden von Google standardmäßig nicht gelistet. Zum Einschalten gehe zu Einstellungen, dann Suche & Teilen, und schalte „Indexierung durch Suchmaschinen“ ein.",
+    "Open SEO settings": "SEO-Einstellungen öffnen",
+    "Got it": "Verstanden"
 }

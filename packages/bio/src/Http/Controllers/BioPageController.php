@@ -221,6 +221,8 @@ class BioPageController extends Controller
             $bioPage->links()->create(['type' => 'link', 'title' => $link['title'], 'url' => $link['url'], 'brand' => $link['brand'], 'order' => $i, 'is_active' => true]);
         }
 
+        session()->flash('bio_indexing_notice', true);
+
         return response()->json(['success' => true, 'redirect' => route('bio.edit', $bioPage), 'url' => public_url('b/'.$bioPage->slug)]);
     }
 
@@ -301,7 +303,7 @@ class BioPageController extends Controller
             $message .= ' '.__(':count links were left out because their addresses are blocked here.', ['count' => $skipped]);
         }
 
-        return redirect()->route('bio.edit', $bioPage)->with('success', $message);
+        return redirect()->route('bio.edit', $bioPage)->with('success', $message)->with('bio_indexing_notice', true);
     }
 
     /** The brand whose placeholder host matches the address, so "youtube.com/@x" becomes a YouTube button. */
@@ -505,7 +507,7 @@ class BioPageController extends Controller
             'qr_settings' => $qrSettings,
         ]);
 
-        return redirect()->route('bio.edit', $bioPage)->with('success', 'Bio page created successfully!');
+        return redirect()->route('bio.edit', $bioPage)->with('success', 'Bio page created successfully!')->with('bio_indexing_notice', true);
     }
 
     public function edit(BioPage $bioPage)
@@ -654,6 +656,17 @@ class BioPageController extends Controller
             $validated['is_adult_content'] = ($validated['content_warning'] === 'adult');
         } elseif (array_key_exists('is_adult_content', $validated)) {
             $validated['content_warning'] = $validated['is_adult_content'] ? 'adult' : 'none';
+        }
+        // Adult and sensitive pages are never offered to search engines: indexing cannot be switched on for them. A refused
+        // switch says so; a page that became adult or sensitive in this very save (or already was, and still says yes from
+        // the days when the default was yes) is simply stored as "no".
+        $locked = ($validated['is_adult_content'] ?? $bioPage->is_adult_content)
+            || ($validated['content_warning'] ?? ($bioPage->content_warning ?: 'none')) !== 'none';
+        if ($locked && (! empty($validated['allow_indexing']) || $bioPage->allow_indexing)) {
+            if (! empty($validated['allow_indexing']) && ! $bioPage->allow_indexing) {
+                throw ValidationException::withMessages(['allow_indexing' => __('Pages with adult or sensitive content are not offered to search engines.')]);
+            }
+            $validated['allow_indexing'] = false;
         }
         if (array_key_exists('status_until', $validated)) {
             $validated['status_until'] = ! empty($validated['status_until']) ? Carbon::parse($validated['status_until'])->setTimezone(config('app.timezone')) : null;
@@ -822,6 +835,7 @@ class BioPageController extends Controller
         $newBioPage = $bioPage->replicate(['view_count']);
         $newBioPage->slug = $newSlug;
         $newBioPage->title = $bioPage->title.' (Copy)';
+        $newBioPage->allow_indexing = false; // a copy is a new page: indexing is opt-in, and two pages with one text should not both be offered
         $newBioPage->save();
         foreach ($bioPage->links as $link) {
             $newLink = $link->replicate(['click_count', 'public_id']);
